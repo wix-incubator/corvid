@@ -1,5 +1,5 @@
 describe('main flow', () => {
-    describe('init', () => {
+    describe('clone', () => {
         it('should open browser with correct URL', () => {
             // expect(true).toBe(false)
         })
