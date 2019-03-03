@@ -1,0 +1,14 @@
+{
+    "name": "my-awesome-site",
+    "scripts": {
+      "start": "wix-code edit ./src"
+    },
+    "dependencies": {
+      "wix-code": "^1.18.3"
+    },
+    "devDependencies": {
+      "eslint": "^5.14.0",
+      "eslint-config-wix-code": "^1.0.0"
+    }
+  }
+  
