@@ -1,4 +1,5 @@
 {
     "plugins": ["lodash","jest"],
-    "extends": ["plugin:jest/recommended"]
+    "extends": ["plugin:jest/recommended"],
+    "parser": "babel-eslint"
 }
