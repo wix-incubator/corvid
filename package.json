@@ -1,0 +1,14 @@
+{
+  "name": "@wix/wix-code-dev-experience",
+  "private": true,
+  "repository": {
+		"type": "git",
+		"url": "git+https://github.com/wix-private/wix-code-dev-experience.git"
+  },
+  "scripts": {
+	},
+  "devDependencies": {
+    "prettier": "1.12.0",
+    "lerna": "^3.4.3"
+  }
+}
