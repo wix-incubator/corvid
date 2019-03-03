@@ -26,16 +26,23 @@
     }
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "lodash": "^4.17.11",
+    "socket.io": "^2.2.0",
     "express": "^4.16.4"
   },
   "devDependencies": {
+    "@wix/wix-eventually": "^1.0.454",
+    "babel-eslint": "^10.0.1",
     "eslint": "^4.19.1",
     "eslint-plugin-jest": "^22.3.0",
-    "nodemon": "^1.18.10",
-    "jest": "^24.1.0"
+    "jest": "^24.1.0",
+    "nodemon": "^1.18.10"
   },
   "jest": {
     "verbose": true,
-    "testMatch": ["**/test/**/*.+(e2e|spec|unit).js"]
+    "testMatch": [
+      "**/test/**/*.+(e2e|spec|unit).js"
+    ]
   }
 }
