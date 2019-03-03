@@ -1,7 +1,9 @@
 {
   "packages": [
     "wix-code-cli",
-    "wix-code-local-server"
+    "wix-code-local-server",
+    "wix-code-site-transformation",
+    "wix-code-site-files"
   ],
   "version": "independent",
   "command": {
