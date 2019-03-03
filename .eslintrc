@@ -1,0 +1,4 @@
+{
+    "plugins": ["lodash","jest"],
+    "extends": ["plugin:jest/recommended"]
+}
