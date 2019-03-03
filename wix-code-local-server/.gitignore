@@ -1,0 +1,14 @@
+### Node template
+
+# Dependency directories
+node_modules
+dist
+
+# Optional npm cache directory
+.npm
+
+
+# Mac's .DS_Store
+.DS_Store
+
+package-lock.json
