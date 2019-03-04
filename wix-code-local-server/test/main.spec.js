@@ -1,85 +1,79 @@
-const io = require('socket.io-client');
 const eventually = require('@wix/wix-eventually')
-const LocalServer = require('../src/server');
-
-const LOCAL_SERVER_PORT = 3333
-const LOCAL_SERVER_URL = `http://localhost:${LOCAL_SERVER_PORT}`;
+const {localServerCreator} = require('../src/server')
+const {fakeEditorCreator} = require('@wix/fake-santa-editor')
 
 let server
-let socket
-beforeAll((done) => {
-  server = new LocalServer(LOCAL_SERVER_PORT, {version: 8})
-  server.initIOEvents()
-  server.start()
+beforeAll(async (done) => {
+  server = await localServerCreator()
   done()
 })
 
-afterAll(async (done) => {
-  server.close()
-  done()
+afterAll(() => {
+  server.destroy()
 })
 
-
-
-beforeEach((done) => {
-  socket = io.connect(LOCAL_SERVER_URL, {
-    'reconnection delay': 0,
-    'reopen delay': 0,
-    'force new connection': true,
-    transports: ['websocket'],
-  })
-  socket.on('connect', () => {
-    done()
-  })
-})
-
-afterEach((done) => {
-  // Cleanup
-  if (socket.connected) {
-    socket.disconnect()
-  }
-  done()
-})
-
-//todo:: handle multiple sockets to one server, 
 describe('local server', () => {
-  it("should connect to socket", () => {
-    expect(socket.connected).toBe(true)
-  })
-  it("should return local server version", (done) => {
-    socket.emit('GET_VERSION', (version) => {
-      expect(version).toBe(8)
-      done()
-    })
-  })
-  it("should return local server status (isCloned <=> edit mode)", (done) => {
-    socket.emit('SHOULD_LOAD_OR_CLONE_SITE', (isCloned) => {
-      expect(isCloned).toBe(true)
-      done()
-    })
+  it("should connect to socket", async () => {
+    const fakeEditor = await fakeEditorCreator({}, server.getPort())
+    expect(fakeEditor.isConnected()).toBe(true)
+    fakeEditor.close()
   })
   it("should not connect new socket if old one is still connected", async () => {
-    // something strange here
-    const socket2 = io.connect(LOCAL_SERVER_URL, {
-      'reconnection delay': 0,
-      'reopen delay': 0,
-      transports: ['websocket'],
-    })
+    const fakeEditor1 = await fakeEditorCreator({}, server.getPort())
+    const fakeEditor2 = await fakeEditorCreator({}, server.getPort())
     await eventually(() => {
-      expect(socket2.connected).toBe(false)
-      expect(socket.connected).toBe(true)
-      socket2.disconnect()
+      expect(fakeEditor1.isConnected()).toBe(true)
+      expect(fakeEditor2.isConnected()).toBe(false)
+    })
+    fakeEditor1.close()
+    fakeEditor2.close()
+  })
+  it("should get local server document (pages and renderedModel)", async (done)=> {
+    const fakeEditor = await fakeEditorCreator({}, server.getPort())
+    fakeEditor.getDocument(document => {
+      expect(document).toEqual({})
+      fakeEditor.close()
+      done()
     })
   })
-  // it("should return local server documents (pages and renderedModel)", ()=> {
-  //     expect("test").toBe("test")
-  // })
-  // it("should update local server documents", ()=> {
-  //     expect("test").toBe("test")
-  // })
-  // it("should return local server code files", ()=> {
-  //     expect("test").toBe("test")
-  // })
+//   it("should NOT update local server, if the document (pages and renderedModel) got modify and save was not clicked", async (done)=> {
+//     const fakeEditor = await fakeEditorCreator({}, server.getPort())
+//     fakeEditor.modifyDocument({}, document => {
+//       expect(document).toEqual({})
+//       fakeEditor.close()
+//       done()
+//     })
+//   })
+//   it("should update local server, if the document (pages and renderedModel) got modify and save was clicked", async (done)=> {
+//     const fakeEditor = await fakeEditorCreator({}, server.getPort())
+//     fakeEditor.modifyCode({}, document => {
+//       expect(document).notToEqual({})
+//       fakeEditor.close()
+//       done()
+//     })
+//   })
+
+//   it("should update local server, if the document (pages and renderedModel) got modify and save was clicked", async (done)=> {
+//     const fakeEditor = await fakeEditorCreator({}, server.getPort())
+//     fakeEditor.modifyDocument({}, document => {
+//       expect(document).notToEqual({})
+//       fakeEditor.close()
+//       done()
+//     })
+//   })
+//   it("should update local code files and override document when save is clicked", ()=> {
+//     const fakeEditor = await fakeEditorCreator({}, server.getPort())
+//     fakeEditor.modifyDocument({}, document => {
+//         fakeEditor.modifyCode({}, codeChanges => {
+//             fakeEditor.save(() => {
+//                 expect(document).notToEqual({})
+//                 expect(codeChanges).notToEqual({})
+//                 fakeEditor.close()
+//                 done()
+//             })
+//         })
+//     })
+//   })
   // it("should apply code changes", ()=> {
   //     expect("test").toBe("test")
   // })

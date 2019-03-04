@@ -1,4 +1,2 @@
-const LocalServer = require('./server')
-const server = new LocalServer()
-server.initIOEvents()
-server.start()
+const {localServerCreator} = require('./server')
+const server = localServerCreator()

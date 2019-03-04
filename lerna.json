@@ -3,7 +3,9 @@
     "wix-code-cli",
     "wix-code-local-server",
     "wix-code-site-transformation",
-    "wix-code-site-files"
+    "wix-code-site-files",
+    "fake-santa-editor",
+    "wix-code-common"
   ],
   "version": "independent",
   "command": {
@@ -17,6 +19,6 @@
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-prettier": "^2.4.0",
-    "eslint-plugin-lodash": "^2.5.0"
+    "@wix/eslint-plugin-lodash": "^2.5.0"
   }
 }

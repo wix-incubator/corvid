@@ -1,13 +1,13 @@
 {
-  "name": "@wix/wix-code-local-server",
+  "name": "@wix/wix-code-common",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
   "scripts": {
     "build": "echo \"Error: no build specified\" && exit 1",
-    "start": "nodemon ./src/index.js localhost 8080",
+    "start": "echo \"Error: no start specified\" && exit 1",
     "lint": "echo \"Error: no lint specified\" && exit 1",
-    "test": "jest",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "precommit": "lint-staged"
   },
   "publishConfig": {
@@ -25,27 +25,8 @@
       "*.{js,jsx}": "eslint --cache --format codeframe --ext .js,.jsx"
     }
   },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.16.4",
-    "get-port": "^4.2.0",
-    "lodash": "^4.17.11",
-    "socket.io": "^2.2.0",
-    "@wix/wix-code-common": "*"
-  },
   "devDependencies": {
-    "@wix/wix-eventually": "^1.0.454",
-    "@wix/fake-santa-editor": "*",
-    "babel-eslint": "^10.0.1",
-    "eslint": "^4.19.1",
     "eslint-plugin-jest": "^22.3.0",
-    "jest": "^24.1.0",
-    "nodemon": "^1.18.10"
-  },
-  "jest": {
-    "verbose": true,
-    "testMatch": [
-      "**/test/**/*.+(e2e|spec|unit).js"
-    ]
+    "jest": "^24.1.0"
   }
 }
