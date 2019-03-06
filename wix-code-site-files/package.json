@@ -26,9 +26,12 @@
     }
   },
   "devDependencies": {
+    "@wix/wix-code-test-data": "*",
+    "@wix/wix-eventually": "^1.0.454",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.15.1",
     "eslint-plugin-jest": "^22.3.0",
     "jest": "^24.1.0",
-    "@wix/wix-eventually": "^1.0.454",
     "rimraf": "^2.6.3"
   },
   "dependencies": {
