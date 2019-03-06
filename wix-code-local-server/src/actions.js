@@ -1,30 +1,21 @@
 module.exports = {
-    getVersion() {
-        //todo
-        return 8
+    isCloneMode(driver) {
+        return driver.isCloneMode()
     },
-    isCloned() {
-        //todo
-        return true
-    },
-    getDocument() {
+    getDocument(driver, data) {
         //todo
         return {}
     },
-    overrideDocument(data){
+    overrideDocument(driver, data) {
         //todo
         return data
     },
-    getCode(){
+    getCode(driver, data) {
         //todo
         return {}
     },
-    updateCode(data){
+    updateCode(driver, data) {
         //todo
         return data
-    },
-    isCloneMode(){
-        //todo
-        return true
     }
 }
