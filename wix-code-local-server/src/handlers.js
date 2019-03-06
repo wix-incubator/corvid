@@ -5,7 +5,7 @@ const handlerWrapper = (driver, requestPayload, doRequest, callback) => {
         const response = doRequest(driver, requestPayload)
         callback(null, response)
     } catch (e) {
-        callback(e)
+        callback(e.message)
     }
 }
 

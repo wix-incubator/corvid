@@ -41,10 +41,11 @@ describe('local server', () => {
         it('should responsed true when when editor sending message isCloneMode', async done => {
             const fakeEditor = await fakeEditorCreator({}, server.getPort())
             fakeEditor.isCloneMode(responsePayload => {
-                expect(responsePayload).toEqual(true)
-                fakeEditor.close()
-                done()
-            })
+                    expect(responsePayload).toEqual(true)
+                    fakeEditor.close()
+                    done()
+                }
+            )
         })
     })
     describe('is in edit mode', async () => {

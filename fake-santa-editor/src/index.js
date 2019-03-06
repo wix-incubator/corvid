@@ -20,13 +20,16 @@ const connectToLocalServer = (port) => {
 
 const isConnected = (socket) => !! _.get(socket, 'connected')
 
-const wrapCalbback = (callback) => (
+const wrapCalbback = (callback, handleError) => (
     (error, responsePayload) => {
-        if (error) throw new Error(error)
-        callback(responsePayload)
+        if (error) handleError(error)
+        else callback(responsePayload)
     }
 )
-const emit = (socket, requestType, payload, callback) => socket.emit(requestType, payload, wrapCalbback(callback))
+const defaultErrorHandler = err => console.log(new Error(err))
+const emit = (socket, requestType, payload, callback, handleError = defaultErrorHandler) => {
+    socket.emit(requestType, payload, wrapCalbback(callback, handleError))
+}
 const close = (socket) => {
     if(socket && socket.connected) {
         socket.disconnect()
@@ -34,11 +37,11 @@ const close = (socket) => {
 }
 
 // fake editor operations
-const isCloneMode = (socket, callback) => emit(socket, socketActions.IS_CLONE_MODE, undefined, callback)
-const getDocument = (socket, callback) => emit(socket, socketActions.GET_DOCUMENT, undefined, callback)
-const overrideDocument = (socket, data, callback) => emit(socket, socketActions.OVERRIDE_DOCUMENT, data, callback)
-const getCode = (socket, callback) => emit(socket, socketActions.GET_CODE, undefined, callback)
-const updateCode = (socket, data, callback) => emit(socket, socketActions.UPDATE_CODE, data, callback)
+const isCloneMode = (socket, callback, handleError) => emit(socket, socketActions.IS_CLONE_MODE, undefined, callback, handleError)
+const getDocument = (socket, callback, handleError) => emit(socket, socketActions.GET_DOCUMENT, undefined, callback, handleError)
+const overrideDocument = (socket, data, callback, handleError) => emit(socket, socketActions.OVERRIDE_DOCUMENT, data, callback, handleError)
+const getCode = (socket, callback, handleError) => emit(socket, socketActions.GET_CODE, undefined, callback, handleError)
+const updateCode = (socket, data, callback, handleError) => emit(socket, socketActions.UPDATE_CODE, data, callback, handleError)
 
 module.exports.fakeEditorCreator = async (siteData, port) => {
     const socket = await connectToLocalServer(port)
