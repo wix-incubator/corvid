@@ -7,7 +7,7 @@
     "build": "echo \"Error: no build specified\" && exit 1",
     "start": "echo \"Error: no start specified\" && exit 1",
     "lint": "echo \"Error: no lint specified\" && exit 1",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "precommit": "lint-staged"
   },
   "publishConfig": {
@@ -27,6 +27,12 @@
   },
   "devDependencies": {
     "eslint-plugin-jest": "^22.3.0",
-    "jest": "^24.1.0"
+    "jest": "^24.1.0",
+    "@wix/wix-eventually": "^1.0.454",
+    "rimraf": "^2.6.3"
+  },
+  "dependencies": {
+    "chokidar": "^2.1.2",
+    "fs-extra": "^7.0.1"
   }
 }
