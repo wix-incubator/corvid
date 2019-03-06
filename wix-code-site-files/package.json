@@ -25,9 +25,6 @@
       "*.{js,jsx}": "eslint --cache --format codeframe --ext .js,.jsx"
     }
   },
-  "dependencies": {
-    "fs-extra": "^7.0.1"
-  },
   "devDependencies": {
     "eslint-plugin-jest": "^22.3.0",
     "jest": "^24.1.0",
