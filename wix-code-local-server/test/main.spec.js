@@ -36,6 +36,17 @@ describe('local server', () => {
       done()
     })
   })
+  it("should update local server, if editor local save was clicked", async (done)=> {
+    const fakeEditor = await fakeEditorCreator({}, server.getPort())
+    fakeEditor.save(() => {
+        expect(document).notToEqual({})
+        expect(codeChanges).notToEqual({})
+        fakeEditor.close()
+        done()
+    })
+  })
+
+
 //   it("should NOT update local server, if the document (pages and renderedModel) got modify and save was not clicked", async (done)=> {
 //     const fakeEditor = await fakeEditorCreator({}, server.getPort())
 //     fakeEditor.modifyDocument({}, document => {
@@ -44,15 +55,6 @@ describe('local server', () => {
 //       done()
 //     })
 //   })
-//   it("should update local server, if the document (pages and renderedModel) got modify and save was clicked", async (done)=> {
-//     const fakeEditor = await fakeEditorCreator({}, server.getPort())
-//     fakeEditor.modifyCode({}, document => {
-//       expect(document).notToEqual({})
-//       fakeEditor.close()
-//       done()
-//     })
-//   })
-
 //   it("should update local server, if the document (pages and renderedModel) got modify and save was clicked", async (done)=> {
 //     const fakeEditor = await fakeEditorCreator({}, server.getPort())
 //     fakeEditor.modifyDocument({}, document => {

@@ -7,23 +7,23 @@ module.exports = {
         //todo
         return true
     },
-    getDocument() {
+    getDocument(driver, data) {
         //todo
         return {}
     },
-    overrideDocument(data){
+    overrideDocument(driver, data) {
         //todo
         return data
     },
-    getCode(){
+    getCode(driver, data) {
         //todo
         return {}
     },
-    updateCode(data){
+    updateCode(driver, data) {
         //todo
         return data
     },
-    isCloneMode(){
+    isCloneMode() {
         //todo
         return true
     }
