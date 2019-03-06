@@ -1,11 +1,6 @@
 module.exports = {
-    getVersion() {
-        //todo
-        return 8
-    },
-    isCloned() {
-        //todo
-        return true
+    isCloneMode(driver) {
+        return driver.isCloneMode()
     },
     getDocument(driver, data) {
         //todo
@@ -22,9 +17,5 @@ module.exports = {
     updateCode(driver, data) {
         //todo
         return data
-    },
-    isCloneMode() {
-        //todo
-        return true
     }
 }

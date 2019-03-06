@@ -19,41 +19,53 @@ const connectToLocalServer = (port) => {
 }
 
 const isConnected = (socket) => !! _.get(socket, 'connected')
-const getVersion = (socket, callback) => socket.emit('GET_VERSION', callback)
-const isCloneMode = (socket, callback) => socket.emit(socketActions.IS_CLONE_MODE, callback)
-const getDocument = (socket, callback) => socket.emit(socketActions.GET_DOCUMENT, callback)
-const overrideDocument = (socket, data, callback) => socket.emit(socketActions.OVERRIDE_DOCUMENT, data, callback)
-const getCode = (socket, callback) => socket.emit(socketActions.GET_CODE, callback)
-const updateCode = (socket, data, callback) => socket.emit(socketActions.UPDATE_CODE, data, callback)
+
+const wrapCalbback = (callback) => (
+    (error, responsePayload) => {
+        if (error) throw new Error(error)
+        callback(responsePayload)
+    }
+)
+const emit = (socket, requestType, payload, callback) => socket.emit(requestType, payload, wrapCalbback(callback))
 const close = (socket) => {
     if(socket && socket.connected) {
         socket.disconnect()
     }
 }
 
+// fake editor operations
+const isCloneMode = (socket, callback) => emit(socket, socketActions.IS_CLONE_MODE, undefined, callback)
+const getDocument = (socket, callback) => emit(socket, socketActions.GET_DOCUMENT, undefined, callback)
+const overrideDocument = (socket, data, callback) => emit(socket, socketActions.OVERRIDE_DOCUMENT, data, callback)
+const getCode = (socket, callback) => emit(socket, socketActions.GET_CODE, undefined, callback)
+const updateCode = (socket, data, callback) => emit(socket, socketActions.UPDATE_CODE, data, callback)
+
 module.exports.fakeEditorCreator = async (siteData, port) => {
     const socket = await connectToLocalServer(port)
-    const document = {}
-    let codeFiles = {}
+    let document = siteData.document || {}
+    let code = siteData.code || {}
 
     socket.on(socketActions.UPDATE_CODE, (codeChanges) => {
         codeFiles = Object.assign(codeFiles, codeChanges)
     })
 
+    // fake operations
+    const save = (callback = {document: undefined, code: undefined}) => {
+        overrideDocument(socket, document, callback.document)
+        updateCode(socket, code, callback.code)
+    }
+
     // editor is nofitied when a user changes code and documents
 
     return _.mapValues({
         isConnected,
+        isCloneMode,
         close,
         getDocument,
-        getCodeFiles: () => {
-            return codeFiles
-        },
-        save: () => {
-            socket.emit('UPDATE_DOCUMENTS', data, callback)
-            socket.emit('UPDATE_CODE')
-        },
+        getCode,
+        save,
+        publish: () => {},
         modifyDocument: (newDocument) => Object.assign(document, newDocument),
-        modifyCode: (type, codeChanges) => Object.assign(codeFiles, codeChanges)
+        modifyCode: (newCode) => Object.assign(codeFiles, newCode)
     }, (fn) => _.partial(fn, socket))
 }
