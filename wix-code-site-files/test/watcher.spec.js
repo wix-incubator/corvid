@@ -1,9 +1,10 @@
 const fs = require('fs-extra')
+const os = require('os')
 const rimraf = require('rimraf')
 const path = require('path')
 const eventually = require('@wix/wix-eventually')
 const {localFilesWatcher} = require('../src/watcher')
-const basePath = path.resolve('/tmp', 'testDir')
+const basePath = path.resolve(os.tmpdir(), 'testDir')
 describe('local files watcher', () => {
     beforeEach((done) => {
         rimraf(basePath, () => {
