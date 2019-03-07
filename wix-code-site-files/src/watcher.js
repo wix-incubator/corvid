@@ -1,4 +1,5 @@
 const fs = require('fs-extra')
+const path = require('path')
 const chokidar = require('chokidar')
 
 module.exports.localFilesWatcher = (basePath, onChange) => {
@@ -6,17 +7,17 @@ module.exports.localFilesWatcher = (basePath, onChange) => {
     const setPause = (doPause) => {
         pause = doPause
     }
-    fs.ensureDirSync(basePath)
     const watcher = chokidar.watch(basePath)
     return new Promise((resolve, reject) => {
         watcher.on('ready', () => {
-            watcher.on('all', (event, path) => {
+            watcher.on('all', (event, filePath) => {
                 if(pause) {
                     return
                 }
                 if(['add', 'change', 'unlink'].includes(event)){
-                    console.log(event, path)
-                    onChange(event, path)
+                    const relativePath = path.relative(basePath, filePath)
+                    console.log(event, relativePath)
+                    onChange(event, relativePath)
                 }
             })
             resolve({
