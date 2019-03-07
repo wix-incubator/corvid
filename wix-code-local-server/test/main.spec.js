@@ -5,7 +5,7 @@ const {fakeEditorCreator} = require('@wix/fake-santa-editor')
 let server
 
 describe('local server', () => {
-    describe('general operations', async () => {
+    describe('general operations', () => {
         beforeAll(async (done) => {
             server = await localServerCreator()
             done()
@@ -30,7 +30,7 @@ describe('local server', () => {
             done()
         })
     })
-    describe('is in clone mode', async () => {
+    describe('is in clone mode', () => {
         beforeAll(async (done) => {
             server = await localServerCreator()
             done()
@@ -48,7 +48,7 @@ describe('local server', () => {
             )
         })
     })
-    describe('is in edit mode', async () => {
+    describe('is in edit mode', () => {
         beforeAll(async (done) => {
             server = await localServerCreator('./', false)
             done()
