@@ -1,21 +1,28 @@
 module.exports = {
-    isCloneMode(driver) {
-        return driver.isCloneMode()
+    isCloneMode(localServerDriver) {
+        // can be an async operation as well
+        return new Promise((reslove, reject) => {
+            reslove(localServerDriver.isCloneMode())
+        })
     },
-    getDocument(driver, data) {
+    getDocument(localServerDriver, data) {
         //todo
+        console.log('getDocument')
         return {}
     },
-    overrideDocument(driver, data) {
+    overrideDocument(localServerDriver, data) {
         //todo
+        console.log('overrideDocument')
         return data
     },
-    getCode(driver, data) {
+    getCode(localServerDriver, data) {
         //todo
+        console.log('getCode')
         return {}
     },
-    updateCode(driver, data) {
+    updateCode(localServerDriver, data) {
         //todo
+        console.log('updateCode')
         return data
     }
 }

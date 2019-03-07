@@ -3,7 +3,7 @@ const {localServerCreator} = require('../src/server')
 const {fakeEditorCreator} = require('@wix/fake-santa-editor')
 
 let server
-
+// todo:: should add test that handle errors
 describe('local server', () => {
     describe('general operations', async () => {
         beforeAll(async (done) => {
@@ -41,11 +41,10 @@ describe('local server', () => {
         it('should responsed true when when editor sending message isCloneMode', async done => {
             const fakeEditor = await fakeEditorCreator({}, server.getPort())
             fakeEditor.isCloneMode(responsePayload => {
-                    expect(responsePayload).toEqual(true)
-                    fakeEditor.close()
-                    done()
-                }
-            )
+                expect(responsePayload).toEqual(true)
+                fakeEditor.close()
+                done()
+            })
         })
     })
     describe('is in edit mode', async () => {
@@ -66,58 +65,3 @@ describe('local server', () => {
         })
     }) 
 })
-
-//   it("should get local server document (pages and renderedModel)", async (done)=> {
-//     const fakeEditor = await fakeEditorCreator({}, server.getPort())
-//     fakeEditor.getDocument(document => {
-//       expect(document).toEqual({})
-//       fakeEditor.close()
-//       done()
-//     })
-//   })
-//   it("should update local server, if editor local save was clicked", async (done)=> {
-//     const fakeEditor = await fakeEditorCreator({}, server.getPort())
-//     fakeEditor.save(() => {
-//         expect(document).notToEqual({})
-//         expect(codeChanges).notToEqual({})
-//         fakeEditor.close()
-//         done()
-//     })
-//   })
-
-
-//   it("should NOT update local server, if the document (pages and renderedModel) got modify and save was not clicked", async (done)=> {
-//     const fakeEditor = await fakeEditorCreator({}, server.getPort())
-//     fakeEditor.modifyDocument({}, document => {
-//       expect(document).toEqual({})
-//       fakeEditor.close()
-//       done()
-//     })
-//   })
-//   it("should update local server, if the document (pages and renderedModel) got modify and save was clicked", async (done)=> {
-//     const fakeEditor = await fakeEditorCreator({}, server.getPort())
-//     fakeEditor.modifyDocument({}, document => {
-//       expect(document).notToEqual({})
-//       fakeEditor.close()
-//       done()
-//     })
-//   })
-//   it("should update local code files and override document when save is clicked", ()=> {
-//     const fakeEditor = await fakeEditorCreator({}, server.getPort())
-//     fakeEditor.modifyDocument({}, document => {
-//         fakeEditor.modifyCode({}, codeChanges => {
-//             fakeEditor.save(() => {
-//                 expect(document).notToEqual({})
-//                 expect(codeChanges).notToEqual({})
-//                 fakeEditor.close()
-//                 done()
-//             })
-//         })
-//     })
-//   })
-// it("should apply code changes", ()=> {
-//     expect("test").toBe("test")
-// })
-// it("should notify on changes of site files via socket", ()=> {
-//     expect("test").toBe("test")
-// })
