@@ -1,2 +1,2 @@
-const {localServerCreator} = require('./server')
-const server = localServerCreator()
+const { localServerCreator } = require("./server");
+localServerCreator();

@@ -2,7 +2,7 @@
     "name": "my-awesome-site",
     "scripts": {
       "start": "wix-code edit ./src",
-      "lint": "eslint"
+      "lint": "eslint ."
     },
     "dependencies": {
       "wix-code": "^1.18.3"
