@@ -24,6 +24,7 @@ module.exports.localServerCreator = async (filePath = './') => {
             socket.disconnect()
         } else {
             currentSocket = socket
+            // TODO: handle requests one by one (put them in a queue)
             _.each(handlers, (handler, action) => currentSocket.on(action, handler))
         } 
     })
