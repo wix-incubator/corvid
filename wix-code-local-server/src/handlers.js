@@ -1,4 +1,4 @@
-const { socketActions } = require("@wix/wix-code-common")
+const socketActions = require('./socketActions')
 const actions = require("./actions")
 const handlerWrapper = (localServerDriver, requestPayload, doRequest, callback) => {
     return async done => {
@@ -15,7 +15,6 @@ const handlerWrapper = (localServerDriver, requestPayload, doRequest, callback) 
 }
 
 module.exports = {
-    [socketActions.DISCONNECT]: () => console.log("user disconnected"),
     [socketActions.IS_CLONE_MODE]: (localServerDriver, requestPayload, callback) =>
         localServerDriver
         .getRequestTaskRunner()

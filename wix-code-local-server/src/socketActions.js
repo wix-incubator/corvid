@@ -1,5 +1,4 @@
-module.exports.socketActions = {
-    DISCONNECT: 'disconnect',
+const actions = {
     GET_VERSION: 'GET_VERSION',
     IS_CLONE_MODE: 'IS_CLONE_MODE',
     GET_DOCUMENT: 'GET_DOCUMENT',
@@ -7,3 +6,5 @@ module.exports.socketActions = {
     GET_CODE: 'GET_CODE',
     UPDATE_CODE: 'UPDATE_CODE'
 }
+
+module.exports = actions

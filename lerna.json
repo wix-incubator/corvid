@@ -4,8 +4,7 @@
     "wix-code-local-server",
     "wix-code-site-transformation",
     "wix-code-site-files",
-    "fake-santa-editor",
-    "wix-code-common"
+    "fake-santa-editor"
   ],
   "version": "independent",
   "command": {

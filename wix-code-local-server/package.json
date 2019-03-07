@@ -31,7 +31,6 @@
     "get-port": "^4.2.0",
     "lodash": "^4.17.11",
     "socket.io": "^2.2.0",
-    "@wix/wix-code-common": "*",
     "@wix/wix-code-site-files": "*"
   },
   "devDependencies": {
