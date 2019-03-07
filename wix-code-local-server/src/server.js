@@ -6,6 +6,7 @@ const socketIo = require('socket.io')
 const getPort = require('get-port')
 const _ = require('lodash')
 const handlers = require('./handlers')
+const { taskRunnerCreator } = require('./taskRunner')
 const DEFAULT_PORT = 5000
 
 module.exports.localServerCreator = async (basePath = './', isCloneMode = true) => {
@@ -16,8 +17,10 @@ module.exports.localServerCreator = async (basePath = './', isCloneMode = true) 
     const ioServer = socketIo(server).origins('*:*')
     let currentSocket = null
     const port = await getPort({port: DEFAULT_PORT})
+    const requestTaskRunner = taskRunnerCreator()
 
-    const serverDriver = {
+    const localServerDriver = {
+        getRequestTaskRunner: () => requestTaskRunner,
         destroy: () => {
             ioServer.close()
             server.close()
@@ -28,15 +31,13 @@ module.exports.localServerCreator = async (basePath = './', isCloneMode = true) 
     }
 
     ioServer.sockets.on('connection', (socket) => {
-        console.log('user request a connection')
         if (currentSocket && currentSocket.connected) {
             console.log("multiple connection!")
             socket.disconnect()
         }
         else {
             currentSocket = socket
-            // TODO: handle requests one by one (put them in a queue)
-            _.each(handlers, (handler, action) => currentSocket.on(action,  _.partial(handler, serverDriver)))
+            _.each(handlers, (handler, action) => currentSocket.on(action,  _.partial(handler, localServerDriver)))
             console.log('user connected!')
         } 
     })
@@ -48,5 +49,5 @@ module.exports.localServerCreator = async (basePath = './', isCloneMode = true) 
         })
     })
     
-    return serverDriver
+    return localServerDriver
 }
