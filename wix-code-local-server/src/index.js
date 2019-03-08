@@ -1,2 +1,2 @@
-const { localServerCreator } = require("./server");
-localServerCreator();
+const startServer = require("./server");
+startServer(process.cwd());

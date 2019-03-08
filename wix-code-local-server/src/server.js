@@ -3,54 +3,54 @@ const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
 const getPort = require("get-port");
-const _ = require("lodash");
-const handlers = require("./handlers");
-const { taskRunnerCreator } = require("./taskRunner");
+const initLocalSiteManager = require("@wix/wix-code-site-files");
+
+const initSocketHandler = require("./socketApi");
+
 const DEFAULT_PORT = 5000;
 
-module.exports.localServerCreator = async (
-  basePath = "./",
-  isCloneMode = true
-) => {
+function setupServer() {
   const app = express();
   app.use(cors());
   const server = http.Server(app);
-  // todo:: change origins to wix.com
-  const ioServer = socketIo(server).origins("*:*");
-  let currentSocket = null;
-  const port = await getPort({ port: DEFAULT_PORT });
-  const requestTaskRunner = taskRunnerCreator();
+  const io = socketIo(server).origins("*:*");
+  return { server, io };
+}
 
-  const localServerDriver = {
-    getRequestTaskRunner: () => requestTaskRunner,
-    destroy: () => {
-      ioServer.close();
-      server.close();
-    },
-    isCloneMode: () => isCloneMode,
-    getPort: () => port,
-    getBasePath: () => basePath
-  };
+async function startServer(siteRootPath) {
+  const { server, io } = setupServer();
+  const localSite = await initLocalSiteManager(siteRootPath);
+  const socketHandler = initSocketHandler(localSite);
 
-  ioServer.sockets.on("connection", socket => {
-    if (currentSocket && currentSocket.connected) {
-      console.log("multiple connection!"); // eslint-disable-line no-console
-      socket.disconnect();
+  let connections = 0;
+
+  io.on("connection", socket => {
+    if (connections > 0) {
+      // TODO: client is already connected. find a way not to allow it.
+      socket.disconnect(true);
+      return;
     } else {
-      currentSocket = socket;
-      _.each(handlers, (handler, action) =>
-        currentSocket.on(action, _.partial(handler, localServerDriver))
-      );
-      console.log("user connected!"); // eslint-disable-line no-console
+      connections++;
+      socket.emit("connected");
+      socket.on("disconnect", () => {
+        connections--;
+      });
+
+      socketHandler(socket);
     }
   });
 
-  await new Promise(resolve => {
-    server.listen(port, () => {
-      console.log(`Serving santa local pages on port ${port}!`); // eslint-disable-line no-console
-      resolve();
-    });
-  });
+  const port = await getPort({ port: DEFAULT_PORT });
+  await new Promise(resolve => server.listen(port, resolve));
 
-  return localServerDriver;
-};
+  return {
+    port,
+    close: () => {
+      localSite.close();
+      io.close();
+      server.close();
+    }
+  };
+}
+
+module.exports = startServer;

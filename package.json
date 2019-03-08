@@ -6,7 +6,7 @@
     "url": "git+https://github.com/wix-private/wix-code-dev-experience.git"
   },
   "scripts": {
-    "bootstrap": "lerna bootstrap"
+    "bootstrap": "npm install && lerna bootstrap"
   },
   "devDependencies": {
     "eslint": "^5.15.1",

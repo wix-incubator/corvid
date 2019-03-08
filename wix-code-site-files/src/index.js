@@ -1,19 +1,21 @@
-const fs = require("fs-extra");
+const initWatcher = require("./watcher");
+const initReadWrite = require("./readWrite");
 
-module.exports.writeFilesSync = (
-  path,
-  filesContent,
-  options = { spaces: 2, encoding: "utf8" }
-) => {
-  filesContent.forEach(content => {
-    module.exports.writeFileSync(path, content, options);
-  });
+const initSiteManager = async siteRootPath => {
+  const watcher = await initWatcher(siteRootPath);
+  const readWrite = initReadWrite(watcher);
+
+  return {
+    close: watcher.close,
+
+    // getDocument: readWrite.getDocument,
+    overrideDocument: readWrite.overrideDocument
+    // getCode: readWrite.getCode,
+    // updateCode: readWrite.updateCode,
+
+    // onDocumentChanged: () => {},
+    // onCodeChanged: () => {}
+  };
 };
 
-module.exports.writeFileSync = (
-  path,
-  content,
-  options = { spaces: 2, encoding: "utf8" }
-) => {
-  fs.writeJsonSync(path, content, options);
-};
+module.exports = initSiteManager;

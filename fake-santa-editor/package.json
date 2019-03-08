@@ -17,7 +17,6 @@
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "ISC",
   "dependencies": {
-    "lodash": "^4.17.11",
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
