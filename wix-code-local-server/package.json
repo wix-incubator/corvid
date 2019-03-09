@@ -20,7 +20,7 @@
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "ISC",
   "dependencies": {
-    "@wix/wix-code-site-files": "*",
+    "@wix/wix-code-local-site": "*",
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "fs-extra": "^7.0.1",

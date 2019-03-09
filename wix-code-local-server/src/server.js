@@ -3,7 +3,7 @@ const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
 const getPort = require("get-port");
-const initLocalSiteManager = require("@wix/wix-code-site-files");
+const initLocalSiteManager = require("@wix/wix-code-local-site");
 
 const initSocketHandler = require("./socketApi");
 

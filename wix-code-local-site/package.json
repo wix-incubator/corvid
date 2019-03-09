@@ -1,5 +1,5 @@
 {
-  "name": "@wix/wix-code-site-files",
+  "name": "@wix/wix-code-local-site",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",

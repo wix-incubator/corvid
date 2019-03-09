@@ -2,7 +2,7 @@
   "packages": [
     "wix-code-cli",
     "wix-code-local-server",
-    "wix-code-site-files",
+    "wix-code-local-site",
     "fake-santa-editor",
     "dir-as-json"
   ],
