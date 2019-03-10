@@ -1,9 +1,9 @@
 const initApi = localSite => ({
   IS_CLONE_MODE: () => localSite.isEmpty(),
-  // GET_DOCUMENT: () => localSite.getDocument(),
-  UPDATE_DOCUMENT: newDocument => localSite.overrideDocument(newDocument),
-  GET_CODE: () => localSite.getCode()
-  // UPDATE_CODE: codeUpdates => localSite.updateCode(codeUpdates)
+  GET_DOCUMENT: () => localSite.getDocument(),
+  UPDATE_DOCUMENT: newDocument => localSite.updateDocument(newDocument),
+  GET_CODE: () => localSite.getCode(),
+  UPDATE_CODE: codeUpdates => localSite.updateCode(codeUpdates)
 });
 
 const handleRequest = handler => (payload, callback) => {

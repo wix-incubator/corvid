@@ -24,7 +24,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
     }, {});
   };
 
-  const overrideDocument = async newDocument => {
+  const updateDocument = async newDocument => {
     const newPages = newDocument.pages;
     if (newPages) {
       const newPageWrites = Object.keys(newPages).map(pageId => {
@@ -37,9 +37,15 @@ const readWrite = (siteRootPath, filesWatcher) => {
     }
   };
 
+  const getDocument = () => ({});
+
+  const updateCode = () => ({});
+
   return {
-    overrideDocument,
-    getCode
+    updateDocument,
+    getCode,
+    getDocument,
+    updateCode
   };
 };
 

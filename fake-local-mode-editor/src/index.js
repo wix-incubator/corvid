@@ -5,12 +5,12 @@ const _ = require("lodash");
 const getLocalServerURL = port => `http://localhost:${port}`;
 
 const connectToLocalServer = port => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const socket = io.connect(getLocalServerURL(port));
     socket.once("disconnect", () => {
       socket.removeAllListeners();
       socket.close();
-      reject();
+      resolve(socket);
     });
     socket.once("connected", () => {
       socket.removeAllListeners();
@@ -35,8 +35,12 @@ const isCloneMode = async socket => sendRequest(socket, "IS_CLONE_MODE");
 const updateSiteDocument = async (socket, siteDocument) =>
   sendRequest(socket, "UPDATE_DOCUMENT", siteDocument);
 
-const saveLocal = async (socket, siteDocument) => {
+const updateCodeFiles = async (socket, codeFiles) =>
+  sendRequest(socket, "UPDATE_CODE", codeFiles);
+
+const saveLocal = async (socket, siteDocument, codeFiles) => {
   await updateSiteDocument(socket, siteDocument);
+  await updateCodeFiles(socket, codeFiles);
 };
 
 const setValueAtPath = (fullPath, value) => {
@@ -56,20 +60,27 @@ const toHierarchy = data =>
   );
 
 const getCodeFilesFromServer = async socket => sendRequest(socket, "GET_CODE");
+const getSiteDocumentFromServer = async socket =>
+  sendRequest(socket, "GET_DOCUMENT");
 
-const loadEditor = async (port, { siteDocument: remoteSiteDocument } = {}) => {
-  const siteDocument = remoteSiteDocument;
-  let codeFiles = {};
+const loadEditor = async (
+  port,
+  { siteDocument: remoteSiteDocument, siteCode: remoteSiteCode } = {}
+) => {
+  let siteDocument = remoteSiteDocument || {};
+  let codeFiles = remoteSiteCode || {};
 
   let socket;
   try {
     socket = await connectToLocalServer(port);
-
-    const isInCloneMode = await isCloneMode(socket);
-    if (isInCloneMode) {
-      await saveLocal(socket, siteDocument);
-    } else {
-      codeFiles = toHierarchy(await getCodeFilesFromServer(socket));
+    if (socket.connected) {
+      const isInCloneMode = await isCloneMode(socket);
+      if (isInCloneMode) {
+        await saveLocal(socket, siteDocument, codeFiles);
+      } else {
+        codeFiles = toHierarchy(await getCodeFilesFromServer(socket));
+        siteDocument = await getSiteDocumentFromServer(socket);
+      }
     }
   } catch (err) {
     // TODO: handle connection error
@@ -83,9 +94,9 @@ const loadEditor = async (port, { siteDocument: remoteSiteDocument } = {}) => {
       }
     },
     isConnected: () => !!(socket && socket.connected),
-    // getDocument,
-    getCodeFiles: () => codeFiles
-    // save,
+    getSiteDocument: () => siteDocument,
+    getCodeFiles: () => codeFiles,
+    save: () => saveLocal(socket, siteDocument, codeFiles)
     // modifyDocument,
     // modifyCode
   };

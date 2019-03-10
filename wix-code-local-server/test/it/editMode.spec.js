@@ -18,13 +18,9 @@ describe("edit mode", () => {
       }
     };
 
-    const editorSiteDocument = {};
-
     const localSitePath = await initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port, {
-      siteDocument: editorSiteDocument
-    });
+    const editor = await loadEditor(server.port);
 
     const codeFiles = await editor.getCodeFiles();
     expect(codeFiles).toEqual(localSiteFiles);
