@@ -7,6 +7,7 @@ const page = pageId => path.join(pagesPath, `${pageId}.json`);
 const code = filePath => filePath;
 
 module.exports = {
+  pagesPath,
   page,
   code
 };

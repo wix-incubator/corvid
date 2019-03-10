@@ -57,7 +57,29 @@ const readWrite = (siteRootPath, filesWatcher) => {
     fs.copyFile(fullPath(sourcePath), fullPath(targetPath));
   const deleteFile = filePath => fs.unlink(fullPath(filePath));
 
-  const getDocument = () => ({});
+  const getDocument = async () => {
+    const pages = await fs.readdir(
+      path.join(siteRootPath, sitePaths.pagesPath)
+    );
+    return pages.reduce(async (dirAsJsonPromise, relativePath) => {
+      const fullPath = path.join(
+        siteRootPath,
+        sitePaths.pagesPath,
+        relativePath
+      );
+      // todo:: change to response payloaddd
+      return Object.assign(
+        {},
+        {
+          public: {
+            pages: {
+              [relativePath]: await fs.readFile(fullPath, "utf8")
+            }
+          }
+        }
+      );
+    }, {});
+  };
 
   const updateCode = async updateRequest => {
     const { modifiedFiles, copiedFiles, deletedFiles } = updateRequest;

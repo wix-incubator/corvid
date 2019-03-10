@@ -23,7 +23,12 @@ async function startServer(siteRootPath, isCloneMode) {
 
   if (isCloneMode && !(await localSite.isEmpty())) {
     localSite.close();
-    throw new Error("Cannot start in clone mode for non-empty site");
+    throw new Error("CAN_NOT_CLONE_NON_EMPTY_SITE");
+  }
+
+  if (!isCloneMode && (await localSite.isEmpty())) {
+    localSite.close();
+    throw new Error("CAN_NOT_EDIT_EMPTY_SITE");
   }
 
   const socketHandler = initSocketHandler(localSite);

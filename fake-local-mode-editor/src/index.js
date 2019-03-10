@@ -5,12 +5,12 @@ const _ = require("lodash");
 const getLocalServerURL = port => `http://localhost:${port}`;
 
 const connectToLocalServer = port => {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const socket = io.connect(getLocalServerURL(port));
     socket.once("disconnect", () => {
       socket.removeAllListeners();
       socket.close();
-      resolve(socket);
+      reject("MULTIPLE_CONNECTIONS_SOKET_DISCONECTED");
     });
     socket.once("connected", () => {
       socket.removeAllListeners();
@@ -84,7 +84,7 @@ const loadEditor = async (
     }
   } catch (err) {
     // TODO: handle connection error
-    console.error(err); // eslint-disable-line no-console
+    console.log(err); // eslint-disable-line no-console
   }
 
   return {

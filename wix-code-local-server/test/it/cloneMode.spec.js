@@ -14,9 +14,7 @@ describe("clone mode", () => {
 
     const server = localServer.startInCloneMode(localSitePath);
 
-    await expect(server).rejects.toThrow(
-      "Cannot start in clone mode for non-empty site"
-    );
+    await expect(server).rejects.toThrow("CAN_NOT_CLONE_NON_EMPTY_SITE");
   });
 
   // TODO: should not start the server in clone mode if the site directory does not exist ?
