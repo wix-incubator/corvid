@@ -17,6 +17,7 @@ const socketHandler = localSite => socket => {
   Object.keys(socketApi).forEach(event => {
     socket.on(event, handleRequest(socketApi[event]));
   });
+  //TODO: send local updates to the editor's socket - localSite.onChange((...args) => socket.emit("LOCAL_UPDATE", ...args));
 };
 
 module.exports = socketHandler;
