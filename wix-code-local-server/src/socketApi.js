@@ -1,7 +1,7 @@
 const initApi = localSite => ({
   // IS_CLONE_MODE: () => true,
   // GET_DOCUMENT: () => localSite.getDocument(),
-  OVERRIDE_DOCUMENT: newDocument => localSite.overrideDocument(newDocument)
+  UPDATE_DOCUMENT: newDocument => localSite.overrideDocument(newDocument)
   // GET_CODE: () => localSite.getCode(),
   // UPDATE_CODE: codeUpdates => localSite.updateCode(codeUpdates)
 });

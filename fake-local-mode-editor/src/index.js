@@ -29,7 +29,7 @@ const sendRequest = async (socket, event, payload) =>
   });
 
 const overrideDocument = async (socket, siteDocument) =>
-  sendRequest(socket, "OVERRIDE_DOCUMENT", siteDocument);
+  sendRequest(socket, "UPDATE_DOCUMENT", siteDocument);
 
 const saveLocal = async (socket, siteDocument) => {
   await overrideDocument(socket, siteDocument);
