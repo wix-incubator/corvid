@@ -1,7 +1,7 @@
 const sitePaths = require("./sitePaths");
 
 const readWrite = filesWatcher => ({
-  overrideDocument: async newDocument => {
+  updateSiteDocument: async newDocument => {
     const newPages = newDocument.pages;
     if (newPages) {
       const newPageWrites = Object.keys(newPages).map(pageId => {

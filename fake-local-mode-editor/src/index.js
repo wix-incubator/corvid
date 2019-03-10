@@ -28,11 +28,11 @@ const sendRequest = async (socket, event, payload) =>
     });
   });
 
-const overrideDocument = async (socket, siteDocument) =>
+const updateSiteDocument = async (socket, siteDocument) =>
   sendRequest(socket, "UPDATE_DOCUMENT", siteDocument);
 
 const saveLocal = async (socket, siteDocument) => {
-  await overrideDocument(socket, siteDocument);
+  await updateSiteDocument(socket, siteDocument);
 };
 
 const loadEditor = async (port, { siteDocument: remoteSiteDocument } = {}) => {
