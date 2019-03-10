@@ -1,13 +1,13 @@
 const eventually = require("@wix/wix-eventually");
 const loadEditor = require("@wix/fake-local-mode-editor");
-const startServer = require("../../src/server");
+const localServer = require("../../src/server");
 const { initLocalSite } = require("../utils/localSiteDir");
 
 describe("client connection", () => {
   it("should allow one editor to connect", async () => {
     const localSiteDir = await initLocalSite({});
 
-    const server = await startServer(localSiteDir);
+    const server = await localServer.startInEditMode(localSiteDir);
     const editor = await loadEditor(server.port, {});
 
     expect(editor.isConnected()).toBe(true);
@@ -18,7 +18,7 @@ describe("client connection", () => {
 
   it("should block multiple connections", async () => {
     const localSiteDir = await initLocalSite({});
-    const server = await startServer(localSiteDir);
+    const server = await localServer.startInEditMode(localSiteDir);
 
     const editor1 = await loadEditor(server.port);
     const editor2 = await loadEditor(server.port);
@@ -32,7 +32,7 @@ describe("client connection", () => {
 
   it("should allow an editor to connect if a previously connected editor already closed", async () => {
     const localSiteDir = await initLocalSite({});
-    const server = await startServer(localSiteDir);
+    const server = await localServer.startInEditMode(localSiteDir);
     const editor1 = await loadEditor(server.port);
 
     await editor1.close();

@@ -17,9 +17,15 @@ function setupServer() {
   return { server, io };
 }
 
-async function startServer(siteRootPath) {
+async function startServer(siteRootPath, isCloneMode) {
   const { server, io } = setupServer();
   const localSite = await initLocalSiteManager(siteRootPath);
+
+  if (isCloneMode && !(await localSite.isEmpty())) {
+    localSite.close();
+    throw new Error("Cannot start in clone mode for non-empty site");
+  }
+
   const socketHandler = initSocketHandler(localSite);
 
   let connections = 0;
@@ -53,4 +59,11 @@ async function startServer(siteRootPath) {
   };
 }
 
-module.exports = startServer;
+const startInCloneMode = siteRootPath => startServer(siteRootPath, true);
+
+const startInEditMode = siteRootPath => startServer(siteRootPath, false);
+
+module.exports = {
+  startInCloneMode,
+  startInEditMode
+};

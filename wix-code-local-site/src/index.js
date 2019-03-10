@@ -1,3 +1,4 @@
+const fs = require("fs-extra");
 const initWatcher = require("./watcher");
 const initReadWrite = require("./readWrite");
 
@@ -7,6 +8,12 @@ const initSiteManager = async siteRootPath => {
 
   return {
     close: watcher.close,
+
+    isEmpty: async () => {
+      const sitePathExists = await fs.exists(siteRootPath);
+      const siteContents = sitePathExists ? await fs.readdir(siteRootPath) : [];
+      return siteContents.length === 0;
+    },
 
     // getDocument: readWrite.getDocument,
     overrideDocument: readWrite.overrideDocument
