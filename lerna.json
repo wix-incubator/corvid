@@ -3,7 +3,7 @@
     "wix-code-cli",
     "wix-code-local-server",
     "wix-code-local-site",
-    "fake-santa-editor",
+    "fake-local-mode-editor",
     "dir-as-json"
   ],
   "version": "independent",

@@ -1,5 +1,5 @@
 const eventually = require("@wix/wix-eventually");
-const loadEditor = require("@wix/fake-santa-editor");
+const loadEditor = require("@wix/fake-local-mode-editor");
 const startServer = require("../../src/server");
 const { initLocalSite } = require("../utils/localSiteDir");
 

@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@wix/dir-as-json": "*",
-    "@wix/fake-santa-editor": "*",
+    "@wix/fake-local-mode-editor": "*",
     "@wix/wix-eventually": "^1.0.454",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
