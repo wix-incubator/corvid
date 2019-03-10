@@ -4,7 +4,7 @@ const initReadWrite = require("./readWrite");
 
 const initSiteManager = async siteRootPath => {
   const watcher = await initWatcher(siteRootPath);
-  const readWrite = initReadWrite(watcher);
+  const readWrite = initReadWrite(siteRootPath, watcher);
 
   return {
     close: watcher.close,
@@ -16,8 +16,8 @@ const initSiteManager = async siteRootPath => {
     },
 
     // getDocument: readWrite.getDocument,
-    updateSiteDocument: readWrite.updateSiteDocument
-    // getCode: readWrite.getCode,
+    overrideDocument: readWrite.overrideDocument,
+    getCode: readWrite.getCode
     // updateCode: readWrite.updateCode,
 
     // onDocumentChanged: () => {},
