@@ -1,5 +1,6 @@
 const io = require("socket.io-client");
 const path = require("path");
+const _ = require("lodash");
 
 const getLocalServerURL = port => `http://localhost:${port}`;
 
@@ -39,19 +40,20 @@ const saveLocal = async (socket, siteDocument) => {
 };
 
 const setValueAtPath = (fullPath, value) => {
-  const parts = fullPath.split(path.sep);
-  if (parts.length === 0) {
+  if (fullPath.length === 0) {
     return value;
   }
-  const head = parts.shift();
-  return { [head]: setValueAtPath(parts.join(path.sep), value) };
+  const parts = fullPath.split(path.sep);
+  const [head, ...tail] = parts;
+  return { [head]: setValueAtPath(tail.join(path.sep), value) };
 };
 
-const toHierarchy = data => {
-  Object.keys(data).reduce((result, fullPath) =>
-    Object.assign(result, setValueAtPath(fullPath, data[fullPath]))
+const toHierarchy = data =>
+  Object.keys(data).reduce(
+    (result, fullPath) =>
+      _.merge(result, setValueAtPath(fullPath, data[fullPath])),
+    {}
   );
-};
 
 const getCodeFilesFromServer = async socket => sendRequest(socket, "GET_CODE");
 
