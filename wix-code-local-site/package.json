@@ -31,6 +31,7 @@
     "temp": "^0.9.0"
   },
   "dependencies": {
+    "@wix/dir-as-json": "*",
     "chokidar": "^2.1.2",
     "fs-extra": "^7.0.1"
   },

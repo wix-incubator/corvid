@@ -1,4 +1,5 @@
 const io = require("socket.io-client");
+const path = require("path");
 
 const getLocalServerURL = port => `http://localhost:${port}`;
 
@@ -28,6 +29,8 @@ const sendRequest = async (socket, event, payload) =>
     });
   });
 
+const isCloneMode = async socket => sendRequest(socket, "IS_CLONE_MODE");
+
 const updateSiteDocument = async (socket, siteDocument) =>
   sendRequest(socket, "UPDATE_DOCUMENT", siteDocument);
 
@@ -35,15 +38,40 @@ const saveLocal = async (socket, siteDocument) => {
   await updateSiteDocument(socket, siteDocument);
 };
 
+const setValueAtPath = (fullPath, value) => {
+  const parts = fullPath.split(path.sep);
+  if (parts.length === 0) {
+    return value;
+  }
+  const head = parts.shift();
+  return { [head]: setValueAtPath(parts.join(path.sep), value) };
+};
+
+const toHierarchy = data => {
+  Object.keys(data).reduce((result, fullPath) =>
+    Object.assign(result, setValueAtPath(fullPath, data[fullPath]))
+  );
+};
+
+const getCodeFilesFromServer = async socket => sendRequest(socket, "GET_CODE");
+
 const loadEditor = async (port, { siteDocument: remoteSiteDocument } = {}) => {
   const siteDocument = remoteSiteDocument;
+  let codeFiles = {};
 
   let socket;
   try {
     socket = await connectToLocalServer(port);
-    await saveLocal(socket, siteDocument);
+
+    const isInCloneMode = await isCloneMode(socket);
+    if (isInCloneMode) {
+      await saveLocal(socket, siteDocument);
+    } else {
+      codeFiles = toHierarchy(await getCodeFilesFromServer(socket));
+    }
   } catch (err) {
     // TODO: handle connection error
+    console.error(err); // eslint-disable-line no-console
   }
 
   return {
@@ -52,9 +80,9 @@ const loadEditor = async (port, { siteDocument: remoteSiteDocument } = {}) => {
         socket.disconnect();
       }
     },
-    isConnected: () => !!(socket && socket.connected)
+    isConnected: () => !!(socket && socket.connected),
     // getDocument,
-    // getCode,
+    getCodeFiles: () => codeFiles
     // save,
     // modifyDocument,
     // modifyCode
