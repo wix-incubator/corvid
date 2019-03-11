@@ -96,9 +96,9 @@ const loadEditor = async (
     isConnected: () => !!(socket && socket.connected),
     getSiteDocument: () => siteDocument,
     getCodeFiles: () => codeFiles,
-    save: () => saveLocal(socket, siteDocument, codeFiles)
+    save: () => saveLocal(socket, siteDocument, codeFiles),
+    updateCode: request => updateCodeFiles(socket, request)
     // modifyDocument,
-    // modifyCode
   };
 };
 

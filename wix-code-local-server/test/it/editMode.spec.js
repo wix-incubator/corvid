@@ -23,7 +23,16 @@ describe("edit mode", () => {
     const editor = await loadEditor(server.port);
 
     const codeFiles = await editor.getCodeFiles();
-    expect(codeFiles).toEqual(localSiteFiles);
+    expect(codeFiles).toEqual({
+      public: {
+        "public-file.json": "public code"
+      },
+      backend: {
+        "sub-folder": {
+          "backendFile.jsw": "bakend code"
+        }
+      }
+    });
 
     await editor.close();
     await server.close();

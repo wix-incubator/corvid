@@ -50,4 +50,52 @@ describe("clone mode", () => {
     await editor.close();
     await server.close();
   });
+
+  it("should save code files", async () => {
+    const emptyLocalSite = {};
+
+    const editorSiteDocument = {
+      pages: {
+        editorPage1: "editor page 1",
+        editorPage2: "editor page 2"
+      }
+    };
+
+    const localSitePath = await initLocalSite(emptyLocalSite);
+    const server = await localServer.startInCloneMode(localSitePath);
+    const editor = await loadEditor(server.port, {
+      siteDocument: editorSiteDocument
+    });
+
+    await editor.updateCode({
+      modifiedFiles: {
+        "backend/authorization-config.json":
+          'console.log("authorization-config")',
+        "backend/routers.json": 'console.log("routers")',
+        "public/public-code-file-1.js": 'console.log("public-code-file-1")',
+        "public/public-code-file-2.js": 'console.log("public-code-file-2")'
+      },
+      copiedFiles: [],
+      deletedFiles: []
+    });
+
+    const localSiteFiles = await readLocalSite(localSitePath);
+    expect(localSiteFiles).toEqual({
+      public: {
+        pages: {
+          ["editorPage1.json"]: "editor page 1",
+          ["editorPage2.json"]: "editor page 2"
+        },
+        "public-code-file-1.js": 'console.log("public-code-file-1")',
+        "public-code-file-2.js": 'console.log("public-code-file-2")'
+      },
+      backend: {
+        "authorization-config.json": 'console.log("authorization-config")',
+        "routers.json": 'console.log("routers")'
+      }
+    });
+
+    await editor.close();
+    await server.close();
+  });
 });
