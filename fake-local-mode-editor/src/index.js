@@ -35,12 +35,12 @@ const isCloneMode = async socket => sendRequest(socket, "IS_CLONE_MODE");
 const updateSiteDocument = async (socket, siteDocument) =>
   sendRequest(socket, "UPDATE_DOCUMENT", siteDocument);
 
-const updateCodeFiles = async (socket, codeFiles) =>
-  sendRequest(socket, "UPDATE_CODE", codeFiles);
+const updateCodeFiles = (socket, payload) =>
+  sendRequest(socket, "UPDATE_CODE", payload);
 
-const saveLocal = async (socket, siteDocument, codeFiles) => {
+const saveLocal = async (socket, siteDocument, toSaveCodePayload) => {
   await updateSiteDocument(socket, siteDocument);
-  await updateCodeFiles(socket, codeFiles);
+  await updateCodeFiles(socket, toSaveCodePayload);
 };
 
 const setValueAtPath = (fullPath, value) => {
@@ -52,12 +52,38 @@ const setValueAtPath = (fullPath, value) => {
   return { [head]: setValueAtPath(tail.join(path.sep), value) };
 };
 
+const toFlat = (data, pathParts = []) =>
+  Object.keys(data).reduce((result, pathPart) => {
+    const value = data[pathPart];
+    if (_.isString(value)) {
+      return _.merge(result, {
+        [[...pathParts, pathPart].join(path.sep)]: value
+      });
+    }
+    return _.merge(result, toFlat(value, [...pathParts, pathPart]));
+  }, {});
+
+const convertPayloadToFlat = payload => payload.modifiedFiles;
+
 const toHierarchy = data =>
   Object.keys(data).reduce(
     (result, fullPath) =>
       _.merge(result, setValueAtPath(fullPath, data[fullPath])),
     {}
   );
+
+const updateCodeFilesFromPayload = (codeFiles, payload) => {
+  let flatFiles = toFlat(codeFiles);
+  const { modifiedFiles, copiedFiles, deletedFiles } = payload;
+  Object.keys(modifiedFiles).map(
+    filePath => (flatFiles[filePath] = modifiedFiles[filePath])
+  );
+  copiedFiles.forEach(({ sourcePath, targetPath }) => {
+    flatFiles[targetPath] = flatFiles[sourcePath];
+  });
+  deletedFiles.forEach(filepath => delete flatFiles[filepath]);
+  return toHierarchy(flatFiles);
+};
 
 const getCodeFilesFromServer = async socket => sendRequest(socket, "GET_CODE");
 const getSiteDocumentFromServer = async socket =>
@@ -69,6 +95,11 @@ const loadEditor = async (
 ) => {
   let siteDocument = remoteSiteDocument || {};
   let codeFiles = remoteSiteCode || {};
+  let toSaveCodePayload = {
+    modifiedFiles: toFlat(codeFiles),
+    copiedFiles: [],
+    deletedFiles: []
+  };
 
   let socket;
   try {
@@ -76,9 +107,15 @@ const loadEditor = async (
     if (socket.connected) {
       const isInCloneMode = await isCloneMode(socket);
       if (isInCloneMode) {
-        await saveLocal(socket, siteDocument, codeFiles);
+        await saveLocal(socket, siteDocument, toSaveCodePayload);
+        toSaveCodePayload = {
+          modifiedFiles: {},
+          copiedFiles: [],
+          deletedFiles: []
+        };
       } else {
-        codeFiles = toHierarchy(await getCodeFilesFromServer(socket));
+        const payload = await getCodeFilesFromServer(socket);
+        codeFiles = toHierarchy(convertPayloadToFlat(payload));
         siteDocument = await getSiteDocumentFromServer(socket);
       }
     }
@@ -96,8 +133,18 @@ const loadEditor = async (
     isConnected: () => !!(socket && socket.connected),
     getSiteDocument: () => siteDocument,
     getCodeFiles: () => codeFiles,
-    save: () => saveLocal(socket, siteDocument, codeFiles),
-    updateCode: request => updateCodeFiles(socket, request)
+    save: async () => {
+      await saveLocal(socket, siteDocument, toSaveCodePayload);
+      codeFiles = updateCodeFilesFromPayload(codeFiles, toSaveCodePayload);
+    },
+    modifyCodeFile: (filePath, content) => {
+      toSaveCodePayload = _.merge(toSaveCodePayload, {
+        modifiedFiles: { [filePath]: content }
+      });
+    },
+    copyCodeFile: (sourcePath, targetPath) =>
+      toSaveCodePayload.copiedFiles.push({ sourcePath, targetPath }),
+    deleteCodeFile: filePath => toSaveCodePayload.deletedFiles.push(filePath)
     // modifyDocument,
   };
 };

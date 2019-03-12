@@ -3,11 +3,12 @@ const path = require("path");
 const sitePaths = require("./sitePaths");
 
 const readWrite = (siteRootPath, filesWatcher) => {
-  const getCode = async (dirPath = siteRootPath) => {
+  const getCodeFiles = async (dirPath = siteRootPath) => {
     const dirFiles = await fs.readdir(dirPath);
     const isCodeFile = fullPath => {
-      const pagesPath = path.resolve(siteRootPath, "public", "pages");
-      return path.relative(pagesPath, fullPath).startsWith("..");
+      return path
+        .relative(path.join(siteRootPath, sitePaths.pagesPath), fullPath)
+        .startsWith("..");
     };
     const getCodeFile = async fullPath =>
       isCodeFile(fullPath)
@@ -26,7 +27,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
         {},
         dirAsJson,
         stats.isDirectory()
-          ? await getCode(fullPath)
+          ? await getCodeFiles(fullPath)
           : await getCodeFile(fullPath)
       );
     }, {});
@@ -101,7 +102,14 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
   return {
     updateDocument,
-    getCode,
+    getCode: async () => {
+      const result = {
+        modifiedFiles: await getCodeFiles(),
+        copiedFiles: [],
+        deletedFiles: []
+      };
+      return result;
+    },
     getDocument,
     updateCode
   };
