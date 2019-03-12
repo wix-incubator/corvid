@@ -48,4 +48,56 @@ describe("clone mode", () => {
     await editor.close();
     await server.close();
   });
+
+  it("should save code files on load", async () => {
+    const localSitePath = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSitePath);
+    const siteDocument = {
+      pages: {
+        editorPage1: "editor page 1",
+        editorPage2: "editor page 2"
+      }
+    };
+    const siteCode = {
+      public: {
+        "public-file.json": "public code"
+      },
+      backend: {
+        "sub-folder": {
+          "backendFile.jsw": "backend code"
+        }
+      }
+    };
+    const editor = await loadEditor(server.port, { siteDocument, siteCode });
+
+    const codeFiles = await editor.getCodeFiles();
+    const serverFiles = await readLocalSite(localSitePath);
+    expect(codeFiles).toEqual({
+      public: {
+        "public-file.json": "public code"
+      },
+      backend: {
+        "sub-folder": {
+          "backendFile.jsw": "backend code"
+        }
+      }
+    });
+    expect(serverFiles).toEqual({
+      public: {
+        pages: {
+          "editorPage1.json": "editor page 1",
+          "editorPage2.json": "editor page 2"
+        },
+        "public-file.json": "public code"
+      },
+      backend: {
+        "sub-folder": {
+          "backendFile.jsw": "backend code"
+        }
+      }
+    });
+
+    await editor.close();
+    await server.close();
+  });
 });
