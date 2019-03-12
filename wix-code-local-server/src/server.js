@@ -60,7 +60,8 @@ async function startServer(siteRootPath, isCloneMode) {
       localSite.close();
       io.close();
       server.close();
-    }
+    },
+    localSite
   };
 }
 

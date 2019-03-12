@@ -8,6 +8,7 @@ const initSiteManager = async siteRootPath => {
 
   return {
     close: watcher.close,
+    watcher,
 
     isEmpty: async () => {
       const sitePathExists = await fs.exists(siteRootPath);
