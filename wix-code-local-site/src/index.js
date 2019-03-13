@@ -17,7 +17,7 @@ const initSiteManager = async siteRootPath => {
     },
 
     getDocument: readWrite.getDocument,
-    updateDocument: readWrite.updateDocument,
+    updateSiteDocument: readWrite.updateSiteDocument,
     getCode: readWrite.getCode,
     updateCode: readWrite.updateCode
 

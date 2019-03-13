@@ -1,7 +1,7 @@
 const initApi = localSite => ({
   IS_CLONE_MODE: () => localSite.isEmpty(),
   GET_DOCUMENT: () => localSite.getDocument(),
-  UPDATE_DOCUMENT: newDocument => localSite.updateDocument(newDocument),
+  UPDATE_DOCUMENT: newDocument => localSite.updateSiteDocument(newDocument),
   GET_CODE: () => localSite.getCode(),
   UPDATE_CODE: codeUpdates => localSite.updateCode(codeUpdates)
 });

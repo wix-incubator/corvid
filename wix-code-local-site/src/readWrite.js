@@ -33,7 +33,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
     }, {});
   };
 
-  const updateDocument = async newDocument => {
+  const updateSiteDocument = async newDocument => {
     const newPages = newDocument.pages;
     if (newPages) {
       const newPageWrites = Object.keys(newPages).map(pageId => {
@@ -48,10 +48,10 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
   const fullPath = filePath => path.resolve(siteRootPath, filePath);
 
-  const modifyFile = (content, filePath) => {
+  const modifyFile = async (content, filePath) => {
     const fullFilePath = fullPath(filePath);
-    fs.ensureDirSync(path.dirname(fullFilePath));
-    return fs.writeFile(fullFilePath, content);
+    await fs.ensureDir(path.dirname(fullFilePath));
+    return await fs.writeFile(fullFilePath, content);
   };
 
   const copyFile = ({ sourcePath, targetPath }) =>
@@ -85,23 +85,20 @@ const readWrite = (siteRootPath, filesWatcher) => {
   const updateCode = async updateRequest => {
     const { modifiedFiles, copiedFiles, deletedFiles } = updateRequest;
     try {
-      let updatePromises = [];
-      updatePromises = Object.keys(modifiedFiles).map(filePath =>
+      const updates = Object.keys(modifiedFiles).map(filePath =>
         modifyFile(modifiedFiles[filePath], filePath)
       );
-      updatePromises = updatePromises.concat(copiedFiles.forEach(copyFile));
-      updatePromises = updatePromises.concat(deletedFiles.forEach(deleteFile));
-      await Promise.all(updatePromises);
-      return { success: true };
+      const copies = copiedFiles.map(copyFile);
+      const deletes = deletedFiles.map(deleteFile);
+      await Promise.all([...updates, ...copies, ...deletes]);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log("files save error", error);
-      return { success: false, error };
     }
   };
 
   return {
-    updateDocument,
+    updateSiteDocument,
     getCode: async () => {
       const result = {
         modifiedFiles: await getCodeFiles(),
