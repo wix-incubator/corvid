@@ -33,7 +33,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
     }, {});
   };
 
-  const updateDocument = async newDocument => {
+  const updateSiteDocument = async newDocument => {
     const newPages = newDocument.pages;
     if (newPages) {
       const newPageWrites = Object.keys(newPages).map(pageId => {
@@ -101,7 +101,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
   };
 
   return {
-    updateDocument,
+    updateSiteDocument,
     getCode: async () => {
       const result = {
         modifiedFiles: await getCodeFiles(),
