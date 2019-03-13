@@ -1,12 +1,14 @@
 {
-  "name": "@wix/wix-code-cli",
+  "name": "@wix/wix-code-local-server-testkit",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
+    "start": "node ./src/index.js",
     "lint": "eslint .",
     "test": "jest",
-    "test": "jest --watch"
+    "watch": "jest --watch",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   },
   "publishConfig": {
     "registry": "https://repo.dev.wixpress.com/artifactory/api/npm/npm-repos",
@@ -16,12 +18,20 @@
     "type": "git",
     "url": "git+https://github.com/wix-private/wix-code-dev-experience.git"
   },
-  "bin": {
-    "wix-code": "./src/index.js"
-  },
-  "author": "Kobi Nemni <kobin@wix.com>",
+  "author": "Leeor Aharon <leeor@wix.com>",
   "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "fs-extra": "^7.0.1",
+    "get-port": "^4.2.0",
+    "listen-on-free-port": "1.0.3",
+    "socket.io": "^2.2.0"
+  },
   "devDependencies": {
+    "@wix/dir-as-json": "*",
+    "@wix/fake-local-mode-editor": "*",
+    "@wix/wix-eventually": "^1.0.454",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-jest": "^22.3.0",
@@ -30,7 +40,8 @@
     "jest": "^24.1.0",
     "jest-teamcity-reporter": "^0.9.0",
     "lint-staged": "^8.1.5",
-    "prettier": "^1.16.4"
+    "prettier": "^1.16.4",
+    "temp": "^0.9.0"
   },
   "jest": {
     "verbose": true,
@@ -47,15 +58,5 @@
     "*.js": [
       "eslint"
     ]
-  },
-  "dependencies": {
-    "@wix/wix-code-local-server-testkit": "~1.0.0",
-    "@wix/wix-code-local-server": "~1.0.0",
-    "electron": "4.0.8",
-    "node-fetch": "^2.3.0",
-    "normalize-url": "^4.2.0",
-    "opn": "^5.4.0",
-    "socket.io": "2.2.0",
-    "yargs": "^13.2.2"
   }
 }
