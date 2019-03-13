@@ -48,10 +48,10 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
   const fullPath = filePath => path.resolve(siteRootPath, filePath);
 
-  const modifyFile = (content, filePath) => {
+  const modifyFile = async (content, filePath) => {
     const fullFilePath = fullPath(filePath);
-    fs.ensureDirSync(path.dirname(fullFilePath));
-    return fs.writeFile(fullFilePath, content);
+    await fs.ensureDir(path.dirname(fullFilePath));
+    return await fs.writeFile(fullFilePath, content);
   };
 
   const copyFile = ({ sourcePath, targetPath }) =>
@@ -89,14 +89,12 @@ const readWrite = (siteRootPath, filesWatcher) => {
       updatePromises = Object.keys(modifiedFiles).map(filePath =>
         modifyFile(modifiedFiles[filePath], filePath)
       );
-      updatePromises = updatePromises.concat(copiedFiles.forEach(copyFile));
-      updatePromises = updatePromises.concat(deletedFiles.forEach(deleteFile));
+      updatePromises = updatePromises.concat(copiedFiles.map(copyFile));
+      updatePromises = updatePromises.concat(deletedFiles.map(deleteFile));
       await Promise.all(updatePromises);
-      return { success: true };
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log("files save error", error);
-      return { success: false, error };
     }
   };
 
