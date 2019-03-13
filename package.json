@@ -6,21 +6,35 @@
     "url": "git+https://github.com/wix-private/wix-code-dev-experience.git"
   },
   "scripts": {
-    "bootstrap": "npm install && lerna bootstrap",
     "lint": "lerna run lint --stream",
-    "test": "lerna run test --stream"
+    "test": "lerna run test --stream",
+    "precommit": "lerna run precommit --stream"
   },
   "devDependencies": {
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-prettier": "^3.0.1",
     "husky": "^1.3.1",
-    "lerna": "^3.4.3",
-    "prettier": "1.12.0"
+    "lerna": "3.13.1",
+    "prettier": "1.12.0",
+    "yarn": "^1.13.0"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lerna run precommit"
+      "precommit": "lerna run precommit"
     }
+  },
+  "workspaces": {
+    "packages": [
+      "dir-as-json",
+      "fake-local-mode-editor",
+      "wix-code-cli",
+      "wix-code-local-server",
+      "wix-code-local-server-testkit",
+      "wix-code-local-site"
+    ],
+    "nohoist": [
+      "**/eslint*"
+    ]
   }
 }

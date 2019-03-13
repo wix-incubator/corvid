@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
+    "precommit": "lint-staged",
     "test": "jest",
-    "test": "jest --watch"
+    "watch": "jest --watch"
   },
   "publishConfig": {
     "registry": "https://repo.dev.wixpress.com/artifactory/api/npm/npm-repos",
@@ -40,7 +41,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "precommit": "lint-staged"
     }
   },
   "lint-staged": {

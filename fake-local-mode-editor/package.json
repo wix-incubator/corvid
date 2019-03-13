@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "precommit": "lint-staged"
   },
   "publishConfig": {
     "registry": "https://repo.dev.wixpress.com/artifactory/api/npm/npm-repos",

@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint .",
+    "precommit": "lint-staged",
     "test": "jest"
   },
   "publishConfig": {

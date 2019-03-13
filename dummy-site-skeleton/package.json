@@ -1,15 +1,15 @@
 {
-    "name": "my-awesome-site",
-    "scripts": {
-      "start": "wix-code edit ./src",
-      "lint": "eslint ."
-    },
-    "dependencies": {
-      "wix-code": "^1.18.3"
-    },
-    "devDependencies": {
-      "eslint": "^5.14.0",
-      "eslint-config-wix-code": "^1.0.0"
-    }
+  "name": "my-awesome-site",
+  "scripts": {
+    "start": "wix-code edit ./src",
+    "lint": "eslint .",
+    "precommit": "lint-staged"
+  },
+  "dependencies": {
+    "wix-code": "^1.18.3"
+  },
+  "devDependencies": {
+    "eslint": "^5.14.0",
+    "eslint-config-wix-code": "^1.0.0"
   }
-  
+}

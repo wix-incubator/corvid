@@ -1,18 +1,7 @@
 {
-  "packages": [
-    "wix-code-cli",
-    "wix-code-local-server",
-    "wix-code-local-site",
-    "fake-local-mode-editor",
-    "dir-as-json"
-  ],
   "version": "independent",
-  "command": {
-    "bootstrap": {
-      "npmClientArgs": ["--no-package-lock"],
-      "nohoist": ["eslint"]
-    }
-  },
+  "npmClient": "yarn",
+  "useWorkspaces": true,
   "managedDependencies": {
     "eslint": "^4.14.0",
     "eslint-config-prettier": "^2.9.0",
