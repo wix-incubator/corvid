@@ -1,47 +1,47 @@
-const http = require('http')
-const io = require('socket.io')
-const listenOnFreePort = require('listen-on-free-port')
-const localServer = require('@wix/wix-code-local-server')
+const http = require("http");
+const io = require("socket.io");
+const listenOnFreePort = require("listen-on-free-port");
+const localServer = require("@wix/wix-code-local-server");
 
-const runningServers = []
+const runningServers = [];
 
-let serverHandler = () => {}
+let serverHandler = () => {};
 
 function fakeLocalServer() {
   localServer.spawn = function fakeSpawn() {
     return listenOnFreePort(
       3000,
-      ['localhost'],
+      ["localhost"],
       http.createServer.bind(http)
     ).then(server => {
-      runningServers.push(server)
-      const srv = io(server)
+      runningServers.push(server);
+      const srv = io(server);
 
-      if (typeof serverHandler === 'function') {
-        serverHandler(srv)
+      if (typeof serverHandler === "function") {
+        serverHandler(srv);
       }
 
-      return server.address().port
-    })
-  }
+      return server.address().port;
+    });
+  };
 }
 
 function killAllRunningServers() {
   return Promise.all(
     runningServers.splice(0).map(server => {
       return new Promise(resolve => {
-        server.close(resolve)
-      })
+        server.close(resolve);
+      });
     })
-  )
+  );
 }
 
 function setServerHandler(handler) {
-  serverHandler = handler
+  serverHandler = handler;
 }
 
 module.exports = {
   init: fakeLocalServer,
   reset: killAllRunningServers,
   setServerHandler
-}
+};
