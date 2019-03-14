@@ -32,9 +32,10 @@ const initSiteManager = async siteRootPath => {
       return siteContents.length === 0;
     },
 
-    getDocument: readWrite.getDocument,
+    getSiteDocument: readWrite.getSiteDocument,
     updateSiteDocument: readWrite.updateSiteDocument,
-    getCode: readWrite.getCode,
+
+    getCodeFiles: readWrite.getCodeFiles,
     updateCode: readWrite.updateCode,
     onCodeChanged
 
