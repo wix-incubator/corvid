@@ -24,8 +24,16 @@ describe("clone mode", () => {
 
     const editorSiteDocument = {
       pages: {
-        editorPage1: "editor page 1",
-        editorPage2: "editor page 2"
+        page1ID: { content: "" }
+      },
+      styles: {
+        colors: { content: "" },
+        fonts: { content: "" },
+        theme: { content: "" },
+        topLevelStyles: { content: "" }
+      },
+      site: {
+        commonComponents: { content: "" }
       }
     };
 
@@ -34,13 +42,21 @@ describe("clone mode", () => {
     const editor = await loadEditor(server.port, {
       siteDocument: editorSiteDocument
     });
-
     const localSiteFiles = await readLocalSite(localSitePath);
+
     expect(localSiteFiles).toEqual({
       public: {
         pages: {
-          ["editorPage1.json"]: "editor page 1",
-          ["editorPage2.json"]: "editor page 2"
+          ["page1ID.json"]: JSON.stringify({ content: "" }, null, 2)
+        },
+        styles: {
+          ["colors.json"]: JSON.stringify({ content: "" }, null, 2),
+          ["fonts.json"]: JSON.stringify({ content: "" }, null, 2),
+          ["theme.json"]: JSON.stringify({ content: "" }, null, 2),
+          ["topLevelStyles.json"]: JSON.stringify({ content: "" }, null, 2)
+        },
+        site: {
+          ["commonComponents.json"]: JSON.stringify({ content: "" }, null, 2)
         }
       }
     });
@@ -54,8 +70,8 @@ describe("clone mode", () => {
 
     const editorSiteDocument = {
       pages: {
-        editorPage1: "editor page 1",
-        editorPage2: "editor page 2"
+        editorPage1: { content: "editor page 1" },
+        editorPage2: { content: "editor page 2" }
       }
     };
 
@@ -78,11 +94,20 @@ describe("clone mode", () => {
     });
 
     const localSiteFiles = await readLocalSite(localSitePath);
+    // TODO: toMatchObject instead of toEqual
     expect(localSiteFiles).toEqual({
       public: {
         pages: {
-          ["editorPage1.json"]: "editor page 1",
-          ["editorPage2.json"]: "editor page 2"
+          ["editorPage1.json"]: JSON.stringify(
+            { content: "editor page 1" },
+            null,
+            2
+          ),
+          ["editorPage2.json"]: JSON.stringify(
+            { content: "editor page 2" },
+            null,
+            2
+          )
         },
         "public-code-file-1.js": 'console.log("public-code-file-1")',
         "public-code-file-2.js": 'console.log("public-code-file-2")'

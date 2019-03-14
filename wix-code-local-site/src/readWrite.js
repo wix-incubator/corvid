@@ -1,6 +1,19 @@
 const fs = require("fs-extra");
+const get_ = require("lodash/get");
+const mapValues_ = require("lodash/mapValues");
+const merge_ = require("lodash/merge");
+const mapKeys_ = require("lodash/mapKeys");
+const rimraf = require("rimraf");
 const path = require("path");
 const sitePaths = require("./sitePaths");
+const dirAsJson = require("@wix/dir-as-json");
+
+const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
+const stringify = content => JSON.stringify(content, null, 2);
+const deleteFolderContentAndEnsure = async folderPath => {
+  await new Promise(resolve => rimraf(folderPath, resolve));
+  await fs.ensureDir(folderPath);
+};
 
 const readWrite = (siteRootPath, filesWatcher) => {
   const getCode = async (dirPath = siteRootPath) => {
@@ -32,54 +45,139 @@ const readWrite = (siteRootPath, filesWatcher) => {
     }, {});
   };
 
-  const updateDocument = async newDocument => {
-    const newPages = newDocument.pages;
-    if (newPages) {
-      const newPageWrites = Object.keys(newPages).map(pageId => {
-        return filesWatcher.ignoredWriteFile(
-          sitePaths.page(pageId),
-          newPages[pageId]
+  const getDocumentPartByKeyIfExist = async (
+    partKey,
+    destinationKey = partKey
+  ) => {
+    const partFullPath = fullPath(sitePaths[partKey]());
+    let documentPart = {};
+
+    if (await fs.exists(partFullPath)) {
+      documentPart = {
+        [destinationKey]: mapKeys_(
+          mapValues_(await dirAsJson.readDirToJson(partFullPath), pageAsJson =>
+            JSON.parse(pageAsJson)
+          ),
+          (pageValue, pageKey) => removeFileExtension(pageKey)
+        )
+      };
+    }
+    return documentPart;
+  };
+
+  const getDocumentExtraDataIfExist = async () => {
+    const partFullPath = fullPath(sitePaths.extraData());
+    let data = {};
+
+    if (await fs.exists(partFullPath)) {
+      data = {
+        extraData: await fs.readFile(partFullPath, "utf8")
+      };
+    }
+    return data;
+  };
+
+  const getSiteDocument = async () => {
+    const document = merge_(
+      await getDocumentPartByKeyIfExist("pages"),
+      await getDocumentPartByKeyIfExist("lightboxes", "pages"),
+      await getDocumentPartByKeyIfExist("styles"),
+      await getDocumentPartByKeyIfExist("site"),
+      await getDocumentExtraDataIfExist()
+    );
+    return document;
+  };
+
+  const payloadConvertors = {
+    pages: async pagePaylaod => {
+      const pagesPath = fullPath(sitePaths.pages());
+      const lightboxesPath = fullPath(sitePaths.lightboxes());
+      await deleteFolderContentAndEnsure(pagesPath);
+      await deleteFolderContentAndEnsure(lightboxesPath);
+
+      let atLeastOnePopup = false;
+      const filesToWrite = Object.keys(pagePaylaod).map(pageId => {
+        const isPopup = get_(pagePaylaod, pageId + ".isPopUp");
+        if (isPopup) atLeastOnePopup = true;
+        return {
+          path: isPopup
+            ? sitePaths.lightboxes(pageId)
+            : sitePaths.pages(pageId),
+          content: pagePaylaod[pageId]
+        };
+      });
+      // remove lightboxes folder if all pages are not popup's
+      if (!atLeastOnePopup) {
+        await new Promise(resolve => rimraf(lightboxesPath, resolve));
+      }
+      return filesToWrite;
+    },
+    styles: async stylesPayload => {
+      const stylesPath = fullPath(sitePaths.styles());
+      await deleteFolderContentAndEnsure(stylesPath);
+
+      return Object.keys(stylesPayload).map(keyName => {
+        return {
+          path: sitePaths.styles(keyName),
+          content: stylesPayload[keyName]
+        };
+      });
+    },
+    site: async sitePayload => {
+      const sitePath = fullPath(sitePaths.site());
+      await deleteFolderContentAndEnsure(sitePath);
+
+      return Object.keys(sitePayload).map(keyName => {
+        return {
+          path: sitePaths.site(keyName),
+          content: sitePayload[keyName]
+        };
+      });
+    },
+    extraData: async extraDataPayload => {
+      await fs.unlink(fullPath(sitePaths.extraData()));
+
+      return {
+        path: sitePaths.extraData(),
+        content: extraDataPayload
+      };
+    }
+  };
+
+  const updateSiteDocument = async newDocumentPayload => {
+    // convert payload to filesToWrite
+    const filesToWrite = await Promise.all(
+      Object.keys(newDocumentPayload).map(async paylodKey => {
+        return await payloadConvertors[paylodKey](
+          newDocumentPayload[paylodKey]
+        );
+      })
+    );
+
+    // write all files to file system
+    const filesPromises = [];
+    filesToWrite.forEach(filesArray => {
+      filesArray.forEach(file => {
+        filesPromises.push(
+          filesWatcher.ignoredWriteFile(file.path, stringify(file.content))
         );
       });
-      await Promise.all(newPageWrites);
-    }
+    });
+
+    await Promise.all(filesPromises);
   };
 
   const fullPath = filePath => path.resolve(siteRootPath, filePath);
 
   const modifyFile = (content, filePath) => {
     const fullFilePath = fullPath(filePath);
-    fs.ensureDirSync(path.dirname(fullFilePath));
+    fs.ensureDir(path.dirname(fullFilePath));
     return fs.writeFile(fullFilePath, content);
   };
 
   const copyFile = ({ sourcePath, targetPath }) =>
     fs.copyFile(fullPath(sourcePath), fullPath(targetPath));
   const deleteFile = filePath => fs.unlink(fullPath(filePath));
-
-  const getDocument = async () => {
-    const pages = await fs.readdir(
-      path.join(siteRootPath, sitePaths.pagesPath)
-    );
-    return pages.reduce(async (dirAsJsonPromise, relativePath) => {
-      const fullPath = path.join(
-        siteRootPath,
-        sitePaths.pagesPath,
-        relativePath
-      );
-      // todo:: change to response payloaddd
-      return Object.assign(
-        {},
-        {
-          public: {
-            pages: {
-              [relativePath]: await fs.readFile(fullPath, "utf8")
-            }
-          }
-        }
-      );
-    }, {});
-  };
 
   const updateCode = async updateRequest => {
     const { modifiedFiles, copiedFiles, deletedFiles } = updateRequest;
@@ -100,9 +198,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
   };
 
   return {
-    updateDocument,
+    updateSiteDocument,
+    getSiteDocument,
     getCode,
-    getDocument,
     updateCode
   };
 };

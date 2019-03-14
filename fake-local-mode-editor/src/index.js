@@ -10,7 +10,7 @@ const connectToLocalServer = port => {
     socket.once("disconnect", () => {
       socket.removeAllListeners();
       socket.close();
-      reject("MULTIPLE_CONNECTIONS_SOKET_DISCONECTED");
+      reject("MULTIPLE_CONNECTIONS_SOCKET_DISCONECTED");
     });
     socket.once("connected", () => {
       socket.removeAllListeners();
@@ -97,8 +97,10 @@ const loadEditor = async (
     getSiteDocument: () => siteDocument,
     getCodeFiles: () => codeFiles,
     save: () => saveLocal(socket, siteDocument, codeFiles),
-    updateCode: request => updateCodeFiles(socket, request)
-    // modifyDocument,
+    updateCode: request => updateCodeFiles(socket, request),
+    modifyDocument: newDocumnet => {
+      siteDocument = newDocumnet;
+    }
   };
 };
 
