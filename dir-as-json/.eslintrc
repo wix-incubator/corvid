@@ -13,6 +13,6 @@
   },
   "rules": {
   },
-  "plugins": ["prettier"],
-  "extends": ["eslint:recommended", "plugin:prettier/recommended"]
+  "plugins": ["jest", "prettier"],
+  "extends": ["eslint:recommended",  "plugin:jest/recommended", "plugin:prettier/recommended"]
 }
