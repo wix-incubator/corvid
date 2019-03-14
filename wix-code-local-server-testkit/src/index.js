@@ -29,7 +29,7 @@ function fakeLocalServer() {
 function killAllRunningServers() {
   return Promise.all(
     runningServers.splice(0).map(server => {
-      return new Promise((resolve, reject) => {
+      return new Promise(resolve => {
         server.close(resolve)
       })
     })

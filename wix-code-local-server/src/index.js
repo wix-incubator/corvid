@@ -1,2 +1,2 @@
-const { startInCloneMode } = require("./server");
-startInCloneMode(process.cwd());
+const { startInCloneMode } = require('./server')
+startInCloneMode(process.cwd())

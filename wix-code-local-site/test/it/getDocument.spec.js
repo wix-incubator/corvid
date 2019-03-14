@@ -1,3 +1,3 @@
-describe.skip("getDocument", () => {
-  it("placeholder", () => {});
-});
+describe.skip('getDocument', () => {
+  it('placeholder', () => {})
+})

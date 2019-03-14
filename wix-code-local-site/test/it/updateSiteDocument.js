@@ -1,3 +1,3 @@
-describe.skip("updateSiteDocument", () => {
-  it("placeholder", () => {});
-});
+describe.skip('updateSiteDocument', () => {
+  it('placeholder', () => {})
+})
