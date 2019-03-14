@@ -115,7 +115,6 @@ const loadEditor = async (
         siteDocument = await getSiteDocumentFromServer(socket);
       }
       socket.on("LOCAL_CODE_UPDATED", (action, ...args) => {
-        // console.log("LOCAL_CODE_UPDATED", action, args);
         switch (action) {
           case "add":
           case "change":

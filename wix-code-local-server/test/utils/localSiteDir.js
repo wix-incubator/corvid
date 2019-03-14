@@ -8,13 +8,11 @@ const makeTempDir = util.promisify(temp.mkdir);
 
 const initLocalSite = async localSiteFiles => {
   const tempLocalSitePath = await makeTempDir("test-site");
-  // console.log("tempLocalSitePath", tempLocalSitePath);
   await dirAsJson.writeJsonToDir(tempLocalSitePath, localSiteFiles);
   return tempLocalSitePath;
 };
 
-const readLocalSite = async localSitePath =>
-  dirAsJson.readDirToJson(localSitePath);
+const readLocalSite = localSitePath => dirAsJson.readDirToJson(localSitePath);
 
 const writeFile = async (localSitePath, filePath, content) => {
   const fullPath = path.join(localSitePath, filePath);

@@ -5,12 +5,23 @@ const initReadWrite = require("./readWrite");
 const initSiteManager = async siteRootPath => {
   const watcher = await initWatcher(siteRootPath);
   const readWrite = initReadWrite(siteRootPath, watcher);
+  const isCodeFile = filePath => !filePath.startsWith("public/pages");
   const onCodeChanged = callback => {
-    watcher.onAdd((filePath, content) => callback("add", filePath, content));
-    watcher.onChange((filePath, content) =>
-      callback("change", filePath, content)
-    );
-    watcher.onDelete(filePath => callback("delete", filePath));
+    watcher.onAdd((filePath, content) => {
+      if (isCodeFile(filePath)) {
+        callback("add", filePath, content);
+      }
+    });
+    watcher.onChange((filePath, content) => {
+      if (isCodeFile(filePath)) {
+        callback("change", filePath, content);
+      }
+    });
+    watcher.onDelete(filePath => {
+      if (isCodeFile(filePath)) {
+        callback("delete", filePath);
+      }
+    });
   };
   return {
     close: watcher.close,

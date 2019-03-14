@@ -29,7 +29,6 @@ const watch = async rootPath => {
 
     onAdd: callback => {
       watcher.on("add", async relativePath => {
-        // console.log("add", fullPath(relativePath));
         callback(
           relativePath,
           await fs.readFile(fullPath(relativePath), "utf8")
@@ -39,7 +38,6 @@ const watch = async rootPath => {
 
     onChange: callback => {
       watcher.on("change", async relativePath => {
-        // console.log("change", fullPath(relativePath));
         callback(
           relativePath,
           await fs.readFile(fullPath(relativePath), "utf8")
@@ -49,7 +47,6 @@ const watch = async rootPath => {
 
     onDelete: callback => {
       watcher.on("unlink", relativePath => {
-        // console.log("unlink", fullPath(relativePath));
         callback(relativePath);
       });
     },
