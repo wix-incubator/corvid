@@ -1,7 +1,7 @@
 const childProcess = require('child_process')
 const process = require('process')
 const path = require('path')
-const localServerTestKit = require('@wix/wix-local-server-testkit')
+const localServerTestKit = require('@wix/wix-code-local-server-testkit')
 const localFakeEditor = require('@wix/fake-local-mode-editor')
 
 describe('main flow', () => {
