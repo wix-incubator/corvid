@@ -4,20 +4,22 @@ const initApi = localSite => ({
   UPDATE_DOCUMENT: newDocument => localSite.updateSiteDocument(newDocument),
   GET_CODE: () => localSite.getCode(),
   UPDATE_CODE: codeUpdates => localSite.updateCode(codeUpdates)
-})
+});
 
 const handleRequest = handler => (payload, callback) => {
   return Promise.resolve(handler(payload))
     .then(result => callback(null, result))
-    .catch(err => callback(err))
-}
+    .catch(err => callback(err));
+};
 
 const socketHandler = localSite => socket => {
-  const socketApi = initApi(localSite)
+  const socketApi = initApi(localSite);
   Object.keys(socketApi).forEach(event => {
-    socket.on(event, handleRequest(socketApi[event]))
-  })
-  //TODO: send local updates to the editor's socket - localSite.onChange((...args) => socket.emit("LOCAL_UPDATE", ...args));
-}
+    socket.on(event, handleRequest(socketApi[event]));
+  });
+  localSite.onCodeChanged((...args) => {
+    socket.emit("LOCAL_CODE_UPDATED", ...args);
+  });
+};
 
-module.exports = socketHandler
+module.exports = socketHandler;
