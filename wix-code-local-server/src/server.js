@@ -19,6 +19,7 @@ function setupServer() {
 
 async function startServer(siteRootPath, isCloneMode) {
   const { server, io } = setupServer();
+  // TODO:: add src folder to path ?
   const localSite = await initLocalSiteManager(siteRootPath);
 
   if (isCloneMode && !(await localSite.isEmpty())) {
