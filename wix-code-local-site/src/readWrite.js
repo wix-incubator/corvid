@@ -12,8 +12,6 @@ const flat = require("flat");
 
 const flatten = data => flat(data, { delimiter: path.sep, safe: true });
 
-const isCodeFile = filePath => !filePath.startsWith("public/pages");
-
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
 const stringify = content => JSON.stringify(content, null, 2);
 
@@ -21,7 +19,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
   const getCodeFiles = async (dirPath = siteRootPath) => {
     const siteDirJson = await dirAsJson.readDirToJson(dirPath);
     const flatDirFiles = flatten(siteDirJson);
-    return pickBy_(flatDirFiles, (content, path) => isCodeFile(path));
+    return pickBy_(flatDirFiles, (content, path) => sitePaths.isCodeFile(path));
   };
 
   const getDocumentPartByKey = async partKey => {
@@ -131,16 +129,6 @@ const readWrite = (siteRootPath, filesWatcher) => {
   };
 
   const fullPath = filePath => path.resolve(siteRootPath, filePath);
-
-  const modifyFile = (content, filePath) => {
-    const fullFilePath = fullPath(filePath);
-    fs.ensureDir(path.dirname(fullFilePath));
-    return fs.writeFile(fullFilePath, content);
-  };
-
-  const copyFile = ({ sourcePath, targetPath }) =>
-    fs.copyFile(fullPath(sourcePath), fullPath(targetPath));
-  const deleteFile = filePath => fs.unlink(fullPath(filePath));
 
   const updateCode = async updateRequest => {
     const { modifiedFiles, copiedFiles, deletedFiles } = updateRequest;

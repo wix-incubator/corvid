@@ -15,7 +15,21 @@ const lightboxes = (fileName = "") =>
 const extraData = () => path.join(publicFolder, `extraData.json`);
 const code = filePath => filePath;
 
+const isCodeFile = relativePath =>
+  !(
+    relativePath === extraData() ||
+    ["styles", "site"].some(p =>
+      relativePath.startsWith(path.join(publicFolder, p))
+    ) ||
+    ["pages", "lightboxes"].some(
+      p =>
+        relativePath.startsWith(path.join(publicFolder, p)) &&
+        !relativePath.endsWith(".js")
+    )
+  );
+
 module.exports = {
+  isCodeFile,
   extraData,
   lightboxes,
   styles,

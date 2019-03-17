@@ -1,24 +1,24 @@
 const fs = require("fs-extra");
 const initWatcher = require("./watcher");
 const initReadWrite = require("./readWrite");
+const sitePaths = require("./sitePaths");
 
 const initSiteManager = async siteRootPath => {
   const watcher = await initWatcher(siteRootPath);
   const readWrite = initReadWrite(siteRootPath, watcher);
-  const isCodeFile = filePath => !filePath.startsWith("public/pages");
   const onCodeChanged = callback => {
     watcher.onAdd((filePath, content) => {
-      if (isCodeFile(filePath)) {
+      if (sitePaths.isCodeFile(filePath)) {
         callback("add", filePath, content);
       }
     });
     watcher.onChange((filePath, content) => {
-      if (isCodeFile(filePath)) {
+      if (sitePaths.isCodeFile(filePath)) {
         callback("change", filePath, content);
       }
     });
     watcher.onDelete(filePath => {
-      if (isCodeFile(filePath)) {
+      if (sitePaths.isCodeFile(filePath)) {
         callback("delete", filePath);
       }
     });

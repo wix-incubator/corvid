@@ -129,7 +129,6 @@ describe("edit mode", () => {
     };
     newDocument.pages["lightBoxes1ID"]["content"] = "this is a new content";
     editor.modifyDocument(newDocument);
-
     await editor.save();
 
     const localSiteDocument = await localSiteDir.readLocalSite(localSitePath);
@@ -171,8 +170,25 @@ describe("edit mode", () => {
     const localSiteFiles = {
       public: {
         pages: {
-          "page1.json": "page code"
+          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
         },
+        styles: {
+          "colors.json": JSON.stringify({ content: "" }, null, 2),
+          "fonts.json": JSON.stringify({ content: "" }, null, 2),
+          "theme.json": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+        },
+        site: {
+          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+        },
+        lightboxes: {
+          "lightBoxes1ID.json": JSON.stringify(
+            { isPopUp: true, content: "" },
+            null,
+            2
+          )
+        },
+        "extraData.json": JSON.stringify({ content: "" }, null, 2),
         "public-file.json": "public code",
         "public-file1.json": "public code 1"
       },
@@ -200,8 +216,25 @@ describe("edit mode", () => {
     expect(serverFiles).toEqual({
       public: {
         pages: {
-          "page1.json": "page code"
+          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
         },
+        styles: {
+          "colors.json": JSON.stringify({ content: "" }, null, 2),
+          "fonts.json": JSON.stringify({ content: "" }, null, 2),
+          "theme.json": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+        },
+        site: {
+          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+        },
+        lightboxes: {
+          "lightBoxes1ID.json": JSON.stringify(
+            { isPopUp: true, content: "" },
+            null,
+            2
+          )
+        },
+        "extraData.json": JSON.stringify({ content: "" }, null, 2),
         "public-file.json": "public code",
         "public-file-copied.json": "public code"
       },
@@ -220,8 +253,25 @@ describe("edit mode", () => {
     const localSiteFiles = {
       public: {
         pages: {
-          "page1.json": "page content"
+          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
         },
+        styles: {
+          "colors.json": JSON.stringify({ content: "" }, null, 2),
+          "fonts.json": JSON.stringify({ content: "" }, null, 2),
+          "theme.json": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+        },
+        site: {
+          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+        },
+        lightboxes: {
+          "lightBoxes1ID.json": JSON.stringify(
+            { isPopUp: true, content: "" },
+            null,
+            2
+          )
+        },
+        "extraData.json": JSON.stringify({ content: "" }, null, 2),
         "public-file.js": "public code",
         "public-file1.js": "public code 1"
       },
@@ -263,8 +313,25 @@ describe("edit mode", () => {
     const localSiteFiles = {
       public: {
         pages: {
-          "page1.json": "page code"
+          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
         },
+        styles: {
+          "colors.json": JSON.stringify({ content: "" }, null, 2),
+          "fonts.json": JSON.stringify({ content: "" }, null, 2),
+          "theme.json": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+        },
+        site: {
+          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+        },
+        lightboxes: {
+          "lightBoxes1ID.json": JSON.stringify(
+            { isPopUp: true, content: "" },
+            null,
+            2
+          )
+        },
+        "extraData.json": JSON.stringify({ content: "" }, null, 2),
         "public-file.json": "public code",
         "public-file1.json": "public code 1"
       },
@@ -309,8 +376,25 @@ describe("edit mode", () => {
     const localSiteFiles = {
       public: {
         pages: {
-          "page1.json": "page code"
+          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
         },
+        styles: {
+          "colors.json": JSON.stringify({ content: "" }, null, 2),
+          "fonts.json": JSON.stringify({ content: "" }, null, 2),
+          "theme.json": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+        },
+        site: {
+          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+        },
+        lightboxes: {
+          "lightBoxes1ID.json": JSON.stringify(
+            { isPopUp: true, content: "" },
+            null,
+            2
+          )
+        },
+        "extraData.json": JSON.stringify({ content: "" }, null, 2),
         "public-file.json": "public code",
         "public-file1.json": "public code 1"
       },
