@@ -1,14 +1,14 @@
 const http = require("http");
 const io = require("socket.io");
 const listenOnFreePort = require("listen-on-free-port");
-const localServer = require("@wix/wix-code-local-server");
+const localServer = require("@wix/wix-code-local-server/src/server");
 
 const runningServers = [];
 
 let serverHandler = () => {};
 
-function fakeLocalServer() {
-  localServer.spawn = function fakeSpawn() {
+function init() {
+  localServer.startInCloneMode = function fakeSpawn() {
     return listenOnFreePort(
       3000,
       ["localhost"],
@@ -21,12 +21,23 @@ function fakeLocalServer() {
         serverHandler(srv);
       }
 
-      return server.address().port;
+      return {
+        port: server.address().port,
+        close: () => {
+          return new Promise(resolve => {
+            const indexOfServer = runningServers.indexOf(server);
+            if (indexOfServer !== -1) {
+              runningServers.splice(indexOfServer, 1);
+            }
+            server.close(resolve);
+          });
+        }
+      };
     });
   };
 }
 
-function killAllRunningServers() {
+function reset() {
   return Promise.all(
     runningServers.splice(0).map(server => {
       return new Promise(resolve => {
@@ -41,7 +52,7 @@ function setServerHandler(handler) {
 }
 
 module.exports = {
-  init: fakeLocalServer,
-  reset: killAllRunningServers,
+  init,
+  reset,
   setServerHandler
 };

@@ -1,170 +1,52 @@
-const io = require("socket.io-client");
 const path = require("path");
-const _ = require("lodash");
-const flat = require("flat");
+const http = require("http");
+const stoppable = require("stoppable");
+const express = require("express");
+const browserify = require("browserify");
+const listenOnFreePort = require("listen-on-free-port");
 
-const flatten = data => flat(data, { delimiter: path.sep, safe: true });
-const unflatten = data =>
-  flat.unflatten(data, { delimiter: path.sep, safe: true });
+const bundle = browserify(path.resolve(path.join(__dirname, "browser.js")));
 
-const getLocalServerURL = port => `http://localhost:${port}`;
+const runningServers = [];
 
-const connectToLocalServer = port => {
+function start() {
+  const app = express();
   return new Promise((resolve, reject) => {
-    const socket = io.connect(getLocalServerURL(port));
-    socket.once("disconnect", () => {
-      socket.removeAllListeners();
-      socket.close();
-      reject("MULTIPLE_CONNECTIONS_SOCKET_DISCONECTED");
-    });
-    socket.once("connected", () => {
-      socket.removeAllListeners();
-      resolve(socket);
+    bundle.bundle((err, code) => {
+      if (err) reject(err);
+
+      listenOnFreePort(3000, ["localhost"], () => {
+        app.param("metasiteId", function(req, res, next, metasiteId) {
+          req.metasiteId = metasiteId;
+          next();
+        });
+
+        app.get("/editor.js", function(req, res) {
+          res.send(code);
+        });
+
+        app.get("/editor/:metasiteId", function(req, res) {
+          res.sendFile(path.resolve(path.join(__dirname, "editor.html")));
+        });
+
+        return stoppable(http.createServer(app), 0);
+      })
+        .then(server => {
+          runningServers.push(server);
+          resolve(server.address().port);
+        })
+        .catch(reject);
     });
   });
-};
+}
 
-const sendRequest = async (socket, event, payload) =>
-  new Promise((resolve, reject) => {
-    socket.emit(event, payload, (err, response) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(response);
-      }
-    });
-  });
-
-const isCloneMode = async socket => sendRequest(socket, "IS_CLONE_MODE");
-
-const updateSiteDocument = async (socket, siteDocument) =>
-  sendRequest(socket, "UPDATE_DOCUMENT", siteDocument);
-
-const updateCodeFiles = (socket, codeFileModifications) =>
-  sendRequest(socket, "UPDATE_CODE", codeFileModifications);
-
-const saveLocal = async (socket, siteDocument, codeFiles) => {
-  await updateSiteDocument(socket, siteDocument);
-  const codeFileChanges = calculateCodeFileChanges(codeFiles);
-  await updateCodeFiles(socket, codeFileChanges);
-  const currentCodeFiles = getCurrentCodeFiles(codeFiles);
-  return {
-    codeFiles: {
-      previous: currentCodeFiles,
-      current: currentCodeFiles
-    }
-  };
-};
-
-const calculateCodeFileChanges = codeFiles => {
-  const previousFlat = flatten(codeFiles.previous);
-  const currentFlat = flatten(codeFiles.current);
-  return {
-    modifiedFiles: _.pickBy(
-      currentFlat,
-      (currentContent, filePath) =>
-        currentContent !== null &&
-        !_.isArray(currentContent) &&
-        currentContent !== previousFlat[filePath]
-    ),
-    deletedFiles: Object.keys(
-      _.pickBy(currentFlat, currentContent => currentContent === null)
-    ),
-    copiedFiles: Object.keys(currentFlat)
-      .filter(targetPath => _.isArray(currentFlat[targetPath]))
-      .map(targetPath => ({
-        sourcePath: _.head(currentFlat[targetPath]),
-        targetPath
-      }))
-  };
-};
-
-const getCurrentCodeFiles = codeFiles => {
-  const flattened = flatten(codeFiles.current);
-  const withCopied = _.mapValues(flattened, value =>
-    _.isArray(value) ? flattened[_.head(value)] : value
-  );
-  const withoutDeleted = _.pickBy(withCopied, content => content !== null);
-  return unflatten(withoutDeleted);
-};
-
-const getCodeFilesFromServer = async socket => sendRequest(socket, "GET_CODE");
-const getSiteDocumentFromServer = async socket =>
-  sendRequest(socket, "GET_DOCUMENT");
-
-const loadEditor = async (
-  port,
-  { siteDocument: remoteSiteDocument, siteCode: remoteSiteCode } = {}
-) => {
-  let siteDocument = remoteSiteDocument || {};
-  let codeFiles = {
-    previous: {},
-    current: remoteSiteCode || {}
-  };
-
-  let socket;
-  try {
-    socket = await connectToLocalServer(port);
-    if (socket.connected) {
-      const isInCloneMode = await isCloneMode(socket);
-      if (isInCloneMode) {
-        const saveResult = await saveLocal(socket, siteDocument, codeFiles);
-        codeFiles = saveResult.codeFiles;
-      } else {
-        codeFiles.current = unflatten(await getCodeFilesFromServer(socket));
-        siteDocument = await getSiteDocumentFromServer(socket);
-      }
-      socket.on("LOCAL_CODE_UPDATED", (action, ...args) => {
-        switch (action) {
-          case "add":
-          case "change":
-            modifyCodeFile(...args);
-            break;
-          case "delete":
-            deleteCodeFile(...args);
-            break;
-
-          default:
-            break;
-        }
-      });
-    }
-  } catch (err) {
-    // TODO: handle connection error
-    console.log(err); // eslint-disable-line no-console
+module.exports = {
+  start,
+  killAllRunningServers: () => {
+    return Promise.all(
+      runningServers.splice(0).map(server => {
+        return new Promise(resolve => server.close(resolve));
+      })
+    );
   }
-
-  const modifyCodeFile = (filePath, content) => {
-    _.set(codeFiles.current, filePath.split(path.sep), content);
-  };
-
-  const copyCodeFile = (sourcePath, targetPath) => {
-    _.set(codeFiles.current, targetPath.split(path.sep), [sourcePath]);
-  };
-  const deleteCodeFile = filePath => {
-    _.set(codeFiles.current, filePath.split(path.sep), null);
-  };
-
-  return {
-    save: async () => {
-      const saveResult = await saveLocal(socket, siteDocument, codeFiles);
-      codeFiles = saveResult.codeFiles;
-    },
-    close: () => {
-      if (socket && socket.connected) {
-        socket.disconnect();
-      }
-    },
-    isConnected: () => !!(socket && socket.connected),
-    getSiteDocument: () => siteDocument,
-    modifyDocument: newDocumnet => {
-      siteDocument = newDocumnet;
-    },
-    getCodeFiles: () => getCurrentCodeFiles(codeFiles),
-    modifyCodeFile,
-    copyCodeFile,
-    deleteCodeFile
-  };
 };
-
-module.exports = loadEditor;

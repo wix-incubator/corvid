@@ -1,37 +1,46 @@
 const childProcess = require("child_process");
-const process = require("process");
 const path = require("path");
-const localServerTestKit = require("@wix/wix-code-local-server-testkit");
-const localFakeEditor = require("@wix/fake-local-mode-editor");
+
+function runFixture(name) {
+  return new Promise(resolve => {
+    const stdout = [];
+
+    const child = childProcess.spawn("electron", [
+      path.resolve(path.join(__dirname, "fixtures", name, "main.js"))
+    ]);
+
+    child.stdout.on("data", function(data) {
+      stdout.push(data.toString());
+    });
+
+    child.on("exit", () => resolve(stdout));
+  });
+}
 
 describe("main flow", () => {
-  beforeAll(() => {
-    process.env.WIXCODE_CLI_HEADLESS = true;
-    localServerTestKit.init();
-  });
-
-  afterEach(() => {
-    localFakeEditor.close();
-    return localServerTestKit.killAllRunningServers();
-  });
-
   describe("clone", () => {
-    it("should open browser with correct URL", () => {
+    it("should connect to local server", () => {
       expect.assertions(1);
 
-      const localEditorPort = localFakeEditor.start();
-      process.env.WIXCODE_CLI_WIX_DOMAIN = `localhost:${localEditorPort}`;
-
-      const onConnectionHandler = jest.mockFn();
-
-      localServerTestKit.setServerHandler(sio => {
-        sio.on("connection", onConnectionHandler);
-      });
-
-      childProcess.spawn(
-        path.resolve(path.join(__dirname, "..", "src", "index"), ["clone"])
+      return expect(runFixture("base")).resolves.toContain(
+        "local server connection established\n"
       );
-      expect(onConnectionHandler).toBeCalledOnce();
+    });
+
+    it("should open the app with the correct editor URL", () => {
+      expect.assertions(1);
+
+      return expect(runFixture("base")).resolves.toContain(
+        "page-title-updated\n"
+      );
+    });
+
+    it("should open the editor with the local server", () => {
+      expect.assertions(1);
+
+      return expect(runFixture("base")).resolves.toContain(
+        "page-title-updated\n"
+      );
     });
 
     it("should connect", () => {

@@ -1,32 +1,33 @@
 const process = require("process");
-const { app, BrowserWindow } = require("electron");
+const { BrowserWindow } = require("electron");
 
-module.exports = (
-  onOpen,
-  options = {
-    onClose: () => {},
-    windowOptions: {},
-    openDevTools: false,
-    headless: false
-  }
-) =>
-  app.on("ready", () => {
-    const headlessMode = options.headless || process.env.WIXCODE_CLI_HEADLESS;
-    const openDevTools =
-      options.openDevTools || process.env.WIXCODE_CLI_DEVTOOLS;
-    const win = new BrowserWindow({
-      width: 1280,
-      height: 960,
-      ...options.windowOptions,
-      webPreferences: { nodeIntegration: false },
-      show: !headlessMode
-    });
+const isHeadlessMode = !!process.env.WIXCODE_CLI_HEADLESS;
+const isDevTools = !!process.env.WIXCODE_CLI_DEVTOOLS;
 
-    win.on("closed", options.onClose);
+const openWindow = (windowOptions = {}) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const win = new BrowserWindow({
+        width: 1280,
+        height: 960,
+        show: !isHeadlessMode,
+        ...windowOptions,
+        webPreferences: { nodeIntegration: false }
+      });
 
-    if (openDevTools) {
-      win.webContents.openDevTools({ mode: "detach" });
+      if (isDevTools) {
+        win.webContents.openDevTools({ mode: "detach" });
+      }
+
+      setTimeout(() => resolve(win), isDevTools ? 1000 : 0);
+    } catch (exc) {
+      reject(exc);
     }
-
-    setTimeout(() => onOpen(win), openDevTools ? 1000 : 0);
   });
+};
+
+module.exports = {
+  isHeadlessMode,
+  isDevTools,
+  openWindow
+};

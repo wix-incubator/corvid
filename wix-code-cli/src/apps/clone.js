@@ -1,41 +1,43 @@
 /* eslint-disable no-console */
 const process = require("process");
-const path = require("path");
-const fs = require("fs");
 const client = require("socket.io-client");
-const { spawn: spawnLocalServer } = require("@wix/wix-code-local-server");
-const inElectron = require("../utils/electron");
 
-const editorUrl = (baseDomain, metasiteId, serverEditorPort) =>
-  `https://${baseDomain}/editor/${metasiteId}?localServerPort=${serverEditorPort}`;
+const genEditorUrl = (useSsl, baseDomain, metasiteId, serverEditorPort) =>
+  `${
+    useSsl ? "https" : "http"
+  }://${baseDomain}/editor/${metasiteId}?localServerPort=${serverEditorPort}`;
 
-const wixCodeConfig = JSON.parse(
-  fs.readFileSync(path.join(".", ".wixcoderc.json"))
-);
-
-const localServerPort = spawnLocalServer();
-
-inElectron(win => {
+module.exports = (
+  wixCodeConfig,
+  localServerPort,
+  closeLocalServer,
+  { useSsl = true }
+) => async win => {
   const clnt = client(`http://localhost:${localServerPort}`);
+  win.on("close", closeLocalServer);
 
-  clnt.on("status", ({ connected, editorPort }) => {
+  clnt.on("status", ({ connected, localServerEditorPort }) => {
     if (connected) {
       console.log(`The local Wix Code server is already connected to a local editor. If you are in
 an editing session, please close it before trying to run this command again.`);
+      closeLocalServer();
       process.exit(-1);
     }
 
-    if (!editorPort) {
+    if (!localServerEditorPort) {
       console.log("local server did not return an editor port");
+      closeLocalServer();
       process.exit(-1);
     }
 
-    win.loadURL(
-      editorUrl(
-        process.env.WIXCODE_CLI_WIX_DOMAIN || "www.wix.com",
-        wixCodeConfig.metasiteId,
-        editorPort
-      )
+    const editorUrl = genEditorUrl(
+      useSsl,
+      process.env.WIXCODE_CLI_WIX_DOMAIN || "www.wix.com",
+      wixCodeConfig.metasiteId,
+      localServerEditorPort
     );
+
+    console.log(editorUrl);
+    win.loadURL(editorUrl);
   });
-});
+};

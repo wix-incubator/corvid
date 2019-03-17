@@ -1,5 +1,5 @@
 const eventually = require("@wix/wix-eventually");
-const loadEditor = require("@wix/fake-local-mode-editor");
+const loadEditor = require("@wix/fake-local-mode-editor/src/editor");
 const localServer = require("../../src/server");
 const { initLocalSite } = require("../utils/localSiteDir");
 
@@ -21,9 +21,10 @@ describe("client connection", () => {
     const server = await localServer.startInCloneMode(localSiteDir);
 
     const editor1 = await loadEditor(server.port);
-    const editor2 = await loadEditor(server.port);
-
-    expect(editor2.isConnected()).toBe(false);
+    await expect(loadEditor(server.port)).rejects.toEqual([
+      "DISCONNECTED",
+      "io server disconnect"
+    ]);
 
     await editor1.close();
     await server.close();

@@ -1,4 +1,4 @@
-const loadEditor = require("@wix/fake-local-mode-editor");
+const loadEditor = require("@wix/fake-local-mode-editor/src/editor");
 const eventually = require("@wix/wix-eventually");
 const localServer = require("../../src/server");
 const localSiteDir = require("../utils/localSiteDir");
