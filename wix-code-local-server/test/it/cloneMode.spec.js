@@ -48,18 +48,18 @@ describe("clone mode", () => {
     expect(localSiteFiles).toEqual({
       public: {
         pages: {
-          ["page1ID.json"]: JSON.stringify({ content: "" }, null, 2)
+          ["page1ID.wix"]: JSON.stringify({ content: "" }, null, 2)
         },
         styles: {
-          ["colors.json"]: JSON.stringify({ content: "" }, null, 2),
-          ["fonts.json"]: JSON.stringify({ content: "" }, null, 2),
-          ["theme.json"]: JSON.stringify({ content: "" }, null, 2),
-          ["topLevelStyles.json"]: JSON.stringify({ content: "" }, null, 2)
+          ["colors.wix"]: JSON.stringify({ content: "" }, null, 2),
+          ["fonts.wix"]: JSON.stringify({ content: "" }, null, 2),
+          ["theme.wix"]: JSON.stringify({ content: "" }, null, 2),
+          ["topLevelStyles.wix"]: JSON.stringify({ content: "" }, null, 2)
         },
         site: {
-          ["commonComponents.json"]: JSON.stringify({ content: "" }, null, 2)
+          ["commonComponents.wix"]: JSON.stringify({ content: "" }, null, 2)
         },
-        "extraData.json": JSON.stringify({ content: "" }, null, 2)
+        "extraData.wix": JSON.stringify({ content: "" }, null, 2)
       }
     });
 
@@ -91,12 +91,12 @@ describe("clone mode", () => {
     expect(serverFiles).toEqual({
       public: {
         pages: {
-          ["editorPage1.json"]: JSON.stringify(
+          ["editorPage1.wix"]: JSON.stringify(
             { content: "editor page 1" },
             null,
             2
           ),
-          ["editorPage2.json"]: JSON.stringify(
+          ["editorPage2.wix"]: JSON.stringify(
             { content: "editor page 2" },
             null,
             2

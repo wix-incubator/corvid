@@ -101,10 +101,30 @@ const readWrite = (siteRootPath, filesWatcher) => {
     }
 
     await Promise.all([
-      new Promise(resolve => rimraf(fullPath(sitePaths.pages()), resolve)),
-      new Promise(resolve => rimraf(fullPath(sitePaths.lightboxes()), resolve)),
-      new Promise(resolve => rimraf(fullPath(sitePaths.styles()), resolve)),
-      new Promise(resolve => rimraf(fullPath(sitePaths.site()), resolve))
+      new Promise(resolve =>
+        rimraf(
+          `${fullPath(sitePaths.pages())}/**/*${sitePaths.fileExtention}`,
+          resolve
+        )
+      ),
+      new Promise(resolve =>
+        rimraf(
+          `${fullPath(sitePaths.lightboxes())}/**/*${sitePaths.fileExtention}`,
+          resolve
+        )
+      ),
+      new Promise(resolve =>
+        rimraf(
+          `${fullPath(sitePaths.styles())}/**/*${sitePaths.fileExtention}`,
+          resolve
+        )
+      ),
+      new Promise(resolve =>
+        rimraf(
+          `${fullPath(sitePaths.site())}/**/*${sitePaths.fileExtention}`,
+          resolve
+        )
+      )
     ]);
   };
 

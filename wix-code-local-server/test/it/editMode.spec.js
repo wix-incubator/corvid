@@ -49,19 +49,19 @@ describe("edit mode", () => {
     const localSiteFiles = {
       public: {
         pages: {
-          "page1ID.json": JSON.stringify({ content: "" }, null, 2),
-          "page2ID.json": JSON.stringify({ content: "" }, null, 2)
+          "page1ID.wix": JSON.stringify({ content: "" }, null, 2),
+          "page2ID.wix": JSON.stringify({ content: "" }, null, 2)
         },
         styles: {
-          "colors.json": JSON.stringify({ content: "" }, null, 2),
-          "fonts.json": JSON.stringify({ content: "" }, null, 2),
-          "theme.json": JSON.stringify({ content: "" }, null, 2),
-          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+          "colors.wix": JSON.stringify({ content: "" }, null, 2),
+          "fonts.wix": JSON.stringify({ content: "" }, null, 2),
+          "theme.wix": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.wix": JSON.stringify({ content: "" }, null, 2)
         },
         site: {
-          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+          "commonComponents.wix": JSON.stringify({ content: "" }, null, 2)
         },
-        "extraData.json": JSON.stringify({ content: "" }, null, 2)
+        "extraData.wix": JSON.stringify({ content: "" }, null, 2)
       }
     };
 
@@ -96,25 +96,25 @@ describe("edit mode", () => {
     const localSiteFiles = {
       public: {
         pages: {
-          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
+          "page1ID.wix": JSON.stringify({ content: "" }, null, 2)
         },
         styles: {
-          "colors.json": JSON.stringify({ content: "" }, null, 2),
-          "fonts.json": JSON.stringify({ content: "" }, null, 2),
-          "theme.json": JSON.stringify({ content: "" }, null, 2),
-          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+          "colors.wix": JSON.stringify({ content: "" }, null, 2),
+          "fonts.wix": JSON.stringify({ content: "" }, null, 2),
+          "theme.wix": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.wix": JSON.stringify({ content: "" }, null, 2)
         },
         site: {
-          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+          "commonComponents.wix": JSON.stringify({ content: "" }, null, 2)
         },
         lightboxes: {
-          "lightBoxes1ID.json": JSON.stringify(
+          "lightBoxes1ID.wix": JSON.stringify(
             { isPopUp: true, content: "" },
             null,
             2
           )
         },
-        "extraData.json": JSON.stringify({ content: "" }, null, 2)
+        "extraData.wix": JSON.stringify({ content: "" }, null, 2)
       }
     };
 
@@ -135,30 +135,30 @@ describe("edit mode", () => {
     expect(localSiteDocument).toEqual({
       public: {
         pages: {
-          "page1ID.json": JSON.stringify({ content: "new content" }, null, 2),
-          "page2ID.json": JSON.stringify(
+          "page1ID.wix": JSON.stringify({ content: "new content" }, null, 2),
+          "page2ID.wix": JSON.stringify(
             { content: "this is the new page" },
             null,
             2
           )
         },
         styles: {
-          "colors.json": JSON.stringify({ content: "" }, null, 2),
-          "fonts.json": JSON.stringify({ content: "" }, null, 2),
-          "theme.json": JSON.stringify({ content: "" }, null, 2),
-          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+          "colors.wix": JSON.stringify({ content: "" }, null, 2),
+          "fonts.wix": JSON.stringify({ content: "" }, null, 2),
+          "theme.wix": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.wix": JSON.stringify({ content: "" }, null, 2)
         },
         site: {
-          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+          "commonComponents.wix": JSON.stringify({ content: "" }, null, 2)
         },
         lightboxes: {
-          "lightBoxes1ID.json": JSON.stringify(
+          "lightBoxes1ID.wix": JSON.stringify(
             { isPopUp: true, content: "this is a new content" },
             null,
             2
           )
         },
-        "extraData.json": JSON.stringify({ content: "" }, null, 2)
+        "extraData.wix": JSON.stringify({ content: "" }, null, 2)
       }
     });
 
@@ -170,25 +170,25 @@ describe("edit mode", () => {
     const localSiteFiles = {
       public: {
         pages: {
-          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
+          "page1ID.wix": JSON.stringify({ content: "" }, null, 2)
         },
         styles: {
-          "colors.json": JSON.stringify({ content: "" }, null, 2),
-          "fonts.json": JSON.stringify({ content: "" }, null, 2),
-          "theme.json": JSON.stringify({ content: "" }, null, 2),
-          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+          "colors.wix": JSON.stringify({ content: "" }, null, 2),
+          "fonts.wix": JSON.stringify({ content: "" }, null, 2),
+          "theme.wix": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.wix": JSON.stringify({ content: "" }, null, 2)
         },
         site: {
-          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+          "commonComponents.wix": JSON.stringify({ content: "" }, null, 2)
         },
         lightboxes: {
-          "lightBoxes1ID.json": JSON.stringify(
+          "lightBoxes1ID.wix": JSON.stringify(
             { isPopUp: true, content: "" },
             null,
             2
           )
         },
-        "extraData.json": JSON.stringify({ content: "" }, null, 2),
+        "extraData.wix": JSON.stringify({ content: "" }, null, 2),
         "public-file.json": "public code",
         "public-file1.json": "public code 1"
       },
@@ -216,25 +216,25 @@ describe("edit mode", () => {
     expect(serverFiles).toEqual({
       public: {
         pages: {
-          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
+          "page1ID.wix": JSON.stringify({ content: "" }, null, 2)
         },
         styles: {
-          "colors.json": JSON.stringify({ content: "" }, null, 2),
-          "fonts.json": JSON.stringify({ content: "" }, null, 2),
-          "theme.json": JSON.stringify({ content: "" }, null, 2),
-          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+          "colors.wix": JSON.stringify({ content: "" }, null, 2),
+          "fonts.wix": JSON.stringify({ content: "" }, null, 2),
+          "theme.wix": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.wix": JSON.stringify({ content: "" }, null, 2)
         },
         site: {
-          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+          "commonComponents.wix": JSON.stringify({ content: "" }, null, 2)
         },
         lightboxes: {
-          "lightBoxes1ID.json": JSON.stringify(
+          "lightBoxes1ID.wix": JSON.stringify(
             { isPopUp: true, content: "" },
             null,
             2
           )
         },
-        "extraData.json": JSON.stringify({ content: "" }, null, 2),
+        "extraData.wix": JSON.stringify({ content: "" }, null, 2),
         "public-file.json": "public code",
         "public-file-copied.json": "public code"
       },
@@ -253,25 +253,25 @@ describe("edit mode", () => {
     const localSiteFiles = {
       public: {
         pages: {
-          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
+          "page1ID.wix": JSON.stringify({ content: "" }, null, 2)
         },
         styles: {
-          "colors.json": JSON.stringify({ content: "" }, null, 2),
-          "fonts.json": JSON.stringify({ content: "" }, null, 2),
-          "theme.json": JSON.stringify({ content: "" }, null, 2),
-          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+          "colors.wix": JSON.stringify({ content: "" }, null, 2),
+          "fonts.wix": JSON.stringify({ content: "" }, null, 2),
+          "theme.wix": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.wix": JSON.stringify({ content: "" }, null, 2)
         },
         site: {
-          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+          "commonComponents.wix": JSON.stringify({ content: "" }, null, 2)
         },
         lightboxes: {
-          "lightBoxes1ID.json": JSON.stringify(
+          "lightBoxes1ID.wix": JSON.stringify(
             { isPopUp: true, content: "" },
             null,
             2
           )
         },
-        "extraData.json": JSON.stringify({ content: "" }, null, 2),
+        "extraData.wix": JSON.stringify({ content: "" }, null, 2),
         "public-file.js": "public code",
         "public-file1.js": "public code 1"
       },
@@ -313,25 +313,25 @@ describe("edit mode", () => {
     const localSiteFiles = {
       public: {
         pages: {
-          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
+          "page1ID.wix": JSON.stringify({ content: "" }, null, 2)
         },
         styles: {
-          "colors.json": JSON.stringify({ content: "" }, null, 2),
-          "fonts.json": JSON.stringify({ content: "" }, null, 2),
-          "theme.json": JSON.stringify({ content: "" }, null, 2),
-          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+          "colors.wix": JSON.stringify({ content: "" }, null, 2),
+          "fonts.wix": JSON.stringify({ content: "" }, null, 2),
+          "theme.wix": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.wix": JSON.stringify({ content: "" }, null, 2)
         },
         site: {
-          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+          "commonComponents.wix": JSON.stringify({ content: "" }, null, 2)
         },
         lightboxes: {
-          "lightBoxes1ID.json": JSON.stringify(
+          "lightBoxes1ID.wix": JSON.stringify(
             { isPopUp: true, content: "" },
             null,
             2
           )
         },
-        "extraData.json": JSON.stringify({ content: "" }, null, 2),
+        "extraData.wix": JSON.stringify({ content: "" }, null, 2),
         "public-file.json": "public code",
         "public-file1.json": "public code 1"
       },
@@ -373,28 +373,36 @@ describe("edit mode", () => {
   });
 
   it("should update the editor when a code file is deleted locally", async () => {
+    // const styles = sc.createFonts()
+    // const localSiteFiles2 = createLocalSite(
+    //   sc.createPage(),
+    //   fonts
+    // )
+
+    // expect(editor.getFonts()).toEqual(fonts)
+
     const localSiteFiles = {
       public: {
         pages: {
-          "page1ID.json": JSON.stringify({ content: "" }, null, 2)
+          "page1ID.wix": JSON.stringify({ content: "" }, null, 2)
         },
         styles: {
-          "colors.json": JSON.stringify({ content: "" }, null, 2),
-          "fonts.json": JSON.stringify({ content: "" }, null, 2),
-          "theme.json": JSON.stringify({ content: "" }, null, 2),
-          "topLevelStyles.json": JSON.stringify({ content: "" }, null, 2)
+          "colors.wix": JSON.stringify({ content: "" }, null, 2),
+          "fonts.wix": JSON.stringify({ content: "" }, null, 2),
+          "theme.wix": JSON.stringify({ content: "" }, null, 2),
+          "topLevelStyles.wix": JSON.stringify({ content: "" }, null, 2)
         },
         site: {
-          "commonComponents.json": JSON.stringify({ content: "" }, null, 2)
+          "commonComponents.wix": JSON.stringify({ content: "" }, null, 2)
         },
         lightboxes: {
-          "lightBoxes1ID.json": JSON.stringify(
+          "lightBoxes1ID.wix": JSON.stringify(
             { isPopUp: true, content: "" },
             null,
             2
           )
         },
-        "extraData.json": JSON.stringify({ content: "" }, null, 2),
+        "extraData.wix": JSON.stringify({ content: "" }, null, 2),
         "public-file.json": "public code",
         "public-file1.json": "public code 1"
       },
