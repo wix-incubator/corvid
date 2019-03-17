@@ -1,9 +1,11 @@
 const path = require("path");
 const fs = require("fs-extra");
 const chokidar = require("chokidar");
+const isObject_ = require('lodash/isObject')
 
 const ensureWriteFile = async (path, content) => {
   await fs.ensureFile(path);
+  content = isObject_(content) ? JSON.stringify(content) : content;
   await fs.writeFile(path, content);
 };
 

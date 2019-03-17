@@ -7,7 +7,7 @@ const _ = require("lodash");
 
 const flatten = data => flat(data, { delimiter: path.sep, safe: true });
 
-const isCodeFile = filePath => !filePath.startsWith("public/pages");
+const isCodeFile = filePath => !(filePath.startsWith("public/pages") && filePath.endsWith('.json'));
 
 const readWrite = (siteRootPath, filesWatcher) => {
   const getCodeFiles = async (dirPath = siteRootPath) => {
@@ -54,7 +54,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
   };
 
   const updateCode = async updateRequest => {
-    const { modifiedFiles, copiedFiles, deletedFiles } = updateRequest;
+    const { modifiedFiles, copiedFiles = [], deletedFiles = [] } = updateRequest;
     try {
       const updates = Object.keys(modifiedFiles).map(filePath =>
         filesWatcher.ignoredWriteFile(filePath, modifiedFiles[filePath])
