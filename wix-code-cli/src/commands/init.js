@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const fetch = require("node-fetch");
+const fetch = require("isomorphic-fetch");
 const normalize = require("normalize-url");
 const path = require("path");
 const fs = require("fs");
