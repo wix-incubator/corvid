@@ -2,7 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const { app } = require("electron");
-const { startInpullMode } = require("@wix/wix-code-local-server/src/server");
+const { startInCloneMode } = require("@wix/wix-code-local-server/src/server");
 const { openWindow, launch } = require("../utils/electron");
 const pullApp = require("../apps/pull");
 
@@ -16,7 +16,7 @@ app &&
       const {
         port: localServerPort,
         close: closeLocalServer
-      } = await startInpullMode();
+      } = await startInCloneMode();
       openWindow({ show: false }).then(
         pullApp(wixCodeConfig, localServerPort, closeLocalServer)
       );
