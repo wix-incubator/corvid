@@ -1,14 +1,18 @@
 /* eslint-disable no-console */
 const fs = require("fs");
 const path = require("path");
+const process = require("process");
 const { app } = require("electron");
 const localFakeEditor = require("@wix/fake-local-mode-editor");
 const localServerTestKit = require("@wix/wix-code-local-server-testkit");
 localServerTestKit.init();
 
-const { startInEditMode } = require("@wix/wix-code-local-server/src/server");
+const {
+  startInCloneMode,
+  startInEditMode
+} = require("@wix/wix-code-local-server/src/server");
 const { openWindow } = require("../../../src/utils/electron");
-const pullApp = require("../../../src/apps/pull");
+const openEditorApp = require("../../../src/apps/open-editor");
 
 const wixCodeConfig = JSON.parse(
   fs.readFileSync(path.join(__dirname, ".wixcoderc.json"))
@@ -26,10 +30,10 @@ app.on("ready", () => {
       });
     });
 
-    const {
-      port: localServerPort,
-      close: closeLocalServer
-    } = await startInEditMode();
+    const { port: localServerPort, close: closeLocalServer } = await (process
+      .argv[2] === "clone"
+      ? startInCloneMode()
+      : startInEditMode());
     win.on("page-title-updated", (event, title) => {
       if (title === "Fake local editor") {
         console.log("fake editor loaded");
@@ -37,7 +41,7 @@ app.on("ready", () => {
       }
     });
 
-    return pullApp(wixCodeConfig, localServerPort, closeLocalServer, {
+    return openEditorApp(wixCodeConfig, localServerPort, closeLocalServer, {
       useSsl: false
     })(win);
   });

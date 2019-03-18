@@ -7,21 +7,26 @@ const { BrowserWindow } = require("electron");
 const isHeadlessMode = !!process.env.WIXCODE_CLI_HEADLESS;
 const isDevTools = !!process.env.WIXCODE_CLI_DEVTOOLS;
 
-function launch(file) {
+function launch(file, options = {}) {
   const cp = childProcess.spawn(
     path.resolve(
       path.join(__dirname, "..", "..", "node_modules", ".bin", "electron")
     ),
-    [path.resolve(path.join(file))]
+    [path.resolve(path.join(file))],
+    options
   );
 
-  cp.stdout.on("data", function(data) {
-    console.log(data.toString());
-  });
+  if (options.detached) {
+    cp.unref();
+  } else {
+    cp.stdout.on("data", function(data) {
+      console.log(data.toString());
+    });
 
-  cp.stderr.on("data", function(data) {
-    console.error(data.toString());
-  });
+    cp.stderr.on("data", function(data) {
+      console.error(data.toString());
+    });
+  }
 }
 
 const openWindow = (windowOptions = {}) => {

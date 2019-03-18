@@ -1,12 +1,16 @@
 /* eslint-disable no-console */
 const fs = require("fs");
 const path = require("path");
+const process = require("process");
 const { app } = require("electron");
 const localFakeEditor = require("@wix/fake-local-mode-editor");
 const localServerTestKit = require("@wix/wix-code-local-server-testkit");
 localServerTestKit.init();
 
-const { startInCloneMode } = require("@wix/wix-code-local-server/src/server");
+const {
+  startInCloneMode,
+  startInEditMode
+} = require("@wix/wix-code-local-server/src/server");
 const { openWindow } = require("../../../src/utils/electron");
 const pullApp = require("../../../src/apps/pull");
 const localSiteDir = require("@wix/wix-code-local-server/test/utils/localSiteDir");
@@ -38,10 +42,10 @@ app.on("ready", () => {
     });
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
-    const {
-      port: localServerPort,
-      close: closeLocalServer
-    } = await startInCloneMode(localSitePath);
+    const { port: localServerPort, close: closeLocalServer } = await (process
+      .argv[2] === "edit"
+      ? startInEditMode(localSitePath)
+      : startInCloneMode(localSitePath));
     win.on("page-title-updated", (event, title) => {
       if (title === "Fake local editor") {
         console.log("fake editor loaded");

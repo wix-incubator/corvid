@@ -2,8 +2,6 @@
 const process = require("process");
 const client = require("socket.io-client");
 
-const signInPage = "https://users.wix.com/signin";
-
 const genEditorUrl = (useSsl, baseDomain, metasiteId, serverEditorPort) =>
   `${
     useSsl ? "https" : "http"
@@ -28,9 +26,9 @@ an editing session, please close it before trying to run this command again.`);
           });
         }
 
-        if (mode !== "clone") {
+        if (mode !== "edit") {
           closeLocalServer().then(() => {
-            reject("local server is not in clone mode");
+            reject("local server is not in edit mode");
           });
         }
 
@@ -50,14 +48,6 @@ an editing session, please close it before trying to run this command again.`);
           wixCodeConfig.metasiteId,
           localServerEditorPort
         );
-
-        win.webContents.on("did-navigate", (event, url) => {
-          if (url.startsWith(signInPage)) {
-            win.show();
-          } else if (url === editorUrl) {
-            win.hide();
-          }
-        });
 
         win.loadURL(editorUrl);
       }
