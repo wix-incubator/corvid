@@ -1,7 +1,7 @@
 const { runFixture } = require("./utils");
 
 describe("main flow", () => {
-  describe("clone", () => {
+  describe("pull", () => {
     it("should connect to local server", () => {
       expect.assertions(1);
 

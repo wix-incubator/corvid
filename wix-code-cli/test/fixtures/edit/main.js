@@ -8,7 +8,7 @@ localServerTestKit.init();
 
 const { startInEditMode } = require("@wix/wix-code-local-server/src/server");
 const { openWindow } = require("../../../src/utils/electron");
-const cloneApp = require("../../../src/apps/clone");
+const pullApp = require("../../../src/apps/pull");
 
 const wixCodeConfig = JSON.parse(
   fs.readFileSync(path.join(__dirname, ".wixcoderc.json"))
@@ -37,7 +37,7 @@ app.on("ready", () => {
       }
     });
 
-    return cloneApp(wixCodeConfig, localServerPort, closeLocalServer, {
+    return pullApp(wixCodeConfig, localServerPort, closeLocalServer, {
       useSsl: false
     })(win);
   });
