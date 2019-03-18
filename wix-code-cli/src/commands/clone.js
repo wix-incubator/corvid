@@ -7,10 +7,17 @@ const { startInCloneMode } = require("@wix/wix-code-local-server/src/server");
 const { openWindow } = require("../utils/electron");
 const cloneApp = require("../apps/clone");
 
-async function clone() {
-  const cp = childProcess.spawn("electron", [
-    path.resolve(path.join(__filename))
-  ]);
+async function clone(args) {
+  const workingDirectory = path.resolve(args.C || process.cwd());
+  const cp = childProcess.spawn(
+    path.resolve(
+      path.join(__dirname, "..", "..", "node_modules", ".bin", "electron")
+    ),
+    [path.resolve(path.join(__filename))],
+    {
+      cwd: workingDirectory
+    }
+  );
 
   cp.stdout.on("data", function(data) {
     console.log(data.toString());
@@ -45,5 +52,6 @@ app &&
 module.exports = {
   command: "clone",
   describe: "clones the site",
+  builder: args => args.option("C", { describe: "path", type: "string" }),
   handler: clone
 };
