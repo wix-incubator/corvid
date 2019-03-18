@@ -26,7 +26,7 @@ describe("edit", () => {
 
     return expect(runFixture("edit")).resolves.toMatchObject([
       0,
-      expect.arrayContaining(["fake editor loaded\n"]),
+      expect.arrayContaining(["editor connected\n"]),
       expect.anything()
     ]);
   });

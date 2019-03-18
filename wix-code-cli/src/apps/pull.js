@@ -1,13 +1,9 @@
 /* eslint-disable no-console */
 const process = require("process");
 const client = require("socket.io-client");
+const genEditorUrl = require("../utils/genEditorUrl");
 
 const signInPage = "https://users.wix.com/signin";
-
-const genEditorUrl = (useSsl, baseDomain, metasiteId, serverEditorPort) =>
-  `${
-    useSsl ? "https" : "http"
-  }://${baseDomain}/editor/${metasiteId}?localServerPort=${serverEditorPort}`;
 
 module.exports = (
   wixCodeConfig,
@@ -18,6 +14,19 @@ module.exports = (
   const clnt = client(`http://localhost:${localServerPort}`);
 
   return new Promise((resolve, reject) => {
+    win.on("close", () => {
+      closeLocalServer().then(resolve);
+    });
+
+    clnt.on("editor-connected", () => {
+      console.log("editor connected");
+    });
+
+    clnt.on("clone-complete", () => {
+      console.log("pulled remote site content");
+      win.close();
+    });
+
     clnt.on(
       "status",
       ({ connected, mode, editorPort: localServerEditorPort }) => {
@@ -39,10 +48,6 @@ an editing session, please close it before trying to run this command again.`);
             reject("local server did not return an editor port");
           });
         }
-
-        win.on("close", () => {
-          closeLocalServer().then(resolve);
-        });
 
         const editorUrl = genEditorUrl(
           useSsl,

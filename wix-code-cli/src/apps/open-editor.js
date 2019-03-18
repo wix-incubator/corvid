@@ -1,11 +1,7 @@
 /* eslint-disable no-console */
 const process = require("process");
 const client = require("socket.io-client");
-
-const genEditorUrl = (useSsl, baseDomain, metasiteId, serverEditorPort) =>
-  `${
-    useSsl ? "https" : "http"
-  }://${baseDomain}/editor/${metasiteId}?localServerPort=${serverEditorPort}`;
+const genEditorUrl = require("../utils/genEditorUrl");
 
 module.exports = (
   wixCodeConfig,
@@ -16,6 +12,14 @@ module.exports = (
   const clnt = client(`http://localhost:${localServerPort}`);
 
   return new Promise((resolve, reject) => {
+    win.on("close", () => {
+      closeLocalServer().then(resolve);
+    });
+
+    clnt.on("editor-connected", () => {
+      console.log("editor connected");
+    });
+
     clnt.on(
       "status",
       ({ connected, mode, editorPort: localServerEditorPort }) => {

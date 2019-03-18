@@ -37,9 +37,10 @@ app.on("ready", () => {
     win.on("page-title-updated", (event, title) => {
       if (title === "Fake local editor") {
         console.log("fake editor loaded");
-        win.close();
       }
     });
+
+    setTimeout(() => win.close(), 1000);
 
     return openEditorApp(wixCodeConfig, localServerPort, closeLocalServer, {
       useSsl: false

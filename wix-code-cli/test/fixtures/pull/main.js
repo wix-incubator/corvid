@@ -42,16 +42,20 @@ app.on("ready", () => {
     });
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
-    const { port: localServerPort, close: closeLocalServer } = await (process
-      .argv[2] === "edit"
+    const {
+      server,
+      port: localServerPort,
+      close: closeLocalServer
+    } = await (process.argv[2] === "edit"
       ? startInEditMode(localSitePath)
       : startInCloneMode(localSitePath));
     win.on("page-title-updated", (event, title) => {
       if (title === "Fake local editor") {
         console.log("fake editor loaded");
-        win.close();
       }
     });
+
+    setTimeout(() => server.emit("clone-complete", ""), 1000);
 
     return pullApp(wixCodeConfig, localServerPort, closeLocalServer, {
       useSsl: false

@@ -17,6 +17,7 @@ function startEditorListener() {
     socketApi(srv);
 
     return {
+      server: srv,
       port: server.address().port,
       close: () => {
         return new Promise(resolve => {
@@ -49,7 +50,12 @@ const fakeSpawn = mode => localSite => {
       });
     });
 
+    editorListener.server.on("connection", () => {
+      srv.emit("editor-connected", "");
+    });
+
     return {
+      server: srv,
       port: server.address().port,
       close: () => {
         return new Promise(resolve => {
