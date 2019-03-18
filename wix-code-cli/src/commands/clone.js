@@ -34,17 +34,16 @@ app &&
       const wixCodeConfig = JSON.parse(
         fs.readFileSync(path.join(".", ".wixcoderc.json"))
       );
-      console.log(wixCodeConfig);
 
       const {
         port: localServerPort,
         close: closeLocalServer
       } = await startInCloneMode();
-      openWindow().then(
+      openWindow({ show: false }).then(
         cloneApp(wixCodeConfig, localServerPort, closeLocalServer)
       );
     } catch (exc) {
-      console.log(exc);
+      console.error(exc);
       process.exit(-1);
     }
   });

@@ -6,24 +6,13 @@ const localFakeEditor = require("@wix/fake-local-mode-editor");
 const localServerTestKit = require("@wix/wix-code-local-server-testkit");
 localServerTestKit.init();
 
-const { startInCloneMode } = require("@wix/wix-code-local-server/src/server");
+const { startInEditMode } = require("@wix/wix-code-local-server/src/server");
 const { openWindow } = require("../../../src/utils/electron");
 const cloneApp = require("../../../src/apps/clone");
-const localSiteDir = require("@wix/wix-code-local-server/test/utils/localSiteDir");
 
 const wixCodeConfig = JSON.parse(
   fs.readFileSync(path.join(__dirname, ".wixcoderc.json"))
 );
-const localSiteFiles = {
-  public: {
-    "public-file.json": "public code"
-  },
-  backend: {
-    "sub-folder": {
-      "backendFile.jsw": "backend code"
-    }
-  }
-};
 
 app.on("ready", () => {
   openWindow({ show: false }).then(async win => {
@@ -37,11 +26,10 @@ app.on("ready", () => {
       });
     });
 
-    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const {
       port: localServerPort,
       close: closeLocalServer
-    } = await startInCloneMode(localSitePath);
+    } = await startInEditMode();
     win.on("page-title-updated", (event, title) => {
       if (title === "Fake local editor") {
         console.log("fake editor loaded");

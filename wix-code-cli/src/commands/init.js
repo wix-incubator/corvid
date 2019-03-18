@@ -28,6 +28,12 @@ async function init(args) {
     }
   }
 
+  if (fs.readdirSync(args.dir).length > 0) {
+    console.error(`target directory ${args.dir} is not empty`);
+    process.exit(-1);
+  }
+
+  console.log(`initialising project in ${args.dir}`);
   fs.writeFileSync(
     path.join(args.dir, ".wixcoderc.json"),
     JSON.stringify({ metasiteId }, null, 2)
