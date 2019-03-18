@@ -20,3 +20,5 @@ yarn.lock
 .vscode
 .idea
 .history
+
+coverage
