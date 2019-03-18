@@ -1,7 +1,7 @@
 const { runFixture } = require("./utils");
 
 describe("pull", () => {
-  it("should connect to local server", () => {
+  test("should connect to local server", () => {
     expect.assertions(1);
 
     return expect(runFixture("pull")).resolves.toMatchObject([
@@ -11,7 +11,7 @@ describe("pull", () => {
     ]);
   });
 
-  it("should open the app with the correct editor URL", () => {
+  test("should open the app with the correct editor URL", () => {
     expect.assertions(1);
 
     return expect(runFixture("pull")).resolves.toMatchObject([
@@ -21,7 +21,7 @@ describe("pull", () => {
     ]);
   });
 
-  it("should open the editor with the local server port", () => {
+  test("should open the editor with the local server port", () => {
     expect.assertions(1);
 
     return expect(runFixture("pull")).resolves.toMatchObject([
@@ -31,7 +31,7 @@ describe("pull", () => {
     ]);
   });
 
-  it("should exit with status code 255 when the local server is not in clone mode", () => {
+  test("should exit with status code 255 when the local server is not in clone mode", () => {
     expect.assertions(1);
 
     return expect(runFixture("pull", ["edit"])).resolves.toMatchObject([
@@ -41,9 +41,9 @@ describe("pull", () => {
     ]);
   });
 
-  it("should download site files", () => {
+  test("should download site files", () => {
     // expect(true).toBe(false)
   });
 
-  it("should disconnect from the local server after download is complete", () => {});
+  test("should disconnect from the local server after download is complete", () => {});
 });

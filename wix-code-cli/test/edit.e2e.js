@@ -1,7 +1,7 @@
 const { runFixture } = require("./utils");
 
 describe("edit", () => {
-  it("should connect to a local server", () => {
+  test("should connect to a local server", () => {
     expect.assertions(1);
 
     return expect(runFixture("edit")).resolves.toMatchObject([
@@ -11,7 +11,7 @@ describe("edit", () => {
     ]);
   });
 
-  it("should open the app with the correct editor URL", () => {
+  test("should open the app with the correct editor URL", () => {
     expect.assertions(1);
 
     return expect(runFixture("edit")).resolves.toMatchObject([
@@ -21,7 +21,7 @@ describe("edit", () => {
     ]);
   });
 
-  it("should open the editor with the local server port", () => {
+  test("should open the editor with the local server port", () => {
     expect.assertions(1);
 
     return expect(runFixture("edit")).resolves.toMatchObject([
@@ -31,7 +31,7 @@ describe("edit", () => {
     ]);
   });
 
-  it("should exit with status code 255 when the local server is not in edit mode", () => {
+  test("should exit with status code 255 when the local server is not in edit mode", () => {
     expect.assertions(1);
 
     return expect(runFixture("edit", ["clone"])).resolves.toMatchObject([
@@ -41,11 +41,11 @@ describe("edit", () => {
     ]);
   });
 
-  it("should update local files with changes", () => {
+  test("should update local files with changes", () => {
     // expect(true).toBe(false)
   });
 
-  it("should watch local site files", () => {
+  test("should watch local site files", () => {
     // expect(true).toBe(false)
   });
 });
