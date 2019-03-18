@@ -17,6 +17,6 @@ app &&
 
 module.exports = {
   command: "logout",
-  describe: "logout to www.wix.com",
+  describe: "logout from www.wix.com",
   handler: () => launch(__filename)
 };
