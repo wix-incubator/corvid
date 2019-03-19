@@ -29,7 +29,7 @@ const stringify = content => JSON.stringify(content, null, 2);
 /* ************** Styles Creator ************** */
 
 const colors = (content = getColorsDefaults()) => ({
-  public: {
+  frontend: {
     styles: {
       [`colors${fileExtention}`]: stringify(content)
     }
@@ -37,7 +37,7 @@ const colors = (content = getColorsDefaults()) => ({
 });
 
 const fonts = (content = getFontsDefaults()) => ({
-  public: {
+  frontend: {
     styles: {
       [`fonts${fileExtention}`]: stringify(content)
     }
@@ -45,7 +45,7 @@ const fonts = (content = getFontsDefaults()) => ({
 });
 
 const theme = (content = getThemeDefaults()) => ({
-  public: {
+  frontend: {
     styles: {
       [`theme${fileExtention}`]: stringify(content)
     }
@@ -53,7 +53,7 @@ const theme = (content = getThemeDefaults()) => ({
 });
 
 const topLevelStyles = (content = getTopLevelStylesDefaults()) => ({
-  public: {
+  frontend: {
     styles: {
       [`topLevelStyles${fileExtention}`]: stringify(content)
     }
@@ -63,7 +63,7 @@ const topLevelStyles = (content = getTopLevelStylesDefaults()) => ({
 /* ************** Site Creator ************** */
 
 const commonComponents = (content = getCommonComponentsDefaults()) => ({
-  public: {
+  frontend: {
     site: {
       [`commonComponents${fileExtention}`]: stringify(content)
     }
@@ -71,7 +71,7 @@ const commonComponents = (content = getCommonComponentsDefaults()) => ({
 });
 
 const menu = (content = getMenuDefaults()) => ({
-  public: {
+  frontend: {
     site: {
       [`menu${fileExtention}`]: stringify(content)
     }
@@ -79,7 +79,7 @@ const menu = (content = getMenuDefaults()) => ({
 });
 
 const multilingualInfo = (content = getMultilingualInfoDefaults()) => ({
-  public: {
+  frontend: {
     site: {
       [`multilingualInfo${fileExtention}`]: stringify(content)
     }
@@ -87,7 +87,7 @@ const multilingualInfo = (content = getMultilingualInfoDefaults()) => ({
 });
 
 const siteInfo = (content = getSiteInfoDefaults()) => ({
-  public: {
+  frontend: {
     site: {
       [`siteInfo${fileExtention}`]: stringify(content)
     }
@@ -95,7 +95,7 @@ const siteInfo = (content = getSiteInfoDefaults()) => ({
 });
 
 const metadata = (content = getMetadataDefaults()) => ({
-  public: {
+  frontend: {
     site: {
       [`metadata${fileExtention}`]: stringify(content)
     }
@@ -104,13 +104,22 @@ const metadata = (content = getMetadataDefaults()) => ({
 
 /* ************** General Creators ************** */
 
-const code = (relativePath = "backend/code.js", content = uuid.v4()) =>
+const file = (relativePath = "backend/code.js", content = uuid.v4()) =>
   set_({}, relativePath.split(path.sep), content);
+
+const pageCode = (pageId, content = uuid.v4()) =>
+  set_({}, ["frontend", "pages", `${pageId}.js`], content);
+
+const publicCode = (relativePath = "code.js", content = uuid.v4()) =>
+  set_({}, ["public"].concat(relativePath.split(path.sep)), content);
+
+const backendCode = (relativePath = "code.js", content = uuid.v4()) =>
+  set_({}, ["backend"].concat(relativePath.split(path.sep)), content);
 
 const page = (pageId = uuid.v4(), options = {}) => {
   const isPopUp = get_(options, "isPopUp");
   return {
-    public: {
+    frontend: {
       [isPopUp ? "lightboxes" : "pages"]: {
         [`${pageId}${fileExtention}`]: stringify(
           merge_(getPageDefaults(pageId), options)
@@ -121,7 +130,7 @@ const page = (pageId = uuid.v4(), options = {}) => {
 };
 
 const extraData = (options = {}) => ({
-  public: {
+  frontend: {
     [`extraData${fileExtention}`]: stringify(
       merge_(getExtraDataDefaults(), options)
     )
@@ -129,7 +138,7 @@ const extraData = (options = {}) => ({
 });
 
 const styles = (...stylesCreators) => ({
-  public: {
+  frontend: {
     styles: mapKeys_(
       mapValues_(
         merge_(
@@ -146,7 +155,7 @@ const styles = (...stylesCreators) => ({
 });
 
 const site = (...siteCreators) => ({
-  public: {
+  frontend: {
     site: mapKeys_(
       mapValues_(
         merge_(
@@ -166,7 +175,7 @@ const site = (...siteCreators) => ({
 
 const createFull = (...localSiteCreator) => {
   const initial = {
-    public: {
+    frontend: {
       pages: {},
       styles: {},
       site: {},
@@ -178,7 +187,7 @@ const createFull = (...localSiteCreator) => {
     return merge_(document, creator);
   }, {});
 
-  if (!get_(localSite, "public.pages")) {
+  if (!get_(localSite, "frontend.pages")) {
     merge_(localSite, page());
   }
   return merge_(initial, localSiteDefulats, localSite);
@@ -192,7 +201,10 @@ const createPartial = (...localSiteCreator) =>
 module.exports = {
   createFull,
   createPartial,
-  code,
+  pageCode,
+  publicCode,
+  backendCode,
+  file,
   page,
   styles,
   site,

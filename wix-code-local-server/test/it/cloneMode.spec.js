@@ -2,12 +2,12 @@ const loadEditor = require("@wix/fake-local-mode-editor/src/editor");
 const localServer = require("../../src/server");
 const { initLocalSite, readLocalSite } = require("../utils/localSiteDir");
 const lsc = require("../utils/localSiteCreators");
-const dc = require("../utils/documentCreators");
+const sc = require("../utils/siteCreators");
 
 describe("clone mode", () => {
   it("should not start the server in clone mode if the site directory is not empty", async () => {
     const localSiteFiles = lsc.createFull(
-      lsc.code("public/file.js", "some code")
+      lsc.publicCode("file.js", "some code")
     );
 
     const localSitePath = await initLocalSite(localSiteFiles);
@@ -19,7 +19,7 @@ describe("clone mode", () => {
 
   // TODO: should not start the server in clone mode if the site directory does not exist ?
 
-  it("should save the editor's document on load", async () => {
+  it("should save localy the editor's document on load", async () => {
     const emptyLocalSite = {};
     const siteParts = {
       page: "page-1",
@@ -39,8 +39,8 @@ describe("clone mode", () => {
     };
 
     // todo:: convert to a function for both creators
-    const editorSiteDocument = dc.createFull(
-      ...Object.keys(siteParts).map(key => dc[key](siteParts[key]))
+    const editorSiteDocument = sc.createFull(
+      ...Object.keys(siteParts).map(key => sc[key](siteParts[key]))
     );
 
     const localSitePath = await initLocalSite(emptyLocalSite);
@@ -63,31 +63,37 @@ describe("clone mode", () => {
   it("should save code files on load", async () => {
     const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
-    const page1 = "editorPage1";
-    const page2 = "editorPage2";
-    const code1 = {
-      path: "public/public-file.json",
-      content: "public code"
-    };
-    const code2 = {
-      path: "backend/sub-folder/backendFile.jsw",
-      content: "backend code"
-    };
-    const siteDocument = dc.createFull(dc.page(page1), dc.page(page2));
 
-    // code creator
+    const siteDocument = sc.createFull();
     const siteCode = lsc.createPartial(
-      lsc.code(code1.path, code1.content),
-      lsc.code(code2.path, code2.content)
+      lsc.publicCode("public-file.json", "public code"),
+      lsc.backendCode("sub-folder/backendFile.jsw", "backend code")
     );
 
     const editor = await loadEditor(server.port, { siteDocument, siteCode });
     const serverFiles = await readLocalSite(localSitePath);
 
-    const expected = lsc.createPartial(
-      lsc.code(code1.path, code1.content),
-      lsc.code(code2.path, code2.content)
+    const expected = sc.createPartial(
+      sc.publicCode("public-file.json", "public code"),
+      sc.backendCode("sub-folder/backendFile.jsw", "backend code")
     );
+    expect(serverFiles).toMatchObject(expected);
+
+    await editor.close();
+    await server.close();
+  });
+  it("should save page code files localy on load", async () => {
+    const localSitePath = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSitePath);
+
+    const siteDocument = sc.createFull(sc.page("page-1"));
+    const siteCode = sc.createPartial(sc.pageCode("page-1", "public code"));
+
+    const editor = await loadEditor(server.port, { siteDocument, siteCode });
+    const serverFiles = await readLocalSite(localSitePath);
+
+    const expected = lsc.createPartial(lsc.pageCode("page-1", "public code"));
+
     expect(serverFiles).toMatchObject(expected);
 
     await editor.close();

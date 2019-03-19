@@ -1,5 +1,7 @@
 const merge_ = require("lodash/merge");
+const set_ = require("lodash/set");
 const uuid = require("uuid");
+const path = require("path");
 
 const {
   getPageDefaults,
@@ -104,6 +106,13 @@ const site = (...siteCreators) => ({
   )
 });
 
+const pageCode = (pageId, content = uuid.v4()) =>
+  set_({}, ["public", "pages", `${pageId}.js`], content);
+const publicCode = (relativePath = "code.js", content = uuid.v4()) =>
+  set_({}, ["public"].concat(relativePath.split(path.sep)), content);
+const backendCode = (relativePath = "code.js", content = uuid.v4()) =>
+  set_({}, ["backend"].concat(relativePath.split(path.sep)), content);
+
 /* ************** Main Document Creator ************** */
 const createFull = (...documentCreator) => {
   const initial = {
@@ -131,6 +140,9 @@ const createPartial = (...documentCreator) =>
 module.exports = {
   createFull,
   createPartial,
+  pageCode,
+  publicCode,
+  backendCode,
   page,
   styles,
   site,

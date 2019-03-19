@@ -18,7 +18,10 @@ const stringify = content => JSON.stringify(content, null, 2);
 const readWrite = (siteRootPath, filesWatcher) => {
   const getCodeFiles = async (dirPath = siteRootPath) => {
     const siteDirJson = await dirAsJson.readDirToJson(dirPath);
-    const flatDirFiles = flatten(siteDirJson);
+    const flatDirFiles = mapKeys_(
+      flatten(siteDirJson),
+      (fileContent, filePath) => sitePaths.fromLocalCode(filePath)
+    );
     return pickBy_(flatDirFiles, (content, path) => sitePaths.isCodeFile(path));
   };
 
@@ -27,8 +30,12 @@ const readWrite = (siteRootPath, filesWatcher) => {
     let documentPart = {};
 
     if (await fs.exists(partFullPath)) {
+      const folder = pickBy_(
+        await dirAsJson.readDirToJson(partFullPath),
+        (content, path) => sitePaths.isDocumentFile(path)
+      );
       documentPart = mapKeys_(
-        mapValues_(await dirAsJson.readDirToJson(partFullPath), JSON.parse),
+        mapValues_(folder, JSON.parse),
         (pageValue, pageKey) => removeFileExtension(pageKey)
       );
     }
@@ -103,25 +110,25 @@ const readWrite = (siteRootPath, filesWatcher) => {
     await Promise.all([
       new Promise(resolve =>
         rimraf(
-          `${fullPath(sitePaths.pages())}/**/*${sitePaths.fileExtention}`,
+          sitePaths.getDocumentFolderRegex(fullPath(sitePaths.pages())),
           resolve
         )
       ),
       new Promise(resolve =>
         rimraf(
-          `${fullPath(sitePaths.lightboxes())}/**/*${sitePaths.fileExtention}`,
+          sitePaths.getDocumentFolderRegex(fullPath(sitePaths.lightboxes())),
           resolve
         )
       ),
       new Promise(resolve =>
         rimraf(
-          `${fullPath(sitePaths.styles())}/**/*${sitePaths.fileExtention}`,
+          sitePaths.getDocumentFolderRegex(fullPath(sitePaths.styles())),
           resolve
         )
       ),
       new Promise(resolve =>
         rimraf(
-          `${fullPath(sitePaths.site())}/**/*${sitePaths.fileExtention}`,
+          sitePaths.getDocumentFolderRegex(fullPath(sitePaths.site())),
           resolve
         )
       )
@@ -154,12 +161,20 @@ const readWrite = (siteRootPath, filesWatcher) => {
     const { modifiedFiles, copiedFiles, deletedFiles } = updateRequest;
     try {
       const updates = Object.keys(modifiedFiles).map(filePath =>
-        filesWatcher.ignoredWriteFile(filePath, modifiedFiles[filePath])
+        filesWatcher.ignoredWriteFile(
+          sitePaths.toLocalCode(filePath),
+          modifiedFiles[filePath]
+        )
       );
       const copies = copiedFiles.map(({ sourcePath, targetPath }) =>
-        filesWatcher.ignoredCopyFile(sourcePath, targetPath)
+        filesWatcher.ignoredCopyFile(
+          sitePaths.toLocalCode(sourcePath),
+          sitePaths.toLocalCode(targetPath)
+        )
       );
-      const deletes = deletedFiles.map(filesWatcher.ignoredDeleteFile);
+      const deletes = deletedFiles.map(filePath => {
+        filesWatcher.ignoredDeleteFile(sitePaths.toLocalCode(filePath));
+      });
       await Promise.all([...updates, ...copies, ...deletes]);
     } catch (error) {
       // eslint-disable-next-line no-console

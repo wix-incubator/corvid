@@ -1,5 +1,7 @@
 const uuid = require("uuid");
 
+const randomize = content => `${uuid.v4()} ${content}`;
+
 /* ************** Defulats ************** */
 const getPageDefaults = (pageId = uuid.v4()) => ({
   uriSEO: `${pageId} uri SEO`,
@@ -10,8 +12,8 @@ const getPageDefaults = (pageId = uuid.v4()) => ({
 
 const getExtraDataDefaults = (
   content = {
-    version: `${uuid.v4()} extra data version`,
-    seoStuff: `${uuid.v4()} extra data seoStuff`
+    version: randomize(`extra data version`),
+    seoStuff: randomize(`extra data seoStuff`)
   }
 ) => content;
 
@@ -30,28 +32,26 @@ const getSiteDefaults = () => ({
   metadata: getMetadataDefaults()
 });
 
-const getColorsDefaults = (content = `${uuid.v4()} Encoded colors data`) =>
+const getColorsDefaults = (content = randomize(` Encoded colors data`)) =>
   content;
-const getFontsDefaults = (content = `${uuid.v4()} Encoded fonts data`) =>
-  content;
-const getThemeDefaults = (content = `${uuid.v4()} Encoded theme data`) =>
-  content;
+const getFontsDefaults = (content = randomize(`Encoded fonts data`)) => content;
+const getThemeDefaults = (content = randomize(`Encoded theme data`)) => content;
 const getTopLevelStylesDefaults = (
-  content = `${uuid.v4()} Encoded top level styles data`
+  content = randomize(`Encoded top level styles data`)
 ) => content;
 
 const getCommonComponentsDefaults = (
-  content = `${uuid.v4()} Encoded commonComponents data`
+  content = randomize(`Encoded commonComponents data`)
 ) => content;
-const getMenuDefaults = (content = `${uuid.v4()} Encoded menu data`) => content;
+const getMenuDefaults = (content = randomize(`Encoded menu data`)) => content;
 const getMultilingualInfoDefaults = (
-  content = `${uuid.v4()} Encoded multilingualInfo data`
+  content = randomize(`Encoded multilingualInfo data`)
 ) => content;
 const getSiteInfoDefaults = (
-  content = `${uuid.v4()} Encoded top siteInfo styles data`
+  content = randomize(`Encoded top siteInfo styles data`)
 ) => content;
 const getMetadataDefaults = (
-  content = `${uuid.v4()} Encoded top metadata styles data`
+  content = randomize(`Encoded top metadata styles data`)
 ) => content;
 
 module.exports.getPageDefaults = getPageDefaults;

@@ -1,46 +1,55 @@
 const path = require("path");
 
-const publicFolder = "public";
+const frontendFolder = "frontend";
 const fileExtention = ".wix";
 
 const pages = (fileName = "") =>
   path.join(
-    publicFolder,
+    frontendFolder,
     "pages",
     fileName ? `${fileName}${fileExtention}` : ""
   );
 const styles = (fileName = "") =>
   path.join(
-    publicFolder,
+    frontendFolder,
     "styles",
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
 const site = (fileName = "") =>
   path.join(
-    publicFolder,
+    frontendFolder,
     "site",
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
 const lightboxes = (fileName = "") =>
   path.join(
-    publicFolder,
+    frontendFolder,
     "lightboxes",
     fileName ? `${fileName}${fileExtention}` : ""
   );
-const extraData = () => path.join(publicFolder, `extraData${fileExtention}`);
-const code = filePath => filePath;
+const extraData = () => path.join(frontendFolder, `extraData${fileExtention}`);
 
-const isCodeFile = relativePath => !relativePath.endsWith(".wix");
+const fromLocalCode = filePath =>
+  filePath.replace(/^frontend\/pages\//, "public/pages/");
+const toLocalCode = filePath =>
+  filePath.replace(/^public\/pages\//, "frontend/pages/");
+
+const isCodeFile = relativePath => !relativePath.endsWith(fileExtention);
+const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
+const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
 
 module.exports = {
+  getDocumentFolderRegex,
+  fromLocalCode,
+  toLocalCode,
   fileExtention,
   isCodeFile,
+  isDocumentFile,
   extraData,
   lightboxes,
   styles,
   pages,
-  site,
-  code
+  site
 };
