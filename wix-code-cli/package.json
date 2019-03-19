@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint .",
     "precommit": "lint-staged",
-    "test": "jest",
+    "test": "jest --runInBand",
     "watch": "jest --watch"
   },
   "publishConfig": {

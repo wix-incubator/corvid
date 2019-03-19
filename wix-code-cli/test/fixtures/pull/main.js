@@ -55,7 +55,7 @@ app.on("ready", () => {
       }
     });
 
-    setTimeout(() => server.emit("clone-complete", ""), 1000);
+    setTimeout(() => server.emit("clone-complete", ""), 2000);
 
     return pullApp(wixCodeConfig, localServerPort, closeLocalServer, {
       useSsl: false

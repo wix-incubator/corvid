@@ -40,7 +40,7 @@ app.on("ready", () => {
       }
     });
 
-    setTimeout(() => win.close(), 1000);
+    setTimeout(() => win.close(), 2000);
 
     return openEditorApp(wixCodeConfig, localServerPort, closeLocalServer, {
       useSsl: false

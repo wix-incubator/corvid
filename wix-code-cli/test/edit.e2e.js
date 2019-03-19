@@ -1,10 +1,12 @@
 const { runFixture } = require("./utils");
 
 describe("edit", () => {
+  const promise = runFixture("edit");
+
   test("should connect to a local server", () => {
     expect.assertions(1);
 
-    return expect(runFixture("edit")).resolves.toMatchObject([
+    return expect(promise).resolves.toMatchObject([
       0,
       expect.arrayContaining(["local server connection established\n"]),
       expect.anything()
@@ -14,7 +16,7 @@ describe("edit", () => {
   test("should open the app with the correct editor URL", () => {
     expect.assertions(1);
 
-    return expect(runFixture("edit")).resolves.toMatchObject([
+    return expect(promise).resolves.toMatchObject([
       0,
       expect.arrayContaining(["fake editor loaded\n"]),
       expect.anything()
@@ -24,7 +26,7 @@ describe("edit", () => {
   test("should open the editor with the local server port", () => {
     expect.assertions(1);
 
-    return expect(runFixture("edit")).resolves.toMatchObject([
+    return expect(promise).resolves.toMatchObject([
       0,
       expect.arrayContaining(["editor connected\n"]),
       expect.anything()
