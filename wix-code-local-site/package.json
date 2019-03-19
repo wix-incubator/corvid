@@ -20,6 +20,7 @@
   "license": "ISC",
   "devDependencies": {
     "@wix/wix-eventually": "^1.0.454",
+    "uuid": "^3.0.1",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-jest": "^22.3.0",

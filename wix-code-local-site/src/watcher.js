@@ -8,6 +8,7 @@ const ensureWriteFile = async (path, content) => {
 };
 
 const watch = async rootPath => {
+  // TODO:: add src folder to path ?
   const watcher = chokidar.watch(rootPath, {
     persistent: true,
     ignoreInitial: true,
