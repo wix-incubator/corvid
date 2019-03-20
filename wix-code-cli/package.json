@@ -7,7 +7,7 @@
     "lint": "eslint .",
     "precommit": "lint-staged",
     "test": "jest --runInBand",
-    "watch": "jest --watch"
+    "watch": "jest --runInBand --watch"
   },
   "publishConfig": {
     "registry": "https://repo.dev.wixpress.com/artifactory/api/npm/npm-repos",
