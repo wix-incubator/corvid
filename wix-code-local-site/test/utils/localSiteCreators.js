@@ -9,7 +9,7 @@ const uuid = require("uuid");
 const {
   getPageDefaults,
   getLightboxDefaults,
-  getExtraDataDefaults,
+  getMiscDefaults,
   getStylesDefaults,
   getSiteDefaults,
   getColorsDefaults,
@@ -20,7 +20,9 @@ const {
   getMenuDefaults,
   getMultilingualInfoDefaults,
   getSiteInfoDefaults,
-  getMetadataDefaults
+  getRevisionDefaults,
+  getVersionDefaults,
+  getDataFromMasterPageDefaults
 } = require("./creatorsDefaults");
 
 const fileExtention = ".wix";
@@ -95,10 +97,26 @@ const siteInfo = (content = getSiteInfoDefaults()) => ({
   }
 });
 
-const metadata = (content = getMetadataDefaults()) => ({
+const version = (content = getVersionDefaults()) => ({
   frontend: {
     site: {
-      [`metadata${fileExtention}`]: stringify(content)
+      [`version${fileExtention}`]: stringify(content)
+    }
+  }
+});
+
+const revision = (content = getRevisionDefaults()) => ({
+  frontend: {
+    site: {
+      [`revision${fileExtention}`]: stringify(content)
+    }
+  }
+});
+
+const dataFromMasterPage = (content = getDataFromMasterPageDefaults()) => ({
+  frontend: {
+    site: {
+      [`dataFromMasterPage${fileExtention}`]: stringify(content)
     }
   }
 });
@@ -144,11 +162,9 @@ const lightbox = (pageId = uuid.v4(), options = {}) => {
   };
 };
 
-const extraData = (options = {}) => ({
+const misc = (content = getMiscDefaults()) => ({
   frontend: {
-    [`extraData${fileExtention}`]: stringify(
-      merge_(getExtraDataDefaults(), options)
-    )
+    [`misc${fileExtention}`]: stringify(content)
   }
 });
 
@@ -194,10 +210,10 @@ const createFull = (...localSiteCreator) => {
       pages: {},
       styles: {},
       site: {},
-      [`extraData${fileExtention}`]: stringify("")
+      [`misc${fileExtention}`]: stringify("")
     }
   };
-  const localSiteDefulats = merge_(styles(), site(), extraData());
+  const localSiteDefulats = merge_(styles(), site(), misc());
   const localSite = localSiteCreator.reduce((document, creator) => {
     return merge_(document, creator);
   }, {});
@@ -225,7 +241,7 @@ module.exports = {
   lightbox,
   styles,
   site,
-  extraData,
+  misc,
   colors,
   fonts,
   theme,
@@ -234,5 +250,7 @@ module.exports = {
   menu,
   multilingualInfo,
   siteInfo,
-  metadata
+  version,
+  revision,
+  dataFromMasterPage
 };

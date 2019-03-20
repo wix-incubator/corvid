@@ -6,7 +6,7 @@ const path = require("path");
 const {
   getPageDefaults,
   getLightboxDefaults,
-  getExtraDataDefaults,
+  getMiscDefaults,
   getStylesDefaults,
   getSiteDefaults,
   getColorsDefaults,
@@ -17,7 +17,9 @@ const {
   getMenuDefaults,
   getMultilingualInfoDefaults,
   getSiteInfoDefaults,
-  getMetadataDefaults
+  getRevisionDefaults,
+  getVersionDefaults,
+  getDataFromMasterPageDefaults
 } = require("./creatorsDefaults");
 
 /* ************** Styles Creator ************** */
@@ -72,9 +74,21 @@ const siteInfo = (content = getSiteInfoDefaults()) => ({
   }
 });
 
-const metadata = (content = getMetadataDefaults()) => ({
+const version = (content = getVersionDefaults()) => ({
   site: {
-    metadata: content
+    version: content
+  }
+});
+
+const revision = (content = getRevisionDefaults()) => ({
+  site: {
+    revision: content
+  }
+});
+
+const dataFromMasterPage = (content = getDataFromMasterPageDefaults()) => ({
+  site: {
+    dataFromMasterPage: content
   }
 });
 
@@ -91,8 +105,8 @@ const lightbox = (pageId = uuid.v4(), options = {}) => ({
   }
 });
 
-const extraData = (options = {}) => ({
-  ["extraData"]: merge_(getExtraDataDefaults(), options)
+const misc = (content = getMiscDefaults()) => ({
+  misc: content
 });
 
 const styles = (...stylesCreators) => ({
@@ -131,9 +145,9 @@ const createFull = (...documentCreator) => {
     pages: {},
     styles: {},
     site: {},
-    extraData: {}
+    misc: {}
   };
-  const documentDefulats = Object.assign(styles(), site(), extraData());
+  const documentDefulats = Object.assign(styles(), site(), misc());
   const documentSite = documentCreator.reduce((document, creator) => {
     return merge_(document, creator);
   }, {});
@@ -160,7 +174,7 @@ module.exports = {
   page,
   styles,
   site,
-  extraData,
+  misc,
   colors,
   fonts,
   theme,
@@ -169,5 +183,7 @@ module.exports = {
   menu,
   multilingualInfo,
   siteInfo,
-  metadata
+  version,
+  revision,
+  dataFromMasterPage
 };

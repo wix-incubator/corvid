@@ -42,8 +42,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return documentPart;
   };
 
-  const getDocumentExtraData = async () => {
-    const partFullPath = fullPath(sitePaths.extraData());
+  const getDocumentMisc = async () => {
+    const partFullPath = fullPath(sitePaths.misc());
     let data = {};
 
     if (await fs.exists(partFullPath)) {
@@ -60,7 +60,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       ),
       styles: await getDocumentPartByKey("styles"),
       site: await getDocumentPartByKey("site"),
-      extraData: await getDocumentExtraData()
+      misc: await getDocumentMisc()
     };
   };
 
@@ -92,19 +92,19 @@ const readWrite = (siteRootPath, filesWatcher) => {
         };
       });
     },
-    extraData: extraDataPayload => {
+    misc: miscPayload => {
       return [
         {
-          path: sitePaths.extraData(),
-          content: extraDataPayload
+          path: sitePaths.misc(),
+          content: miscPayload
         }
       ];
     }
   };
 
   const deleteExistingFolders = async () => {
-    if (await fs.exists(fullPath(sitePaths.extraData()))) {
-      await fs.unlink(fullPath(sitePaths.extraData()));
+    if (await fs.exists(fullPath(sitePaths.misc()))) {
+      await fs.unlink(fullPath(sitePaths.misc()));
     }
 
     await Promise.all([

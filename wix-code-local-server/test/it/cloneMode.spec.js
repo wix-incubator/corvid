@@ -31,11 +31,10 @@ describe("clone mode", () => {
       menu: "menu-content",
       multilingualInfo: "multilingualInfo-content",
       siteInfo: "siteInfo-content",
-      metadata: "metadata-content",
-      extraData: {
-        version: "version-content",
-        seoStuff: "seoStuff-content"
-      }
+      dataFromMasterPage: "dataFromMasterPage-content",
+      version: "version-content",
+      revision: "revision-content",
+      misc: "misc-content"
     };
 
     // todo:: convert to a function for both creators
