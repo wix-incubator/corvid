@@ -60,7 +60,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       ),
       styles: await getDocumentPartByKey("styles"),
       site: await getDocumentPartByKey("site"),
-      extraData: await getDocumentExtraData()
+      misc: await getDocumentExtraData()
     };
   };
 
@@ -92,7 +92,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
         };
       });
     },
-    extraData: extraDataPayload => {
+    misc: extraDataPayload => {
       return [
         {
           path: sitePaths.extraData(),
@@ -108,6 +108,12 @@ const readWrite = (siteRootPath, filesWatcher) => {
     }
 
     await Promise.all([
+      new Promise(resolve =>
+        rimraf(
+          sitePaths.getDocumentFolderRegex(fullPath(sitePaths.extraData())),
+          resolve
+        )
+      ),
       new Promise(resolve =>
         rimraf(
           sitePaths.getDocumentFolderRegex(fullPath(sitePaths.pages())),
@@ -164,7 +170,11 @@ const readWrite = (siteRootPath, filesWatcher) => {
   const fullPath = filePath => path.resolve(siteRootPath, filePath);
 
   const updateCode = async updateRequest => {
-    const { modifiedFiles, copiedFiles, deletedFiles } = updateRequest;
+    const {
+      modifiedFiles = {},
+      copiedFiles = [],
+      deletedFiles = []
+    } = updateRequest;
     try {
       const updates = Object.keys(modifiedFiles).map(filePath =>
         filesWatcher.ignoredWriteFile(
