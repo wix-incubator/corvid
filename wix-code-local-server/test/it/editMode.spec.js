@@ -4,7 +4,7 @@ const merge_ = require("lodash/merge");
 const localServer = require("../../src/server");
 const localSiteDir = require("../utils/localSiteDir");
 const lsc = require("@wix/wix-code-local-site/test/utils/localSiteCreators");
-const sc = require("@wix/fake-local-mode-editor/test/utils/siteCreators");
+const sc = require("@wix/fake-local-mode-editor/src/utils/siteCreators");
 
 describe("edit mode", () => {
   it("should not start the server in edit mode if the site directory is empty", async () => {
