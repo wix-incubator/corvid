@@ -1,8 +1,8 @@
 const loadEditor = require("@wix/fake-local-mode-editor/src/editor");
 const localServer = require("../../src/server");
 const { initLocalSite, readLocalSite } = require("../utils/localSiteDir");
-const lsc = require("../utils/localSiteCreators");
-const sc = require("../utils/siteCreators");
+const lsc = require("@wix/wix-code-local-site/test/utils/localSiteCreators");
+const sc = require("@wix/fake-local-mode-editor/test/utils/siteCreators");
 
 describe("clone mode", () => {
   it("should not start the server in clone mode if the site directory is not empty", async () => {
