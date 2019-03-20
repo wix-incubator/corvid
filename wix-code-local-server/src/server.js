@@ -1,38 +1,14 @@
-const express = require("express");
-const cors = require("cors");
-const http = require("http");
-const socketIo = require("socket.io");
-const getPort = require("get-port");
 const initLocalSiteManager = require("@wix/wix-code-local-site");
 
-const initSocketHandler = require("./socketApi");
+const setupSocketServer = require("./server/setupSocketServer");
 
-const DEFAULT_PORT = 5000;
+const editorSocketApi = require("./socket-api/editorSocketHandler");
+const adminSocketApi = require("./socket-api/adminSocketHandler");
 
-function setupServer() {
-  const app = express();
-  app.use(cors());
-  const server = http.Server(app);
-  const io = socketIo(server).origins("*:*");
-  return { server, io };
-}
-
-function blockMultipleConnections() {
-  let connections = 0;
-  return (socket, next) => {
-    if (connections > 0) {
-      return next(new Error("ONLY_ONE_CONNECTION_ALLOWED"));
-    }
-    connections++;
-    socket.on("disconnect", () => {
-      connections--;
-    });
-    return next();
-  };
-}
+const DEFAULT_EDITOR_PORT = 5000;
+const DEFAULT_ADMIN_PORT = 3000;
 
 async function startServer(siteRootPath, isCloneMode) {
-  const { server, io } = setupServer();
   // TODO:: add src folder to path ?
   const localSite = await initLocalSiteManager(siteRootPath);
 
@@ -46,28 +22,34 @@ async function startServer(siteRootPath, isCloneMode) {
     throw new Error("CAN_NOT_EDIT_EMPTY_SITE");
   }
 
-  const socketHandler = initSocketHandler(localSite);
+  const editorServer = setupSocketServer();
+  const adminServer = setupSocketServer();
 
-  io.use(blockMultipleConnections());
-  io.on("connection", socket => {
-    // eslint-disable-next-line no-console
-    console.log("connected");
-    socketHandler(socket);
-  });
+  const serverState = {
+    // TODO: properly handle state
+    isCloneMode: () => isCloneMode,
+    editorPort: () => editorPort,
+    adminPort: () => adminPort,
+    isEditorConnected: () =>
+      Object.keys(editorServer.io.sockets.connected).length > 0
+  };
 
-  const port = await getPort({ port: DEFAULT_PORT });
-  await new Promise(resolve => {
-    server.listen(port, resolve);
-    // eslint-disable-next-line no-console
-    console.log("listening on:", port);
-  });
+  const editorSocketHandler = editorSocketApi(localSite);
+  editorServer.io.on("connection", editorSocketHandler);
+
+  const adminSocketHandler = adminSocketApi(serverState);
+  adminServer.io.on("connection", adminSocketHandler);
+
+  const editorPort = await editorServer.listen(DEFAULT_EDITOR_PORT);
+  const adminPort = await adminServer.listen(DEFAULT_ADMIN_PORT);
 
   return {
-    port,
+    port: editorPort,
+    adminPort: adminPort,
     close: () => {
       localSite.close();
-      io.close();
-      server.close();
+      editorServer.close();
+      adminServer.close();
     }
   };
 }

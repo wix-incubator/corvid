@@ -1,4 +1,6 @@
-const initApi = localSite => ({
+const socketRequestHandler = require("./utils/socketRequestHandler");
+
+const initEditorApi = localSite => ({
   IS_CLONE_MODE: () => localSite.isEmpty(),
   GET_DOCUMENT: () => localSite.getSiteDocument(),
   UPDATE_DOCUMENT: newDocument => localSite.updateSiteDocument(newDocument),
@@ -6,17 +8,10 @@ const initApi = localSite => ({
   UPDATE_CODE: codeUpdates => localSite.updateCode(codeUpdates)
 });
 
-const handleRequest = handler => (payload, callback) => {
-  return Promise.resolve(handler(payload))
-    .then(result => callback(null, result))
-    .catch(err => callback(err));
-};
-
 const socketHandler = localSite => socket => {
-  const socketApi = initApi(localSite);
-  Object.keys(socketApi).forEach(event => {
-    socket.on(event, handleRequest(socketApi[event]));
-  });
+  const socketApi = initEditorApi(localSite);
+  const handleSocketRequests = socketRequestHandler(socketApi);
+  handleSocketRequests(socket);
   localSite.onCodeChanged((...args) => {
     // eslint-disable-next-line no-console
     console.log("local code updated", ...args);

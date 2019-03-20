@@ -3,7 +3,7 @@ const loadEditor = require("@wix/fake-local-mode-editor/src/editor");
 const localServer = require("../../src/server");
 const { initLocalSite } = require("../utils/localSiteDir");
 
-describe("client connection", () => {
+describe("editor connections", () => {
   it("should allow one editor to connect", async () => {
     const localSiteDir = await initLocalSite({});
 

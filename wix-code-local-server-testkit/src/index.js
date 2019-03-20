@@ -2,7 +2,7 @@ const http = require("http");
 const io = require("socket.io");
 const listenOnFreePort = require("listen-on-free-port");
 const localServer = require("@wix/wix-code-local-server/src/server");
-const socketApi = require("@wix/wix-code-local-server/src/socketApi");
+const socketApi = require("@wix/wix-code-local-server/src/socket-api/editorSocketHandler");
 
 let serverHandler = () => {};
 
