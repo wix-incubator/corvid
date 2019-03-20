@@ -21,10 +21,9 @@ describe("client connection", () => {
     const server = await localServer.startInCloneMode(localSiteDir);
 
     const editor1 = await loadEditor(server.port);
-    await expect(loadEditor(server.port)).rejects.toEqual([
-      "DISCONNECTED",
-      "io server disconnect"
-    ]);
+    await expect(loadEditor(server.port)).rejects.toThrow(
+      "ONLY_ONE_CONNECTION_ALLOWED"
+    );
 
     await editor1.close();
     await server.close();

@@ -17,6 +17,20 @@ function setupServer() {
   return { server, io };
 }
 
+function blockMultipleConnections() {
+  let connections = 0;
+  return (socket, next) => {
+    if (connections > 0) {
+      return next(new Error("ONLY_ONE_CONNECTION_ALLOWED"));
+    }
+    connections++;
+    socket.on("disconnect", () => {
+      connections--;
+    });
+    return next();
+  };
+}
+
 async function startServer(siteRootPath, isCloneMode) {
   const { server, io } = setupServer();
   // TODO:: add src folder to path ?
@@ -34,23 +48,8 @@ async function startServer(siteRootPath, isCloneMode) {
 
   const socketHandler = initSocketHandler(localSite);
 
-  let connections = 0;
-
-  io.on("connection", socket => {
-    if (connections > 0) {
-      // TODO: client is already connected. find a way not to allow it.
-      socket.disconnect(true);
-      return;
-    } else {
-      connections++;
-      socket.emit("connected");
-      socket.on("disconnect", () => {
-        connections--;
-      });
-
-      socketHandler(socket);
-    }
-  });
+  io.use(blockMultipleConnections());
+  io.on("connection", socket => socketHandler(socket));
 
   const port = await getPort({ port: DEFAULT_PORT });
   await new Promise(resolve => server.listen(port, resolve));

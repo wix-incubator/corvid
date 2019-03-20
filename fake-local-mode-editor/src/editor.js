@@ -12,22 +12,22 @@ const getLocalServerURL = port => `http://localhost:${port}`;
 const connectToLocalServer = port => {
   return new Promise((resolve, reject) => {
     const socket = io.connect(getLocalServerURL(port));
-    socket.once("connect_error", error => {
+
+    const rejectConnection = reason => {
       socket.removeAllListeners();
-      reject(["CONNECT_ERROR", error]);
-    });
-    socket.once("connect_timeout", error => {
-      socket.removeAllListeners();
-      reject(["CONNECT_TIMEOUT", error]);
-    });
-    socket.once("disconnect", reason => {
-      socket.removeAllListeners();
-      reject(["DISCONNECTED", reason]);
-    });
-    socket.once("connected", () => {
+      reject(new Error(reason));
+    };
+
+    const resolveConnection = () => {
       socket.removeAllListeners();
       resolve(socket);
-    });
+    };
+
+    socket.once("error", rejectConnection);
+    socket.once("connect_error", rejectConnection);
+    socket.once("connect_timeout", rejectConnection);
+    socket.once("disconnect", rejectConnection);
+    socket.once("connect", resolveConnection);
   });
 };
 
