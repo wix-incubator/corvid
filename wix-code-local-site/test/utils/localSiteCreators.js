@@ -8,6 +8,7 @@ const uuid = require("uuid");
 
 const {
   getPageDefaults,
+  getLightboxDefaults,
   getExtraDataDefaults,
   getStylesDefaults,
   getSiteDefaults,
@@ -110,6 +111,9 @@ const file = (relativePath = "backend/code.js", content = uuid.v4()) =>
 const pageCode = (pageId, content = uuid.v4()) =>
   set_({}, ["frontend", "pages", `${pageId}.js`], content);
 
+const lightboxCode = (pageId, content = uuid.v4()) =>
+  set_({}, ["frontend", "lightboxes", `${pageId}.js`], content);
+
 const publicCode = (relativePath = "code.js", content = uuid.v4()) =>
   set_({}, ["public"].concat(relativePath.split(path.sep)), content);
 
@@ -117,12 +121,23 @@ const backendCode = (relativePath = "code.js", content = uuid.v4()) =>
   set_({}, ["backend"].concat(relativePath.split(path.sep)), content);
 
 const page = (pageId = uuid.v4(), options = {}) => {
-  const isPopUp = get_(options, "isPopUp");
   return {
     frontend: {
-      [isPopUp ? "lightboxes" : "pages"]: {
+      pages: {
         [`${pageId}${fileExtention}`]: stringify(
           merge_(getPageDefaults(pageId), options)
+        )
+      }
+    }
+  };
+};
+
+const lightbox = (pageId = uuid.v4(), options = {}) => {
+  return {
+    frontend: {
+      lightboxes: {
+        [`${pageId}${fileExtention}`]: stringify(
+          merge_(getLightboxDefaults(pageId), options)
         )
       }
     }
@@ -201,11 +216,13 @@ const createPartial = (...localSiteCreator) =>
 module.exports = {
   createFull,
   createPartial,
+  lightboxCode,
   pageCode,
   publicCode,
   backendCode,
   file,
   page,
+  lightbox,
   styles,
   site,
   extraData,

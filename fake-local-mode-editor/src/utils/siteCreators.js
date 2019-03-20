@@ -5,6 +5,7 @@ const path = require("path");
 
 const {
   getPageDefaults,
+  getLightboxDefaults,
   getExtraDataDefaults,
   getStylesDefaults,
   getSiteDefaults,
@@ -84,6 +85,12 @@ const page = (pageId = uuid.v4(), options = {}) => ({
   }
 });
 
+const lightbox = (pageId = uuid.v4(), options = {}) => ({
+  pages: {
+    [pageId]: merge_(getLightboxDefaults(pageId), options)
+  }
+});
+
 const extraData = (options = {}) => ({
   ["extraData"]: merge_(getExtraDataDefaults(), options)
 });
@@ -108,8 +115,13 @@ const site = (...siteCreators) => ({
 
 const pageCode = (pageId, content = uuid.v4()) =>
   set_({}, ["public", "pages", `${pageId}.js`], content);
+
+const lightboxCode = (pageId, content = uuid.v4()) =>
+  set_({}, ["public", "pages", `${pageId}.js`], content);
+
 const publicCode = (relativePath = "code.js", content = uuid.v4()) =>
   set_({}, ["public"].concat(relativePath.split(path.sep)), content);
+
 const backendCode = (relativePath = "code.js", content = uuid.v4()) =>
   set_({}, ["backend"].concat(relativePath.split(path.sep)), content);
 
@@ -140,9 +152,11 @@ const createPartial = (...documentCreator) =>
 module.exports = {
   createFull,
   createPartial,
+  lightboxCode,
   pageCode,
   publicCode,
   backendCode,
+  lightbox,
   page,
   styles,
   site,

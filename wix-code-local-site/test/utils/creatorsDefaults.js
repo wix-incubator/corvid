@@ -10,6 +10,13 @@ const getPageDefaults = (pageId = uuid.v4()) => ({
   content: `${pageId} encoded file content`
 });
 
+const getLightboxDefaults = (pageId = uuid.v4()) => ({
+  uriSEO: `${pageId} uri SEO`,
+  title: `${pageId} title`,
+  isPopUp: true,
+  content: `${pageId} encoded file content`
+});
+
 const getExtraDataDefaults = (
   content = {
     version: randomize(`extra data version`),
@@ -55,6 +62,7 @@ const getMetadataDefaults = (
 ) => content;
 
 module.exports.getPageDefaults = getPageDefaults;
+module.exports.getLightboxDefaults = getLightboxDefaults;
 module.exports.getExtraDataDefaults = getExtraDataDefaults;
 module.exports.getStylesDefaults = getStylesDefaults;
 module.exports.getSiteDefaults = getSiteDefaults;

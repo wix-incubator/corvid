@@ -32,7 +32,8 @@ const lightboxes = (fileName = "") =>
 const extraData = () => path.join(frontendFolder, `extraData${fileExtention}`);
 
 const fromLocalCode = filePath =>
-  filePath.replace(/^frontend\/pages\//, "public/pages/");
+  filePath.replace(/^frontend\/(pages|lightboxes)\//, "public/pages/");
+
 const toLocalCode = filePath =>
   filePath.replace(/^public\/pages\//, "frontend/pages/");
 

@@ -55,6 +55,25 @@ describe("edit mode", () => {
     await editor.close();
     await server.close();
   });
+
+  it("should send lightbox code files to the editor on load", async () => {
+    const localSiteFiles = lsc.createFull(
+      lsc.lightbox("lightbox-1"),
+      lsc.lightboxCode("lightbox-1", "public code")
+    );
+
+    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+    const server = await localServer.startInEditMode(localSitePath);
+    const editor = await loadEditor(server.port);
+    const codeFiles = await editor.getCodeFiles();
+    expect(codeFiles).toEqual(
+      sc.createPartial(sc.lightboxCode("lightbox-1", "public code"))
+    );
+
+    await editor.close();
+    await server.close();
+  });
+
   it("should send site document to the editor on load", async () => {
     const siteParts = {
       page: "page-1",
@@ -94,26 +113,13 @@ describe("edit mode", () => {
   });
 
   it("should send updated site document when user changes page content from the editor and clicks save", async () => {
-    const lightbox = {
-      id: "lightBox1ID",
-      options: { isPopUp: true, content: "lightBox1ID old content" }
-    };
-    const page1 = {
-      id: "page1",
-      options: {
-        content: "page1 old content"
-      }
-    };
-    const page2 = {
-      id: "page2",
-      options: {
-        content: "page2 new content"
-      }
-    };
+    const page1ID = "page1";
+    const page2ID = "page2";
+    const lightBox1ID = "lightBox1ID";
 
     const localSiteFiles = lsc.createFull(
-      lsc.page(page1.id, page1.options),
-      lsc.page(lightbox.id, lightbox.options)
+      lsc.page(page1ID, { content: "page1 old content" }),
+      lsc.lightbox(lightBox1ID, { content: "lightBox1ID old content" })
     );
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
@@ -123,11 +129,11 @@ describe("edit mode", () => {
     const newDocument = editor.getSiteDocument();
 
     // edit existing pages
-    newDocument.pages[page1.id].content = "page1 new content";
-    newDocument.pages[lightbox.id].content = "lightBox1ID new content";
+    newDocument.pages[page1ID].content = "page1 new content";
+    newDocument.pages[lightBox1ID].content = "lightBox1ID new content";
 
     // add new page from the editor
-    merge_(newDocument, sc.page(page2.id, page2.options));
+    merge_(newDocument, sc.page(page2ID, { content: "page2 new content" }));
 
     editor.modifyDocument(newDocument);
     await editor.save();
@@ -135,10 +141,9 @@ describe("edit mode", () => {
     const localSiteDocument = await localSiteDir.readLocalSite(localSitePath);
 
     const expected = lsc.createPartial(
-      lsc.page(page2.id, page2.options),
-      lsc.page(page1.id, { content: "page1 new content" }),
-      lsc.page(lightbox.id, {
-        isPopUp: true,
+      lsc.page(page2ID, { content: "page2 new content" }),
+      lsc.page(page1ID, { content: "page1 new content" }),
+      lsc.lightbox(lightBox1ID, {
         content: "lightBox1ID new content"
       })
     );

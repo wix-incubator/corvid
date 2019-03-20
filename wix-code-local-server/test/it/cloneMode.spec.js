@@ -99,4 +99,26 @@ describe("clone mode", () => {
     await editor.close();
     await server.close();
   });
+
+  // it("should save lightbox code files localy on load", async () => {
+  //   const localSitePath = await initLocalSite();
+  //   const server = await localServer.startInCloneMode(localSitePath);
+
+  //   const siteDocument = sc.createFull(sc.lightbox("lightbox-1"));
+  //   const siteCode = sc.createPartial(
+  //     sc.lightboxCode("lightbox-1", "lightbox code")
+  //   );
+
+  //   const editor = await loadEditor(server.port, { siteDocument, siteCode });
+  //   const serverFiles = await readLocalSite(localSitePath);
+
+  //   const expected = lsc.createPartial(
+  //     lsc.lightboxCode("lightbox-1", "public code")
+  //   );
+
+  //   expect(serverFiles).toMatchObject(expected);
+
+  //   await editor.close();
+  //   await server.close();
+  // });
 });
