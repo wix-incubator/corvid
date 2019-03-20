@@ -85,7 +85,9 @@ describe("edit mode", () => {
       menu: "menu-content",
       multilingualInfo: "multilingualInfo-content",
       siteInfo: "siteInfo-content",
-      metadata: "metadata-content",
+      dataFromMasterPage: "dataFromMasterPage-content",
+      version: "version-content",
+      revision: "revision-content",
       extraData: {
         version: "version-content",
         seoStuff: "seoStuff-content"

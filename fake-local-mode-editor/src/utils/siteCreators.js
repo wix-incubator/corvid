@@ -17,7 +17,9 @@ const {
   getMenuDefaults,
   getMultilingualInfoDefaults,
   getSiteInfoDefaults,
-  getMetadataDefaults
+  getRevisionDefaults,
+  getVersionDefaults,
+  getDataFromMasterPageDefaults
 } = require("./creatorsDefaults");
 
 /* ************** Styles Creator ************** */
@@ -72,9 +74,21 @@ const siteInfo = (content = getSiteInfoDefaults()) => ({
   }
 });
 
-const metadata = (content = getMetadataDefaults()) => ({
+const version = (content = getVersionDefaults()) => ({
   site: {
-    metadata: content
+    version: content
+  }
+});
+
+const revision = (content = getRevisionDefaults()) => ({
+  site: {
+    revision: content
+  }
+});
+
+const dataFromMasterPage = (content = getDataFromMasterPageDefaults()) => ({
+  site: {
+    dataFromMasterPage: content
   }
 });
 
@@ -169,5 +183,7 @@ module.exports = {
   menu,
   multilingualInfo,
   siteInfo,
-  metadata
+  version,
+  revision,
+  dataFromMasterPage
 };

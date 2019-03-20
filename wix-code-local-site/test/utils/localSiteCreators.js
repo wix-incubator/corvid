@@ -20,7 +20,9 @@ const {
   getMenuDefaults,
   getMultilingualInfoDefaults,
   getSiteInfoDefaults,
-  getMetadataDefaults
+  getRevisionDefaults,
+  getVersionDefaults,
+  getDataFromMasterPageDefaults
 } = require("./creatorsDefaults");
 
 const fileExtention = ".wix";
@@ -95,10 +97,26 @@ const siteInfo = (content = getSiteInfoDefaults()) => ({
   }
 });
 
-const metadata = (content = getMetadataDefaults()) => ({
+const version = (content = getVersionDefaults()) => ({
   frontend: {
     site: {
-      [`metadata${fileExtention}`]: stringify(content)
+      [`version${fileExtention}`]: stringify(content)
+    }
+  }
+});
+
+const revision = (content = getRevisionDefaults()) => ({
+  frontend: {
+    site: {
+      [`revision${fileExtention}`]: stringify(content)
+    }
+  }
+});
+
+const dataFromMasterPage = (content = getDataFromMasterPageDefaults()) => ({
+  frontend: {
+    site: {
+      [`dataFromMasterPage${fileExtention}`]: stringify(content)
     }
   }
 });
@@ -234,5 +252,7 @@ module.exports = {
   menu,
   multilingualInfo,
   siteInfo,
-  metadata
+  version,
+  revision,
+  dataFromMasterPage
 };
