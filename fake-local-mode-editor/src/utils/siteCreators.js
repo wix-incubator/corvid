@@ -6,7 +6,7 @@ const path = require("path");
 const {
   getPageDefaults,
   getLightboxDefaults,
-  getExtraDataDefaults,
+  getMiscDefaults,
   getStylesDefaults,
   getSiteDefaults,
   getColorsDefaults,
@@ -105,8 +105,8 @@ const lightbox = (pageId = uuid.v4(), options = {}) => ({
   }
 });
 
-const extraData = (options = {}) => ({
-  ["extraData"]: merge_(getExtraDataDefaults(), options)
+const misc = (content = getMiscDefaults()) => ({
+  misc: content
 });
 
 const styles = (...stylesCreators) => ({
@@ -145,9 +145,9 @@ const createFull = (...documentCreator) => {
     pages: {},
     styles: {},
     site: {},
-    extraData: {}
+    misc: {}
   };
-  const documentDefulats = Object.assign(styles(), site(), extraData());
+  const documentDefulats = Object.assign(styles(), site(), misc());
   const documentSite = documentCreator.reduce((document, creator) => {
     return merge_(document, creator);
   }, {});
@@ -174,7 +174,7 @@ module.exports = {
   page,
   styles,
   site,
-  extraData,
+  misc,
   colors,
   fonts,
   theme,

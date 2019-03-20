@@ -88,10 +88,7 @@ describe("edit mode", () => {
       dataFromMasterPage: "dataFromMasterPage-content",
       version: "version-content",
       revision: "revision-content",
-      extraData: {
-        version: "version-content",
-        seoStuff: "seoStuff-content"
-      }
+      misc: "misc-content"
     };
 
     const localSiteFiles = lsc.createFull(

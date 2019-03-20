@@ -9,7 +9,7 @@ const uuid = require("uuid");
 const {
   getPageDefaults,
   getLightboxDefaults,
-  getExtraDataDefaults,
+  getMiscDefaults,
   getStylesDefaults,
   getSiteDefaults,
   getColorsDefaults,
@@ -162,11 +162,9 @@ const lightbox = (pageId = uuid.v4(), options = {}) => {
   };
 };
 
-const extraData = (options = {}) => ({
+const misc = (content = getMiscDefaults()) => ({
   frontend: {
-    [`extraData${fileExtention}`]: stringify(
-      merge_(getExtraDataDefaults(), options)
-    )
+    [`misc${fileExtention}`]: stringify(content)
   }
 });
 
@@ -212,10 +210,10 @@ const createFull = (...localSiteCreator) => {
       pages: {},
       styles: {},
       site: {},
-      [`extraData${fileExtention}`]: stringify("")
+      [`misc${fileExtention}`]: stringify("")
     }
   };
-  const localSiteDefulats = merge_(styles(), site(), extraData());
+  const localSiteDefulats = merge_(styles(), site(), misc());
   const localSite = localSiteCreator.reduce((document, creator) => {
     return merge_(document, creator);
   }, {});
@@ -243,7 +241,7 @@ module.exports = {
   lightbox,
   styles,
   site,
-  extraData,
+  misc,
   colors,
   fonts,
   theme,

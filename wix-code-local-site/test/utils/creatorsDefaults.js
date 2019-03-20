@@ -19,12 +19,7 @@ const getLightboxDefaults = (pageId = uuid.v4()) => ({
   content: `${pageId} encoded file content`
 });
 
-const getExtraDataDefaults = (
-  content = {
-    version: randomize(`extra data version`),
-    seoStuff: randomize(`extra data seoStuff`)
-  }
-) => content;
+const getMiscDefaults = (content = randomize(`misc data`)) => content;
 
 const getStylesDefaults = () => ({
   colors: getColorsDefaults(),
@@ -73,7 +68,7 @@ const getDataFromMasterPageDefaults = (
 
 module.exports.getPageDefaults = getPageDefaults;
 module.exports.getLightboxDefaults = getLightboxDefaults;
-module.exports.getExtraDataDefaults = getExtraDataDefaults;
+module.exports.getMiscDefaults = getMiscDefaults;
 module.exports.getStylesDefaults = getStylesDefaults;
 module.exports.getSiteDefaults = getSiteDefaults;
 

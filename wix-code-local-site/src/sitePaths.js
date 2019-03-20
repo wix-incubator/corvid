@@ -29,7 +29,7 @@ const lightboxes = (fileName = "") =>
     "lightboxes",
     fileName ? `${fileName}${fileExtention}` : ""
   );
-const extraData = () => path.join(frontendFolder, `extraData${fileExtention}`);
+const misc = () => path.join(frontendFolder, `misc${fileExtention}`);
 
 const fromLocalCode = filePath =>
   filePath.replace(/^frontend\/(pages|lightboxes)\//, "public/pages/");
@@ -48,7 +48,7 @@ module.exports = {
   fileExtention,
   isCodeFile,
   isDocumentFile,
-  extraData,
+  misc,
   lightboxes,
   styles,
   pages,
