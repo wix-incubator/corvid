@@ -152,7 +152,13 @@ const readWrite = (siteRootPath, filesWatcher) => {
       });
     });
 
-    await Promise.all(filesPromises);
+    await Promise.all(filesPromises)
+      .then(() =>
+        // eslint-disable-next-line no-console
+        console.log("Update document done")
+      )
+      // eslint-disable-next-line no-console
+      .catch(() => console.log("Update document failed"));
   };
 
   const fullPath = filePath => path.resolve(siteRootPath, filePath);
@@ -175,7 +181,13 @@ const readWrite = (siteRootPath, filesWatcher) => {
       const deletes = deletedFiles.map(filePath => {
         filesWatcher.ignoredDeleteFile(sitePaths.toLocalCode(filePath));
       });
-      await Promise.all([...updates, ...copies, ...deletes]);
+      await Promise.all([...updates, ...copies, ...deletes])
+        .then(() =>
+          // eslint-disable-next-line no-console
+          console.log("Update code done")
+        )
+        // eslint-disable-next-line no-console
+        .catch(() => console.log("Update code failed"));
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log("files save error", error);

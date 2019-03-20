@@ -18,6 +18,8 @@ const socketHandler = localSite => socket => {
     socket.on(event, handleRequest(socketApi[event]));
   });
   localSite.onCodeChanged((...args) => {
+    // eslint-disable-next-line no-console
+    console.log("local code updated", ...args);
     socket.emit("LOCAL_CODE_UPDATED", ...args);
   });
 };

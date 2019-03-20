@@ -49,10 +49,18 @@ async function startServer(siteRootPath, isCloneMode) {
   const socketHandler = initSocketHandler(localSite);
 
   io.use(blockMultipleConnections());
-  io.on("connection", socket => socketHandler(socket));
+  io.on("connection", socket => {
+    // eslint-disable-next-line no-console
+    console.log("connected");
+    socketHandler(socket);
+  });
 
   const port = await getPort({ port: DEFAULT_PORT });
-  await new Promise(resolve => server.listen(port, resolve));
+  await new Promise(resolve => {
+    server.listen(port, resolve);
+    // eslint-disable-next-line no-console
+    console.log("listening on:", port);
+  });
 
   return {
     port,
