@@ -9,8 +9,7 @@
     "lint": "lerna run lint --stream",
     "lint:fix": "lerna exec \"eslint --fix .\"",
     "test": "lerna run test --stream",
-    "precommit": "lerna run precommit --stream",
-    "prepush": "npm run lint && npm run test"
+    "precommit": "lerna run precommit --stream"
   },
   "devDependencies": {
     "eslint": "^5.15.1",
