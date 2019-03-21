@@ -18,6 +18,7 @@ describe("edit mode", () => {
 
     await expect(server).rejects.toThrow("CAN_NOT_EDIT_EMPTY_SITE");
   });
+
   it("should send code files to the editor on load", async () => {
     const localSiteFiles = lsc.createFull(
       lsc.publicCode("public-file.json", "public code"),
@@ -42,17 +43,15 @@ describe("edit mode", () => {
 
   it("should send page code files to the editor on load", async () => {
     const localSiteFiles = lsc.createFull(
-      lsc.page("page-1"),
-      lsc.pageCode("page-1", "public code")
+      lsc.pageWithCode("page-1", null, "page code")
     );
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
     const codeFiles = await editor.getCodeFiles();
-    expect(codeFiles).toEqual(
-      sc.createPartial(sc.pageCode("page-1", "public code"))
-    );
+    const expected = sc.createPartial(sc.pageCode("page-1", "page code"));
+    expect(codeFiles).toEqual(expected);
 
     await editor.close();
     await server.close();
@@ -60,8 +59,7 @@ describe("edit mode", () => {
 
   it("should send lightbox code files to the editor on load", async () => {
     const localSiteFiles = lsc.createFull(
-      lsc.lightbox("lightbox-1"),
-      lsc.lightboxCode("lightbox-1", "public code")
+      lsc.lightboxWithCode("lightbox-1", null, "lightbox code")
     );
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
@@ -69,7 +67,7 @@ describe("edit mode", () => {
     const editor = await loadEditor(server.port);
     const codeFiles = await editor.getCodeFiles();
     expect(codeFiles).toEqual(
-      sc.createPartial(sc.lightboxCode("lightbox-1", "public code"))
+      sc.createPartial(sc.lightboxCode("lightbox-1", "lightbox code"))
     );
 
     await editor.close();
@@ -78,7 +76,7 @@ describe("edit mode", () => {
 
   it("should send site document to the editor on load", async () => {
     const siteParts = {
-      page: "page-1",
+      page: "page1",
       colors: "colors-content",
       fonts: "fonts-content",
       theme: "theme-content",
@@ -155,8 +153,10 @@ describe("edit mode", () => {
     await server.close();
   });
 
+  // todo:: split this test to 6 test, (modify pageCode & regular code), (delete pageCode & regular code), (copy pageCode & regular code)
   it("should update code files after editor changes and clicks save", async () => {
     const localSiteFiles = lsc.createFull(
+      lsc.pageWithCode("page-1", null, "code file options"),
       lsc.publicCode("public-file.json", "public code"),
       lsc.publicCode("public-file1.json", "public code 1"),
       lsc.backendCode("sub-folder/backendFile.jsw", "backend code")
@@ -170,6 +170,8 @@ describe("edit mode", () => {
       "backend/authorization-config.json",
       "console.log('authorization-config')"
     );
+
+    editor.modifyCodeFile("public/pages/page-1.js", "code file options8888");
     editor.deleteCodeFile("public/public-file1.json");
     editor.copyCodeFile(
       "public/public-file.json",
@@ -179,6 +181,7 @@ describe("edit mode", () => {
     await editor.save();
 
     const expected = lsc.createPartial(
+      lsc.pageWithCode("page-1", null, "code file options8888"),
       lsc.publicCode("public-file.json", "public code"),
       lsc.backendCode("sub-folder/backendFile.jsw", "backend code"),
       lsc.backendCode(

@@ -1,13 +1,33 @@
 const path = require("path");
+const get_ = require("lodash/get");
+const isArray_ = require("lodash/isArray");
 
 const frontendFolder = "frontend";
 const fileExtention = ".wix";
+const pageCodeExtention = ".js";
 
-const pages = (fileName = "") =>
+const removeIllegalChars = (str, replaceTo = "_") =>
+  str.replace(/[/\\?%*:|"<>\s]/g, replaceTo);
+
+const getPageFileName = (id, title, extention = fileExtention) =>
+  `${removeIllegalChars(title)}.${id}${extention}`;
+
+const pages = (page = null, extention = fileExtention) =>
   path.join(
     frontendFolder,
     "pages",
-    fileName ? `${fileName}${fileExtention}` : ""
+    page
+      ? getPageFileName(get_(page, "pageId"), get_(page, "title"), extention)
+      : ""
+  );
+
+const lightboxes = (page = null, extention = fileExtention) =>
+  path.join(
+    frontendFolder,
+    "lightboxes",
+    page
+      ? getPageFileName(get_(page, "pageId"), get_(page, "title"), extention)
+      : ""
   );
 const styles = (fileName = "") =>
   path.join(
@@ -23,19 +43,32 @@ const site = (fileName = "") =>
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
-const lightboxes = (fileName = "") =>
-  path.join(
-    frontendFolder,
-    "lightboxes",
-    fileName ? `${fileName}${fileExtention}` : ""
-  );
 const misc = () => path.join(frontendFolder, `misc${fileExtention}`);
 
-const fromLocalCode = filePath =>
-  filePath.replace(/^frontend\/(pages|lightboxes)\//, "public/pages/");
+const fromLocalCode = filePath => {
+  const match = filePath.match(
+    /^frontend\/(pages|lightboxes)\/.*\.([^.]*)\.js/
+  );
+  if (isArray_(match)) {
+    const [pageId] = match.slice(-1);
+    return `public/pages/${pageId}${pageCodeExtention}`;
+  } else {
+    return filePath;
+  }
+};
 
-const toLocalCode = filePath =>
-  filePath.replace(/^public\/pages\//, "frontend/pages/");
+const toLocalCode = file => {
+  const {
+    metaData: { pageId, isPopUp, pageTitle: title }
+  } = file;
+  if (pageId) {
+    return isPopUp
+      ? lightboxes({ pageId, title }, pageCodeExtention)
+      : pages({ pageId, title }, pageCodeExtention);
+  } else {
+    return file.path;
+  }
+};
 
 const isCodeFile = relativePath => !relativePath.endsWith(fileExtention);
 const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);

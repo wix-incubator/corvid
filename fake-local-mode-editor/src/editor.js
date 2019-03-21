@@ -1,7 +1,14 @@
 const io = require("socket.io-client");
 const path = require("path");
-const _ = require("lodash");
 const flat = require("flat");
+const get_ = require("lodash/get");
+const mapValues_ = require("lodash/mapValues");
+const map_ = require("lodash/map");
+const pickBy_ = require("lodash/pickBy");
+const isArray_ = require("lodash/isArray");
+const set_ = require("lodash/set");
+const head_ = require("lodash/head");
+const merge_ = require("lodash/merge");
 
 const flatten = data => flat(data, { delimiter: path.sep, safe: true });
 const unflatten = data =>
@@ -52,7 +59,7 @@ const updateCodeFiles = (socket, codeFileModifications) =>
 
 const saveLocal = async (socket, siteDocument, codeFiles) => {
   await updateSiteDocument(socket, siteDocument);
-  const codeFileChanges = calculateCodeFileChanges(codeFiles);
+  const codeFileChanges = calculateCodeFileChanges(codeFiles, siteDocument);
   await updateCodeFiles(socket, codeFileChanges);
   const currentCodeFiles = getCurrentCodeFiles(codeFiles);
   return {
@@ -63,35 +70,73 @@ const saveLocal = async (socket, siteDocument, codeFiles) => {
   };
 };
 
-const calculateCodeFileChanges = codeFiles => {
+const getPageIdFromCodePath = filePath =>
+  filePath.replace(/^.*[\\/]/, "").replace(/\.[^/.]+$/, "");
+
+const isPageCodeFile = (filePath, siteDocument) => {
+  const fileName = getPageIdFromCodePath(filePath);
+  const page = get_(siteDocument, ["pages", fileName]);
+  return filePath.startsWith("public/pages") && page;
+};
+
+const getPageCodeData = (path, siteDocument) => {
+  const pageId = getPageIdFromCodePath(path);
+  const page = get_(siteDocument, ["pages", pageId]);
+  return {
+    path,
+    metaData: {
+      pageId,
+      pageTitle: get_(page, ["title"]),
+      isPopUp: get_(page, ["isPopUp"])
+    }
+  };
+};
+
+const getFileData = (path, siteDocument) =>
+  isPageCodeFile(path, siteDocument)
+    ? getPageCodeData(path, siteDocument)
+    : { path, metaData: {} };
+
+const calculateCodeFileChanges = (codeFiles, siteDocument) => {
   const previousFlat = flatten(codeFiles.previous);
   const currentFlat = flatten(codeFiles.current);
+
+  const modified = pickBy_(
+    currentFlat,
+    (currentContent, filePath) =>
+      currentContent !== null &&
+      !isArray_(currentContent) &&
+      currentContent !== previousFlat[filePath]
+  );
+
+  const modifiedFiles = map_(modified, (content, path) =>
+    merge_(getFileData(path, siteDocument), { content })
+  );
+
+  const deletedFiles = map_(
+    pickBy_(currentFlat, currentContent => currentContent === null),
+    (content, path) => getFileData(path, siteDocument)
+  );
+
+  const copiedFiles = Object.keys(currentFlat)
+    .filter(targetPath => isArray_(currentFlat[targetPath]))
+    .map(targetPath => ({
+      sourcePath: getFileData(head_(currentFlat[targetPath]), siteDocument),
+      targetPath: getFileData(targetPath, siteDocument)
+    }));
   return {
-    modifiedFiles: _.pickBy(
-      currentFlat,
-      (currentContent, filePath) =>
-        currentContent !== null &&
-        !_.isArray(currentContent) &&
-        currentContent !== previousFlat[filePath]
-    ),
-    deletedFiles: Object.keys(
-      _.pickBy(currentFlat, currentContent => currentContent === null)
-    ),
-    copiedFiles: Object.keys(currentFlat)
-      .filter(targetPath => _.isArray(currentFlat[targetPath]))
-      .map(targetPath => ({
-        sourcePath: _.head(currentFlat[targetPath]),
-        targetPath
-      }))
+    modifiedFiles,
+    deletedFiles,
+    copiedFiles
   };
 };
 
 const getCurrentCodeFiles = codeFiles => {
   const flattened = flatten(codeFiles.current);
-  const withCopied = _.mapValues(flattened, value =>
-    _.isArray(value) ? flattened[_.head(value)] : value
+  const withCopied = mapValues_(flattened, value =>
+    isArray_(value) ? flattened[head_(value)] : value
   );
-  const withoutDeleted = _.pickBy(withCopied, content => content !== null);
+  const withoutDeleted = pickBy_(withCopied, content => content !== null);
   return unflatten(withoutDeleted);
 };
 
@@ -136,14 +181,14 @@ const loadEditor = async (
   }
 
   const modifyCodeFile = (filePath, content) => {
-    _.set(codeFiles.current, filePath.split(path.sep), content);
+    set_(codeFiles.current, filePath.split(path.sep), content);
   };
 
   const copyCodeFile = (sourcePath, targetPath) => {
-    _.set(codeFiles.current, targetPath.split(path.sep), [sourcePath]);
+    set_(codeFiles.current, targetPath.split(path.sep), [sourcePath]);
   };
   const deleteCodeFile = filePath => {
-    _.set(codeFiles.current, filePath.split(path.sep), null);
+    set_(codeFiles.current, filePath.split(path.sep), null);
   };
 
   return {
