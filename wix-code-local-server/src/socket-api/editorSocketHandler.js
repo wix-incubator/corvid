@@ -14,7 +14,7 @@ const socketHandler = localSite => socket => {
   handleSocketRequests(socket);
   localSite.onCodeChanged((...args) => {
     // eslint-disable-next-line no-console
-    console.log("local code updated", ...args);
+    console.log("local code updated", args[0], args[1]);
     socket.emit("LOCAL_CODE_UPDATED", ...args);
   });
 };

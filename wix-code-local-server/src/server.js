@@ -43,6 +43,13 @@ async function startServer(siteRootPath, isCloneMode) {
   const editorPort = await editorServer.listen(DEFAULT_EDITOR_PORT);
   const adminPort = await adminServer.listen(DEFAULT_ADMIN_PORT);
 
+  // eslint-disable-next-line no-console
+  console.log(
+    `Server started in ${
+      isCloneMode ? "clone" : "edit"
+    } mode. Listening on ${editorPort}`
+  );
+
   return {
     port: editorPort,
     adminPort: adminPort,
