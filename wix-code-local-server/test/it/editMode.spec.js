@@ -76,7 +76,7 @@ describe("edit mode", () => {
 
   it("should send site document to the editor on load", async () => {
     const siteParts = {
-      page: "page-1",
+      page: "page1",
       colors: "colors-content",
       fonts: "fonts-content",
       theme: "theme-content",

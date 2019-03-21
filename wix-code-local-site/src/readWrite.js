@@ -36,7 +36,14 @@ const readWrite = (siteRootPath, filesWatcher) => {
       );
       documentPart = mapKeys_(
         mapValues_(folder, JSON.parse),
-        (pageValue, pageKey) => removeFileExtension(pageKey)
+        (pageValue, pageKey) => {
+          const isPage = get_(pageValue, "pageId");
+          if (isPage) {
+            return pageValue.pageId;
+          } else {
+            return removeFileExtension(pageKey);
+          }
+        }
       );
     }
     return documentPart;
@@ -67,12 +74,11 @@ const readWrite = (siteRootPath, filesWatcher) => {
   const payloadConvertors = {
     pages: pagePaylaod => {
       return Object.keys(pagePaylaod).map(pageId => {
-        const isPopup = get_(pagePaylaod, [pageId, "isPopUp"]);
+        const page = get_(pagePaylaod, pageId);
+        const isPopup = get_(page, "isPopUp");
         return {
-          path: isPopup
-            ? sitePaths.lightboxes(pageId)
-            : sitePaths.pages(pageId),
-          content: pagePaylaod[pageId]
+          path: isPopup ? sitePaths.lightboxes(page) : sitePaths.pages(page),
+          content: page
         };
       });
     },

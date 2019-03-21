@@ -139,24 +139,28 @@ const backendCode = (relativePath = "code.js", content = uuid.v4()) =>
   set_({}, ["backend"].concat(relativePath.split(path.sep)), content);
 
 const page = (pageId = uuid.v4(), options = {}) => {
+  const page = merge_(getPageDefaults(pageId), options);
   return {
     frontend: {
       pages: {
-        [`${pageId}${fileExtention}`]: stringify(
-          merge_(getPageDefaults(pageId), options)
-        )
+        [`${page.title.replace(
+          /[/\\?%*:|"<>\s]/g,
+          "_"
+        )}.${pageId}${fileExtention}`]: stringify(page)
       }
     }
   };
 };
 
 const lightbox = (pageId = uuid.v4(), options = {}) => {
+  const lightbox = merge_(getLightboxDefaults(pageId), options);
   return {
     frontend: {
       lightboxes: {
-        [`${pageId}${fileExtention}`]: stringify(
-          merge_(getLightboxDefaults(pageId), options)
-        )
+        [`${lightbox.title.replace(
+          /[/\\?%*:|"<>\s]/g,
+          "_"
+        )}.${pageId}${fileExtention}`]: stringify(lightbox)
       }
     }
   };

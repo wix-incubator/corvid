@@ -22,7 +22,7 @@ describe("clone mode", () => {
   it("should save localy the editor's document on load", async () => {
     const emptyLocalSite = {};
     const siteParts = {
-      page: "page-1",
+      page: "page1",
       colors: "colors-content",
       fonts: "fonts-content",
       theme: "theme-content",
@@ -37,7 +37,6 @@ describe("clone mode", () => {
       misc: "misc-content"
     };
 
-    // todo:: convert to a function for both creators
     const editorSiteDocument = sc.createFull(
       ...Object.keys(siteParts).map(key => sc[key](siteParts[key]))
     );

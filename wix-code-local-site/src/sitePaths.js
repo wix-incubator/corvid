@@ -1,13 +1,20 @@
 const path = require("path");
+const get_ = require("lodash/get");
 
 const frontendFolder = "frontend";
 const fileExtention = ".wix";
 
-const pages = (fileName = "") =>
+const removeIllegalChars = (str, replaceTo = "_") =>
+  str.replace(/[/\\?%*:|"<>\s]/g, replaceTo);
+
+const getPageFileName = (id, title) =>
+  `${removeIllegalChars(title)}.${id}${fileExtention}`;
+
+const pages = (page = null) =>
   path.join(
     frontendFolder,
     "pages",
-    fileName ? `${fileName}${fileExtention}` : ""
+    page ? getPageFileName(get_(page, "pageId"), get_(page, "title")) : ""
   );
 const styles = (fileName = "") =>
   path.join(
@@ -23,12 +30,13 @@ const site = (fileName = "") =>
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
-const lightboxes = (fileName = "") =>
+const lightboxes = (page = null) =>
   path.join(
     frontendFolder,
     "lightboxes",
-    fileName ? `${fileName}${fileExtention}` : ""
+    page ? getPageFileName(get_(page, "pageId"), get_(page, "title")) : ""
   );
+
 const misc = () => path.join(frontendFolder, `misc${fileExtention}`);
 
 const fromLocalCode = filePath =>
