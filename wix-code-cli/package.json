@@ -24,7 +24,6 @@
   "license": "ISC",
   "devDependencies": {
     "@wix/fake-local-mode-editor": "~1.0.0",
-    "@wix/wix-code-local-server-testkit": "~1.0.0",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-jest": "^22.3.0",
