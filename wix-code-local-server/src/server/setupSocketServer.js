@@ -2,7 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
-const getPort = require("get-port");
+const stoppable = require("stoppable");
+const listenOnFreePort = require("listen-on-free-port");
 
 const singleSocketConnectionMiddleware = require("./singleSocketConnectionMiddleware");
 
@@ -14,11 +15,10 @@ function setupSocketServer() {
   io.use(singleSocketConnectionMiddleware());
 
   return {
-    listen: async defaultPort => {
-      const freePort = await getPort({ port: defaultPort });
-      new Promise(resolve => server.listen(freePort, resolve));
-      return freePort;
-    },
+    listen: async defaultPort =>
+      listenOnFreePort(defaultPort, ["localhost"], () =>
+        stoppable(server, 0)
+      ).then(server => server.address().port),
     close: () => {
       io.close();
       server.close();

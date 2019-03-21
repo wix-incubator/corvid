@@ -2,9 +2,10 @@
 const process = require("process");
 
 function handleCommandResult(commandRunner) {
-  return args =>
-    commandRunner(args).matchWith({
-      Error: (code, reason) => {
+  return async args => {
+    const result = await commandRunner(args);
+    result.matchWith({
+      Error: ({ value: [code, reason] }) => {
         console.error(reason);
         process.exit(code);
       },
@@ -12,6 +13,7 @@ function handleCommandResult(commandRunner) {
         process.exit(0);
       }
     });
+  };
 }
 
 module.exports = handleCommandResult;

@@ -29,7 +29,10 @@ const initSiteManager = async siteRootPath => {
     isEmpty: async () => {
       const sitePathExists = await fs.exists(siteRootPath);
       const siteContents = sitePathExists ? await fs.readdir(siteRootPath) : [];
-      return siteContents.length === 0;
+      return (
+        siteContents.length === 0 ||
+        (siteContents.length === 1 && siteContents[0] === ".wixcoderc.json")
+      );
     },
 
     getSiteDocument: readWrite.getSiteDocument,

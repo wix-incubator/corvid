@@ -13,18 +13,25 @@ function launch(file, options = {}) {
       path.join(__dirname, "..", "..", "node_modules", ".bin", "electron")
     ),
     [path.resolve(path.join(file))],
-    options
+    {
+      windowsHide: true,
+      ...options
+    }
   );
 
   if (options.detached) {
     cp.unref();
   } else {
     cp.stdout.on("data", function(data) {
-      console.log(data.toString());
+      process.stdout.write(data.toString());
     });
 
     cp.stderr.on("data", function(data) {
-      console.error(data.toString());
+      process.stderr.write(data.toString());
+    });
+
+    cp.on("exit", code => {
+      process.exit(code);
     });
   }
 }

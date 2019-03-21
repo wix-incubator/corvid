@@ -4,61 +4,48 @@ const path = require("path");
 const process = require("process");
 const { app } = require("electron");
 const localFakeEditor = require("@wix/fake-local-mode-editor");
-const localServerTestKit = require("@wix/wix-code-local-server-testkit");
-localServerTestKit.init();
-
 const {
   startInCloneMode,
   startInEditMode
 } = require("@wix/wix-code-local-server/src/server");
 const { openWindow } = require("../../../src/utils/electron");
 const pullApp = require("../../../src/apps/pull");
-const localSiteDir = require("@wix/wix-code-local-server/test/utils/localSiteDir");
 
-const wixCodeConfig = JSON.parse(
-  fs.readFileSync(path.join(__dirname, ".wixcoderc.json"))
-);
-const localSiteFiles = {
-  public: {
-    "public-file.json": "public code"
-  },
-  backend: {
-    "sub-folder": {
-      "backendFile.jsw": "backend code"
-    }
-  }
-};
+const wixCodeConfig = site =>
+  JSON.parse(fs.readFileSync(path.join(site, ".wixcoderc.json")));
 
 app.on("ready", () => {
   openWindow({ show: false }).then(async win => {
+    const site = path.resolve(path.join(__dirname, process.argv[2]));
+    const mode = process.argv[3];
+
     const localEditorServerPort = await localFakeEditor.start();
     process.env.WIXCODE_CLI_WIX_DOMAIN = `localhost:${localEditorServerPort}`;
     console.log("local editor served on: ", localEditorServerPort);
 
-    localServerTestKit.setServerHandler(sio => {
-      sio.on("connection", () => {
-        console.log("local server connection established");
+    try {
+      const {
+        adminPort: localServerPort,
+        close: closeLocalServer
+      } = await (mode === "edit"
+        ? startInEditMode(site)
+        : startInCloneMode(site));
+      console.log("local server served on:", localServerPort);
+
+      win.on("page-title-updated", (event, title) => {
+        if (title === "Fake local editor") {
+          console.log("fake editor loaded");
+        }
       });
-    });
 
-    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
-    const {
-      server,
-      port: localServerPort,
-      close: closeLocalServer
-    } = await (process.argv[2] === "edit"
-      ? startInEditMode(localSitePath)
-      : startInCloneMode(localSitePath));
-    win.on("page-title-updated", (event, title) => {
-      if (title === "Fake local editor") {
-        console.log("fake editor loaded");
-      }
-    });
+      setTimeout(() => win.close(), 1000);
 
-    setTimeout(() => server.emit("clone-complete", ""), 2000);
-
-    return pullApp(wixCodeConfig, localServerPort, closeLocalServer, {
-      useSsl: false
-    })(win);
+      return pullApp(wixCodeConfig(site), localServerPort, closeLocalServer, {
+        useSsl: false
+      })(win);
+    } catch (exc) {
+      console.error(exc);
+      process.exit(-1);
+    }
   });
 });

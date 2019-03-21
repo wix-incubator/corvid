@@ -4,9 +4,6 @@ const path = require("path");
 const process = require("process");
 const { app } = require("electron");
 const localFakeEditor = require("@wix/fake-local-mode-editor");
-const localServerTestKit = require("@wix/wix-code-local-server-testkit");
-localServerTestKit.init();
-
 const {
   startInCloneMode,
   startInEditMode
@@ -14,36 +11,45 @@ const {
 const { openWindow } = require("../../../src/utils/electron");
 const openEditorApp = require("../../../src/apps/open-editor");
 
-const wixCodeConfig = JSON.parse(
-  fs.readFileSync(path.join(__dirname, ".wixcoderc.json"))
-);
+const wixCodeConfig = site =>
+  JSON.parse(fs.readFileSync(path.join(site, ".wixcoderc.json")));
 
 app.on("ready", () => {
   openWindow({ show: false }).then(async win => {
+    const site = path.resolve(path.join(__dirname, process.argv[2]));
+    const mode = process.argv[3];
+
     const localEditorServerPort = await localFakeEditor.start();
     process.env.WIXCODE_CLI_WIX_DOMAIN = `localhost:${localEditorServerPort}`;
     console.log("local editor served on: ", localEditorServerPort);
 
-    localServerTestKit.setServerHandler(sio => {
-      sio.on("connection", () => {
-        console.log("local server connection established");
+    try {
+      const {
+        adminPort: localServerPort,
+        close: closeLocalServer
+      } = await (mode === "clone"
+        ? startInCloneMode(site)
+        : startInEditMode(site));
+
+      win.on("page-title-updated", (event, title) => {
+        if (title === "Fake local editor") {
+          console.log("fake editor loaded");
+        }
       });
-    });
 
-    const { port: localServerPort, close: closeLocalServer } = await (process
-      .argv[2] === "clone"
-      ? startInCloneMode()
-      : startInEditMode());
-    win.on("page-title-updated", (event, title) => {
-      if (title === "Fake local editor") {
-        console.log("fake editor loaded");
-      }
-    });
+      setTimeout(() => win.close(), 1000);
 
-    setTimeout(() => win.close(), 2000);
-
-    return openEditorApp(wixCodeConfig, localServerPort, closeLocalServer, {
-      useSsl: false
-    })(win);
+      return openEditorApp(
+        wixCodeConfig(site),
+        localServerPort,
+        closeLocalServer,
+        {
+          useSsl: false
+        }
+      )(win);
+    } catch (exc) {
+      console.error(exc);
+      process.exit(-1);
+    }
   });
 });

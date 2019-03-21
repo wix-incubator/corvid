@@ -1,14 +1,14 @@
 const { runFixture } = require("./utils");
 
 describe("edit", () => {
-  const promise = runFixture("edit");
+  const promise = runFixture("edit", "non-empty-site");
 
   test("should connect to a local server", () => {
     expect.assertions(1);
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining(["local server connection established\n"]),
+      expect.arrayContaining(["Local server connection established\n"]),
       expect.anything()
     ]);
   });
@@ -28,7 +28,7 @@ describe("edit", () => {
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining(["editor connected\n"]),
+      expect.arrayContaining(["Editor connected\n"]),
       expect.anything()
     ]);
   });
@@ -36,10 +36,12 @@ describe("edit", () => {
   test("should exit with status code 255 when the local server is not in edit mode", () => {
     expect.assertions(1);
 
-    return expect(runFixture("edit", ["clone"])).resolves.toMatchObject([
+    return expect(
+      runFixture("edit", "empty-site", "clone")
+    ).resolves.toMatchObject([
       255,
       expect.anything(),
-      expect.arrayContaining(["local server is not in edit mode\n"])
+      expect.arrayContaining(["Local server is not in edit mode\n"])
     ]);
   });
 

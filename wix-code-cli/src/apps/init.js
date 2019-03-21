@@ -38,7 +38,7 @@ async function init(args) {
       }
     }
 
-    if (fs.readdirSync(args.dir).length > 0) {
+    if (fs.readdirSync(args.dir).length > 0 && !args.force) {
       return Result.Error([-1, `target directory ${args.dir} is not empty`]);
     }
 

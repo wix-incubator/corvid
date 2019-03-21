@@ -1,15 +1,16 @@
 const childProcess = require("child_process");
 const path = require("path");
 
-function runFixture(name, args = []) {
+function runFixture(name, ...args) {
   return new Promise(resolve => {
     const stderr = [];
     const stdout = [];
 
-    const child = childProcess.spawn("electron", [
+    const arguments_ = [
       path.resolve(path.join(__dirname, "fixtures", name, "main.js")),
       ...args
-    ]);
+    ];
+    const child = childProcess.spawn("electron", arguments_);
 
     child.stdout.on("data", function(data) {
       stdout.push(data.toString());

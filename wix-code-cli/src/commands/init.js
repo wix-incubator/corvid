@@ -7,6 +7,7 @@ module.exports = {
   describe: "intialises a local Wix Code copy",
   builder: args =>
     args
+      .option("force", { describe: "force pull", type: "boolean" })
       .positional("url", { describe: "Public site URL", type: "string" })
       .positional("dir", {
         describe: "local directory to download data to",

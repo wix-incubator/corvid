@@ -34,11 +34,14 @@ async function startServer(siteRootPath, isCloneMode) {
       Object.keys(editorServer.io.sockets.connected).length > 0
   };
 
-  const editorSocketHandler = editorSocketApi(localSite);
-  editorServer.io.on("connection", editorSocketHandler);
-
   const adminSocketHandler = adminSocketApi(serverState);
   adminServer.io.on("connection", adminSocketHandler);
+
+  const editorSocketHandler = editorSocketApi(localSite);
+  editorServer.io.on("connection", (...args) => {
+    adminServer.io.emit("editor-connected");
+    return editorSocketHandler(...args);
+  });
 
   const editorPort = await editorServer.listen(DEFAULT_EDITOR_PORT);
   const adminPort = await adminServer.listen(DEFAULT_ADMIN_PORT);

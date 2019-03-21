@@ -2,80 +2,95 @@
 const process = require("process");
 const client = require("socket.io-client");
 const genEditorUrl = require("../utils/genEditorUrl");
+const { sendRequest } = require("../utils/socketIoHelpers");
 
-const signInPage = "https://users.wix.com/signin";
+const signInHostname = "users.wix.com";
+const editorHostname = "editor.wix.com";
 
 module.exports = (
   wixCodeConfig,
   localServerPort,
   closeLocalServer,
-  { useSsl = true }
-) => win => {
-  const clnt = client(`http://localhost:${localServerPort}`);
+  { useSsl = true } = {}
+) => async win => {
+  const clnt = client.connect(`http://localhost:${localServerPort}`);
 
-  return new Promise((resolve, reject) => {
-    win.on("close", () => {
-      closeLocalServer().then(resolve);
+  await new Promise((resolve, reject) => {
+    clnt.on("connect", () => {
+      console.log("Local server connection established");
+      resolve();
     });
 
-    clnt.on("editor-connected", () => {
-      console.log("editor connected");
-    });
+    setTimeout(reject, 1000);
+  });
 
-    clnt.on("clone-complete", () => {
-      console.log("pulled remote site content");
-      win.close();
-    });
+  try {
+    await new Promise(async (resolve, reject) => {
+      win.on("close", () => {
+        closeLocalServer();
+        resolve();
+      });
 
-    clnt.on(
-      "status",
-      ({ connected, mode, editorPort: localServerEditorPort }) => {
-        if (connected) {
-          closeLocalServer().then(() => {
-            reject(`The local Wix Code server is already connected to a local editor. If you are in
-an editing session, please close it before trying to run this command again.`);
-          });
-        }
+      clnt.on("editor-connected", () => {
+        console.log("Editor connected");
+      });
 
-        if (mode !== "clone") {
-          closeLocalServer().then(() => {
-            reject("local server is not in clone mode");
-          });
-        }
+      clnt.on("clone-complete", () => {
+        console.log("Pulled remote site content");
+        win.close();
+      });
 
-        if (!localServerEditorPort) {
-          closeLocalServer().then(() => {
-            reject("local server did not return an editor port");
-          });
-        }
+      const {
+        editorConnected,
+        mode,
+        editorPort: localServerEditorPort
+      } = await sendRequest(clnt, "GET_STATUS");
 
-        const editorUrl = genEditorUrl(
-          useSsl,
-          process.env.WIXCODE_CLI_WIX_DOMAIN || "www.wix.com",
-          wixCodeConfig.metasiteId,
-          localServerEditorPort
+      if (editorConnected) {
+        closeLocalServer();
+        reject(
+          "The local Wix Code server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again."
         );
-
-        win.webContents.on("did-navigate", (event, url) => {
-          if (url.startsWith(signInPage)) {
-            win.show();
-          } else if (url === editorUrl) {
-            win.hide();
-          }
-        });
-
-        win.loadURL(editorUrl);
       }
-    );
-  })
-    .then(() => {
-      console.log(
-        "pull complete, run 'wix-code open-editor' to start editing the local copy"
+
+      if (mode !== "clone") {
+        closeLocalServer();
+        reject("Local server is not in clone mode");
+      }
+
+      if (!localServerEditorPort) {
+        closeLocalServer();
+        reject("Local server did not return an editor port");
+      }
+
+      const editorUrl = genEditorUrl(
+        useSsl,
+        process.env.WIXCODE_CLI_WIX_DOMAIN || "www.wix.com",
+        wixCodeConfig.metasiteId,
+        localServerEditorPort
       );
-      process.exit(0);
-    })
-    .catch(reason => {
-      console.error(reason);
-      process.exit(-1);
+
+      win.webContents.on("did-navigate", (event, url) => {
+        const parsed = new URL(url);
+        if (parsed.hostname === signInHostname) {
+          console.log("Authenticating user on www.wix.com");
+          win.show();
+        } else if (parsed.hostname === editorHostname) {
+          console.log("User authenticated");
+          win.hide();
+        }
+      });
+
+      win.loadURL(editorUrl);
     });
+
+    console.log(
+      "Pull complete, run 'wix-code open-editor' to start editing the local copy"
+    );
+
+    process.exit(0);
+  } catch (exc) {
+    console.error(exc);
+    process.exit(-1);
+  }
 };

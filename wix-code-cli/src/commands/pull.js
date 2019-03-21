@@ -14,9 +14,9 @@ app &&
       );
 
       const {
-        port: localServerPort,
+        adminPort: localServerPort,
         close: closeLocalServer
-      } = await startInCloneMode();
+      } = await startInCloneMode(".");
       openWindow({ show: false }).then(
         pullApp(wixCodeConfig, localServerPort, closeLocalServer)
       );
@@ -30,5 +30,5 @@ module.exports = {
   command: "pull",
   describe: "pulls a local copy of the site",
   builder: args => args.option("C", { describe: "path", type: "string" }),
-  handler: () => launch(__filename)
+  handler: args => launch(__filename, { cwd: args.C })
 };
