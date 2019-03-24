@@ -5,12 +5,7 @@ const openEditorApp = require("../apps/open-editor");
 
 app &&
   app.on("ready", async () => {
-    try {
-      openWindow({ show: true }).then(openEditorApp());
-    } catch (exc) {
-      console.error(exc);
-      process.exit(-1);
-    }
+    await openWindow(openEditorApp(), { show: true });
   });
 
 module.exports = {

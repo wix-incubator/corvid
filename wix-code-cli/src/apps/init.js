@@ -32,11 +32,20 @@ async function init(args) {
     }
   }
 
-  if (fs.readdirSync(args.dir).length > 0 && !args.force) {
-    throw chalk.red(`Target directory ${args.dir} is not empty`);
+  const folderContents = fs.readdirSync(args.dir);
+  if (folderContents.length > 0 && !args.force) {
+    if (folderContents.includes(".wixcoderc.json")) {
+      throw chalk`{red Project already exists in ${
+        args.dir
+      }}\nCancelling initialisation`;
+    }
+
+    throw chalk`{red Target directory ${
+      args.dir
+    } is not empty}\nCancelling initialisation`;
   }
 
-  process.stdout.write(chalk.grey(`Initialising project in ${args.dir}...`));
+  process.stdout.write(chalk.grey(`Initialising workspace in ${args.dir}...`));
   fs.writeFileSync(
     path.join(args.dir, ".wixcoderc.json"),
     JSON.stringify({ metasiteId }, null, 2)

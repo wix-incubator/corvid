@@ -3,6 +3,19 @@ const path = require("path");
 const childProcess = require("child_process");
 const process = require("process");
 const { BrowserWindow } = require("electron");
+const client = require("socket.io-client");
+const chalk = require("chalk");
+
+const {
+  startInCloneMode,
+  startInEditMode
+} = require("@wix/wix-code-local-server/src/server");
+const serverErrors = require("../utils/server-errors");
+const readWixCodeConfig = require("../utils/read-wix-code-config");
+const { sendRequest } = require("../utils/socketIoHelpers");
+
+const signInHostname = "users.wix.com";
+const editorHostname = "editor.wix.com";
 
 const isHeadlessMode = !!process.env.WIXCODE_CLI_HEADLESS;
 const isDevTools = !!process.env.WIXCODE_CLI_DEVTOOLS;
@@ -41,27 +54,83 @@ function launch(file, options = {}) {
   }
 }
 
-const openWindow = (windowOptions = {}) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const win = new BrowserWindow({
-        width: 1280,
-        height: 960,
-        show: !isHeadlessMode,
-        ...windowOptions,
-        webPreferences: { nodeIntegration: false }
-      });
-
-      if (isDevTools) {
-        win.webContents.openDevTools({ mode: "detach" });
-      }
-
-      setTimeout(() => resolve(win), isDevTools ? 1000 : 0);
-    } catch (exc) {
-      reject(exc);
-    }
+async function openWindow(app, windowOptions = {}) {
+  const win = new BrowserWindow({
+    width: 1280,
+    height: 960,
+    show: !isHeadlessMode,
+    ...windowOptions,
+    webPreferences: { nodeIntegration: false }
   });
-};
+
+  try {
+    win.webContents.on("did-navigate", (event, url) => {
+      const parsed = new URL(url);
+      if (parsed.hostname === signInHostname) {
+        process.stdout.write(chalk.grey("Authenticating Wix user..."));
+        win.show();
+      } else if (parsed.hostname === editorHostname && win.isVisible()) {
+        process.stdout.write(chalk.green("  Done\n"));
+        win.hide();
+      }
+    });
+
+    if (isDevTools) {
+      win.webContents.openDevTools({ mode: "detach" });
+    }
+
+    await new Promise(resolve => {
+      setTimeout(resolve, isDevTools ? 1000 : 0);
+    }).then(async () => {
+      const wixCodeConfig = await readWixCodeConfig(".");
+
+      if (app.serverMode) {
+        const server =
+          app.serverMode === "edit"
+            ? startInEditMode(".")
+            : startInCloneMode(".");
+        const {
+          adminPort: localServerPort,
+          close: closeLocalServer
+        } = await server.catch(exc => {
+          if (exc.message in serverErrors) {
+            throw chalk.red(serverErrors[exc.message]);
+          }
+        });
+
+        win.on("close", () => {
+          closeLocalServer();
+        });
+
+        const clnt = client.connect(`http://localhost:${localServerPort}`);
+
+        await new Promise((resolve, reject) => {
+          clnt.on("connect", () => {
+            console.log(chalk.grey("Local server connection established"));
+            resolve();
+          });
+
+          setTimeout(reject, 1000);
+        });
+
+        clnt.on("editor-connected", () => {
+          console.log(chalk.grey("Editor connected"));
+        });
+
+        const localServerStatus = await sendRequest(clnt, "GET_STATUS");
+
+        return app.handler(wixCodeConfig, win, clnt, localServerStatus);
+      } else {
+        return app.handler(wixCodeConfig, win);
+      }
+    });
+
+    win.close();
+  } catch (exc) {
+    console.error(exc);
+    process.exit(-1);
+  }
+}
 
 module.exports = {
   openWindow,

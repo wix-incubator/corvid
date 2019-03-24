@@ -1,4 +1,3 @@
-const chalk = require("chalk");
 const initLocalSiteManager = require("@wix/wix-code-local-site");
 
 const setupSocketServer = require("./server/setupSocketServer");
@@ -38,10 +37,14 @@ async function startServer(siteRootPath, isCloneMode) {
   const adminSocketHandler = adminSocketApi(serverState);
   adminServer.io.on("connection", adminSocketHandler);
 
-  const editorSocketHandler = editorSocketApi(localSite);
-  editorServer.io.on("connection", (...args) => {
+  const editorSocketHandler = editorSocketApi(localSite, adminServer.io);
+  editorServer.io.on("connection", editorConnectionSocket => {
     adminServer.io.emit("editor-connected");
-    return editorSocketHandler(...args);
+
+    editorConnectionSocket.on("disconnect", () => {
+      adminServer.io.emit("editor-disconnected");
+    });
+    return editorSocketHandler(editorConnectionSocket);
   });
 
   const editorPort = await editorServer.listen(DEFAULT_EDITOR_PORT);
@@ -49,11 +52,9 @@ async function startServer(siteRootPath, isCloneMode) {
 
   // eslint-disable-next-line no-console
   console.log(
-    chalk.grey(
-      `Server started in ${
-        isCloneMode ? "clone" : "edit"
-      } mode. Listening on ${editorPort}`
-    )
+    `Server started in ${
+      isCloneMode ? "clone" : "edit"
+    } mode. Listening on ${editorPort}`
   );
 
   return {

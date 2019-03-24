@@ -1,15 +1,20 @@
 /* eslint-disable no-console */
 const chalk = require("chalk");
-const { app } = require("electron");
-const { openWindow, launch } = require("../utils/electron");
+const { app, BrowserWindow } = require("electron");
+const { launch } = require("../utils/electron");
 
 app &&
   app.on("ready", async () => {
     try {
-      openWindow({ show: false }).then(win => {
-        win.webContents.session.clearStorageData({ storages: "cookies" });
-        win.close();
+      const win = new BrowserWindow({
+        width: 1280,
+        height: 960,
+        show: false,
+        webPreferences: { nodeIntegration: false }
       });
+      win.webContents.session.clearStorageData({ storages: "cookies" });
+      win.close();
+
       console.log(chalk.green("Cookies cleared"));
     } catch (exc) {
       console.log(exc);

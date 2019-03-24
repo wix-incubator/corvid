@@ -8,7 +8,9 @@ const readWixCodeConfig = dir =>
       if (exc) {
         if (exc.code === "ENOENT") {
           reject(
-            chalk.red(`Could not find .wixcoderc.json in ${path.resolve(dir)}`)
+            chalk`{red Project not found in ${path.resolve(
+              dir
+            )}}\nRun the command from a project's root folder`
           );
         } else {
           reject(exc);

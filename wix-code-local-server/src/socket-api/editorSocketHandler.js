@@ -1,15 +1,23 @@
 const socketRequestHandler = require("./utils/socketRequestHandler");
 
-const initEditorApi = localSite => ({
+const initEditorApi = (localSite, adminSocket) => ({
   IS_CLONE_MODE: () => localSite.isEmpty(),
   GET_DOCUMENT: () => localSite.getSiteDocument(),
-  UPDATE_DOCUMENT: newDocument => localSite.updateSiteDocument(newDocument),
+  UPDATE_DOCUMENT: newDocument => {
+    const result = localSite.updateSiteDocument(newDocument);
+    adminSocket.emit("document-updated");
+    return result;
+  },
   GET_CODE: () => localSite.getCodeFiles(),
-  UPDATE_CODE: codeUpdates => localSite.updateCode(codeUpdates)
+  UPDATE_CODE: codeUpdates => {
+    const result = localSite.updateCode(codeUpdates);
+    adminSocket.emit("code-updated");
+    return result;
+  }
 });
 
-const socketHandler = localSite => socket => {
-  const socketApi = initEditorApi(localSite);
+const socketHandler = (localSite, adminSocket) => socket => {
+  const socketApi = initEditorApi(localSite, adminSocket);
   const handleSocketRequests = socketRequestHandler(socketApi);
   handleSocketRequests(socket);
   localSite.onCodeChanged((...args) => {

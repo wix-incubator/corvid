@@ -1,58 +1,29 @@
 /* eslint-disable no-console */
 const process = require("process");
-const client = require("socket.io-client");
 const chalk = require("chalk");
-const { startInEditMode } = require("@wix/wix-code-local-server/src/server");
 const genEditorUrl = require("../utils/genEditorUrl");
-const { sendRequest } = require("../utils/socketIoHelpers");
-const readWixCodeConfig = require("../utils/read-wix-code-config");
-const serverErrors = require("../utils/server-errors");
 
-const signInHostname = "users.wix.com";
-const editorHostname = "editor.wix.com";
-
-module.exports = ({ useSsl = true }) => async win => {
-  const wixCodeConfig = await readWixCodeConfig(".");
-
-  const {
-    adminPort: localServerPort,
-    close: closeLocalServer
-  } = await startInEditMode(".").catch(exc => {
-    if (exc.message in serverErrors) {
-      throw chalk.red(serverErrors[exc.message]);
-    }
-  });
-
-  const clnt = client(`http://localhost:${localServerPort}`);
-
-  await new Promise((resolve, reject) => {
-    clnt.on("connect", () => {
-      console.log(chalk.grey("Local server connection established"));
-      resolve();
-    });
-
-    setTimeout(reject, 1000);
-  });
-
-  try {
+const openEditorApp = ({ useSsl = true } = {}) => ({
+  serverMode: "edit",
+  handler: async (wixCodeConfig, win, client, localServerStatus) => {
     await new Promise(async (resolve, reject) => {
-      win.on("close", () => {
-        closeLocalServer();
+      client.on("editor-connected", () => {
+        console.log(chalk.green("Editor opened successfully"));
         resolve();
       });
 
-      clnt.on("editor-connected", () => {
-        console.log(chalk.grey("Editor connected"));
+      client.on("editor-disconnected", () => {
+        console.log(chalk.grey("Editor disconnected"));
+        resolve();
       });
 
       const {
         editorConnected,
         mode,
         editorPort: localServerEditorPort
-      } = await sendRequest(clnt, "GET_STATUS");
+      } = localServerStatus;
 
       if (editorConnected) {
-        closeLocalServer();
         reject(
           chalk.red(
             `The local Wix Code server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again.`
@@ -61,30 +32,12 @@ module.exports = ({ useSsl = true }) => async win => {
       }
 
       if (mode !== "edit") {
-        closeLocalServer();
         reject(chalk.red("Local server is not in edit mode"));
       }
 
       if (!localServerEditorPort) {
-        closeLocalServer();
         reject(chalk.red("Local server did not return an editor port"));
       }
-
-      win.on("close", () => {
-        closeLocalServer();
-        resolve();
-      });
-
-      win.webContents.on("did-navigate", (event, url) => {
-        const parsed = new URL(url);
-        if (parsed.hostname === signInHostname) {
-          console.log(chalk.grey("Authenticating user on www.wix.com"));
-          win.show();
-        } else if (parsed.hostname === editorHostname) {
-          console.log(chalk.grey("User authenticated"));
-          win.hide();
-        }
-      });
 
       const editorUrl = genEditorUrl(
         useSsl,
@@ -95,15 +48,7 @@ module.exports = ({ useSsl = true }) => async win => {
 
       win.loadURL(editorUrl);
     });
-
-    console.log(
-      chalk.green(
-        "Pull complete, run 'wix-code open-editor' to start editing the local copy"
-      )
-    );
-    process.exit(0);
-  } catch (exc) {
-    console.error(exc);
-    process.exit(-1);
   }
-};
+});
+
+module.exports = openEditorApp;

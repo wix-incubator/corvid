@@ -5,12 +5,7 @@ const pullApp = require("../apps/pull");
 
 app &&
   app.on("ready", async () => {
-    try {
-      await openWindow({ show: false }).then(pullApp());
-    } catch (exc) {
-      console.error(exc);
-      process.exit(-1);
-    }
+    await openWindow(pullApp(), { show: false });
   });
 
 module.exports = {

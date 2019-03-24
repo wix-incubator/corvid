@@ -35,7 +35,15 @@ describe("pull", () => {
     ]);
   });
 
-  test("should download site files", () => {});
+  test("should report to stdout when the process is complete", () => {
+    expect.assertions(1);
+
+    return expect(promise).resolves.toMatchObject([
+      0,
+      expect.arrayContaining([expect.stringMatching(/Project downloaded/)]),
+      expect.anything()
+    ]);
+  });
 
   test("should disconnect from the local server after download is complete", () => {});
 
@@ -83,7 +91,7 @@ describe("pull", () => {
         expect.anything(),
         expect.anything(),
         expect.arrayContaining([
-          expect.stringMatching(/Could not find \.wixcoderc\.json in /)
+          expect.stringMatching(/.*Project not found in /)
         ])
       ]);
     });

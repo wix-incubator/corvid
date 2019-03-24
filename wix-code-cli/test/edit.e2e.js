@@ -35,10 +35,6 @@ describe("edit", () => {
     ]);
   });
 
-  test("should update local files with changes", () => {});
-
-  test("should watch local site files", () => {});
-
   describe.skip("when the local server is already running in clone mode", () => {
     const promise = runFixture("edit", "empty-site", "clone");
 
@@ -83,7 +79,7 @@ describe("edit", () => {
         expect.anything(),
         expect.anything(),
         expect.arrayContaining([
-          expect.stringMatching(/Could not find \.wixcoderc\.json in /)
+          expect.stringMatching(/.*Project not found in /)
         ])
       ]);
     });

@@ -1,4 +1,3 @@
-const chalk = require("chalk");
 const fetchMock = require("fetch-mock");
 const init = require("../src/apps/init");
 
@@ -31,7 +30,9 @@ describe("init", () => {
         url: "wix.com",
         dir: "someFolder"
       })
-    ).rejects.toEqual(chalk.red(`Target directory someFolder is not empty`));
+    ).rejects.toEqual(
+      expect.stringMatching(/Target directory someFolder is not empty/)
+    );
   });
 
   test("should clone the site", () => {});
