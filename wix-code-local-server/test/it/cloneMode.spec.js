@@ -90,7 +90,9 @@ describe("clone mode", () => {
     const editor = await loadEditor(server.port, { siteDocument, siteCode });
     const serverFiles = await readLocalSite(localSitePath);
 
-    const expected = lsc.createPartial(lsc.pageCode("page-1", "public code"));
+    const expected = lsc.createPartial(
+      lsc.pageWithCode("page-1", null, "public code")
+    );
 
     expect(serverFiles).toMatchObject(expected);
 
@@ -98,25 +100,25 @@ describe("clone mode", () => {
     await server.close();
   });
 
-  // it("should save lightbox code files localy on load", async () => {
-  //   const localSitePath = await initLocalSite();
-  //   const server = await localServer.startInCloneMode(localSitePath);
+  it("should save lightbox code files localy on load", async () => {
+    const localSitePath = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSitePath);
 
-  //   const siteDocument = sc.createFull(sc.lightbox("lightbox-1"));
-  //   const siteCode = sc.createPartial(
-  //     sc.lightboxCode("lightbox-1", "lightbox code")
-  //   );
+    const siteDocument = sc.createFull(sc.lightbox("lightbox-1"));
+    const siteCode = sc.createPartial(
+      sc.lightboxCode("lightbox-1", "lightbox code")
+    );
 
-  //   const editor = await loadEditor(server.port, { siteDocument, siteCode });
-  //   const serverFiles = await readLocalSite(localSitePath);
+    const editor = await loadEditor(server.port, { siteDocument, siteCode });
+    const serverFiles = await readLocalSite(localSitePath);
 
-  //   const expected = lsc.createPartial(
-  //     lsc.lightboxCode("lightbox-1", "public code")
-  //   );
+    const expected = lsc.createPartial(
+      lsc.lightboxWithCode("lightbox-1", null, "lightbox code")
+    );
 
-  //   expect(serverFiles).toMatchObject(expected);
+    expect(serverFiles).toMatchObject(expected);
 
-  //   await editor.close();
-  //   await server.close();
-  // });
+    await editor.close();
+    await server.close();
+  });
 });

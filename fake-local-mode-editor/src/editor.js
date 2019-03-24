@@ -2,6 +2,8 @@ const io = require("socket.io-client");
 const path = require("path");
 const _ = require("lodash");
 const flat = require("flat");
+const get_ = require("lodash/get");
+const mapValues_ = require("lodash/mapValues");
 
 const flatten = data => flat(data, { delimiter: path.sep, safe: true });
 const unflatten = data =>
@@ -52,7 +54,7 @@ const updateCodeFiles = (socket, codeFileModifications) =>
 
 const saveLocal = async (socket, siteDocument, codeFiles) => {
   await updateSiteDocument(socket, siteDocument);
-  const codeFileChanges = calculateCodeFileChanges(codeFiles);
+  const codeFileChanges = calculateCodeFileChanges(codeFiles, siteDocument);
   await updateCodeFiles(socket, codeFileChanges);
   const currentCodeFiles = getCurrentCodeFiles(codeFiles);
   return {
@@ -63,26 +65,68 @@ const saveLocal = async (socket, siteDocument, codeFiles) => {
   };
 };
 
-const calculateCodeFileChanges = codeFiles => {
+const getPageIdFromCodePath = filePath =>
+  filePath.replace(/^.*[\\/]/, "").replace(/\.[^/.]+$/, "");
+
+const isPageCodeFile = (filePath, siteDocument) => {
+  const fileName = getPageIdFromCodePath(filePath);
+  const page = get_(siteDocument, ["pages", fileName]);
+  return filePath.startsWith("public/pages") && page;
+};
+
+const getPageCodeData = (path, siteDocument) => {
+  const pageId = getPageIdFromCodePath(path);
+  return {
+    path,
+    metaData: {
+      pageId: get_(siteDocument, ["pages", pageId, "pageId"]),
+      pageTitle: get_(siteDocument, ["pages", pageId, "title"]),
+      isPopUp: get_(siteDocument, ["pages", pageId, "isPopUp"])
+    }
+  };
+};
+
+const getFileData = (path, siteDocument) =>
+  isPageCodeFile(path, siteDocument)
+    ? getPageCodeData(path, siteDocument)
+    : { path, metaData: {} };
+
+const calculateCodeFileChanges = (codeFiles, siteDocument) => {
   const previousFlat = flatten(codeFiles.previous);
   const currentFlat = flatten(codeFiles.current);
+
+  const modifiedFiles = Object.values(
+    mapValues_(
+      _.pickBy(
+        currentFlat,
+        (currentContent, filePath) =>
+          currentContent !== null &&
+          !_.isArray(currentContent) &&
+          currentContent !== previousFlat[filePath]
+      ),
+      (content, path) => {
+        return Object.assign(getFileData(path, siteDocument), { content });
+      }
+    )
+  );
+
+  const deletedFiles = Object.values(
+    mapValues_(
+      _.pickBy(currentFlat, currentContent => currentContent === null),
+      (content, path) => getFileData(path, siteDocument)
+    )
+  );
+
+  const copiedFiles = Object.keys(currentFlat)
+    .filter(targetPath => _.isArray(currentFlat[targetPath]))
+    .map(targetPath => ({
+      sourcePath: getFileData(_.head(currentFlat[targetPath]), siteDocument),
+      targetPath: getFileData(targetPath, siteDocument)
+    }));
   return {
-    modifiedFiles: _.pickBy(
-      currentFlat,
-      (currentContent, filePath) =>
-        currentContent !== null &&
-        !_.isArray(currentContent) &&
-        currentContent !== previousFlat[filePath]
-    ),
-    deletedFiles: Object.keys(
-      _.pickBy(currentFlat, currentContent => currentContent === null)
-    ),
-    copiedFiles: Object.keys(currentFlat)
-      .filter(targetPath => _.isArray(currentFlat[targetPath]))
-      .map(targetPath => ({
-        sourcePath: _.head(currentFlat[targetPath]),
-        targetPath
-      }))
+    modifiedFiles,
+    deletedFiles,
+    copiedFiles
   };
 };
 

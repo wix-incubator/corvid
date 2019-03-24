@@ -26,8 +26,10 @@ const {
 } = require("./creatorsDefaults");
 
 const fileExtention = ".wix";
+const codeExtention = ".js";
 
 const stringify = content => JSON.stringify(content, null, 2);
+const removeIllegalCharacters = str => str.replace(/[/\\?%*:|"<>\s]/g, "_");
 
 /* ************** Styles Creator ************** */
 
@@ -126,12 +128,6 @@ const dataFromMasterPage = (content = getDataFromMasterPageDefaults()) => ({
 const file = (relativePath = "backend/code.js", content = uuid.v4()) =>
   set_({}, relativePath.split(path.sep), content);
 
-const pageCode = (pageId, content = uuid.v4()) =>
-  set_({}, ["frontend", "pages", `${pageId}.js`], content);
-
-const lightboxCode = (pageId, content = uuid.v4()) =>
-  set_({}, ["frontend", "lightboxes", `${pageId}.js`], content);
-
 const publicCode = (relativePath = "code.js", content = uuid.v4()) =>
   set_({}, ["public"].concat(relativePath.split(path.sep)), content);
 
@@ -143,13 +139,29 @@ const page = (pageId = uuid.v4(), options = {}) => {
   return {
     frontend: {
       pages: {
-        [`${page.title.replace(
-          /[/\\?%*:|"<>\s]/g,
-          "_"
+        [`${removeIllegalCharacters(
+          page.title
         )}.${pageId}${fileExtention}`]: stringify(page)
       }
     }
   };
+};
+
+const pageWithCode = (
+  pageId = uuid.v4(),
+  options = {},
+  codeContent = uuid.v4()
+) => {
+  const pageMergedOptions = merge_(getPageDefaults(pageId), options);
+  return merge_(page(pageId, pageMergedOptions), {
+    frontend: {
+      pages: {
+        [`${removeIllegalCharacters(
+          pageMergedOptions.title
+        )}.${pageId}${codeExtention}`]: codeContent
+      }
+    }
+  });
 };
 
 const lightbox = (pageId = uuid.v4(), options = {}) => {
@@ -164,6 +176,23 @@ const lightbox = (pageId = uuid.v4(), options = {}) => {
       }
     }
   };
+};
+
+const lightboxWithCode = (
+  pageId = uuid.v4(),
+  options = {},
+  codeContent = uuid.v4()
+) => {
+  const lightboxMergedOptions = merge_(getLightboxDefaults(pageId), options);
+  return merge_(lightbox(pageId, lightboxMergedOptions), {
+    frontend: {
+      lightboxes: {
+        [`${removeIllegalCharacters(
+          lightboxMergedOptions.title
+        )}.${pageId}${codeExtention}`]: codeContent
+      }
+    }
+  });
 };
 
 const misc = (content = getMiscDefaults()) => ({
@@ -236,13 +265,13 @@ const createPartial = (...localSiteCreator) =>
 module.exports = {
   createFull,
   createPartial,
-  lightboxCode,
-  pageCode,
   publicCode,
   backendCode,
   file,
   page,
+  pageWithCode,
   lightbox,
+  lightboxWithCode,
   styles,
   site,
   misc,

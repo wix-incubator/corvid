@@ -16,6 +16,7 @@ const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
 const stringify = content => JSON.stringify(content, null, 2);
 
 const readWrite = (siteRootPath, filesWatcher) => {
+  const fullPath = filePath => path.resolve(siteRootPath, filePath);
   const getCodeFiles = async (dirPath = siteRootPath) => {
     const siteDirJson = await dirAsJson.readDirToJson(dirPath);
     const flatDirFiles = mapKeys_(
@@ -167,26 +168,28 @@ const readWrite = (siteRootPath, filesWatcher) => {
       .catch(() => console.log("Update document failed"));
   };
 
-  const fullPath = filePath => path.resolve(siteRootPath, filePath);
-
   const updateCode = async updateRequest => {
-    const { modifiedFiles, copiedFiles, deletedFiles } = updateRequest;
+    const {
+      modifiedFiles = [],
+      copiedFiles = [],
+      deletedFiles = []
+    } = updateRequest;
     try {
-      const updates = Object.keys(modifiedFiles).map(filePath =>
-        filesWatcher.ignoredWriteFile(
-          sitePaths.toLocalCode(filePath),
-          modifiedFiles[filePath]
-        )
+      const updates = modifiedFiles.map(file =>
+        filesWatcher.ignoredWriteFile(sitePaths.toLocalCode(file), file.content)
       );
+
       const copies = copiedFiles.map(({ sourcePath, targetPath }) =>
         filesWatcher.ignoredCopyFile(
           sitePaths.toLocalCode(sourcePath),
           sitePaths.toLocalCode(targetPath)
         )
       );
+
       const deletes = deletedFiles.map(filePath => {
         filesWatcher.ignoredDeleteFile(sitePaths.toLocalCode(filePath));
       });
+
       await Promise.all([...updates, ...copies, ...deletes])
         .then(() =>
           // eslint-disable-next-line no-console
