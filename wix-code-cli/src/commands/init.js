@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-const handleCommandResult = require("../utils/commandResult");
+const path = require("path");
+const { launch } = require("../utils/electron");
 const init = require("../apps/init");
 
 module.exports = {
@@ -7,11 +8,22 @@ module.exports = {
   describe: "intialises a local Wix Code copy",
   builder: args =>
     args
-      .option("force", { describe: "force pull", type: "boolean" })
       .positional("url", { describe: "Public site URL", type: "string" })
       .positional("dir", {
         describe: "local directory to download data to",
         type: "string"
       }),
-  handler: handleCommandResult(init)
+  handler: args => {
+    init(args).then(
+      () => {
+        launch(path.resolve(path.join(__dirname, "pull.js")), {
+          cwd: args.dir
+        });
+      },
+      error => {
+        console.log(error);
+        process.exit(-1);
+      }
+    );
+  }
 };

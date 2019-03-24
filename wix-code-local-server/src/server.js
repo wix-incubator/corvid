@@ -1,3 +1,4 @@
+const chalk = require("chalk");
 const initLocalSiteManager = require("@wix/wix-code-local-site");
 
 const setupSocketServer = require("./server/setupSocketServer");
@@ -48,9 +49,11 @@ async function startServer(siteRootPath, isCloneMode) {
 
   // eslint-disable-next-line no-console
   console.log(
-    `Server started in ${
-      isCloneMode ? "clone" : "edit"
-    } mode. Listening on ${editorPort}`
+    chalk.grey(
+      `Server started in ${
+        isCloneMode ? "clone" : "edit"
+      } mode. Listening on ${editorPort}`
+    )
   );
 
   return {

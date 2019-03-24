@@ -8,7 +8,9 @@ describe("edit", () => {
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining(["Local server connection established\n"]),
+      expect.arrayContaining([
+        expect.stringMatching(/Local server connection established/)
+      ]),
       expect.anything()
     ]);
   });
@@ -18,7 +20,7 @@ describe("edit", () => {
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining(["fake editor loaded\n"]),
+      expect.arrayContaining([expect.stringMatching(/fake editor loaded/)]),
       expect.anything()
     ]);
   });
@@ -28,28 +30,62 @@ describe("edit", () => {
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining(["Editor connected\n"]),
+      expect.arrayContaining([expect.stringMatching(/Editor connected/)]),
       expect.anything()
     ]);
   });
 
-  test("should exit with status code 255 when the local server is not in edit mode", () => {
-    expect.assertions(1);
+  test("should update local files with changes", () => {});
 
-    return expect(
-      runFixture("edit", "empty-site", "clone")
-    ).resolves.toMatchObject([
-      255,
-      expect.anything(),
-      expect.arrayContaining(["Local server is not in edit mode\n"])
-    ]);
+  test("should watch local site files", () => {});
+
+  describe.skip("when the local server is already running in clone mode", () => {
+    const promise = runFixture("edit", "empty-site", "clone");
+
+    test("should exit with status code 255", () => {
+      expect.assertions(1);
+
+      return expect(promise).resolves.toMatchObject([
+        255,
+        expect.anything(),
+        expect.anything()
+      ]);
+    });
+
+    test("should print to stderr a message explaining the error", () => {
+      expect.assertions(1);
+
+      return expect(promise).resolves.toMatchObject([
+        expect.anything(),
+        expect.anything(),
+        expect.arrayContaining(["Local server is not in edit mode\n"])
+      ]);
+    });
   });
 
-  test("should update local files with changes", () => {
-    // expect(true).toBe(false)
-  });
+  describe("when run in a directory without a config file", () => {
+    const promise = runFixture("edit", ".");
 
-  test("should watch local site files", () => {
-    // expect(true).toBe(false)
+    test("should exit with error code 255", () => {
+      expect.assertions(1);
+
+      return expect(promise).resolves.toMatchObject([
+        255,
+        expect.anything(),
+        expect.anything()
+      ]);
+    });
+
+    test("should print to stderr a message explaining the error", () => {
+      expect.assertions(1);
+
+      return expect(promise).resolves.toMatchObject([
+        expect.anything(),
+        expect.anything(),
+        expect.arrayContaining([
+          expect.stringMatching(/Could not find \.wixcoderc\.json in /)
+        ])
+      ]);
+    });
   });
 });

@@ -8,6 +8,11 @@ const isHeadlessMode = !!process.env.WIXCODE_CLI_HEADLESS;
 const isDevTools = !!process.env.WIXCODE_CLI_DEVTOOLS;
 
 function launch(file, options = {}) {
+  options.env = {
+    ...process.env,
+    ...options.env,
+    FORCE_COLOR: "yes"
+  };
   const cp = childProcess.spawn(
     path.resolve(
       path.join(__dirname, "..", "..", "node_modules", ".bin", "electron")

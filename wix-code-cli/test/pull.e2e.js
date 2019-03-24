@@ -8,7 +8,9 @@ describe("pull", () => {
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining(["Local server connection established\n"]),
+      expect.arrayContaining([
+        expect.stringMatching(/Local server connection established/)
+      ]),
       expect.anything()
     ]);
   });
@@ -18,7 +20,7 @@ describe("pull", () => {
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining(["fake editor loaded\n"]),
+      expect.arrayContaining([expect.stringMatching(/fake editor loaded/)]),
       expect.anything()
     ]);
   });
@@ -28,26 +30,62 @@ describe("pull", () => {
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining(["Editor connected\n"]),
+      expect.arrayContaining([expect.stringMatching(/Editor connected/)]),
       expect.anything()
     ]);
   });
 
-  test("should exit with status code 255 when the local server is not in clone mode", () => {
-    expect.assertions(1);
-
-    return expect(
-      runFixture("pull", "non-empty-site", "edit")
-    ).resolves.toMatchObject([
-      255,
-      expect.anything(),
-      expect.arrayContaining(["Local server is not in clone mode\n"])
-    ]);
-  });
-
-  test("should download site files", () => {
-    // expect(true).toBe(false)
-  });
+  test("should download site files", () => {});
 
   test("should disconnect from the local server after download is complete", () => {});
+
+  describe.skip("when the local server is already running in edit more", () => {
+    const promise = runFixture("pull", "non-empty-site", "edit");
+
+    test("should exit with error code 255", () => {
+      expect.assertions(1);
+
+      return expect(promise).resolves.toMatchObject([
+        255,
+        expect.anything(),
+        expect.arrayContaining(["Local server is not in clone mode\n"])
+      ]);
+    });
+
+    test("should print to stderr a message explaining the error", () => {
+      expect.assertions(1);
+
+      return expect(promise).resolves.toMatchObject([
+        255,
+        expect.anything(),
+        expect.arrayContaining(["Local server is not in clone mode\n"])
+      ]);
+    });
+  });
+
+  describe("when run in a directory without a config file", () => {
+    const promise = runFixture("pull", ".");
+
+    test("should exit with error code 255", () => {
+      expect.assertions(1);
+
+      return expect(promise).resolves.toMatchObject([
+        255,
+        expect.anything(),
+        expect.anything()
+      ]);
+    });
+
+    test("should print to stderr a message explaining the error", () => {
+      expect.assertions(1);
+
+      return expect(promise).resolves.toMatchObject([
+        expect.anything(),
+        expect.anything(),
+        expect.arrayContaining([
+          expect.stringMatching(/Could not find \.wixcoderc\.json in /)
+        ])
+      ]);
+    });
+  });
 });

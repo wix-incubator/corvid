@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 const { app } = require("electron");
+const chalk = require("chalk");
 const { openWindow, launch } = require("../utils/electron");
 
 const businessManagerUserUrl = "https://www.wix.com/_api/business-manager/user";
@@ -10,7 +11,7 @@ app &&
       openWindow({ show: false }).then(win => {
         win.webContents.on("did-navigate", (event, url) => {
           if (url === businessManagerUserUrl) {
-            console.log("user logged in");
+            console.log(chalk.green("User logged in"));
             win.webContents.on("did-finish-load", () => process.exit(0));
           } else {
             win.show();
