@@ -3,7 +3,9 @@ const fs = require("fs");
 const path = require("path");
 const process = require("process");
 const { app } = require("electron");
-const localFakeEditor = require("@wix/fake-local-mode-editor");
+const {
+  server: localFakeEditorServer
+} = require("@wix/fake-local-mode-editor");
 const {
   startInCloneMode,
   startInEditMode
@@ -19,7 +21,7 @@ app.on("ready", () => {
     const site = path.resolve(path.join(__dirname, process.argv[2]));
     const mode = process.argv[3];
 
-    const localEditorServerPort = await localFakeEditor.start();
+    const localEditorServerPort = await localFakeEditorServer.start();
     process.env.WIXCODE_CLI_WIX_DOMAIN = `localhost:${localEditorServerPort}`;
     console.log("local editor served on: ", localEditorServerPort);
 

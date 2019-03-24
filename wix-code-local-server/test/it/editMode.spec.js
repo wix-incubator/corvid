@@ -1,10 +1,12 @@
-const loadEditor = require("@wix/fake-local-mode-editor/src/editor");
+const {
+  editor: loadEditor,
+  siteCreators: sc
+} = require("@wix/fake-local-mode-editor");
 const eventually = require("@wix/wix-eventually");
 const merge_ = require("lodash/merge");
 const localServer = require("../../src/server");
 const localSiteDir = require("../utils/localSiteDir");
 const lsc = require("@wix/wix-code-local-site/test/utils/localSiteCreators");
-const sc = require("@wix/fake-local-mode-editor/src/utils/siteCreators");
 
 describe("edit mode", () => {
   it("should not start the server in edit mode if the site directory is empty", async () => {

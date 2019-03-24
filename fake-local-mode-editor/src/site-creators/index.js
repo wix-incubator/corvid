@@ -20,7 +20,7 @@ const {
   getRevisionDefaults,
   getVersionDefaults,
   getDataFromMasterPageDefaults
-} = require("./creatorsDefaults");
+} = require("./defaults");
 
 /* ************** Styles Creator ************** */
 
