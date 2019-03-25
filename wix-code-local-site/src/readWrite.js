@@ -4,7 +4,9 @@ const mapValues_ = require("lodash/mapValues");
 const merge_ = require("lodash/merge");
 const mapKeys_ = require("lodash/mapKeys");
 const pickBy_ = require("lodash/pickBy");
+const flatten_ = require("lodash/flatten");
 const partial_ = require("lodash/partial");
+const isObject_ = require("lodash/isObject");
 const rimraf = require("rimraf");
 const path = require("path");
 const sitePaths = require("./sitePaths");
@@ -24,7 +26,10 @@ const readWrite = (siteRootPath, filesWatcher) => {
       flatten(siteDirJson),
       (fileContent, filePath) => sitePaths.fromLocalCode(filePath)
     );
-    return pickBy_(flatDirFiles, (content, path) => sitePaths.isCodeFile(path));
+    return pickBy_(
+      flatDirFiles,
+      (content, path) => sitePaths.isCodeFile(path) && !isObject_(content)
+    );
   };
 
   const getFilenameFromKey = (value, key) => {
@@ -53,29 +58,28 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return documentPart;
   };
 
-  const getMisc = async () => {
-    const partFullPath = fullPath(sitePaths.misc());
-    let data = {};
-
-    if (await fs.exists(partFullPath)) {
-      data = JSON.parse(await fs.readFile(partFullPath, "utf8"));
-    }
-    return data;
-  };
-
   const getPages = partial_(getDocumentPartByKey, "pages");
   const getLightboxes = partial_(getDocumentPartByKey, "lightboxes");
   const getStyles = partial_(getDocumentPartByKey, "styles");
   const getSite = partial_(getDocumentPartByKey, "site");
+  const getRouters = partial_(getDocumentPartByKey, "routers");
 
   const getSiteDocument = async () => {
     return {
       pages: merge_(await getPages(), await getLightboxes()),
       styles: await getStyles(),
       site: await getSite(),
-      misc: await getMisc()
+      routers: await getRouters()
     };
   };
+
+  const payloadToFile = pathGetter => payload =>
+    Object.keys(payload).map(keyName => {
+      return {
+        path: pathGetter(keyName),
+        content: payload[keyName]
+      };
+    });
 
   const payloadConvertors = {
     pages: pagePayload => {
@@ -87,81 +91,48 @@ const readWrite = (siteRootPath, filesWatcher) => {
         };
       });
     },
-    styles: stylesPayload => {
-      return Object.keys(stylesPayload).map(keyName => {
-        return {
-          path: sitePaths.styles(keyName),
-          content: stylesPayload[keyName]
-        };
-      });
-    },
-    site: sitePayload => {
-      return Object.keys(sitePayload).map(keyName => {
-        return {
-          path: sitePaths.site(keyName),
-          content: sitePayload[keyName]
-        };
-      });
-    },
-    misc: miscPayload => {
-      return [
-        {
-          path: sitePaths.misc(),
-          content: miscPayload
-        }
-      ];
-    }
+    styles: payloadToFile(sitePaths.styles),
+    site: payloadToFile(sitePaths.site),
+    routers: payloadToFile(sitePaths.routers)
   };
 
-  const deleteExistingFolders = async () => {
-    if (await fs.exists(fullPath(sitePaths.misc()))) {
-      await fs.unlink(fullPath(sitePaths.misc()));
-    }
+  const siteDocumentToFiles = siteDocument =>
+    flatten_(
+      Object.keys(siteDocument).map(paylodKey => {
+        if (payloadConvertors.hasOwnProperty(paylodKey)) {
+          return payloadConvertors[paylodKey](siteDocument[paylodKey]);
+        } else {
+          // eslint-disable-next-line no-console
+          console.error(`Unknown document property ${paylodKey}`);
+          return [];
+        }
+      })
+    );
 
+  const deleteFolder = pathGetter =>
+    new Promise(resolve =>
+      rimraf(sitePaths.getDocumentFolderRegex(fullPath(pathGetter)), resolve)
+    );
+
+  const deleteExistingFolders = async () => {
     await Promise.all([
-      new Promise(resolve =>
-        rimraf(
-          sitePaths.getDocumentFolderRegex(fullPath(sitePaths.pages())),
-          resolve
-        )
-      ),
-      new Promise(resolve =>
-        rimraf(
-          sitePaths.getDocumentFolderRegex(fullPath(sitePaths.lightboxes())),
-          resolve
-        )
-      ),
-      new Promise(resolve =>
-        rimraf(
-          sitePaths.getDocumentFolderRegex(fullPath(sitePaths.styles())),
-          resolve
-        )
-      ),
-      new Promise(resolve =>
-        rimraf(
-          sitePaths.getDocumentFolderRegex(fullPath(sitePaths.site())),
-          resolve
-        )
-      )
+      deleteFolder(sitePaths.pages()),
+      deleteFolder(sitePaths.lightboxes()),
+      deleteFolder(sitePaths.styles()),
+      deleteFolder(sitePaths.site()),
+      deleteFolder(sitePaths.routers())
     ]);
   };
 
   const updateSiteDocument = async newDocumentPayload => {
     await deleteExistingFolders();
     // convert payload to filesToWrite
-    const filesToWrite = Object.keys(newDocumentPayload).map(paylodKey => {
-      return payloadConvertors[paylodKey](newDocumentPayload[paylodKey]);
-    });
+    const filesToWrite = siteDocumentToFiles(newDocumentPayload);
 
     // write all files to file system
-    const filesPromises = [];
-    filesToWrite.forEach(filesArray => {
-      filesArray.forEach(file => {
-        filesPromises.push(
-          filesWatcher.ignoredWriteFile(file.path, stringify(file.content))
-        );
-      });
-    });
+    const filesPromises = filesToWrite.map(file =>
+      filesWatcher.ignoredWriteFile(file.path, stringify(file.content))
+    );
 
     await Promise.all(filesPromises)
       .then(() =>
