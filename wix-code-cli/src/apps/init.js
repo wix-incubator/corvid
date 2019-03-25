@@ -31,7 +31,11 @@ async function init(args) {
   );
 
   if (metasiteId == null) {
-    throw chalk.red(`Could not resolve Metasite ID of ${publicSiteUrl}`);
+    throw chalk.red(`Could not extract the metasite ID of ${publicSiteUrl}`);
+  }
+
+  if (siteName == null) {
+    throw chalk.red(`Could not extract the site name of ${publicSiteUrl}`);
   }
 
   const dirName = path.resolve(path.join(args.dir || ".", siteName));

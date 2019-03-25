@@ -54,6 +54,42 @@ function launch(file, options = {}) {
   }
 }
 
+async function connectToLocalServer(serverMode, win) {
+  const server =
+    serverMode === "edit" ? startInEditMode(".") : startInCloneMode(".");
+  const {
+    adminPort: localServerPort,
+    close: closeLocalServer
+  } = await server.catch(exc => {
+    if (exc.message in serverErrors) {
+      throw chalk.red(serverErrors[exc.message]);
+    }
+  });
+
+  win.on("close", () => {
+    closeLocalServer();
+  });
+
+  const clnt = client.connect(`http://localhost:${localServerPort}`);
+
+  await new Promise((resolve, reject) => {
+    clnt.on("connect", () => {
+      console.log(chalk.grey("Local server connection established"));
+      resolve();
+    });
+
+    setTimeout(reject, 1000);
+  });
+
+  clnt.on("editor-connected", () => {
+    console.log(chalk.grey("Editor connected"));
+  });
+
+  const localServerStatus = await sendRequest(clnt, "GET_STATUS");
+
+  return { client: clnt, localServerStatus };
+}
+
 async function openWindow(app, windowOptions = {}) {
   const win = new BrowserWindow({
     width: 1280,
@@ -85,39 +121,10 @@ async function openWindow(app, windowOptions = {}) {
       const wixCodeConfig = await readWixCodeConfig(".");
 
       if (app.serverMode) {
-        const server =
-          app.serverMode === "edit"
-            ? startInEditMode(".")
-            : startInCloneMode(".");
-        const {
-          adminPort: localServerPort,
-          close: closeLocalServer
-        } = await server.catch(exc => {
-          if (exc.message in serverErrors) {
-            throw chalk.red(serverErrors[exc.message]);
-          }
-        });
-
-        win.on("close", () => {
-          closeLocalServer();
-        });
-
-        const clnt = client.connect(`http://localhost:${localServerPort}`);
-
-        await new Promise((resolve, reject) => {
-          clnt.on("connect", () => {
-            console.log(chalk.grey("Local server connection established"));
-            resolve();
-          });
-
-          setTimeout(reject, 1000);
-        });
-
-        clnt.on("editor-connected", () => {
-          console.log(chalk.grey("Editor connected"));
-        });
-
-        const localServerStatus = await sendRequest(clnt, "GET_STATUS");
+        const { client: clnt, localServerStatus } = await connectToLocalServer(
+          app.serverMode,
+          win
+        );
 
         return app.handler(wixCodeConfig, win, clnt, localServerStatus);
       } else {
