@@ -150,7 +150,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
     await deleteExistingFolders();
     // convert payload to filesToWrite
     const filesToWrite = Object.keys(newDocumentPayload).map(paylodKey => {
-      return payloadConvertors[paylodKey](newDocumentPayload[paylodKey]);
+      return payloadConvertors.hasOwnProperty(paylodKey)
+        ? payloadConvertors[paylodKey](newDocumentPayload[paylodKey])
+        : [];
     });
 
     // write all files to file system

@@ -9,7 +9,7 @@ const uuid = require("uuid");
 const {
   getPageDefaults,
   getLightboxDefaults,
-  getMiscDefaults,
+  getRouterDefaults,
   getStylesDefaults,
   getSiteDefaults,
   getColorsDefaults,
@@ -134,6 +134,17 @@ const publicCode = (relativePath = "code.js", content = uuid.v4()) =>
 const backendCode = (relativePath = "code.js", content = uuid.v4()) =>
   set_({}, ["backend"].concat(relativePath.split(path.sep)), content);
 
+const router = (prefix = uuid.v4(), options = {}) => {
+  const router = merge_(getRouterDefaults(prefix), options);
+  return {
+    frontend: {
+      routers: {
+        [`${prefix}${fileExtention}`]: stringify(router)
+      }
+    }
+  };
+};
+
 const page = (pageId = uuid.v4(), options = {}) => {
   const page = merge_(getPageDefaults(pageId), options);
   return {
@@ -195,12 +206,6 @@ const lightboxWithCode = (
   });
 };
 
-const misc = (content = getMiscDefaults()) => ({
-  frontend: {
-    [`misc${fileExtention}`]: stringify(content)
-  }
-});
-
 const styles = (...stylesCreators) => ({
   frontend: {
     styles: mapKeys_(
@@ -243,16 +248,20 @@ const createFull = (...localSiteCreator) => {
       pages: {},
       styles: {},
       site: {},
-      [`misc${fileExtention}`]: stringify("")
+      routers: {}
     }
   };
-  const localSiteDefulats = merge_(styles(), site(), misc());
+  const localSiteDefulats = merge_(styles(), site());
   const localSite = localSiteCreator.reduce((document, creator) => {
     return merge_(document, creator);
   }, {});
 
   if (!get_(localSite, "frontend.pages")) {
     merge_(localSite, page());
+  }
+
+  if (!get_(localSite, "frontend.routers")) {
+    merge_(localSite, router());
   }
   return merge_(initial, localSiteDefulats, localSite);
 };
@@ -274,7 +283,7 @@ module.exports = {
   lightboxWithCode,
   styles,
   site,
-  misc,
+  router,
   colors,
   fonts,
   theme,

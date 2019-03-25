@@ -6,7 +6,7 @@ const path = require("path");
 const {
   getPageDefaults,
   getLightboxDefaults,
-  getMiscDefaults,
+  getRouterDefaults,
   getStylesDefaults,
   getSiteDefaults,
   getColorsDefaults,
@@ -105,8 +105,10 @@ const lightbox = (pageId = uuid.v4(), options = {}) => ({
   }
 });
 
-const misc = (content = getMiscDefaults()) => ({
-  misc: content
+const router = (prefix = uuid.v4(), options = {}) => ({
+  routers: {
+    [prefix]: merge_(getRouterDefaults(prefix), options)
+  }
 });
 
 const styles = (...stylesCreators) => ({
@@ -145,15 +147,19 @@ const createFull = (...documentCreator) => {
     pages: {},
     styles: {},
     site: {},
-    misc: {}
+    routers: {}
   };
-  const documentDefulats = Object.assign(styles(), site(), misc());
+  const documentDefulats = Object.assign(styles(), site());
   const documentSite = documentCreator.reduce((document, creator) => {
     return merge_(document, creator);
   }, {});
 
   if (!documentSite.hasOwnProperty("pages")) {
     merge_(documentSite, page());
+  }
+
+  if (!documentSite.hasOwnProperty("routers")) {
+    merge_(documentSite, router());
   }
   return merge_(initial, documentDefulats, documentSite);
 };
@@ -174,7 +180,7 @@ module.exports = {
   page,
   styles,
   site,
-  misc,
+  router,
   colors,
   fonts,
   theme,
