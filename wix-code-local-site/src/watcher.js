@@ -1,6 +1,8 @@
 const path = require("path");
 const fs = require("fs-extra");
 const chokidar = require("chokidar");
+const find_ = require("lodash/find");
+const reject_ = require("lodash/reject");
 const sitePaths = require("./sitePaths");
 
 const ensureWriteFile = async (path, content) => {
@@ -32,37 +34,65 @@ const watch = async rootPath => {
 
   const fullPath = relativePath => path.join(rootPath, relativePath);
 
+  let actionsToIgnore = [];
+
+  const ignoreAction = (type, path) => {
+    actionsToIgnore.push({ type, path });
+  };
+
+  const removeFromIgnoredActions = (type, path) => {
+    actionsToIgnore = reject_(actionsToIgnore, { type, path });
+  };
+
+  const isIgnoredAction = (type, path) =>
+    !!find_(actionsToIgnore, { type, path });
+
   return {
     close: () => watcher.close(),
 
     onAdd: callback => {
       watcher.on("add", async relativePath => {
-        callback(
-          sitePaths.fromLocalCode(relativePath),
-          await fs.readFile(fullPath(relativePath), "utf8")
-        );
+        if (!isIgnoredAction("write", relativePath)) {
+          callback(
+            sitePaths.fromLocalCode(relativePath),
+            await fs.readFile(fullPath(relativePath), "utf8")
+          );
+        } else {
+          removeFromIgnoredActions("write", relativePath);
+        }
       });
     },
 
     onChange: callback => {
       watcher.on("change", async relativePath => {
-        callback(
-          sitePaths.fromLocalCode(relativePath),
-          await fs.readFile(fullPath(relativePath), "utf8")
-        );
+        if (!isIgnoredAction("write", relativePath)) {
+          callback(
+            sitePaths.fromLocalCode(relativePath),
+            await fs.readFile(fullPath(relativePath), "utf8")
+          );
+        } else {
+          removeFromIgnoredActions("write", relativePath);
+        }
       });
     },
 
     onDelete: callback => {
       watcher.on("unlink", relativePath => {
-        callback(sitePaths.fromLocalCode(relativePath));
+        if (!isIgnoredAction("delete", relativePath)) {
+          callback(sitePaths.fromLocalCode(relativePath));
+        } else {
+          removeFromIgnoredActions("delete", relativePath);
+        }
       });
     },
 
     ignoredWriteFile: async (relativePath, content) => {
-      watcher.unwatch(relativePath);
-      await ensureWriteFile(fullPath(relativePath), content);
-      watcher.add(relativePath);
+      try {
+        ignoreAction("write", relativePath);
+        await ensureWriteFile(fullPath(relativePath), content);
+      } catch (e) {
+        removeFromIgnoredActions("write", relativePath);
+      }
     },
 
     ignoredWriteFolder: async relativePath => {
@@ -72,18 +102,24 @@ const watch = async rootPath => {
     },
 
     ignoredDeleteFile: async relativePath => {
-      watcher.unwatch(relativePath);
-      await fs.unlink(fullPath(relativePath));
-      watcher.add(relativePath);
+      try {
+        ignoreAction("delete", relativePath);
+        await fs.unlink(fullPath(relativePath));
+      } catch (e) {
+        removeFromIgnoredActions("delete", relativePath);
+      }
     },
 
     ignoredCopyFile: async (relativeSourcePath, relativeTargetPath) => {
-      watcher.unwatch(relativeTargetPath);
-      await fs.copyFile(
-        fullPath(relativeSourcePath),
-        fullPath(relativeTargetPath)
-      );
-      watcher.add(relativeTargetPath);
+      try {
+        ignoreAction("write", relativeTargetPath);
+        await fs.copyFile(
+          fullPath(relativeSourcePath),
+          fullPath(relativeTargetPath)
+        );
+      } catch (e) {
+        removeFromIgnoredActions("write", relativeTargetPath);
+      }
     }
   };
 };
