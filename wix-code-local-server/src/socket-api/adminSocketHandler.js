@@ -1,15 +1,15 @@
 const socketRequestHandler = require("./utils/socketRequestHandler");
 
-const initAdminApi = serverState => ({
+const initAdminApi = adminApi => ({
   GET_STATUS: () => ({
-    editorPort: serverState.editorPort(),
-    editorConnected: serverState.isEditorConnected(),
-    mode: serverState.isCloneMode() ? "clone" : "edit"
+    editorPort: adminApi.getEditorPort(),
+    editorConnected: adminApi.isEditorConnected(),
+    mode: adminApi.isCloneMode() ? "clone" : "edit"
   })
 });
 
-const socketHandler = serverState => socket => {
-  const socketApi = initAdminApi(serverState);
+const socketHandler = adminApi => socket => {
+  const socketApi = initAdminApi(adminApi);
   const handleSocketRequests = socketRequestHandler(socketApi);
   handleSocketRequests(socket);
 };

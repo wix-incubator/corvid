@@ -46,7 +46,10 @@ const connect = async port => {
         adminSocket.disconnect();
       }
     },
-    getServerStatus: async () => await sendRequest(adminSocket, "GET_STATUS")
+    getServerStatus: async () => await sendRequest(adminSocket, "GET_STATUS"),
+    onServerEvent: (event, callback) => {
+      adminSocket.on(event, callback);
+    }
   };
 };
 

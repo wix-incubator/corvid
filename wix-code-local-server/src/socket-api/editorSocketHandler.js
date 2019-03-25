@@ -1,26 +1,18 @@
 const socketRequestHandler = require("./utils/socketRequestHandler");
 
-const initEditorApi = (localSite, adminSocket) => ({
-  IS_CLONE_MODE: () => localSite.isEmpty(),
-  GET_DOCUMENT: () => localSite.getSiteDocument(),
-  UPDATE_DOCUMENT: newDocument => {
-    const result = localSite.updateSiteDocument(newDocument);
-    adminSocket.emit("document-updated");
-    return result;
-  },
-  GET_CODE: () => localSite.getCodeFiles(),
-  UPDATE_CODE: codeUpdates => {
-    const result = localSite.updateCode(codeUpdates);
-    adminSocket.emit("code-updated");
-    return result;
-  }
+const initEditorApi = editorApi => ({
+  IS_CLONE_MODE: () => editorApi.isCloneMode(),
+  GET_DOCUMENT: () => editorApi.getSiteDocument(),
+  UPDATE_DOCUMENT: newDocument => editorApi.updateSiteDocument(newDocument),
+  GET_CODE: () => editorApi.getCodeFiles(),
+  UPDATE_CODE: codeUpdates => editorApi.updateCodeFiles(codeUpdates)
 });
 
-const socketHandler = (localSite, adminSocket) => socket => {
-  const socketApi = initEditorApi(localSite, adminSocket);
+const socketHandler = editorApi => socket => {
+  const socketApi = initEditorApi(editorApi);
   const handleSocketRequests = socketRequestHandler(socketApi);
   handleSocketRequests(socket);
-  localSite.onCodeChanged((...args) => {
+  editorApi.onCodeChanged((...args) => {
     // eslint-disable-next-line no-console
     console.log("local code updated", args[0], args[1]);
     socket.emit("LOCAL_CODE_UPDATED", ...args);

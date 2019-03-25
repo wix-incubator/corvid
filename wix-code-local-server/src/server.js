@@ -1,65 +1,41 @@
 const initLocalSiteManager = require("@wix/wix-code-local-site");
 
-const setupSocketServer = require("./server/setupSocketServer");
+const startSocketServer = require("./server/startSocketServer");
 
-const editorSocketApi = require("./socket-api/editorSocketHandler");
-const adminSocketApi = require("./socket-api/adminSocketHandler");
+const initServerApi = require("./socket-api");
 
 const DEFAULT_EDITOR_PORT = 5000;
 const DEFAULT_ADMIN_PORT = 3000;
 
-async function startServer(siteRootPath, isCloneMode) {
+async function startServer(siteRootPath, loadedInCloneMode) {
   // TODO:: add src folder to path ?
   const localSite = await initLocalSiteManager(siteRootPath);
 
-  if (isCloneMode && !(await localSite.isEmpty())) {
+  if (loadedInCloneMode && !(await localSite.isEmpty())) {
     localSite.close();
     throw new Error("CAN_NOT_CLONE_NON_EMPTY_SITE");
   }
 
-  if (!isCloneMode && (await localSite.isEmpty())) {
+  if (!loadedInCloneMode && (await localSite.isEmpty())) {
     localSite.close();
     throw new Error("CAN_NOT_EDIT_EMPTY_SITE");
   }
 
-  const editorServer = setupSocketServer();
-  const adminServer = setupSocketServer();
+  const editorServer = await startSocketServer(DEFAULT_EDITOR_PORT);
+  const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
-  const serverState = {
-    // TODO: properly handle state
-    isCloneMode: () => isCloneMode,
-    editorPort: () => editorPort,
-    adminPort: () => adminPort,
-    isEditorConnected: () =>
-      Object.keys(editorServer.io.sockets.connected).length > 0
-  };
-
-  const adminSocketHandler = adminSocketApi(serverState);
-  adminServer.io.on("connection", adminSocketHandler);
-
-  const editorSocketHandler = editorSocketApi(localSite, adminServer.io);
-  editorServer.io.on("connection", editorConnectionSocket => {
-    adminServer.io.emit("editor-connected");
-
-    editorConnectionSocket.on("disconnect", () => {
-      adminServer.io.emit("editor-disconnected");
-    });
-    return editorSocketHandler(editorConnectionSocket);
-  });
-
-  const editorPort = await editorServer.listen(DEFAULT_EDITOR_PORT);
-  const adminPort = await adminServer.listen(DEFAULT_ADMIN_PORT);
+  initServerApi(localSite, adminServer, editorServer, loadedInCloneMode);
 
   // eslint-disable-next-line no-console
   console.log(
     `Server started in ${
-      isCloneMode ? "clone" : "edit"
-    } mode. Listening on ${editorPort}`
+      loadedInCloneMode ? "clone" : "edit"
+    } mode. Listening on ${editorServer.port}`
   );
 
   return {
-    port: editorPort,
-    adminPort: adminPort,
+    port: editorServer.port,
+    adminPort: adminServer.port,
     close: () => {
       localSite.close();
       editorServer.close();
