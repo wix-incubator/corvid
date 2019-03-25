@@ -9,7 +9,9 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
     await new Promise(async (resolve, reject) => {
       client.on("editor-connected", () => {
         console.log(chalk.green("Editor opened successfully"));
-        resolve();
+        // TODO uncomment the following once the open-editor command can exit while the editor is
+        // open
+        //resolve();
       });
 
       client.on("editor-disconnected", () => {

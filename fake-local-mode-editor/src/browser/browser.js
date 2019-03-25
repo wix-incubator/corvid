@@ -4,4 +4,6 @@ const loadEditor = require("../editor");
 const urlParams = new URLSearchParams(window.location.search);
 const localServerPort = urlParams.get("localServerPort");
 
-loadEditor(localServerPort);
+loadEditor(localServerPort).then(async fakeEditor => {
+  fakeEditor.close();
+});

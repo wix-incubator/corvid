@@ -33,7 +33,9 @@ module.exports = {
       }),
   handler: args =>
     launch(__filename, {
-      detached: true,
+      // TODO uncomment the following option to spawn the app in the background once the local
+      // server can be spawned in the background as well
+      //detached: true,
       stdio: "ignore",
       cwd: args.C,
       env: { ...process.env, IGNORE_CERTIFICATE_ERRORS: "1" }

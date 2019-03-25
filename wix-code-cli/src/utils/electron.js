@@ -40,13 +40,15 @@ function launch(file, options = {}) {
   if (options.detached) {
     cp.unref();
   } else {
-    cp.stdout.on("data", function(data) {
-      process.stdout.write(data.toString());
-    });
+    if (options.stdio !== "ignore") {
+      cp.stdout.on("data", function(data) {
+        process.stdout.write(data.toString());
+      });
 
-    cp.stderr.on("data", function(data) {
-      process.stderr.write(data.toString());
-    });
+      cp.stderr.on("data", function(data) {
+        process.stderr.write(data.toString());
+      });
+    }
 
     cp.on("exit", code => {
       process.exit(code);
