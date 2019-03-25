@@ -3,7 +3,7 @@ const { app, BrowserWindow } = require("electron");
 const chalk = require("chalk");
 const { launch } = require("../utils/electron");
 
-const businessManagerUserUrl = "https://www.wix.com/_api/business-manager/user";
+const mySitesUrl = "https://www.wix.com/account/sites";
 
 app &&
   app.on("ready", async () => {
@@ -16,7 +16,7 @@ app &&
       });
 
       win.webContents.on("did-navigate", (event, url) => {
-        if (url === businessManagerUserUrl) {
+        if (url === mySitesUrl) {
           console.log(chalk.green("User logged in"));
           win.webContents.on("did-finish-load", () => process.exit(0));
         } else {
@@ -24,7 +24,7 @@ app &&
         }
       });
 
-      win.loadURL(businessManagerUserUrl);
+      win.loadURL(mySitesUrl);
     } catch (exc) {
       console.log(exc);
       process.exit(-1);
