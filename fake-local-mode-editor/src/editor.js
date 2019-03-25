@@ -51,25 +51,6 @@ const sendRequest = async (socket, event, payload) =>
 
 const isCloneMode = async socket => sendRequest(socket, "IS_CLONE_MODE");
 
-const updateSiteDocument = async (socket, siteDocument) =>
-  sendRequest(socket, "UPDATE_DOCUMENT", siteDocument);
-
-const updateCodeFiles = (socket, codeFileModifications) =>
-  sendRequest(socket, "UPDATE_CODE", codeFileModifications);
-
-const saveLocal = async (socket, siteDocument, codeFiles) => {
-  await updateSiteDocument(socket, siteDocument);
-  const codeFileChanges = calculateCodeFileChanges(codeFiles, siteDocument);
-  await updateCodeFiles(socket, codeFileChanges);
-  const currentCodeFiles = getCurrentCodeFiles(codeFiles);
-  return {
-    codeFiles: {
-      previous: currentCodeFiles,
-      current: currentCodeFiles
-    }
-  };
-};
-
 const getPageIdFromCodePath = filePath =>
   filePath.replace(/^.*[\\/]/, "").replace(/\.[^/.]+$/, "");
 
@@ -141,28 +122,56 @@ const getCurrentCodeFiles = codeFiles => {
 };
 
 const getCodeFilesFromServer = async socket => sendRequest(socket, "GET_CODE");
+
 const getSiteDocumentFromServer = async socket =>
   sendRequest(socket, "GET_DOCUMENT");
 
 const loadEditor = async (
   port,
-  { siteDocument: remoteSiteDocument, siteCode: remoteSiteCode } = {}
+  { siteDocument: remoteSiteDocument, siteCode: remoteSiteCode } = {},
+  { cloneOnLoad = true } = {}
 ) => {
-  let siteDocument = remoteSiteDocument || {};
-  let codeFiles = {
-    previous: {},
-    current: remoteSiteCode || {}
+  const editorState = {
+    siteDocument: remoteSiteDocument || {},
+    codeFiles: {
+      previous: {},
+      current: remoteSiteCode || {}
+    }
+  };
+
+  const saveSiteDocument = async () =>
+    sendRequest(socket, "UPDATE_DOCUMENT", editorState.siteDocument);
+
+  const saveCodeFiles = async () => {
+    const codeFileChanges = calculateCodeFileChanges(
+      editorState.codeFiles,
+      editorState.siteDocument
+    );
+    await sendRequest(socket, "UPDATE_CODE", codeFileChanges);
+    const currentCodeFiles = getCurrentCodeFiles(editorState.codeFiles);
+    editorState.codeFiles = {
+      previous: currentCodeFiles,
+      current: currentCodeFiles
+    };
+  };
+
+  const saveLocal = async () => {
+    await saveSiteDocument(socket, editorState.siteDocument);
+    await saveCodeFiles(socket, editorState.codeFiles);
   };
 
   const socket = await connectToLocalServer(port);
   if (socket.connected) {
     const isInCloneMode = await isCloneMode(socket);
     if (isInCloneMode) {
-      const saveResult = await saveLocal(socket, siteDocument, codeFiles);
-      codeFiles = saveResult.codeFiles;
+      if (cloneOnLoad) {
+        await saveLocal();
+      }
     } else {
-      codeFiles.current = unflatten(await getCodeFilesFromServer(socket));
-      siteDocument = await getSiteDocumentFromServer(socket);
+      editorState.codeFiles.current = unflatten(
+        await getCodeFilesFromServer(socket)
+      );
+      editorState.siteDocument = await getSiteDocumentFromServer(socket);
     }
     socket.on("LOCAL_CODE_UPDATED", (action, ...args) => {
       switch (action) {
@@ -181,20 +190,21 @@ const loadEditor = async (
   }
 
   const modifyCodeFile = (filePath, content) => {
-    set_(codeFiles.current, filePath.split(path.sep), content);
+    set_(editorState.codeFiles.current, filePath.split(path.sep), content);
   };
 
   const copyCodeFile = (sourcePath, targetPath) => {
-    set_(codeFiles.current, targetPath.split(path.sep), [sourcePath]);
+    set_(editorState.codeFiles.current, targetPath.split(path.sep), [
+      sourcePath
+    ]);
   };
   const deleteCodeFile = filePath => {
-    set_(codeFiles.current, filePath.split(path.sep), null);
+    set_(editorState.codeFiles.current, filePath.split(path.sep), null);
   };
 
   return {
     save: async () => {
-      const saveResult = await saveLocal(socket, siteDocument, codeFiles);
-      codeFiles = saveResult.codeFiles;
+      await saveLocal();
     },
     close: () => {
       if (socket && socket.connected) {
@@ -202,14 +212,18 @@ const loadEditor = async (
       }
     },
     isConnected: () => !!(socket && socket.connected),
-    getSiteDocument: () => siteDocument,
+    getSiteDocument: () => editorState.siteDocument,
     modifyDocument: newDocumnet => {
-      siteDocument = newDocumnet;
+      editorState.siteDocument = newDocumnet;
     },
-    getCodeFiles: () => getCurrentCodeFiles(codeFiles),
+    getCodeFiles: () => getCurrentCodeFiles(editorState.codeFiles),
     modifyCodeFile,
     copyCodeFile,
-    deleteCodeFile
+    deleteCodeFile,
+    advanced: {
+      saveSiteDocument,
+      saveCodeFiles
+    }
   };
 };
 
