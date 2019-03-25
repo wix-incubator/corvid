@@ -26,6 +26,15 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return pickBy_(flatDirFiles, (content, path) => sitePaths.isCodeFile(path));
   };
 
+  const getFilenameFromKey = (value, key) => {
+    const isPage = get_(value, "pageId");
+    if (isPage) {
+      return value.pageId;
+    } else {
+      return removeFileExtension(key);
+    }
+  };
+
   const getDocumentPartByKey = async partKey => {
     const partFullPath = fullPath(sitePaths[partKey]());
     let documentPart = {};
@@ -37,14 +46,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       );
       documentPart = mapKeys_(
         mapValues_(folder, JSON.parse),
-        (pageValue, pageKey) => {
-          const isPage = get_(pageValue, "pageId");
-          if (isPage) {
-            return pageValue.pageId;
-          } else {
-            return removeFileExtension(pageKey);
-          }
-        }
+        getFilenameFromKey
       );
     }
     return documentPart;
@@ -73,9 +75,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
   };
 
   const payloadConvertors = {
-    pages: pagePaylaod => {
-      return Object.keys(pagePaylaod).map(pageId => {
-        const page = get_(pagePaylaod, pageId);
+    pages: pagePayload => {
+      return Object.values(pagePayload).map(page => {
         const isPopup = get_(page, "isPopUp");
         return {
           path: isPopup ? sitePaths.lightboxes(page) : sitePaths.pages(page),

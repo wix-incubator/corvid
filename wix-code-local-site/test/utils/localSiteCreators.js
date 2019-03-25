@@ -26,7 +26,7 @@ const {
 } = require("./creatorsDefaults");
 
 const fileExtention = ".wix";
-const codeExtention = ".js";
+const pageCodeExtention = ".js";
 
 const stringify = content => JSON.stringify(content, null, 2);
 const removeIllegalCharacters = str => str.replace(/[/\\?%*:|"<>\s]/g, "_");
@@ -158,7 +158,7 @@ const pageWithCode = (
       pages: {
         [`${removeIllegalCharacters(
           pageMergedOptions.title
-        )}.${pageId}${codeExtention}`]: codeContent
+        )}.${pageId}${pageCodeExtention}`]: codeContent
       }
     }
   });
@@ -189,7 +189,7 @@ const lightboxWithCode = (
       lightboxes: {
         [`${removeIllegalCharacters(
           lightboxMergedOptions.title
-        )}.${pageId}${codeExtention}`]: codeContent
+        )}.${pageId}${pageCodeExtention}`]: codeContent
       }
     }
   });
