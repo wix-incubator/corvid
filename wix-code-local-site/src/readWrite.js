@@ -109,9 +109,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
       })
     );
 
-  const deleteFolder = pathGetter =>
+  const deleteFolder = folderPath =>
     new Promise(resolve =>
-      rimraf(sitePaths.getDocumentFolderRegex(fullPath(pathGetter)), resolve)
+      rimraf(sitePaths.getDocumentFolderRegex(fullPath(folderPath)), resolve)
     );
 
   const deleteExistingFolders = async () => {
