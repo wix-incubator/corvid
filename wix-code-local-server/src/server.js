@@ -1,4 +1,4 @@
-const initLocalSiteManager = require("@wix/wix-code-local-site");
+const { initLocalSiteManager, logger } = require("@wix/wix-code-local-site");
 
 const setupSocketServer = require("./server/setupSocketServer");
 
@@ -50,8 +50,7 @@ async function startServer(siteRootPath, isCloneMode) {
   const editorPort = await editorServer.listen(DEFAULT_EDITOR_PORT);
   const adminPort = await adminServer.listen(DEFAULT_ADMIN_PORT);
 
-  // eslint-disable-next-line no-console
-  console.log(
+  logger.log(
     `Server started in ${
       isCloneMode ? "clone" : "edit"
     } mode. Listening on ${editorPort}`

@@ -8,6 +8,7 @@ const partial_ = require("lodash/partial");
 const rimraf = require("rimraf");
 const path = require("path");
 const sitePaths = require("./sitePaths");
+const logger = require("./logger");
 const dirAsJson = require("@wix/dir-as-json");
 const flat = require("flat");
 
@@ -164,12 +165,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
     });
 
     await Promise.all(filesPromises)
-      .then(() =>
-        // eslint-disable-next-line no-console
-        console.log("Update document done")
-      )
-      // eslint-disable-next-line no-console
-      .catch(() => console.log("Update document failed"));
+      .then(() => logger.log("Update document done"))
+      .catch(() => logger.log("Update document failed"));
   };
 
   const updateCode = async updateRequest => {
@@ -195,15 +192,10 @@ const readWrite = (siteRootPath, filesWatcher) => {
       });
 
       await Promise.all([...updates, ...copies, ...deletes])
-        .then(() =>
-          // eslint-disable-next-line no-console
-          console.log("Update code done")
-        )
-        // eslint-disable-next-line no-console
-        .catch(() => console.log("Update code failed"));
+        .then(() => logger.log("Update code done"))
+        .catch(() => logger.log("Update code failed"));
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log("files save error", error);
+      logger.log("files save error", error);
     }
   };
 

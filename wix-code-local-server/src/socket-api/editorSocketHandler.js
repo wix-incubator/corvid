@@ -1,4 +1,5 @@
 const socketRequestHandler = require("./utils/socketRequestHandler");
+const { logger } = require("@wix/wix-code-local-site");
 
 const initEditorApi = (localSite, adminSocket) => ({
   IS_CLONE_MODE: () => localSite.isEmpty(),
@@ -21,8 +22,7 @@ const socketHandler = (localSite, adminSocket) => socket => {
   const handleSocketRequests = socketRequestHandler(socketApi);
   handleSocketRequests(socket);
   localSite.onCodeChanged((...args) => {
-    // eslint-disable-next-line no-console
-    console.log("local code updated", args[0], args[1]);
+    logger.log("local code updated", args[0], args[1]);
     socket.emit("LOCAL_CODE_UPDATED", ...args);
   });
 };

@@ -2,6 +2,7 @@ const fs = require("fs-extra");
 const initWatcher = require("./watcher");
 const initReadWrite = require("./readWrite");
 const sitePaths = require("./sitePaths");
+const logger = require("./logger");
 
 const initSiteManager = async siteRootPath => {
   const watcher = await initWatcher(siteRootPath);
@@ -46,4 +47,7 @@ const initSiteManager = async siteRootPath => {
   };
 };
 
-module.exports = initSiteManager;
+module.exports = {
+  initLocalSiteManager: initSiteManager,
+  logger
+};
