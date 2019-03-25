@@ -36,14 +36,19 @@ const styles = (fileName = "") =>
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
+const routers = (fileName = "") =>
+  path.join(
+    frontendFolder,
+    "routers",
+    fileName ? `${fileName}${fileExtention}` : ""
+  );
+
 const site = (fileName = "") =>
   path.join(
     frontendFolder,
     "site",
     fileName ? `${fileName}${fileExtention}` : ""
   );
-
-const misc = () => path.join(frontendFolder, `misc${fileExtention}`);
 
 const fromLocalCode = filePath => {
   const match = filePath.match(
@@ -81,7 +86,7 @@ module.exports = {
   fileExtention,
   isCodeFile,
   isDocumentFile,
-  misc,
+  routers,
   lightboxes,
   styles,
   pages,

@@ -19,11 +19,7 @@ const getLightboxDefaults = (pageId = uuid.v4()) => ({
   content: `${pageId} encoded file content`
 });
 
-const getRouterDefaults = (
-  prefix = uuid.v4(),
-  content = `${prefix} router data`
-) => ({
-  prefix,
+const getRouterDefaults = (content = randomize(`router data`)) => ({
   content
 });
 

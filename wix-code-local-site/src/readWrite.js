@@ -53,27 +53,18 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return documentPart;
   };
 
-  const getMisc = async () => {
-    const partFullPath = fullPath(sitePaths.misc());
-    let data = {};
-
-    if (await fs.exists(partFullPath)) {
-      data = JSON.parse(await fs.readFile(partFullPath, "utf8"));
-    }
-    return data;
-  };
-
   const getPages = partial_(getDocumentPartByKey, "pages");
   const getLightboxes = partial_(getDocumentPartByKey, "lightboxes");
   const getStyles = partial_(getDocumentPartByKey, "styles");
   const getSite = partial_(getDocumentPartByKey, "site");
+  const getRouters = partial_(getDocumentPartByKey, "routers");
 
   const getSiteDocument = async () => {
     return {
       pages: merge_(await getPages(), await getLightboxes()),
       styles: await getStyles(),
       site: await getSite(),
-      misc: await getMisc()
+      routers: await getRouters()
     };
   };
 
@@ -103,21 +94,17 @@ const readWrite = (siteRootPath, filesWatcher) => {
         };
       });
     },
-    misc: miscPayload => {
-      return [
-        {
-          path: sitePaths.misc(),
-          content: miscPayload
-        }
-      ];
+    routers: routersPayload => {
+      return Object.keys(routersPayload).map(keyName => {
+        return {
+          path: sitePaths.routers(keyName),
+          content: routersPayload[keyName]
+        };
+      });
     }
   };
 
   const deleteExistingFolders = async () => {
-    if (await fs.exists(fullPath(sitePaths.misc()))) {
-      await fs.unlink(fullPath(sitePaths.misc()));
-    }
-
     await Promise.all([
       new Promise(resolve =>
         rimraf(
@@ -140,6 +127,12 @@ const readWrite = (siteRootPath, filesWatcher) => {
       new Promise(resolve =>
         rimraf(
           sitePaths.getDocumentFolderRegex(fullPath(sitePaths.site())),
+          resolve
+        )
+      ),
+      new Promise(resolve =>
+        rimraf(
+          sitePaths.getDocumentFolderRegex(fullPath(sitePaths.routers())),
           resolve
         )
       )

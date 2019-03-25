@@ -135,7 +135,7 @@ const backendCode = (relativePath = "code.js", content = uuid.v4()) =>
   set_({}, ["backend"].concat(relativePath.split(path.sep)), content);
 
 const router = (prefix = uuid.v4(), options = {}) => {
-  const router = merge_(getRouterDefaults(prefix), options);
+  const router = merge_(getRouterDefaults(`${prefix} router data`), options);
   return {
     frontend: {
       routers: {
