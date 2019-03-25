@@ -43,9 +43,6 @@ describe("init", () => {
   test("should exit with an error if extracting the metasite ID from the HTML fails", () => {
     expect.assertions(1);
 
-    fs.__setMockFiles({
-      [path.resolve(path.join(".", "someFolder/aSite/aFile"))]: "{}"
-    });
     fetchMock.mock(
       "http://wix.com",
       '<head><meta property="og:site_name" content="aSite"/></head><body></body>'
@@ -64,9 +61,6 @@ describe("init", () => {
   test("should exit with an error if extracting the site name from the HTML fails", () => {
     expect.assertions(1);
 
-    fs.__setMockFiles({
-      [path.resolve(path.join(".", "someFolder/aSite/aFile"))]: "{}"
-    });
     fetchMock.mock(
       "http://wix.com",
       '<head><meta http-equiv="X-Wix-Meta-Site-Id" content="123456789"/></head><body></body>'
