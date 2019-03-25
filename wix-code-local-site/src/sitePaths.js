@@ -75,6 +75,7 @@ const toLocalCode = file => {
   }
 };
 
+//todo:: isCodeFiles should ignore files that starts with a .
 const isCodeFile = relativePath => !relativePath.endsWith(fileExtention);
 const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
 const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;

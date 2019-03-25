@@ -135,7 +135,7 @@ const backendCode = (relativePath = "code.js", content = uuid.v4()) =>
   set_({}, ["backend"].concat(relativePath.split(path.sep)), content);
 
 const router = (prefix = uuid.v4(), options = {}) => {
-  const router = merge_(getRouterDefaults(`${prefix} router data`), options);
+  const router = merge_(getRouterDefaults(`${prefix} content`), options);
   return {
     frontend: {
       routers: {
@@ -260,9 +260,6 @@ const createFull = (...localSiteCreator) => {
     merge_(localSite, page());
   }
 
-  if (!get_(localSite, "frontend.routers")) {
-    merge_(localSite, router());
-  }
   return merge_(initial, localSiteDefulats, localSite);
 };
 

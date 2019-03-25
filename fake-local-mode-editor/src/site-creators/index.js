@@ -107,7 +107,7 @@ const lightbox = (pageId = uuid.v4(), options = {}) => ({
 
 const router = (prefix = uuid.v4(), options = {}) => ({
   routers: {
-    [prefix]: merge_(getRouterDefaults(prefix), options)
+    [prefix]: merge_(getRouterDefaults(`${prefix} content`), options)
   }
 });
 
@@ -158,9 +158,6 @@ const createFull = (...documentCreator) => {
     merge_(documentSite, page());
   }
 
-  if (!documentSite.hasOwnProperty("routers")) {
-    merge_(documentSite, router());
-  }
   return merge_(initial, documentDefulats, documentSite);
 };
 

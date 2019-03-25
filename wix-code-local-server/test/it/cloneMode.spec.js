@@ -36,7 +36,7 @@ describe("clone mode", () => {
       dataFromMasterPage: "dataFromMasterPage-content",
       version: "version-content",
       revision: "revision-content",
-      router: "router-content"
+      router: "router-prefix"
     };
 
     const editorSiteDocument = sc.createFull(
