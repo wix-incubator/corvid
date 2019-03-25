@@ -33,5 +33,9 @@ module.exports = {
         describe: "ignore certificate errors",
         type: "boolean"
       }),
-  handler: args => launch(__filename, { cwd: args.C })
+  handler: args =>
+    launch(__filename, {
+      cwd: args.C,
+      env: { ...process.env, IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate }
+    })
 };

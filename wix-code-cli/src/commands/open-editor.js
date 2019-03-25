@@ -38,6 +38,6 @@ module.exports = {
       //detached: true,
       stdio: "ignore",
       cwd: args.C,
-      env: { ...process.env, IGNORE_CERTIFICATE_ERRORS: "1" }
+      env: { ...process.env, IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate }
     })
 };

@@ -12,12 +12,20 @@ module.exports = {
       .positional("dir", {
         describe: "local directory to download data to",
         type: "string"
+      })
+      .option("ignore-certificate", {
+        describe: "ignore certificate errors",
+        type: "boolean"
       }),
   handler: args => {
     init(args).then(
       projectDir => {
         launch(path.resolve(path.join(__dirname, "pull.js")), {
-          cwd: projectDir
+          cwd: projectDir,
+          env: {
+            ...process.env,
+            IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
+          }
         });
       },
       error => {
