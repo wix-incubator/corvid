@@ -4,7 +4,7 @@ const { launch } = require("../utils/electron");
 const init = require("../apps/init");
 
 module.exports = {
-  command: "init <url> <dir>",
+  command: "init <url> [dir]",
   describe: "intialises a local Wix Code copy",
   builder: args =>
     args
@@ -15,9 +15,9 @@ module.exports = {
       }),
   handler: args => {
     init(args).then(
-      () => {
+      projectDir => {
         launch(path.resolve(path.join(__dirname, "pull.js")), {
-          cwd: args.dir
+          cwd: projectDir
         });
       },
       error => {

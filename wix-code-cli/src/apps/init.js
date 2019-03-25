@@ -8,49 +8,63 @@ const path = require("path");
 const fs = require("fs");
 
 const METASITE_REGEX = /<meta http-equiv="X-Wix-Meta-Site-Id" content="(.+?)"\/>/;
+const SITE_NAME_REGEX = /<meta property="og:site_name" content="(.+?)"\/>/;
 
-async function extractMetasiteId(publicSiteUrl) {
+async function extractDataFromHtml(publicSiteUrl, ...regexList) {
   const siteHtml = await fetch(publicSiteUrl).then(res => res.text());
-  const metasiteIdMatches = siteHtml.match(METASITE_REGEX);
-
-  if (metasiteIdMatches && metasiteIdMatches.length > 0) {
-    return metasiteIdMatches[1];
-  }
-
-  throw chalk.red(`Could not resolve Metasite ID of ${publicSiteUrl}`);
+  return regexList.map(re => {
+    const matches = siteHtml.match(re);
+    if (matches && matches.length > 0) {
+      return matches[1];
+    } else {
+      return null;
+    }
+  });
 }
 
 async function init(args) {
   const publicSiteUrl = normalize(args.url);
-  const metasiteId = await extractMetasiteId(publicSiteUrl);
+  const [metasiteId, siteName] = await extractDataFromHtml(
+    publicSiteUrl,
+    METASITE_REGEX,
+    SITE_NAME_REGEX
+  );
+
+  if (metasiteId == null) {
+    throw chalk.red(`Could not resolve Metasite ID of ${publicSiteUrl}`);
+  }
+
+  const dirName = path.resolve(path.join(args.dir || ".", siteName));
+
+  if (dirName == null) {
+    throw chalk.red("Could not extract site name, and no directory given");
+  }
 
   try {
-    fs.mkdirSync(args.dir, { recursive: true, mode: 0o755 });
+    fs.mkdirSync(dirName, { recursive: true, mode: 0o755 });
   } catch (exc) {
     if (exc.code !== "EEXIST") {
-      throw chalk.red(`Error creating target directory ${args.dir}`);
+      throw chalk.red(`Error creating target directory ${dirName}`);
     }
   }
 
-  const folderContents = fs.readdirSync(args.dir);
+  const folderContents = fs.readdirSync(dirName);
   if (folderContents.length > 0 && !args.force) {
     if (folderContents.includes(".wixcoderc.json")) {
-      throw chalk`{red Project already exists in ${
-        args.dir
-      }}\nCancelling initialisation`;
+      throw chalk`{red Project already exists in ${dirName}}\nCancelling initialisation`;
     }
 
-    throw chalk`{red Target directory ${
-      args.dir
-    } is not empty}\nCancelling initialisation`;
+    throw chalk`{red Target directory ${dirName} is not empty}\nCancelling initialisation`;
   }
 
-  process.stdout.write(chalk.grey(`Initialising workspace in ${args.dir}...`));
+  process.stdout.write(chalk.grey(`Initialising workspace in ${dirName}...`));
   fs.writeFileSync(
-    path.join(args.dir, ".wixcoderc.json"),
+    path.join(dirName, ".wixcoderc.json"),
     JSON.stringify({ metasiteId }, null, 2)
   );
   process.stdout.write(chalk.green("  Done.\n"));
+
+  return dirName;
 }
 
 module.exports = init;
