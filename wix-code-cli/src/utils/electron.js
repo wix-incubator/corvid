@@ -99,13 +99,15 @@ async function openWindow(app, windowOptions = {}) {
     webPreferences: { nodeIntegration: false }
   });
 
+  let didAuthenticate = false;
   try {
     win.webContents.on("did-navigate", (event, url) => {
       const parsed = new URL(url);
       if (parsed.hostname === signInHostname) {
+        didAuthenticate = true;
         process.stdout.write(chalk.grey("Authenticating Wix user..."));
         win.show();
-      } else if (parsed.hostname === editorHostname && win.isVisible()) {
+      } else if (parsed.hostname === editorHostname && didAuthenticate) {
         process.stdout.write(chalk.green("  Done\n"));
         win.hide();
       }
