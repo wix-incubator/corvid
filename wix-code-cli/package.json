@@ -55,7 +55,6 @@
     "@wix/wix-code-local-server": "~1.0.0",
     "chalk": "2.4.2",
     "electron": "4.0.8",
-    "folktale": "2.3.2",
     "isomorphic-fetch": "2.2.1",
     "node-fetch": "^2.3.0",
     "normalize-url": "^4.2.0",
