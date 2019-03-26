@@ -1,4 +1,5 @@
 const merge_ = require("lodash/merge");
+const defaultsDeep_ = require("lodash/defaultsDeep");
 const set_ = require("lodash/set");
 const uuid = require("uuid");
 const path = require("path");
@@ -25,140 +26,186 @@ const {
 /* ************** Styles Creator ************** */
 
 const colors = (content = getColorsDefaults()) => ({
-  styles: {
-    colors: content
+  siteDocument: {
+    styles: {
+      colors: content
+    }
   }
 });
 
 const fonts = (content = getFontsDefaults()) => ({
-  styles: {
-    fonts: content
+  siteDocument: {
+    styles: {
+      fonts: content
+    }
   }
 });
 
 const theme = (content = getThemeDefaults()) => ({
-  styles: {
-    theme: content
+  siteDocument: {
+    styles: {
+      theme: content
+    }
   }
 });
 
 const topLevelStyles = (content = getTopLevelStylesDefaults()) => ({
-  styles: {
-    topLevelStyles: content
+  siteDocument: {
+    styles: {
+      topLevelStyles: content
+    }
   }
 });
 
 /* ************** Site Creator ************** */
 
 const commonComponents = (content = getCommonComponentsDefaults()) => ({
-  site: {
-    commonComponents: content
+  siteDocument: {
+    site: {
+      commonComponents: content
+    }
   }
 });
 
 const menu = (content = getMenuDefaults()) => ({
-  site: {
-    menu: content
+  siteDocument: {
+    site: {
+      menu: content
+    }
   }
 });
 
 const multilingualInfo = (content = getMultilingualInfoDefaults()) => ({
-  site: {
-    multilingualInfo: content
+  siteDocument: {
+    site: {
+      multilingualInfo: content
+    }
   }
 });
 
 const siteInfo = (content = getSiteInfoDefaults()) => ({
-  site: {
-    siteInfo: content
+  siteDocument: {
+    site: {
+      siteInfo: content
+    }
   }
 });
 
 const version = (content = getVersionDefaults()) => ({
-  site: {
-    version: content
+  siteDocument: {
+    site: {
+      version: content
+    }
   }
 });
 
 const revision = (content = getRevisionDefaults()) => ({
-  site: {
-    revision: content
+  siteDocument: {
+    site: {
+      revision: content
+    }
   }
 });
 
 const dataFromMasterPage = (content = getDataFromMasterPageDefaults()) => ({
-  site: {
-    dataFromMasterPage: content
+  siteDocument: {
+    site: {
+      dataFromMasterPage: content
+    }
   }
 });
 
 /* ************** General Creators ************** */
 const page = (pageId = uuid.v4(), options = {}) => ({
-  pages: {
-    [pageId]: merge_(getPageDefaults(pageId), options)
+  siteDocument: {
+    pages: {
+      [pageId]: merge_(getPageDefaults(pageId), options)
+    }
   }
 });
 
 const lightbox = (pageId = uuid.v4(), options = {}) => ({
-  pages: {
-    [pageId]: merge_(getLightboxDefaults(pageId), options)
+  siteDocument: {
+    pages: {
+      [pageId]: merge_(getLightboxDefaults(pageId), options)
+    }
   }
 });
 
 const router = (prefix = uuid.v4(), options = {}) => ({
-  routers: {
-    [prefix]: merge_(getRouterDefaults(`${prefix} content`), options)
+  siteDocument: {
+    routers: {
+      [prefix]: merge_(getRouterDefaults(`${prefix} content`), options)
+    }
   }
 });
 
 const styles = (...stylesCreators) => ({
-  styles: merge_(
-    getStylesDefaults(),
-    stylesCreators.reduce((styles, creator) => {
-      return merge_(styles, creator);
-    }, {})
-  )
+  siteDocument: {
+    styles: merge_(
+      getStylesDefaults(),
+      stylesCreators.reduce((styles, creator) => {
+        return merge_(styles, creator);
+      }, {})
+    )
+  }
 });
 
 const site = (...siteCreators) => ({
-  site: merge_(
-    getSiteDefaults(),
-    siteCreators.reduce((site, creator) => {
-      return merge_(site, creator);
-    }, {})
-  )
+  siteDocument: {
+    site: merge_(
+      getSiteDefaults(),
+      siteCreators.reduce((site, creator) => {
+        return merge_(site, creator);
+      }, {})
+    )
+  }
 });
 
 const pageCode = (pageId, content = uuid.v4()) =>
-  set_({}, ["public", "pages", `${pageId}.js`], content);
+  set_({}, ["siteCode", "public", "pages", `${pageId}.js`], content);
 
 const lightboxCode = (pageId, content = uuid.v4()) =>
-  set_({}, ["public", "pages", `${pageId}.js`], content);
+  set_({}, ["siteCode", "public", "pages", `${pageId}.js`], content);
 
 const publicCode = (relativePath = "code.js", content = uuid.v4()) =>
-  set_({}, ["public"].concat(relativePath.split(path.sep)), content);
+  set_(
+    {},
+    ["siteCode", "public"].concat(relativePath.split(path.sep)),
+    content
+  );
 
 const backendCode = (relativePath = "code.js", content = uuid.v4()) =>
-  set_({}, ["backend"].concat(relativePath.split(path.sep)), content);
+  set_(
+    {},
+    ["siteCode", "backend"].concat(relativePath.split(path.sep)),
+    content
+  );
 
 /* ************** Main Document Creator ************** */
 const createFull = (...documentCreator) => {
-  const initial = {
-    pages: {},
-    styles: {},
-    site: {},
-    routers: {}
-  };
-  const documentDefulats = Object.assign(styles(), site());
-  const documentSite = documentCreator.reduce((document, creator) => {
-    return merge_(document, creator);
-  }, {});
+  const defaultSite = merge_(
+    {
+      siteDocument: {
+        pages: {},
+        styles: {},
+        site: {},
+        routers: {}
+      },
+      siteCode: {}
+    },
+    styles(),
+    site()
+  );
 
-  if (!documentSite.hasOwnProperty("pages")) {
-    merge_(documentSite, page());
+  const partialSite = createPartial(...documentCreator);
+  const fullSite = defaultsDeep_(partialSite, defaultSite);
+
+  if (!fullSite.siteDocument.hasOwnProperty("pages")) {
+    merge_(fullSite, page());
   }
 
-  return merge_(initial, documentDefulats, documentSite);
+  return fullSite;
 };
 
 const createPartial = (...documentCreator) =>

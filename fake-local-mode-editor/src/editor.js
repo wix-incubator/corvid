@@ -128,14 +128,14 @@ const getSiteDocumentFromServer = async socket =>
 
 const loadEditor = async (
   port,
-  { siteDocument: remoteSiteDocument, siteCode: remoteSiteCode } = {},
+  { siteDocument: initialSiteDocument, siteCode: initialSiteCode } = {},
   { cloneOnLoad = true } = {}
 ) => {
   const editorState = {
-    siteDocument: remoteSiteDocument || {},
+    siteDocument: initialSiteDocument || {},
     codeFiles: {
       previous: {},
-      current: remoteSiteCode || {}
+      current: initialSiteCode || {}
     }
   };
 
@@ -212,14 +212,19 @@ const loadEditor = async (
       }
     },
     isConnected: () => !!(socket && socket.connected),
-    getSiteDocument: () => editorState.siteDocument,
+
+    getSite: () => ({
+      siteDocument: editorState.siteDocument,
+      siteCode: getCurrentCodeFiles(editorState.codeFiles)
+    }),
+
     modifyDocument: newDocumnet => {
       editorState.siteDocument = newDocumnet;
     },
-    getCodeFiles: () => getCurrentCodeFiles(editorState.codeFiles),
     modifyCodeFile,
     copyCodeFile,
     deleteCodeFile,
+
     advanced: {
       saveSiteDocument,
       saveCodeFiles

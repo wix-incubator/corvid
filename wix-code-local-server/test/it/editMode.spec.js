@@ -29,8 +29,8 @@ describe("edit mode", () => {
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
 
-    const codeFiles = await editor.getCodeFiles();
-    expect(codeFiles).toEqual(
+    const editorSite = await editor.getSite();
+    expect(editorSite).toMatchObject(
       sc.createPartial(
         sc.publicCode("public-file.json", "public code"),
         sc.backendCode("sub-folder/backendFile.jsw", "backend code")
@@ -49,9 +49,11 @@ describe("edit mode", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
-    const codeFiles = await editor.getCodeFiles();
-    const expected = sc.createPartial(sc.pageCode("page-1", "page code"));
-    expect(codeFiles).toEqual(expected);
+    const editorSite = await editor.getSite();
+    const expectedEditorSite = sc.createPartial(
+      sc.pageCode("page-1", "page code")
+    );
+    expect(editorSite).toMatchObject(expectedEditorSite);
 
     await editor.close();
     await server.close();
@@ -65,8 +67,8 @@ describe("edit mode", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
-    const codeFiles = await editor.getCodeFiles();
-    expect(codeFiles).toEqual(
+    const editorSite = await editor.getSite();
+    expect(editorSite).toMatchObject(
       sc.createPartial(sc.lightboxCode("lightbox-1", "lightbox code"))
     );
 
@@ -99,13 +101,13 @@ describe("edit mode", () => {
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
 
-    const siteDocument = await editor.getSiteDocument();
+    const editorSite = await editor.getSite();
 
-    const expectSiteDocument = sc.createFull(
+    const expectedSite = sc.createFull(
       ...Object.keys(siteParts).map(key => sc[key](siteParts[key]))
     );
 
-    expect(siteDocument).toEqual(expectSiteDocument);
+    expect(editorSite).toEqual(expectedSite);
 
     await editor.close();
     await server.close();
@@ -125,21 +127,26 @@ describe("edit mode", () => {
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
 
-    const newDocument = editor.getSiteDocument();
+    const editorSite = editor.getSite();
 
     // edit existing pages
-    newDocument.pages[page1ID].content = "page1 new content";
-    newDocument.pages[lightBox1ID].content = "lightBox1ID new content";
+    editorSite.siteDocument.pages[page1ID].content = "page1 new content";
+    editorSite.siteDocument.pages[lightBox1ID].content =
+      "lightBox1ID new content";
 
     // add new page from the editor
-    merge_(newDocument, sc.page(page2ID, { content: "page2 new content" }));
+    const siteWithNewPage = merge_(
+      {},
+      editorSite,
+      sc.page(page2ID, { content: "page2 new content" })
+    );
 
-    editor.modifyDocument(newDocument);
+    editor.modifyDocument(siteWithNewPage.siteDocument);
     await editor.save();
 
-    const localSiteDocument = await localSiteDir.readLocalSite(localSitePath);
+    const localSite = await localSiteDir.readLocalSite(localSitePath);
 
-    const expected = lsc.createPartial(
+    const expectedLocalSite = lsc.createPartial(
       lsc.page(page2ID, { content: "page2 new content" }),
       lsc.page(page1ID, { content: "page1 new content" }),
       lsc.lightbox(lightBox1ID, {
@@ -147,7 +154,7 @@ describe("edit mode", () => {
       })
     );
 
-    expect(localSiteDocument).toMatchObject(expected);
+    expect(localSite).toMatchObject(expectedLocalSite);
 
     await editor.close();
     await server.close();
@@ -218,12 +225,12 @@ describe("edit mode", () => {
 
     await eventually(
       async () => {
-        const codeFiles = await editor.getCodeFiles();
-        const expected = sc.createPartial(
+        const editorSite = await editor.getSite();
+        const expectedEditorSite = sc.createPartial(
           sc.publicCode("public-file.json", "public code"),
           sc.publicCode("newFile.js", "test content")
         );
-        expect(codeFiles).toMatchObject(expected);
+        expect(editorSite).toMatchObject(expectedEditorSite);
       },
       { timeout: 3000 }
     );
@@ -251,9 +258,11 @@ describe("edit mode", () => {
 
     await eventually(
       async () => {
-        const codeFiles = await editor.getCodeFiles();
-        const expected = sc.createPartial(sc.publicCode(filename, newContent));
-        expect(codeFiles).toMatchObject(expected);
+        const editorSite = await editor.getSite();
+        const expectedEditorSite = sc.createPartial(
+          sc.publicCode(filename, newContent)
+        );
+        expect(editorSite).toMatchObject(expectedEditorSite);
       },
       { timeout: 3000 }
     );
@@ -275,9 +284,12 @@ describe("edit mode", () => {
     await localSiteDir.deleteFile(localSitePath, "public/public-file.json");
     await eventually(
       async () => {
-        const codeFiles = await editor.getCodeFiles();
-        const expected = sc.publicCode("public-file.json", "public code");
-        expect(codeFiles).not.toMatchObject(expected);
+        const editorSite = await editor.getSite();
+        const expectedEditorSite = sc.publicCode(
+          "public-file.json",
+          "public code"
+        );
+        expect(editorSite).not.toMatchObject(expectedEditorSite);
       },
       { timeout: 3000 }
     );

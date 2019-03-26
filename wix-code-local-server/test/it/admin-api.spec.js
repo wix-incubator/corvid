@@ -45,13 +45,9 @@ describe("admin api", () => {
       const localSiteDir = await initLocalSite({});
 
       const server = await localServer.startInCloneMode(localSiteDir);
-      const editor = await loadEditor(
-        server.port,
-        {
-          siteDocument: sc.createFull()
-        },
-        { cloneOnLoad: false }
-      );
+      const editor = await loadEditor(server.port, sc.createFull(), {
+        cloneOnLoad: false
+      });
       const cli = await connectCli(server.adminPort);
 
       expect(await cli.getServerStatus()).toEqual({
@@ -69,9 +65,7 @@ describe("admin api", () => {
       const localSiteDir = await initLocalSite(lsc.createFull());
 
       const server = await localServer.startInEditMode(localSiteDir);
-      const editor = await loadEditor(server.port, {
-        siteDocument: sc.createFull()
-      });
+      const editor = await loadEditor(server.port, sc.createFull());
       const cli = await connectCli(server.adminPort);
 
       expect(await cli.getServerStatus()).toEqual({
@@ -95,9 +89,7 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      const editor = await loadEditor(server.port, {
-        siteDocument: sc.createFull()
-      });
+      const editor = await loadEditor(server.port, sc.createFull());
 
       expect(cloneCompleteSpy).toHaveBeenCalledTimes(1);
 
@@ -114,13 +106,9 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      const editor = await loadEditor(
-        server.port,
-        {
-          siteDocument: sc.createFull()
-        },
-        { cloneOnLoad: false }
-      );
+      const editor = await loadEditor(server.port, sc.createFull(), {
+        cloneOnLoad: false
+      });
 
       expect(cloneCompleteSpy).not.toHaveBeenCalledTimes(1);
 
@@ -137,13 +125,9 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      const editor = await loadEditor(
-        server.port,
-        {
-          siteDocument: sc.createFull()
-        },
-        { cloneOnLoad: false }
-      );
+      const editor = await loadEditor(server.port, sc.createFull(), {
+        cloneOnLoad: false
+      });
 
       await editor.advanced.saveSiteDocument();
 
@@ -162,13 +146,9 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      const editor = await loadEditor(
-        server.port,
-        {
-          siteDocument: sc.createFull()
-        },
-        { cloneOnLoad: false }
-      );
+      const editor = await loadEditor(server.port, sc.createFull(), {
+        cloneOnLoad: false
+      });
 
       await editor.advanced.saveCodeFiles();
 

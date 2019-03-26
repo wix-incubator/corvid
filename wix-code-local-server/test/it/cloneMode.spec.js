@@ -39,22 +39,20 @@ describe("clone mode", () => {
       router: "router-prefix"
     };
 
-    const editorSiteDocument = sc.createFull(
+    const editorSite = sc.createFull(
       ...Object.keys(siteParts).map(key => sc[key](siteParts[key]))
+    );
+
+    const expectedLocalSite = lsc.createFull(
+      ...Object.keys(siteParts).map(key => lsc[key](siteParts[key]))
     );
 
     const localSitePath = await initLocalSite(emptyLocalSite);
     const server = await localServer.startInCloneMode(localSitePath);
-    const editor = await loadEditor(server.port, {
-      siteDocument: editorSiteDocument
-    });
+    const editor = await loadEditor(server.port, editorSite);
     const localSiteFiles = await readLocalSite(localSitePath);
 
-    const expectedLocalSiteFiles = lsc.createFull(
-      ...Object.keys(siteParts).map(key => lsc[key](siteParts[key]))
-    );
-
-    expect(localSiteFiles).toEqual(expectedLocalSiteFiles);
+    expect(localSiteFiles).toEqual(expectedLocalSite);
 
     await editor.close();
     await server.close();
@@ -64,20 +62,19 @@ describe("clone mode", () => {
     const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
-    const siteDocument = sc.createFull();
-    const siteCode = lsc.createPartial(
-      lsc.publicCode("public-file.json", "public code"),
-      lsc.backendCode("sub-folder/backendFile.jsw", "backend code")
-    );
-
-    const editor = await loadEditor(server.port, { siteDocument, siteCode });
-    const serverFiles = await readLocalSite(localSitePath);
-
-    const expected = sc.createPartial(
+    const editorSite = sc.createFull(
       sc.publicCode("public-file.json", "public code"),
       sc.backendCode("sub-folder/backendFile.jsw", "backend code")
     );
-    expect(serverFiles).toMatchObject(expected);
+
+    const editor = await loadEditor(server.port, editorSite);
+    const serverFiles = await readLocalSite(localSitePath);
+
+    const expectedLocalSite = sc.createPartial(
+      lsc.publicCode("public-file.json", "public code"),
+      lsc.backendCode("sub-folder/backendFile.jsw", "backend code")
+    );
+    expect(serverFiles).toMatchObject(expectedLocalSite);
 
     await editor.close();
     await server.close();
@@ -86,17 +83,19 @@ describe("clone mode", () => {
     const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
-    const siteDocument = sc.createFull(sc.page("page-1"));
-    const siteCode = sc.createPartial(sc.pageCode("page-1", "public code"));
+    const editorSite = sc.createFull(
+      sc.page("page-1"),
+      sc.pageCode("page-1", "public code")
+    );
 
-    const editor = await loadEditor(server.port, { siteDocument, siteCode });
+    const editor = await loadEditor(server.port, editorSite);
     const serverFiles = await readLocalSite(localSitePath);
 
-    const expected = lsc.createPartial(
+    const expectedLocalSite = lsc.createPartial(
       lsc.pageWithCode("page-1", null, "public code")
     );
 
-    expect(serverFiles).toMatchObject(expected);
+    expect(serverFiles).toMatchObject(expectedLocalSite);
 
     await editor.close();
     await server.close();
@@ -106,19 +105,19 @@ describe("clone mode", () => {
     const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
-    const siteDocument = sc.createFull(sc.lightbox("lightbox-1"));
-    const siteCode = sc.createPartial(
+    const editorSite = sc.createFull(
+      sc.lightbox("lightbox-1"),
       sc.lightboxCode("lightbox-1", "lightbox code")
     );
 
-    const editor = await loadEditor(server.port, { siteDocument, siteCode });
+    const editor = await loadEditor(server.port, editorSite);
     const serverFiles = await readLocalSite(localSitePath);
 
-    const expected = lsc.createPartial(
+    const expectedLocalSite = lsc.createPartial(
       lsc.lightboxWithCode("lightbox-1", null, "lightbox code")
     );
 
-    expect(serverFiles).toMatchObject(expected);
+    expect(serverFiles).toMatchObject(expectedLocalSite);
 
     await editor.close();
     await server.close();

@@ -8,7 +8,7 @@ describe("editor connections", () => {
     const localSiteDir = await initLocalSite({});
 
     const server = await localServer.startInCloneMode(localSiteDir);
-    const editor = await loadEditor(server.port, {});
+    const editor = await loadEditor(server.port);
 
     expect(editor.isConnected()).toBe(true);
 
