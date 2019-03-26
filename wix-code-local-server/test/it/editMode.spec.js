@@ -43,7 +43,7 @@ describe("edit mode", () => {
 
   it("should send page code files to the editor on load", async () => {
     const localSiteFiles = lsc.createFull(
-      lsc.pageWithCode("page-1", null, "page code")
+      lsc.pageWithCode({ pageId: "page-1" }, "page code")
     );
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
@@ -53,6 +53,7 @@ describe("edit mode", () => {
     const expectedEditorSite = sc.createPartial(
       sc.pageCode("page-1", "page code")
     );
+
     expect(editorSite).toMatchObject(expectedEditorSite);
 
     await editor.close();
@@ -61,7 +62,7 @@ describe("edit mode", () => {
 
   it("should send lightbox code files to the editor on load", async () => {
     const localSiteFiles = lsc.createFull(
-      lsc.lightboxWithCode("lightbox-1", null, "lightbox code")
+      lsc.lightboxWithCode({ pageId: "lightbox-1" }, "lightbox code")
     );
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
@@ -78,7 +79,7 @@ describe("edit mode", () => {
 
   it("should send site document to the editor on load", async () => {
     const siteParts = {
-      page: "page1",
+      page: { pageId: "page1" },
       colors: "colors-content",
       fonts: "fonts-content",
       theme: "theme-content",
@@ -90,7 +91,7 @@ describe("edit mode", () => {
       dataFromMasterPage: "dataFromMasterPage-content",
       version: "version-content",
       revision: "revision-content",
-      router: "router-prefix"
+      router: { prefix: "router-prefix" }
     };
 
     const localSiteFiles = lsc.createFull(
@@ -119,8 +120,8 @@ describe("edit mode", () => {
     const lightBox1ID = "lightBox1ID";
 
     const localSiteFiles = lsc.createFull(
-      lsc.page(page1ID, { content: "page1 old content" }),
-      lsc.lightbox(lightBox1ID, { content: "lightBox1ID old content" })
+      lsc.page({ pageId: page1ID, content: "page1 old content" }),
+      lsc.lightbox({ pageId: lightBox1ID, content: "lightBox1ID old content" })
     );
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
@@ -129,29 +130,23 @@ describe("edit mode", () => {
 
     const editorSite = editor.getSite();
 
-    // edit existing pages
-    editorSite.siteDocument.pages[page1ID].content = "page1 new content";
-    editorSite.siteDocument.pages[lightBox1ID].content =
-      "lightBox1ID new content";
-
-    // add new page from the editor
-    const siteWithNewPage = merge_(
-      {},
-      editorSite,
-      sc.page(page2ID, { content: "page2 new content" })
+    const siteUpdates = sc.createPartial(
+      // edit existing pages
+      sc.page({ pageId: page1ID, content: "page1 new content" }),
+      sc.lightbox({ pageId: lightBox1ID, content: "lightBox1ID new content" }),
+      // add new page from the editor
+      sc.page({ pageId: page2ID, content: "page2 new content" })
     );
+    editor.modifyDocument(merge_({}, editorSite, siteUpdates).siteDocument);
 
-    editor.modifyDocument(siteWithNewPage.siteDocument);
     await editor.save();
 
     const localSite = await localSiteDir.readLocalSite(localSitePath);
 
     const expectedLocalSite = lsc.createPartial(
-      lsc.page(page2ID, { content: "page2 new content" }),
-      lsc.page(page1ID, { content: "page1 new content" }),
-      lsc.lightbox(lightBox1ID, {
-        content: "lightBox1ID new content"
-      })
+      lsc.page({ pageId: page1ID, content: "page1 new content" }),
+      lsc.lightbox({ pageId: lightBox1ID, content: "lightBox1ID new content" }),
+      lsc.page({ pageId: page2ID, content: "page2 new content" })
     );
 
     expect(localSite).toMatchObject(expectedLocalSite);
@@ -163,7 +158,7 @@ describe("edit mode", () => {
   // todo:: split this test to 6 test, (modify pageCode & regular code), (delete pageCode & regular code), (copy pageCode & regular code)
   it("should update code files after editor changes and clicks save", async () => {
     const localSiteFiles = lsc.createFull(
-      lsc.pageWithCode("page-1", null, "code file options"),
+      lsc.pageWithCode({ pageId: "page-1" }, "code file options"),
       lsc.publicCode("public-file.json", "public code"),
       lsc.publicCode("public-file1.json", "public code 1"),
       lsc.backendCode("sub-folder/backendFile.jsw", "backend code")
@@ -188,7 +183,7 @@ describe("edit mode", () => {
     await editor.save();
 
     const expected = lsc.createPartial(
-      lsc.pageWithCode("page-1", null, "code file options8888"),
+      lsc.pageWithCode({ pageId: "page-1" }, "code file options8888"),
       lsc.publicCode("public-file.json", "public code"),
       lsc.backendCode("sub-folder/backendFile.jsw", "backend code"),
       lsc.backendCode(

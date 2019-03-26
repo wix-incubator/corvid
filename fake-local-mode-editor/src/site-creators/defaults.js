@@ -1,88 +1,100 @@
 const uuid = require("uuid");
+const defaults_ = require("lodash/defaults");
 
-const randomize = content => `${uuid.v4()} ${content}`;
+const uniqueId = () => uuid.v4();
+const randomize = content => `${uniqueId()} ${content}`;
 
-/* ************** Defulats ************** */
-const getPageDefaults = (pageId = uuid.v4()) => ({
-  pageId,
-  uriSEO: `${pageId} uri SEO`,
-  title: `${pageId} title`,
-  isPopUp: false,
-  content: `${pageId} encoded file content`
-});
+const pageWithDefaults = ({ pageId = uniqueId(), ...rest } = {}) =>
+  defaults_({ pageId, isPopUp: false }, rest, {
+    title: `${pageId} title`,
+    uriSEO: `${pageId} uri SEO`,
+    content: `${pageId} encoded page content`
+  });
 
-const getLightboxDefaults = (pageId = uuid.v4()) => ({
-  pageId,
-  uriSEO: `${pageId} uri SEO`,
-  title: `${pageId} title`,
-  isPopUp: true,
-  content: `${pageId} encoded file content`
-});
+const lightboxWithDefaults = ({ pageId = uniqueId(), ...rest } = {}) =>
+  defaults_({ pageId, isPopUp: true }, rest, {
+    title: `${pageId} title`,
+    uriSEO: `${pageId} uri SEO`,
+    content: `${pageId} encoded lightbox content`
+  });
 
-const getRouterDefaults = (content = randomize(`router data`)) => ({
-  content
-});
+const routerWithDefaults = ({ prefix, ...rest } = {}) =>
+  defaults_(rest, {
+    prefix,
+    content: `${prefix} content`
+  });
 
-const getStylesDefaults = () => ({
-  colors: getColorsDefaults(),
-  fonts: getFontsDefaults(),
-  theme: getThemeDefaults(),
-  topLevelStyles: getTopLevelStylesDefaults()
-});
+const stylesWithDefaults = (styles = {}) =>
+  defaults_(styles, {
+    colors: colorsWithDefaults(),
+    fonts: fontsWithDefaults(),
+    theme: themeWithDefaults(),
+    topLevelStyles: topLevelStylesWithDefaults()
+  });
 
-const getSiteDefaults = () => ({
-  commonComponents: getCommonComponentsDefaults(),
-  menu: getMenuDefaults(),
-  multilingualInfo: getMultilingualInfoDefaults(),
-  siteInfo: getSiteInfoDefaults(),
-  revision: getRevisionDefaults(),
-  version: getVersionDefaults(),
-  dataFromMasterPage: getDataFromMasterPageDefaults()
-});
+const siteWithDefaults = (site = {}) =>
+  defaults_(site, {
+    commonComponents: commonComponentsWithDefaults(),
+    menu: menuWithDefaults(),
+    multilingualInfo: multilingualInfoWithDefaults(),
+    siteInfo: siteInfoWithDefaults(),
+    revision: revisionWithDefaults(),
+    version: versionWithDefaults(),
+    dataFromMasterPage: dataFromMasterPageWithDefaults()
+  });
 
-const getColorsDefaults = (content = randomize(` Encoded colors data`)) =>
-  content;
-const getFontsDefaults = (content = randomize(`Encoded fonts data`)) => content;
-const getThemeDefaults = (content = randomize(`Encoded theme data`)) => content;
-const getTopLevelStylesDefaults = (
-  content = randomize(`Encoded top level styles data`)
-) => content;
+const colorsWithDefaults = (colors = randomize(` Encoded colors data`)) =>
+  colors;
 
-const getCommonComponentsDefaults = (
-  content = randomize(`Encoded commonComponents data`)
-) => content;
-const getMenuDefaults = (content = randomize(`Encoded menu site data`)) =>
-  content;
-const getMultilingualInfoDefaults = (
-  content = randomize(`Encoded multilingualInfo site data`)
-) => content;
-const getSiteInfoDefaults = (
-  content = randomize(`Encoded siteInfo site data`)
-) => content;
-const getRevisionDefaults = (
-  content = randomize(`Encoded revision site data`)
-) => content;
-const getVersionDefaults = (content = randomize(`Encoded version site data`)) =>
-  content;
-const getDataFromMasterPageDefaults = (
-  content = randomize(`Encoded data from master page site data`)
-) => content;
+const fontsWithDefaults = (fonts = randomize(`Encoded fonts data`)) => fonts;
 
-module.exports.getPageDefaults = getPageDefaults;
-module.exports.getLightboxDefaults = getLightboxDefaults;
-module.exports.getRouterDefaults = getRouterDefaults;
-module.exports.getStylesDefaults = getStylesDefaults;
-module.exports.getSiteDefaults = getSiteDefaults;
+const themeWithDefaults = (theme = randomize(`Encoded theme data`)) => theme;
 
-module.exports.getColorsDefaults = getColorsDefaults;
-module.exports.getFontsDefaults = getFontsDefaults;
-module.exports.getThemeDefaults = getThemeDefaults;
-module.exports.getTopLevelStylesDefaults = getTopLevelStylesDefaults;
+const topLevelStylesWithDefaults = (
+  topLevelStyles = randomize(`Encoded top level styles data`)
+) => topLevelStyles;
 
-module.exports.getCommonComponentsDefaults = getCommonComponentsDefaults;
-module.exports.getMenuDefaults = getMenuDefaults;
-module.exports.getMultilingualInfoDefaults = getMultilingualInfoDefaults;
-module.exports.getSiteInfoDefaults = getSiteInfoDefaults;
-module.exports.getDataFromMasterPageDefaults = getDataFromMasterPageDefaults;
-module.exports.getRevisionDefaults = getRevisionDefaults;
-module.exports.getVersionDefaults = getVersionDefaults;
+const commonComponentsWithDefaults = (
+  commonComponents = randomize(`Encoded commonComponents data`)
+) => commonComponents;
+
+const menuWithDefaults = (menu = randomize(`Encoded menu site data`)) => menu;
+
+const multilingualInfoWithDefaults = (
+  multilingualInfo = randomize(`Encoded multilingualInfo site data`)
+) => multilingualInfo;
+
+const siteInfoWithDefaults = (
+  siteInfo = randomize(`Encoded siteInfo site data`)
+) => siteInfo;
+
+const revisionWithDefaults = (
+  revision = randomize(`Encoded revision site data`)
+) => revision;
+
+const versionWithDefaults = (
+  version = randomize(`Encoded version site data`)
+) => version;
+
+const dataFromMasterPageWithDefaults = (
+  dataFromMasterPage = randomize(`Encoded data from master page site data`)
+) => dataFromMasterPage;
+
+module.exports = {
+  pageWithDefaults,
+  lightboxWithDefaults,
+  routerWithDefaults,
+  stylesWithDefaults,
+  siteWithDefaults,
+  colorsWithDefaults,
+  fontsWithDefaults,
+  themeWithDefaults,
+  topLevelStylesWithDefaults,
+  commonComponentsWithDefaults,
+  menuWithDefaults,
+  multilingualInfoWithDefaults,
+  siteInfoWithDefaults,
+  dataFromMasterPageWithDefaults,
+  revisionWithDefaults,
+  versionWithDefaults
+};

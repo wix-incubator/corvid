@@ -1,6 +1,7 @@
 const io = require("socket.io-client");
 const path = require("path");
 const flat = require("flat");
+const cloneDeep_ = require("lodash/cloneDeep");
 const get_ = require("lodash/get");
 const mapValues_ = require("lodash/mapValues");
 const map_ = require("lodash/map");
@@ -213,10 +214,11 @@ const loadEditor = async (
     },
     isConnected: () => !!(socket && socket.connected),
 
-    getSite: () => ({
-      siteDocument: editorState.siteDocument,
-      siteCode: getCurrentCodeFiles(editorState.codeFiles)
-    }),
+    getSite: () =>
+      cloneDeep_({
+        siteDocument: editorState.siteDocument,
+        siteCode: getCurrentCodeFiles(editorState.codeFiles)
+      }),
 
     modifyDocument: newDocumnet => {
       editorState.siteDocument = newDocumnet;

@@ -4,241 +4,237 @@ const mapKeys_ = require("lodash/mapKeys");
 const mapValues_ = require("lodash/mapValues");
 const set_ = require("lodash/set");
 const get_ = require("lodash/get");
+const omit_ = require("lodash/omit");
 const uuid = require("uuid");
 
 const {
-  getPageDefaults,
-  getLightboxDefaults,
-  getRouterDefaults,
-  getStylesDefaults,
-  getSiteDefaults,
-  getColorsDefaults,
-  getFontsDefaults,
-  getThemeDefaults,
-  getTopLevelStylesDefaults,
-  getCommonComponentsDefaults,
-  getMenuDefaults,
-  getMultilingualInfoDefaults,
-  getSiteInfoDefaults,
-  getRevisionDefaults,
-  getVersionDefaults,
-  getDataFromMasterPageDefaults
-} = require("./defaults");
+  pageWithDefaults,
+  lightboxWithDefaults,
+  routerWithDefaults,
+  stylesWithDefaults,
+  siteWithDefaults,
+  colorsWithDefaults,
+  fontsWithDefaults,
+  themeWithDefaults,
+  topLevelStylesWithDefaults,
+  commonComponentsWithDefaults,
+  menuWithDefaults,
+  multilingualInfoWithDefaults,
+  siteInfoWithDefaults,
+  revisionWithDefaults,
+  versionWithDefaults,
+  dataFromMasterPageWithDefaults
+} = require("@wix/fake-local-mode-editor/src/site-creators/defaults"); // TODO: temporary
 
-const fileExtention = ".wix";
-const pageCodeExtention = ".js";
+const fileExtention = "wix";
+const pageCodeExtention = "js";
 
 const stringify = content => JSON.stringify(content, null, 2);
 const removeIllegalCharacters = str => str.replace(/[/\\?%*:|"<>\s]/g, "_");
 
+const pageFileName = page =>
+  [removeIllegalCharacters(page.title), page.pageId, fileExtention].join(".");
+
+const pageCodeFileName = page =>
+  [removeIllegalCharacters(page.title), page.pageId, pageCodeExtention].join(
+    "."
+  );
+
+const lightboxFileName = pageFileName;
+
+const lightboxCodeFileName = pageCodeFileName;
+
 /* ************** Styles Creator ************** */
 
-const colors = (content = getColorsDefaults()) => ({
+const colors = colors => ({
   frontend: {
     styles: {
-      [`colors${fileExtention}`]: stringify(content)
+      [`colors.${fileExtention}`]: stringify(colorsWithDefaults(colors))
     }
   }
 });
 
-const fonts = (content = getFontsDefaults()) => ({
+const fonts = fonts => ({
   frontend: {
     styles: {
-      [`fonts${fileExtention}`]: stringify(content)
+      [`fonts.${fileExtention}`]: stringify(fontsWithDefaults(fonts))
     }
   }
 });
 
-const theme = (content = getThemeDefaults()) => ({
+const theme = theme => ({
   frontend: {
     styles: {
-      [`theme${fileExtention}`]: stringify(content)
+      [`theme.${fileExtention}`]: stringify(themeWithDefaults(theme))
     }
   }
 });
 
-const topLevelStyles = (content = getTopLevelStylesDefaults()) => ({
+const topLevelStyles = topLevelStyles => ({
   frontend: {
     styles: {
-      [`topLevelStyles${fileExtention}`]: stringify(content)
+      [`topLevelStyles.${fileExtention}`]: stringify(
+        topLevelStylesWithDefaults(topLevelStyles)
+      )
     }
   }
 });
 
 /* ************** Site Creator ************** */
 
-const commonComponents = (content = getCommonComponentsDefaults()) => ({
+const commonComponents = commonComponents => ({
   frontend: {
     site: {
-      [`commonComponents${fileExtention}`]: stringify(content)
+      [`commonComponents.${fileExtention}`]: stringify(
+        commonComponentsWithDefaults(commonComponents)
+      )
     }
   }
 });
 
-const menu = (content = getMenuDefaults()) => ({
+const menu = menu => ({
   frontend: {
     site: {
-      [`menu${fileExtention}`]: stringify(content)
+      [`menu.${fileExtention}`]: stringify(menuWithDefaults(menu))
     }
   }
 });
 
-const multilingualInfo = (content = getMultilingualInfoDefaults()) => ({
+const multilingualInfo = multilingualInfo => ({
   frontend: {
     site: {
-      [`multilingualInfo${fileExtention}`]: stringify(content)
+      [`multilingualInfo.${fileExtention}`]: stringify(
+        multilingualInfoWithDefaults(multilingualInfo)
+      )
     }
   }
 });
 
-const siteInfo = (content = getSiteInfoDefaults()) => ({
+const siteInfo = siteInfo => ({
   frontend: {
     site: {
-      [`siteInfo${fileExtention}`]: stringify(content)
+      [`siteInfo.${fileExtention}`]: stringify(siteInfoWithDefaults(siteInfo))
     }
   }
 });
 
-const version = (content = getVersionDefaults()) => ({
+const version = version => ({
   frontend: {
     site: {
-      [`version${fileExtention}`]: stringify(content)
+      [`version.${fileExtention}`]: stringify(versionWithDefaults(version))
     }
   }
 });
 
-const revision = (content = getRevisionDefaults()) => ({
+const revision = revision => ({
   frontend: {
     site: {
-      [`revision${fileExtention}`]: stringify(content)
+      [`revision.${fileExtention}`]: stringify(revisionWithDefaults(revision))
     }
   }
 });
 
-const dataFromMasterPage = (content = getDataFromMasterPageDefaults()) => ({
+const dataFromMasterPage = dataFromMasterPage => ({
   frontend: {
     site: {
-      [`dataFromMasterPage${fileExtention}`]: stringify(content)
+      [`dataFromMasterPage.${fileExtention}`]: stringify(
+        dataFromMasterPageWithDefaults(dataFromMasterPage)
+      )
     }
   }
 });
 
 /* ************** General Creators ************** */
 
-const file = (relativePath = "backend/code.js", content = uuid.v4()) =>
+const file = (relativePath, content = uuid.v4()) =>
   set_({}, relativePath.split(path.sep), content);
 
-const publicCode = (relativePath = "code.js", content = uuid.v4()) =>
+const publicCode = (relativePath, content = uuid.v4()) =>
   set_({}, ["public"].concat(relativePath.split(path.sep)), content);
 
-const backendCode = (relativePath = "code.js", content = uuid.v4()) =>
+const backendCode = (relativePath, content = uuid.v4()) =>
   set_({}, ["backend"].concat(relativePath.split(path.sep)), content);
 
-const router = (prefix = uuid.v4(), options = {}) => {
-  const router = merge_(getRouterDefaults(`${prefix} content`), options);
+const router = ({ prefix = uuid.v4(), content }) => {
+  const routerData = routerWithDefaults({ prefix, content });
   return {
     frontend: {
       routers: {
-        [`${prefix}${fileExtention}`]: stringify(router)
+        [`${routerData.prefix}.${fileExtention}`]: stringify(
+          omit_(routerData, "prefix")
+        )
       }
     }
   };
 };
 
-const page = (pageId = uuid.v4(), options = {}) => {
-  const page = merge_(getPageDefaults(pageId), options);
+const page = ({ pageId, title, uriSEO, content } = {}) => {
+  const pageData = pageWithDefaults({ pageId, title, uriSEO, content });
   return {
     frontend: {
       pages: {
-        [`${removeIllegalCharacters(
-          page.title
-        )}.${pageId}${fileExtention}`]: stringify(page)
+        [pageFileName(pageData)]: stringify(pageData)
       }
     }
   };
 };
 
-const pageWithCode = (
-  pageId = uuid.v4(),
-  options = {},
-  codeContent = uuid.v4()
-) => {
-  const pageMergedOptions = merge_(getPageDefaults(pageId), options);
-  return merge_(page(pageId, pageMergedOptions), {
+const pageWithCode = (page_ = {}, code = uuid.v4()) => {
+  const pageData = pageWithDefaults(page_);
+  return merge_(page(pageData), {
     frontend: {
       pages: {
-        [`${removeIllegalCharacters(
-          pageMergedOptions.title
-        )}.${pageId}${pageCodeExtention}`]: codeContent
+        [pageCodeFileName(pageData)]: code
       }
     }
   });
 };
 
-const lightbox = (pageId = uuid.v4(), options = {}) => {
-  const lightbox = merge_(getLightboxDefaults(pageId), options);
+const lightbox = ({ pageId, title, uriSEO, content } = {}) => {
+  const lightboxData = lightboxWithDefaults({ pageId, title, uriSEO, content });
   return {
     frontend: {
       lightboxes: {
-        [`${lightbox.title.replace(
-          /[/\\?%*:|"<>\s]/g,
-          "_"
-        )}.${pageId}${fileExtention}`]: stringify(lightbox)
+        [lightboxFileName(lightboxData)]: stringify(lightboxData)
       }
     }
   };
 };
 
-const lightboxWithCode = (
-  pageId = uuid.v4(),
-  options = {},
-  codeContent = uuid.v4()
-) => {
-  const lightboxMergedOptions = merge_(getLightboxDefaults(pageId), options);
-  return merge_(lightbox(pageId, lightboxMergedOptions), {
+const lightboxWithCode = (lightbox_ = {}, code = uuid.v4()) => {
+  const lightboxData = lightboxWithDefaults(lightbox_);
+  return merge_(lightbox(lightboxData), {
     frontend: {
       lightboxes: {
-        [`${removeIllegalCharacters(
-          lightboxMergedOptions.title
-        )}.${pageId}${pageCodeExtention}`]: codeContent
+        [lightboxCodeFileName(lightboxData)]: code
       }
     }
   });
 };
 
-const styles = (...stylesCreators) => ({
-  frontend: {
-    styles: mapKeys_(
-      mapValues_(
-        merge_(
-          getStylesDefaults(),
-          stylesCreators.reduce((styles, creator) => {
-            return merge_(styles, creator);
-          }, {})
-        ),
-        stringify
-      ),
-      (styleValue, styleKey) => `${styleKey}${fileExtention}`
-    )
-  }
-});
+const styles = (...stylesCreators) => {
+  const styles = stylesWithDefaults(merge_(...stylesCreators));
+  return {
+    frontend: {
+      styles: mapKeys_(
+        mapValues_(styles, stringify),
+        (_, styleKey) => `${styleKey}.${fileExtention}`
+      )
+    }
+  };
+};
 
-const site = (...siteCreators) => ({
-  frontend: {
-    site: mapKeys_(
-      mapValues_(
-        merge_(
-          getSiteDefaults(),
-          siteCreators.reduce((site, creator) => {
-            return merge_(site, creator);
-          }, {})
-        ),
-        stringify
-      ),
-      (siteValue, siteKey) => `${siteKey}${fileExtention}`
-    )
-  }
-});
+const site = (...siteCreators) => {
+  const site = siteWithDefaults(merge_(...siteCreators));
+  return {
+    frontend: {
+      site: mapKeys_(
+        mapValues_(site, stringify),
+        (_, siteKey) => `${siteKey}.${fileExtention}`
+      )
+    }
+  };
+};
 
 /* ************** Main LocalSite Creator ************** */
 
@@ -251,22 +247,18 @@ const createFull = (...localSiteCreator) => {
       routers: {}
     }
   };
-  const localSiteDefulats = merge_(styles(), site());
-  const localSite = localSiteCreator.reduce((document, creator) => {
-    return merge_(document, creator);
-  }, {});
+  const defaultSite = merge_(styles(), site());
+  const partialSite = merge_(...localSiteCreator);
 
-  if (!get_(localSite, "frontend.pages")) {
-    merge_(localSite, page());
+  if (!get_(partialSite, "frontend.pages")) {
+    merge_(partialSite, page());
   }
 
-  return merge_(initial, localSiteDefulats, localSite);
+  return merge_(initial, defaultSite, partialSite);
 };
 
-const createPartial = (...localSiteCreator) =>
-  localSiteCreator.reduce((document, creator) => {
-    return merge_(document, creator);
-  }, {});
+const createPartial = (...localSiteCreators) =>
+  merge_({}, ...localSiteCreators);
 
 module.exports = {
   createFull,

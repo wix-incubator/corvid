@@ -24,7 +24,7 @@ describe("clone mode", () => {
   it("should save localy the editor's document on load", async () => {
     const emptyLocalSite = {};
     const siteParts = {
-      page: "page1",
+      page: { pageId: "page1" },
       colors: "colors-content",
       fonts: "fonts-content",
       theme: "theme-content",
@@ -36,7 +36,7 @@ describe("clone mode", () => {
       dataFromMasterPage: "dataFromMasterPage-content",
       version: "version-content",
       revision: "revision-content",
-      router: "router-prefix"
+      router: { prefix: "router-prefix" }
     };
 
     const editorSite = sc.createFull(
@@ -84,7 +84,7 @@ describe("clone mode", () => {
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = sc.createFull(
-      sc.page("page-1"),
+      sc.page({ pageId: "page-1" }),
       sc.pageCode("page-1", "public code")
     );
 
@@ -92,7 +92,7 @@ describe("clone mode", () => {
     const serverFiles = await readLocalSite(localSitePath);
 
     const expectedLocalSite = lsc.createPartial(
-      lsc.pageWithCode("page-1", null, "public code")
+      lsc.pageWithCode({ pageId: "page-1" }, "public code")
     );
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
@@ -106,7 +106,7 @@ describe("clone mode", () => {
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = sc.createFull(
-      sc.lightbox("lightbox-1"),
+      sc.lightbox({ pageId: "lightbox-1" }),
       sc.lightboxCode("lightbox-1", "lightbox code")
     );
 
@@ -114,7 +114,7 @@ describe("clone mode", () => {
     const serverFiles = await readLocalSite(localSitePath);
 
     const expectedLocalSite = lsc.createPartial(
-      lsc.lightboxWithCode("lightbox-1", null, "lightbox code")
+      lsc.lightboxWithCode({ pageId: "lightbox-1" }, "lightbox code")
     );
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
