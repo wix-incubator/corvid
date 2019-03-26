@@ -6,7 +6,7 @@ const eventually = require("@wix/wix-eventually");
 const merge_ = require("lodash/merge");
 const localServer = require("../../src/server");
 const localSiteDir = require("../utils/localSiteDir");
-const lsc = require("@wix/wix-code-local-site/test/utils/localSiteCreators");
+const { localSiteCreators: lsc } = require("@wix/wix-code-local-site/testkit");
 
 describe("edit mode", () => {
   it("should not start the server in edit mode if the site directory is empty", async () => {

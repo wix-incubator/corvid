@@ -23,7 +23,7 @@ const {
   getRevisionDefaults,
   getVersionDefaults,
   getDataFromMasterPageDefaults
-} = require("./creatorsDefaults");
+} = require("./defaults");
 
 const fileExtention = ".wix";
 const pageCodeExtention = ".js";

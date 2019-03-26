@@ -4,7 +4,7 @@ const {
 } = require("@wix/fake-local-mode-editor");
 const localServer = require("../../src/server");
 const connectCli = require("../utils/fakeCli");
-const lsc = require("@wix/wix-code-local-site/test/utils/localSiteCreators");
+const { localSiteCreators: lsc } = require("@wix/wix-code-local-site/testkit");
 const { initLocalSite } = require("../utils/localSiteDir");
 
 describe("admin api", () => {
