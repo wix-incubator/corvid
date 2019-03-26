@@ -3,6 +3,7 @@ const get_ = require("lodash/get");
 const mapValues_ = require("lodash/mapValues");
 const merge_ = require("lodash/merge");
 const mapKeys_ = require("lodash/mapKeys");
+const map_ = require("lodash/map");
 const pickBy_ = require("lodash/pickBy");
 const flatten_ = require("lodash/flatten");
 const partial_ = require("lodash/partial");
@@ -17,7 +18,7 @@ const flatten = data => flat(data, { delimiter: path.sep, safe: true });
 
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
 const stringify = content => JSON.stringify(content, null, 2);
-
+const isEmptyFolder = content => isObject_(content);
 const readWrite = (siteRootPath, filesWatcher) => {
   const fullPath = filePath => path.resolve(siteRootPath, filePath);
   const getCodeFiles = async (dirPath = siteRootPath) => {
@@ -26,10 +27,11 @@ const readWrite = (siteRootPath, filesWatcher) => {
       flatten(siteDirJson),
       (fileContent, filePath) => sitePaths.fromLocalCode(filePath)
     );
-    return pickBy_(
+    const codeFiles = pickBy_(
       flatDirFiles,
-      (content, path) => sitePaths.isCodeFile(path) && !isObject_(content)
+      (content, path) => sitePaths.isCodeFile(path) && !isEmptyFolder(content)
     );
+    return map_(codeFiles, (content, path) => ({ content, path }));
   };
 
   const getFilenameFromKey = (value, key) => {
@@ -133,7 +135,6 @@ const readWrite = (siteRootPath, filesWatcher) => {
     const filesPromises = filesToWrite.map(file =>
       filesWatcher.ignoredWriteFile(file.path, stringify(file.content))
     );
-
     await Promise.all(filesPromises)
       .then(() =>
         // eslint-disable-next-line no-console
@@ -161,12 +162,13 @@ const readWrite = (siteRootPath, filesWatcher) => {
         )
       );
 
-      const deletes = deletedFiles.map(filePath => {
-        filesWatcher.ignoredDeleteFile(sitePaths.toLocalCode(filePath));
-      });
+      const deletes = deletedFiles.map(file =>
+        filesWatcher.ignoredDeleteFile(sitePaths.toLocalCode(file))
+      );
 
       await Promise.all([...updates, ...copies, ...deletes])
         .then(() =>
+          //todo:: create empty code folders if not exsist
           // eslint-disable-next-line no-console
           console.log("Update code done")
         )

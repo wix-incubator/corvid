@@ -37,7 +37,8 @@
     "@wix/dir-as-json": "*",
     "chokidar": "^2.1.2",
     "flat": "^4.1.0",
-    "fs-extra": "^7.0.1"
+    "fs-extra": "^7.0.1",
+    "sanitize-filename": "^1.6.1"
   },
   "husky": {
     "hooks": {

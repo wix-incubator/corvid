@@ -9,17 +9,20 @@ const initSiteManager = async siteRootPath => {
   const onCodeChanged = callback => {
     watcher.onAdd((filePath, content) => {
       if (sitePaths.isCodeFile(filePath)) {
-        callback("add", filePath, content);
+        const modifiedFiles = [{ path: filePath, content }];
+        callback({ modifiedFiles, deleteFiles: [] });
       }
     });
     watcher.onChange((filePath, content) => {
       if (sitePaths.isCodeFile(filePath)) {
-        callback("change", filePath, content);
+        const modifiedFiles = [{ path: filePath, content }];
+        callback({ modifiedFiles, deleteFiles: [] });
       }
     });
     watcher.onDelete(filePath => {
       if (sitePaths.isCodeFile(filePath)) {
-        callback("delete", filePath);
+        const deleteFiles = [{ path: filePath }];
+        callback({ modifiedFiles: [], deleteFiles });
       }
     });
   };

@@ -1,16 +1,16 @@
 const path = require("path");
 const get_ = require("lodash/get");
 const isArray_ = require("lodash/isArray");
+const sanitize = require("sanitize-filename");
 
 const frontendFolder = "frontend";
 const fileExtention = ".wix";
 const pageCodeExtention = ".js";
-
-const removeIllegalChars = (str, replaceTo = "_") =>
-  str.replace(/[/\\?%*:|"<>\s]/g, replaceTo);
+const titleCharReplacement = "_";
+const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
 const getPageFileName = (id, title, extention = fileExtention) =>
-  `${removeIllegalChars(title)}.${id}${extention}`;
+  `${sanitize(removeSpaces(title), titleCharReplacement)}.${id}${extention}`;
 
 const pages = (page = null, extention = fileExtention) =>
   path.join(
