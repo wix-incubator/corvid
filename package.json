@@ -31,7 +31,8 @@
       "fake-local-mode-editor",
       "wix-code-cli",
       "wix-code-local-server",
-      "wix-code-local-site"
+      "wix-code-local-site",
+      "wix-code-local-test-utils"
     ],
     "nohoist": [
       "**/eslint*"

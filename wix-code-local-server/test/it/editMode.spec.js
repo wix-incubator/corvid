@@ -1,12 +1,13 @@
+const eventually = require("@wix/wix-eventually");
 const {
   editor: loadEditor,
-  siteCreators: sc
+  editorSiteBuilder
 } = require("@wix/fake-local-mode-editor");
-const eventually = require("@wix/wix-eventually");
+const { localSiteBuilder } = require("@wix/wix-code-local-site/testkit");
+const { siteCreators: sc } = require("@wix/wix-code-local-test-utils");
 const merge_ = require("lodash/merge");
 const localServer = require("../../src/server");
 const localSiteDir = require("../utils/localSiteDir");
-const { localSiteCreators: lsc } = require("@wix/wix-code-local-site/testkit");
 
 describe("edit mode", () => {
   it("should not start the server in edit mode if the site directory is empty", async () => {
@@ -20,10 +21,9 @@ describe("edit mode", () => {
   });
 
   it("should send code files to the editor on load", async () => {
-    const localSiteFiles = lsc.createFull(
-      lsc.publicCode("public-file.json", "public code"),
-      lsc.backendCode("sub-folder/backendFile.jsw", "backend code")
-    );
+    const siteItems = [sc.publicCode(), sc.backendCode()];
+
+    const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
@@ -31,10 +31,7 @@ describe("edit mode", () => {
 
     const editorSite = await editor.getSite();
     expect(editorSite).toMatchObject(
-      sc.createPartial(
-        sc.publicCode("public-file.json", "public code"),
-        sc.backendCode("sub-folder/backendFile.jsw", "backend code")
-      )
+      editorSiteBuilder.buildPartial(...siteItems)
     );
 
     await editor.close();
@@ -42,18 +39,16 @@ describe("edit mode", () => {
   });
 
   it("should send page code files to the editor on load", async () => {
-    const localSiteFiles = lsc.createFull(
-      lsc.pageWithCode({ pageId: "page-1" }, "page code")
-    );
+    const pageWithCode = sc.pageWithCode();
+
+    const localSiteFiles = localSiteBuilder.buildFull(pageWithCode);
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
+
     const editor = await loadEditor(server.port);
     const editorSite = await editor.getSite();
-    const expectedEditorSite = sc.createPartial(
-      sc.pageCode("page-1", "page code")
-    );
-
+    const expectedEditorSite = editorSiteBuilder.buildPartial(pageWithCode);
     expect(editorSite).toMatchObject(expectedEditorSite);
 
     await editor.close();
@@ -61,42 +56,32 @@ describe("edit mode", () => {
   });
 
   it("should send lightbox code files to the editor on load", async () => {
-    const localSiteFiles = lsc.createFull(
-      lsc.lightboxWithCode({ pageId: "lightbox-1" }, "lightbox code")
-    );
+    const lightBoxWithCode = sc.lightboxWithCode();
 
+    const localSiteFiles = localSiteBuilder.buildFull(lightBoxWithCode);
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
+
     const editor = await loadEditor(server.port);
     const editorSite = await editor.getSite();
-    expect(editorSite).toMatchObject(
-      sc.createPartial(sc.lightboxCode("lightbox-1", "lightbox code"))
-    );
+    const expectedEditorSite = editorSiteBuilder.buildPartial(lightBoxWithCode);
+
+    expect(editorSite).toMatchObject(expectedEditorSite);
 
     await editor.close();
     await server.close();
   });
 
   it("should send site document to the editor on load", async () => {
-    const siteParts = {
-      page: { pageId: "page1" },
-      colors: "colors-content",
-      fonts: "fonts-content",
-      theme: "theme-content",
-      topLevelStyles: "topLevelStyles-content",
-      commonComponents: "commonComponents-content",
-      menu: "menu-content",
-      multilingualInfo: "multilingualInfo-content",
-      siteInfo: "siteInfo-content",
-      dataFromMasterPage: "dataFromMasterPage-content",
-      version: "version-content",
-      revision: "revision-content",
-      router: { prefix: "router-prefix" }
-    };
+    const siteItems = [
+      sc.page(),
+      sc.lightbox(),
+      sc.styles(),
+      sc.site(),
+      sc.router()
+    ];
 
-    const localSiteFiles = lsc.createFull(
-      ...Object.keys(siteParts).map(key => lsc[key](siteParts[key]))
-    );
+    const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
@@ -104,25 +89,24 @@ describe("edit mode", () => {
 
     const editorSite = await editor.getSite();
 
-    const expectedSite = sc.createFull(
-      ...Object.keys(siteParts).map(key => sc[key](siteParts[key]))
-    );
+    const expectedSite = editorSiteBuilder.buildFull(...siteItems);
 
-    expect(editorSite).toEqual(expectedSite);
+    expect(editorSite).toMatchObject(expectedSite);
 
     await editor.close();
     await server.close();
   });
 
   it("should send updated site document when user changes page content from the editor and clicks save", async () => {
-    const page1ID = "page1";
-    const page2ID = "page2";
-    const lightBox1ID = "lightBox1ID";
+    const existingSiteItems = [
+      sc.page({ pageId: "page1", content: "existing content" }),
+      sc.lightbox({
+        pageId: "lightbox1",
+        content: "existing content"
+      })
+    ];
 
-    const localSiteFiles = lsc.createFull(
-      lsc.page({ pageId: page1ID, content: "page1 old content" }),
-      lsc.lightbox({ pageId: lightBox1ID, content: "lightBox1ID old content" })
-    );
+    const localSiteFiles = localSiteBuilder.buildFull(...existingSiteItems);
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
@@ -130,23 +114,24 @@ describe("edit mode", () => {
 
     const editorSite = editor.getSite();
 
-    const siteUpdates = sc.createPartial(
-      // edit existing pages
-      sc.page({ pageId: page1ID, content: "page1 new content" }),
-      sc.lightbox({ pageId: lightBox1ID, content: "lightBox1ID new content" }),
-      // add new page from the editor
-      sc.page({ pageId: page2ID, content: "page2 new content" })
-    );
+    const updatedSiteItems = [
+      sc.page({ pageId: "page1", content: "modified content" }),
+      sc.lightbox({
+        pageId: "lightbox1",
+        content: "modified content"
+      }),
+      sc.page({ pageId: "page2" }) //  new page
+    ];
+
+    const siteUpdates = editorSiteBuilder.buildPartial(...updatedSiteItems);
     editor.modifyDocument(merge_({}, editorSite, siteUpdates).siteDocument);
 
     await editor.save();
 
     const localSite = await localSiteDir.readLocalSite(localSitePath);
 
-    const expectedLocalSite = lsc.createPartial(
-      lsc.page({ pageId: page1ID, content: "page1 new content" }),
-      lsc.lightbox({ pageId: lightBox1ID, content: "lightBox1ID new content" }),
-      lsc.page({ pageId: page2ID, content: "page2 new content" })
+    const expectedLocalSite = localSiteBuilder.buildPartial(
+      ...updatedSiteItems
     );
 
     expect(localSite).toMatchObject(expectedLocalSite);
@@ -157,12 +142,14 @@ describe("edit mode", () => {
 
   // todo:: split this test to 6 test, (modify pageCode & regular code), (delete pageCode & regular code), (copy pageCode & regular code)
   it("should update code files after editor changes and clicks save", async () => {
-    const localSiteFiles = lsc.createFull(
-      lsc.pageWithCode({ pageId: "page-1" }, "code file options"),
-      lsc.publicCode("public-file.json", "public code"),
-      lsc.publicCode("public-file1.json", "public code 1"),
-      lsc.backendCode("sub-folder/backendFile.jsw", "backend code")
-    );
+    const siteItems = [
+      sc.pageWithCode({ pageId: "page-1" }, "page code"),
+      sc.publicCode("public-file.json", "public code"),
+      sc.publicCode("public-file1.json", "public code 1"),
+      sc.backendCode("sub-folder/backendFile.jsw", "backend code")
+    ];
+
+    const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
@@ -182,11 +169,11 @@ describe("edit mode", () => {
 
     await editor.save();
 
-    const expected = lsc.createPartial(
-      lsc.pageWithCode({ pageId: "page-1" }, "code file options8888"),
-      lsc.publicCode("public-file.json", "public code"),
-      lsc.backendCode("sub-folder/backendFile.jsw", "backend code"),
-      lsc.backendCode(
+    const expected = localSiteBuilder.buildPartial(
+      sc.pageWithCode({ pageId: "page-1" }, "code file options8888"),
+      sc.publicCode("public-file.json", "public code"),
+      sc.backendCode("sub-folder/backendFile.jsw", "backend code"),
+      sc.backendCode(
         "authorization-config.json",
         "console.log('authorization-config')"
       )
@@ -195,9 +182,8 @@ describe("edit mode", () => {
     const serverFiles = await localSiteDir.readLocalSite(localSitePath);
 
     expect(serverFiles).toMatchObject(expected);
-    // make sure the deleted file is not exsit on the local file system
     expect(serverFiles).not.toMatchObject(
-      lsc.publicCode("public/public-file1.json", "public code 1")
+      sc.publicCode("public/public-file1.json", "public code 1")
     );
 
     await editor.close();
@@ -205,13 +191,12 @@ describe("edit mode", () => {
   });
 
   it("should update the editor when a new code file is added locally", async () => {
-    const localSiteFiles = lsc.createFull(
-      lsc.publicCode("public-file.json", "public code")
+    const localSitePath = await localSiteDir.initLocalSite(
+      localSiteBuilder.buildFull()
     );
-
-    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
+
     await localSiteDir.writeFile(
       localSitePath,
       "public/newFile.js",
@@ -221,8 +206,7 @@ describe("edit mode", () => {
     await eventually(
       async () => {
         const editorSite = await editor.getSite();
-        const expectedEditorSite = sc.createPartial(
-          sc.publicCode("public-file.json", "public code"),
+        const expectedEditorSite = editorSiteBuilder.buildPartial(
           sc.publicCode("newFile.js", "test content")
         );
         expect(editorSite).toMatchObject(expectedEditorSite);
@@ -235,27 +219,21 @@ describe("edit mode", () => {
   });
 
   it("should update the editor when a code file is modified locally", async () => {
-    const filename = "public-file.json";
-    const newContent = "updated code file";
-    const localSiteFiles = lsc.createFull(
-      lsc.publicCode(filename, "public code")
-    );
+    const publicCode = sc.publicCode();
+
+    const localSiteFiles = localSiteBuilder.buildFull(publicCode);
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
 
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
 
-    await localSiteDir.writeFile(
-      localSitePath,
-      `public/${filename}`,
-      newContent
-    );
+    await localSiteDir.writeFile(localSitePath, publicCode.path, "new content");
 
     await eventually(
       async () => {
         const editorSite = await editor.getSite();
-        const expectedEditorSite = sc.createPartial(
-          sc.publicCode(filename, newContent)
+        const expectedEditorSite = editorSiteBuilder.buildPartial(
+          Object.assign(publicCode, { content: "new content" })
         );
         expect(editorSite).toMatchObject(expectedEditorSite);
       },
@@ -267,24 +245,22 @@ describe("edit mode", () => {
   });
 
   it("should update the editor when a code file is deleted locally", async () => {
-    const localSiteFiles = lsc.createFull(
-      lsc.publicCode("public-file.json", "public code"),
-      lsc.publicCode("public-file1.json", "public code 1")
-    );
+    const file1 = sc.publicCode("public-file.json", "public code");
+    const file2 = sc.publicCode("public-file1.json", "public code 1");
 
+    const localSiteFiles = localSiteBuilder.buildFull(file1, file2);
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
 
-    await localSiteDir.deleteFile(localSitePath, "public/public-file.json");
+    await localSiteDir.deleteFile(localSitePath, file1.path);
+
     await eventually(
       async () => {
         const editorSite = await editor.getSite();
-        const expectedEditorSite = sc.publicCode(
-          "public-file.json",
-          "public code"
+        expect(editorSite).not.toMatchObject(
+          editorSiteBuilder.buildPartial(file1)
         );
-        expect(editorSite).not.toMatchObject(expectedEditorSite);
       },
       { timeout: 3000 }
     );

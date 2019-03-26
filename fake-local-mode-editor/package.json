@@ -18,6 +18,7 @@
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "ISC",
   "dependencies": {
+    "@wix/wix-code-local-test-utils": "*",
     "flat": "^4.1.0",
     "socket.io": "^2.2.0"
   },

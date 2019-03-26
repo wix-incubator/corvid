@@ -1,5 +1,5 @@
-const localSiteCreators = require("./local-site-creators");
+const localSiteBuilder = require("./localSiteBuilder");
 
 module.exports = {
-  localSiteCreators
+  localSiteBuilder
 };

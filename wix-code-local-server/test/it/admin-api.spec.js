@@ -1,10 +1,10 @@
 const {
   editor: loadEditor,
-  siteCreators: sc
+  editorSiteBuilder
 } = require("@wix/fake-local-mode-editor");
 const localServer = require("../../src/server");
 const connectCli = require("../utils/fakeCli");
-const { localSiteCreators: lsc } = require("@wix/wix-code-local-site/testkit");
+const { localSiteBuilder } = require("@wix/wix-code-local-site/testkit");
 const { initLocalSite } = require("../utils/localSiteDir");
 
 describe("admin api", () => {
@@ -26,7 +26,7 @@ describe("admin api", () => {
     });
 
     it("should return when editor is disconnected and in edit mode", async () => {
-      const localSiteDir = await initLocalSite(lsc.createFull());
+      const localSiteDir = await initLocalSite(localSiteBuilder.buildFull());
 
       const server = await localServer.startInEditMode(localSiteDir);
       const cli = await connectCli(server.adminPort);
@@ -45,9 +45,13 @@ describe("admin api", () => {
       const localSiteDir = await initLocalSite({});
 
       const server = await localServer.startInCloneMode(localSiteDir);
-      const editor = await loadEditor(server.port, sc.createFull(), {
-        cloneOnLoad: false
-      });
+      const editor = await loadEditor(
+        server.port,
+        editorSiteBuilder.buildFull(),
+        {
+          cloneOnLoad: false
+        }
+      );
       const cli = await connectCli(server.adminPort);
 
       expect(await cli.getServerStatus()).toEqual({
@@ -62,10 +66,13 @@ describe("admin api", () => {
     });
 
     it("should return when editor is connected and in edit mode", async () => {
-      const localSiteDir = await initLocalSite(lsc.createFull());
+      const localSiteDir = await initLocalSite(localSiteBuilder.buildFull());
 
       const server = await localServer.startInEditMode(localSiteDir);
-      const editor = await loadEditor(server.port, sc.createFull());
+      const editor = await loadEditor(
+        server.port,
+        editorSiteBuilder.buildFull()
+      );
       const cli = await connectCli(server.adminPort);
 
       expect(await cli.getServerStatus()).toEqual({
@@ -89,7 +96,10 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      const editor = await loadEditor(server.port, sc.createFull());
+      const editor = await loadEditor(
+        server.port,
+        editorSiteBuilder.buildFull()
+      );
 
       expect(cloneCompleteSpy).toHaveBeenCalledTimes(1);
 
@@ -106,9 +116,13 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      const editor = await loadEditor(server.port, sc.createFull(), {
-        cloneOnLoad: false
-      });
+      const editor = await loadEditor(
+        server.port,
+        editorSiteBuilder.buildFull(),
+        {
+          cloneOnLoad: false
+        }
+      );
 
       expect(cloneCompleteSpy).not.toHaveBeenCalledTimes(1);
 
@@ -125,9 +139,13 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      const editor = await loadEditor(server.port, sc.createFull(), {
-        cloneOnLoad: false
-      });
+      const editor = await loadEditor(
+        server.port,
+        editorSiteBuilder.buildFull(),
+        {
+          cloneOnLoad: false
+        }
+      );
 
       await editor.advanced.saveSiteDocument();
 
@@ -146,9 +164,13 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      const editor = await loadEditor(server.port, sc.createFull(), {
-        cloneOnLoad: false
-      });
+      const editor = await loadEditor(
+        server.port,
+        editorSiteBuilder.buildFull(),
+        {
+          cloneOnLoad: false
+        }
+      );
 
       await editor.advanced.saveCodeFiles();
 
