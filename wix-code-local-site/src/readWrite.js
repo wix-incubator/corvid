@@ -65,13 +65,15 @@ const readWrite = (siteRootPath, filesWatcher) => {
   const getStyles = partial_(getDocumentPartByKey, "styles");
   const getSite = partial_(getDocumentPartByKey, "site");
   const getRouters = partial_(getDocumentPartByKey, "routers");
+  const getMenus = partial_(getDocumentPartByKey, "menus");
 
   const getSiteDocument = async () => {
     return {
       pages: merge_(await getPages(), await getLightboxes()),
       styles: await getStyles(),
       site: await getSite(),
-      routers: await getRouters()
+      routers: await getRouters(),
+      menus: await getMenus()
     };
   };
 
@@ -95,7 +97,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
     },
     styles: payloadToFile(sitePaths.styles),
     site: payloadToFile(sitePaths.site),
-    routers: payloadToFile(sitePaths.routers)
+    routers: payloadToFile(sitePaths.routers),
+    menus: payloadToFile(sitePaths.menus)
   };
 
   const siteDocumentToFiles = siteDocument =>
@@ -122,7 +125,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
       deleteFolder(sitePaths.lightboxes()),
       deleteFolder(sitePaths.styles()),
       deleteFolder(sitePaths.site()),
-      deleteFolder(sitePaths.routers())
+      deleteFolder(sitePaths.routers()),
+      deleteFolder(sitePaths.menus())
     ]);
   };
 

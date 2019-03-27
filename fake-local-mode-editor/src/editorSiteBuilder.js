@@ -44,14 +44,6 @@ const commonComponents = commonComponents => ({
   }
 });
 
-const menu = menu => ({
-  siteDocument: {
-    site: {
-      menu
-    }
-  }
-});
-
 const multilingualInfo = multilingualInfo => ({
   siteDocument: {
     site: {
@@ -128,6 +120,14 @@ const router = router => ({
   }
 });
 
+const menu = menu => ({
+  siteDocument: {
+    menus: {
+      [menu.menuId]: omit_(menu, "menuId")
+    }
+  }
+});
+
 const codeFile = ({ path, content }) =>
   set_({}, `siteCode/${path}`.split("/"), content);
 
@@ -140,12 +140,12 @@ const buildPartial = (...siteItems) =>
         [sc.lightbox]: lightbox,
         [sc.lightboxWithCode]: lightboxWithCode,
         [sc.router]: router,
+        [sc.menu]: menu,
         [sc.colors]: colors,
         [sc.fonts]: fonts,
         [sc.theme]: theme,
         [sc.topLevelStyles]: topLevelStyles,
         [sc.commonComponents]: commonComponents,
-        [sc.menu]: menu,
         [sc.multilingualInfo]: multilingualInfo,
         [sc.siteInfo]: siteInfo,
         [sc.version]: version,

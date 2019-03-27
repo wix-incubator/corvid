@@ -50,6 +50,13 @@ const routers = (fileName = "") =>
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
+const menus = (fileName = "") =>
+  path.join(
+    frontendFolder,
+    "menus",
+    fileName ? `${fileName}${fileExtention}` : ""
+  );
+
 const site = (fileName = "") =>
   path.join(
     frontendFolder,
@@ -96,6 +103,7 @@ module.exports = {
   isCodeFile,
   isDocumentFile,
   routers,
+  menus,
   lightboxes,
   styles,
   pages,

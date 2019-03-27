@@ -43,6 +43,12 @@ const router = ({ prefix = unique("router-prefix"), ...rest } = {}) =>
     content: `${prefix} content`
   });
 
+const menu = ({ menuId = unique("menu-id"), ...rest } = {}) =>
+  defaults_(rest, {
+    menuId,
+    content: `${menuId} content`
+  });
+
 const colors = (content = unique(`Encoded colors data`)) => ({
   content
 });
@@ -62,10 +68,6 @@ const topLevelStyles = (content = unique(`Encoded top level styles data`)) => ({
 const commonComponents = (
   content = unique(`Encoded commonComponents data`)
 ) => ({ content });
-
-const menu = (content = unique(`Encoded menu site data`)) => ({
-  content
-});
 
 const multilingualInfo = (
   content = unique(`Encoded multilingualInfo site data`)

@@ -27,6 +27,7 @@ const lightboxCodeFileName = pageCodeFileName;
 const stylesPath = path.join("frontend", "styles");
 const sitePath = path.join("frontend", "site");
 const routersPath = path.join("frontend", "routers");
+const menusPath = path.join("frontend", "menus");
 const pagesPath = path.join("frontend", "pages");
 const lightboxesPath = path.join("frontend", "lightboxes");
 
@@ -46,7 +47,6 @@ const topLevelStyles = content => stylesFile("topLevelStyles", content);
 
 const siteFile = (name, content) => wixFile(sitePath, name, content);
 const commonComponents = content => siteFile("commonComponents", content);
-const menu = content => siteFile("menu", content);
 const multilingualInfo = content => siteFile("multilingualInfo", content);
 const siteInfo = content => siteFile("siteInfo", content);
 const version = content => siteFile("version", content);
@@ -55,6 +55,8 @@ const dataFromMasterPage = content => siteFile("dataFromMasterPage", content);
 
 const router = router =>
   wixFile(routersPath, router.prefix, omit_(router, "prefix"));
+
+const menu = menu => wixFile(menusPath, menu.menuId, omit_(menu, "menuId"));
 
 const page = page => ({
   path: path.join(pagesPath, pageFileName(page)),
@@ -99,12 +101,12 @@ const itemToFile = item =>
     [sc.lightbox]: lightbox,
     [sc.lightboxWithCode]: lightboxWithCode,
     [sc.router]: router,
+    [sc.menu]: menu,
     [sc.colors]: colors,
     [sc.fonts]: fonts,
     [sc.theme]: theme,
     [sc.topLevelStyles]: topLevelStyles,
     [sc.commonComponents]: commonComponents,
-    [sc.menu]: menu,
     [sc.multilingualInfo]: multilingualInfo,
     [sc.siteInfo]: siteInfo,
     [sc.version]: version,
