@@ -20,7 +20,6 @@
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "ISC",
   "devDependencies": {
-    "@wix/wix-code-local-site": "*",
     "@wix/wix-code-local-test-utils": "*",
     "@wix/wix-eventually": "^1.0.454",
     "@wix/wnpm-ci": "^6.1.0",
