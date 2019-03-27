@@ -10,6 +10,7 @@ const isArray_ = require("lodash/isArray");
 const set_ = require("lodash/set");
 const head_ = require("lodash/head");
 const merge_ = require("lodash/merge");
+const reduce_ = require("lodash/reduce");
 
 const flatten = data => flat(data, { delimiter: path.sep, safe: true });
 const unflatten = data =>
@@ -170,23 +171,22 @@ const loadEditor = async (
       }
     } else {
       editorState.codeFiles.current = unflatten(
-        await getCodeFilesFromServer(socket)
+        reduce_(
+          await getCodeFilesFromServer(socket),
+          (result, value) =>
+            Object.assign(result, { [value.path]: value.content }),
+          {}
+        )
       );
       editorState.siteDocument = await getSiteDocumentFromServer(socket);
     }
-    socket.on("LOCAL_CODE_UPDATED", (action, ...args) => {
-      switch (action) {
-        case "add":
-        case "change":
-          modifyCodeFile(...args);
-          break;
-        case "delete":
-          deleteCodeFile(...args);
-          break;
-
-        default:
-          break;
-      }
+    socket.on("LOCAL_CODE_UPDATED", payload => {
+      payload.modifiedFiles.forEach(file => {
+        modifyCodeFile(file.path, file.content);
+      });
+      payload.deleteFiles.forEach(file => {
+        deleteCodeFile(file.path);
+      });
     });
   }
 
@@ -201,6 +201,21 @@ const loadEditor = async (
   };
   const deleteCodeFile = filePath => {
     set_(editorState.codeFiles.current, filePath.split(path.sep), null);
+  };
+
+  const modifyPageCodeFile = (pageId, content) => {
+    set_(
+      editorState.codeFiles.current,
+      ["public", "pages", `${pageId}.js`],
+      content
+    );
+  };
+  const deletePageCodeFile = pageId => {
+    set_(
+      editorState.codeFiles.current,
+      ["public", "pages", `${pageId}.js`],
+      null
+    );
   };
 
   return {
@@ -224,9 +239,10 @@ const loadEditor = async (
       editorState.siteDocument = newDocumnet;
     },
     modifyCodeFile,
+    modifyPageCodeFile,
     copyCodeFile,
     deleteCodeFile,
-
+    deletePageCodeFile,
     advanced: {
       saveSiteDocument,
       saveCodeFiles

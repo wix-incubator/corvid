@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs-extra");
 const chokidar = require("chokidar");
+const sitePaths = require("./sitePaths");
 
 const ensureWriteFile = async (path, content) => {
   await fs.ensureFile(path);
@@ -31,7 +32,7 @@ const watch = async rootPath => {
     onAdd: callback => {
       watcher.on("add", async relativePath => {
         callback(
-          relativePath,
+          sitePaths.fromLocalCode(relativePath),
           await fs.readFile(fullPath(relativePath), "utf8")
         );
       });
@@ -40,7 +41,7 @@ const watch = async rootPath => {
     onChange: callback => {
       watcher.on("change", async relativePath => {
         callback(
-          relativePath,
+          sitePaths.fromLocalCode(relativePath),
           await fs.readFile(fullPath(relativePath), "utf8")
         );
       });
@@ -48,7 +49,7 @@ const watch = async rootPath => {
 
     onDelete: callback => {
       watcher.on("unlink", relativePath => {
-        callback(relativePath);
+        callback(sitePaths.fromLocalCode(relativePath));
       });
     },
 

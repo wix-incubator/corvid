@@ -5,20 +5,22 @@ const defaultsDeep_ = require("lodash/defaultsDeep");
 const set_ = require("lodash/set");
 const get_ = require("lodash/get");
 const omit_ = require("lodash/omit");
+const sanitize = require("sanitize-filename");
 
 const { siteCreators: sc } = require("@wix/wix-code-local-test-utils");
 
 const fileExtention = "wix";
 const pageCodeExtention = "js";
+const titleCharReplacement = "_";
 
 const stringify = content => JSON.stringify(content, null, 2);
-const removeIllegalCharacters = str => str.replace(/[/\\?%*:|"<>\s]/g, "_");
+const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
 const pageFileName = page =>
-  [removeIllegalCharacters(page.title), page.pageId, fileExtention].join(".");
+  [sanitize(removeSpaces(page.title)), page.pageId, fileExtention].join(".");
 
 const pageCodeFileName = page =>
-  [removeIllegalCharacters(page.title), page.pageId, pageCodeExtention].join(
+  [sanitize(removeSpaces(page.title)), page.pageId, pageCodeExtention].join(
     "."
   );
 

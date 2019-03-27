@@ -12,10 +12,10 @@ const socketHandler = editorApi => socket => {
   const socketApi = initEditorApi(editorApi);
   const handleSocketRequests = socketRequestHandler(socketApi);
   handleSocketRequests(socket);
-  editorApi.onCodeChanged((...args) => {
+  editorApi.onCodeChanged(localCodePayload => {
     // eslint-disable-next-line no-console
-    console.log("local code updated", args[0], args[1]);
-    socket.emit("LOCAL_CODE_UPDATED", ...args);
+    console.log("local code updated");
+    socket.emit("LOCAL_CODE_UPDATED", localCodePayload);
   });
 };
 
