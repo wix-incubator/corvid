@@ -188,7 +188,7 @@ describe("edit mode", () => {
     );
     //todo:: check test
     expect(serverFiles).not.toMatchObject(
-        sc.pageWithCode({ pageId: "page-2" }, "page-2 code file options")
+      sc.pageWithCode({ pageId: "page-2" }, "page-2 code file options")
     );
 
     await editor.close();
@@ -225,29 +225,33 @@ describe("edit mode", () => {
 
   it("should update the editor when a code file is modified locally", async () => {
     const publicCode = sc.publicCode();
-    const pageWithCode = sc.pageWithCode({ pageId: "page-1" }, "code file options8888")
+    const pageWithCode = sc.pageWithCode(
+      { pageId: "page-1" },
+      "code file options8888"
+    );
     const newContent = "updated code file";
 
-    const localSiteFiles = localSiteBuilder.buildFull(publicCode);
+    const localSiteFiles = localSiteBuilder.buildFull(publicCode, pageWithCode);
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
 
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
 
     await localSiteDir.writeFile(localSitePath, publicCode.path, newContent);
-      await localSiteDir.writeFile(
-          localSitePath,
-          `frontend/pages/page-1_title.page-1.js`,
-          newContent
-      )
+    await localSiteDir.writeFile(
+      localSitePath,
+      `frontend/pages/page-1_title.page-1.js`,
+      newContent
+    );
+
+    const expectedEditorSite = editorSiteBuilder.buildPartial(
+      Object.assign(publicCode, { content: newContent }),
+      Object.assign(pageWithCode, { code: newContent })
+    );
 
     await eventually(
       async () => {
         const editorSite = await editor.getSite();
-        const expectedEditorSite = editorSiteBuilder.buildPartial(
-          Object.assign(publicCode, { content: newContent }),
-            Object.assign(pageWithCode, { content: newContent })
-        );
         expect(editorSite.siteCode).toEqual(expectedEditorSite.siteCode);
       },
       { timeout: 3000 }
@@ -260,9 +264,16 @@ describe("edit mode", () => {
   it("should update the editor when a code file is deleted locally", async () => {
     const file1 = sc.publicCode("public-file.json", "public code");
     const file2 = sc.publicCode("public-file1.json", "public code 1");
-    const pageWithCode = sc.pageWithCode({ pageId: "page-1" }, "code file options8888");
+    const pageWithCode = sc.pageWithCode(
+      { pageId: "page-1" },
+      "code file options8888"
+    );
 
-    const localSiteFiles = localSiteBuilder.buildFull(file1, file2);
+    const localSiteFiles = localSiteBuilder.buildFull(
+      file1,
+      file2,
+      pageWithCode
+    );
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
