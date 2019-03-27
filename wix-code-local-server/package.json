@@ -26,13 +26,14 @@
     "express": "^4.16.4",
     "fs-extra": "^7.0.1",
     "listen-on-free-port": "1.0.3",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.2.0",
+    "stoppable": "^1.1.0"
   },
   "devDependencies": {
     "@wix/dir-as-json": "*",
     "@wix/fake-local-mode-editor": "*",
-    "@wix/wix-eventually": "^1.0.454",
     "@wix/wix-code-local-test-utils": "*",
+    "@wix/wix-eventually": "^1.0.454",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-jest": "^22.3.0",
