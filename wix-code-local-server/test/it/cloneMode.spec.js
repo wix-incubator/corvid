@@ -21,23 +21,15 @@ describe("clone mode", () => {
   // TODO: should not start the server in clone mode if the site directory does not exist ?
 
   it("should save localy the editor's document on load", async () => {
-    const siteItems = [
-      sc.page(),
-      sc.lightbox(),
-      sc.styles(),
-      sc.site(),
-      sc.router()
-    ];
+    const siteItems = sc.fullSiteItems();
 
-    const editorSite = editorSiteBuilder.buildFull(...siteItems);
-
-    const expectedLocalSite = localSiteBuilder.buildFull(...siteItems);
+    const editorSite = editorSiteBuilder.buildPartial(...siteItems);
+    const expectedLocalSite = localSiteBuilder.buildPartial(...siteItems);
 
     const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
     const editor = await loadEditor(server.port, editorSite);
     const localSiteFiles = await readLocalSite(localSitePath);
-
     expect(localSiteFiles).toEqual(expectedLocalSite);
 
     await editor.close();

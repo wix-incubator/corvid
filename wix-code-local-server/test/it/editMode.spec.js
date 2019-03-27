@@ -73,15 +73,9 @@ describe("edit mode", () => {
   });
 
   it("should send site document to the editor on load", async () => {
-    const siteItems = [
-      sc.page(),
-      sc.lightbox(),
-      sc.styles(),
-      sc.site(),
-      sc.router()
-    ];
+    const siteItems = sc.fullSiteItems();
 
-    const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
+    const localSiteFiles = localSiteBuilder.buildPartial(...siteItems);
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
@@ -89,7 +83,7 @@ describe("edit mode", () => {
 
     const editorSite = await editor.getSite();
 
-    const expectedSite = editorSiteBuilder.buildFull(...siteItems);
+    const expectedSite = editorSiteBuilder.buildPartial(...siteItems);
 
     expect(editorSite).toMatchObject(expectedSite);
 
@@ -204,7 +198,7 @@ describe("edit mode", () => {
 
     await localSiteDir.writeFile(
       localSitePath,
-      "public/newFile.js",
+      localSiteBuilder.getLocalFilePath(sc.publicCode("newFile.js")),
       "test content"
     );
 
@@ -237,10 +231,14 @@ describe("edit mode", () => {
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
 
-    await localSiteDir.writeFile(localSitePath, publicCode.path, newContent);
     await localSiteDir.writeFile(
       localSitePath,
-      `frontend/pages/page-1_title.page-1.js`,
+      localSiteBuilder.getLocalFilePath(publicCode),
+      newContent
+    );
+    await localSiteDir.writeFile(
+      localSitePath,
+      localSiteBuilder.getLocalFilePath(pageWithCode).code,
       newContent
     );
 
@@ -252,7 +250,7 @@ describe("edit mode", () => {
     await eventually(
       async () => {
         const editorSite = await editor.getSite();
-        expect(editorSite.siteCode).toEqual(expectedEditorSite.siteCode);
+        expect(editorSite.siteCode).toMatchObject(expectedEditorSite.siteCode);
       },
       { timeout: 3000 }
     );
@@ -278,10 +276,13 @@ describe("edit mode", () => {
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
 
-    await localSiteDir.deleteFile(localSitePath, "public/public-file.json");
     await localSiteDir.deleteFile(
       localSitePath,
-      "frontend/pages/page-1_title.page-1.js"
+      localSiteBuilder.getLocalFilePath(file1)
+    );
+    await localSiteDir.deleteFile(
+      localSitePath,
+      localSiteBuilder.getLocalFilePath(pageWithCode).code
     );
 
     await eventually(

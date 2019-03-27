@@ -1,5 +1,4 @@
 const merge_ = require("lodash/merge");
-const defaultsDeep_ = require("lodash/defaultsDeep");
 const set_ = require("lodash/set");
 const omit_ = require("lodash/omit");
 
@@ -119,25 +118,13 @@ const lightbox = lightbox => page(lightbox);
 const lighboxCode = (lightbox, code) => pageCode(lightbox, code);
 
 const lightboxWithCode = ({ lightbox: lightboxData, code }) =>
-  merge_(lightbox(lightboxData, lighboxCode(lightboxData, code)));
+  merge_(lightbox(lightboxData), lighboxCode(lightboxData, code));
 
 const router = router => ({
   siteDocument: {
     routers: {
       [router.prefix]: omit_(router, "prefix")
     }
-  }
-});
-
-const styles = styles => ({
-  siteDocument: {
-    styles
-  }
-});
-
-const site = site => ({
-  siteDocument: {
-    site
   }
 });
 
@@ -152,8 +139,6 @@ const buildPartial = (...siteItems) =>
         [sc.pageWithCode]: pageWithCode,
         [sc.lightbox]: lightbox,
         [sc.lightboxWithCode]: lightboxWithCode,
-        [sc.styles]: styles,
-        [sc.site]: site,
         [sc.router]: router,
         [sc.colors]: colors,
         [sc.fonts]: fonts,
@@ -173,23 +158,8 @@ const buildPartial = (...siteItems) =>
   );
 
 const buildFull = (...siteItems) => {
-  const partialSite = buildPartial(...siteItems);
-  const defaultSite = merge_(
-    {
-      siteDocument: {
-        routers: {}
-      },
-      siteCode: {}
-    },
-    buildPartial(sc.styles(), sc.site())
-  );
-
-  const fullSite = defaultsDeep_(partialSite, defaultSite);
-
-  if (!fullSite.siteDocument.hasOwnProperty("pages")) {
-    merge_(fullSite, page(sc.page()));
-  }
-
+  const defaultSiteItems = sc.fullSiteItems();
+  const fullSite = buildPartial(...defaultSiteItems, ...siteItems);
   return fullSite;
 };
 

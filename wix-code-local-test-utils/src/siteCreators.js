@@ -1,111 +1,104 @@
-const uuid = require("uuid");
+const uniqueId_ = require("lodash/uniqueId");
 const defaults_ = require("lodash/defaults");
 const mapValues_ = require("lodash/mapValues");
 const flow_ = require("lodash/flow");
 
-const uniqueId = () => uuid.v4();
-const uniqueFilePath = () => uniqueId() + ".js";
-const randomize = content => `${uniqueId()} ${content}`;
+const unique = prefix => uniqueId_(prefix + "-");
+const uniqueCodeFileName = name => unique(name) + ".js";
+const uniqueCode = name => `console.log('${unique(name)}');`;
 
-const page = ({ pageId = uniqueId(), ...rest } = {}) =>
+const page = ({ pageId = unique("page"), ...rest } = {}) =>
   defaults_({ pageId, isPopUp: false }, rest, {
     title: `${pageId} title`,
     uriSEO: `${pageId} uri SEO`,
     content: `${pageId} encoded page content`
   });
 
-const pageWithCode = (pageData, code = uuid.v4()) => ({
-  page: page(pageData),
-  code
-});
+const pageWithCode = (pageData, code) => {
+  const fullPage = page(pageData);
+  return {
+    page: fullPage,
+    code: code || uniqueCode(fullPage.pageId)
+  };
+};
 
-const lightbox = ({ pageId = uniqueId(), ...rest } = {}) =>
+const lightbox = ({ pageId = unique("lightbox"), ...rest } = {}) =>
   defaults_({ pageId, isPopUp: true }, rest, {
     title: `${pageId} title`,
     uriSEO: `${pageId} uri SEO`,
     content: `${pageId} encoded lightbox content`
   });
 
-const lightboxWithCode = (lightboxData, code = uuid.v4()) => ({
-  lightbox: lightbox(lightboxData),
-  code
-});
+const lightboxWithCode = (lightboxData, code) => {
+  const fullLightbox = lightbox(lightboxData);
+  return {
+    lightbox: fullLightbox,
+    code: code || uniqueCode(fullLightbox.pageId)
+  };
+};
 
-const router = ({ prefix = uniqueId(), ...rest } = {}) =>
+const router = ({ prefix = unique("router-prefix"), ...rest } = {}) =>
   defaults_(rest, {
     prefix,
     content: `${prefix} content`
   });
 
-const styles = (styles = {}) =>
-  defaults_(styles, {
-    colors: colors(),
-    fonts: fonts(),
-    theme: theme(),
-    topLevelStyles: topLevelStyles()
-  });
-
-const site = (site = {}) =>
-  defaults_(site, {
-    commonComponents: commonComponents(),
-    menu: menu(),
-    multilingualInfo: multilingualInfo(),
-    siteInfo: siteInfo(),
-    revision: revision(),
-    version: version(),
-    dataFromMasterPage: dataFromMasterPage()
-  });
-
-const colors = (content = randomize(` Encoded colors data`)) => ({
+const colors = (content = unique(`Encoded colors data`)) => ({
   content
 });
 
-const fonts = (content = randomize(`Encoded fonts data`)) => ({
+const fonts = (content = unique(`Encoded fonts data`)) => ({
   content
 });
 
-const theme = (content = randomize(`Encoded theme data`)) => ({
+const theme = (content = unique(`Encoded theme data`)) => ({
   content
 });
 
-const topLevelStyles = (
-  content = randomize(`Encoded top level styles data`)
-) => ({ content });
+const topLevelStyles = (content = unique(`Encoded top level styles data`)) => ({
+  content
+});
 
 const commonComponents = (
-  content = randomize(`Encoded commonComponents data`)
+  content = unique(`Encoded commonComponents data`)
 ) => ({ content });
 
-const menu = (content = randomize(`Encoded menu site data`)) => ({
+const menu = (content = unique(`Encoded menu site data`)) => ({
   content
 });
 
 const multilingualInfo = (
-  content = randomize(`Encoded multilingualInfo site data`)
+  content = unique(`Encoded multilingualInfo site data`)
 ) => ({ content });
 
-const siteInfo = (content = randomize(`Encoded siteInfo site data`)) => ({
+const siteInfo = (content = unique(`Encoded siteInfo site data`)) => ({
   content
 });
 
-const revision = (content = randomize(`Encoded revision site data`)) => ({
+const revision = (content = unique(`Encoded revision site data`)) => ({
   content
 });
 
-const version = (content = randomize(`Encoded version site data`)) => ({
+const version = (content = unique(`Encoded version site data`)) => ({
   content
 });
 
 const dataFromMasterPage = (
-  content = randomize(`Encoded data from master page site data`)
+  content = unique(`Encoded data from master page site data`)
 ) => ({ content });
 
-const publicCode = (relativePath = uniqueFilePath(), content = uuid.v4()) => ({
+const publicCode = (
+  relativePath = uniqueCodeFileName("publicCode"),
+  content = uniqueCode("public")
+) => ({
   path: `public/${relativePath}`,
   content
 });
 
-const backendCode = (relativePath = uniqueFilePath(), content = uuid.v4()) => ({
+const backendCode = (
+  relativePath = uniqueCodeFileName("backendCode"),
+  content = uniqueCode("backend")
+) => ({
   path: `backend/${relativePath}`,
   content
 });
@@ -130,7 +123,7 @@ const matchItem = (item, patterns) => {
   if (!type) {
     throw new Error(`Invalid item ${item}`);
   }
-  const matchingPattern = patterns[type];
+  const matchingPattern = patterns[type] || patterns["*"];
   if (!matchingPattern) {
     throw new Error(`Cannot find mattching pattern for type ${type}`);
   }
@@ -143,8 +136,6 @@ const creators = mapValues_(
     pageWithCode,
     lightbox,
     lightboxWithCode,
-    styles,
-    site,
     router,
     colors,
     fonts,
@@ -163,7 +154,10 @@ const creators = mapValues_(
   typedCreator
 );
 
+const fullSiteItems = () => Object.values(creators).map(creator => creator());
+
 module.exports = {
   matchItem,
+  fullSiteItems,
   ...creators
 };
