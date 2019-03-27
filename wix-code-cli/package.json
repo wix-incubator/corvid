@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint .",
-    "precommit": "lint-staged",
+    "build:": "#",
     "test": "jest --runInBand",
+    "lint": "eslint .",
+    "release": "wnpm-release",
+    "precommit": "lint-staged",
     "watch": "jest --runInBand --watch"
   },
   "publishConfig": {
@@ -24,8 +26,10 @@
   "license": "ISC",
   "devDependencies": {
     "@wix/fake-local-mode-editor": "~1.0.0",
+    "@wix/wnpm-ci": "^6.1.0",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-jest": "^22.3.0",
     "eslint-plugin-prettier": "^3.0.1",
     "fetch-mock": "7.3.1",
@@ -56,10 +60,12 @@
     "chalk": "2.4.2",
     "electron": "4.0.8",
     "isomorphic-fetch": "2.2.1",
+    "lodash": "^4.17.11",
     "node-fetch": "^2.3.0",
     "normalize-url": "^4.2.0",
     "opn": "^5.4.0",
     "socket.io": "2.2.0",
+    "socket.io-client": "^2.2.0",
     "yargs": "^13.2.2"
   }
 }

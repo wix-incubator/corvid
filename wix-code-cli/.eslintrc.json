@@ -11,11 +11,15 @@
   "parserOptions": {
     "ecmaVersion": 2018
   },
-  "rules": {},
+  "rules": {
+    "import/no-extraneous-dependencies": "error"
+  },
   "plugins": ["jest", "prettier"],
   "extends": [
     "eslint:recommended",
     "plugin:jest/recommended",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings"
   ]
 }
