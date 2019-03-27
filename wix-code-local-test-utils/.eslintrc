@@ -12,7 +12,8 @@
       "ecmaVersion": 2018
   },
   "rules": {
+    "import/no-extraneous-dependencies": "error"
   },
   "plugins": ["prettier"],
-  "extends": ["eslint:recommended",  "plugin:prettier/recommended"]
+  "extends": ["eslint:recommended",  "plugin:prettier/recommended", "plugin:import/errors", "plugin:import/warnings"]
 }
