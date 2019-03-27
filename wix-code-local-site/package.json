@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build:": "#",
+    "build": "#",
     "test": "jest",
     "lint": "eslint .",
     "release": "wnpm-release",
