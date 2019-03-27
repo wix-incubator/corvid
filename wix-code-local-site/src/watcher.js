@@ -8,6 +8,12 @@ const ensureWriteFile = async (path, content) => {
   await fs.writeFile(path, content);
 };
 
+const ensureWriteFolder = async path => {
+  if (!(await fs.exists(path))) {
+    await fs.mkdir(path);
+  }
+};
+
 const watch = async rootPath => {
   // TODO:: add src folder to path ?
   const watcher = chokidar.watch(rootPath, {
@@ -56,6 +62,12 @@ const watch = async rootPath => {
     ignoredWriteFile: async (relativePath, content) => {
       watcher.unwatch(relativePath);
       await ensureWriteFile(fullPath(relativePath), content);
+      watcher.add(relativePath);
+    },
+
+    ignoredWriteFolder: async relativePath => {
+      watcher.unwatch(relativePath);
+      await ensureWriteFolder(fullPath(relativePath));
       watcher.add(relativePath);
     },
 

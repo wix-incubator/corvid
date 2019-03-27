@@ -5,7 +5,11 @@ const {
 const { localSiteBuilder } = require("@wix/wix-code-local-site/testkit");
 const { siteCreators: sc } = require("@wix/wix-code-local-test-utils");
 const localServer = require("../../src/server");
-const { initLocalSite, readLocalSite } = require("../utils/localSiteDir");
+const {
+  initLocalSite,
+  readLocalSite,
+  isFolderExsist
+} = require("../utils/localSiteDir");
 
 describe("clone mode", () => {
   it("should not start the server in clone mode if the site directory is not empty", async () => {
@@ -85,6 +89,43 @@ describe("clone mode", () => {
     const serverFiles = await readLocalSite(localSitePath);
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
+
+    await editor.close();
+    await server.close();
+  });
+
+  it("should create empty backend folder locally when there is no backend code files exist in site", async () => {
+    const pageWithCode = sc.pageWithCode();
+
+    const localSitePath = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSitePath);
+
+    const editorSite = editorSiteBuilder.buildPartial(pageWithCode);
+
+    const editor = await loadEditor(server.port, editorSite);
+
+    const isBackendFolderExsist = await isFolderExsist(
+      localSitePath,
+      "backend"
+    );
+    expect(isBackendFolderExsist).toBe(true);
+
+    await editor.close();
+    await server.close();
+  });
+
+  it("should create empty public folder locally when there is no public code files exist in site", async () => {
+    const pageWithCode = sc.pageWithCode();
+
+    const localSitePath = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSitePath);
+
+    const editorSite = editorSiteBuilder.buildPartial(pageWithCode);
+
+    const editor = await loadEditor(server.port, editorSite);
+
+    const isPublicFolderExsist = await isFolderExsist(localSitePath, "public");
+    expect(isPublicFolderExsist).toBe(true);
 
     await editor.close();
     await server.close();

@@ -4,9 +4,16 @@ const isArray_ = require("lodash/isArray");
 const sanitize = require("sanitize-filename");
 
 const frontendFolder = "frontend";
+const publicFolder = "public";
+const backendFolder = "backend";
 const fileExtention = ".wix";
 const pageCodeExtention = ".js";
 const titleCharReplacement = "_";
+const codeFolders = {
+  public: publicFolder,
+  backend: backendFolder
+};
+
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
 const getPageFileName = (id, title, extention = fileExtention) =>
@@ -56,7 +63,7 @@ const fromLocalCode = filePath => {
   );
   if (isArray_(match)) {
     const [pageId] = match.slice(-1);
-    return `public/pages/${pageId}${pageCodeExtention}`;
+    return `${publicFolder}/pages/${pageId}${pageCodeExtention}`;
   } else {
     return filePath;
   }
@@ -81,6 +88,7 @@ const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
 const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
 
 module.exports = {
+  codeFolders,
   getDocumentFolderRegex,
   fromLocalCode,
   toLocalCode,

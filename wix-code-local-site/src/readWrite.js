@@ -144,7 +144,15 @@ const readWrite = (siteRootPath, filesWatcher) => {
       .catch(() => console.log("Update document failed"));
   };
 
+  const ensureCodeFoldersExsist = async () => {
+    await Promise.all([
+      await filesWatcher.ignoredWriteFolder(sitePaths.codeFolders.public),
+      await filesWatcher.ignoredWriteFolder(sitePaths.codeFolders.backend)
+    ]);
+  };
+
   const updateCode = async updateRequest => {
+    await ensureCodeFoldersExsist();
     const {
       modifiedFiles = [],
       copiedFiles = [],

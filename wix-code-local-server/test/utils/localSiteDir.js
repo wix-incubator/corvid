@@ -25,7 +25,11 @@ const deleteFile = async (localSitePath, filePath) => {
   await fs.unlink(fullPath);
 };
 
+const isFolderExsist = async (localSitePath, folderPath) =>
+  await fs.exists(path.join(localSitePath, folderPath));
+
 module.exports = {
+  isFolderExsist,
   initLocalSite,
   readLocalSite,
   writeFile,
