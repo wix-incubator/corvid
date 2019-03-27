@@ -184,7 +184,7 @@ const loadEditor = async (
       payload.modifiedFiles.forEach(file => {
         modifyCodeFile(file.path, file.content);
       });
-      payload.deleteFiles.forEach(file => {
+      payload.deletedFiles.forEach(file => {
         deleteCodeFile(file.path);
       });
     });
