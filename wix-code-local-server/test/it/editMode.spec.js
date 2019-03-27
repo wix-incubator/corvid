@@ -298,4 +298,29 @@ describe("edit mode", () => {
     await editor.close();
     await server.close();
   });
+
+  it("should notify the editor when local document has changed locally", async () => {
+    const page = sc.page({ pageId: "page1", content: "existing content" });
+    const localSitePath = await localSiteDir.initLocalSite(
+      localSiteBuilder.buildFull(page)
+    );
+
+    const onDocumentChange = jest.fn();
+    const server = await localServer.startInEditMode(localSitePath);
+    const editor = await loadEditor(server.port);
+    editor.registerDocumentChange(onDocumentChange);
+    const localFilePath = localSiteBuilder.getLocalFilePath(page);
+
+    await localSiteDir.writeFile(localSitePath, localFilePath, page.content);
+
+    await eventually(
+      async () => {
+        expect(onDocumentChange).toHaveBeenCalledWith(localFilePath);
+      },
+      { timeout: 3000 }
+    );
+
+    await editor.close();
+    await server.close();
+  });
 });

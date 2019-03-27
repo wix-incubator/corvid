@@ -18,6 +18,9 @@ const socketHandler = editorApi => socket => {
     console.log("local code updated");
     socket.emit("LOCAL_CODE_UPDATED", localCodePayload);
   });
+  editorApi.onDocumentChanged((...args) => {
+    socket.emit("LOCAL_DOCUMENT_UPDATED", ...args);
+  });
 };
 
 module.exports = socketHandler;

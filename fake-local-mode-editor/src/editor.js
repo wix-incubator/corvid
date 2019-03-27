@@ -11,6 +11,7 @@ const set_ = require("lodash/set");
 const head_ = require("lodash/head");
 const merge_ = require("lodash/merge");
 const reduce_ = require("lodash/reduce");
+const noop_ = require("lodash/noop");
 
 const flatten = data => flat(data, { delimiter: path.sep, safe: true });
 const unflatten = data =>
@@ -180,15 +181,21 @@ const loadEditor = async (
       );
       editorState.siteDocument = await getSiteDocumentFromServer(socket);
     }
-    socket.on("LOCAL_CODE_UPDATED", payload => {
-      payload.modifiedFiles.forEach(file => {
-        modifyCodeFile(file.path, file.content);
-      });
-      payload.deletedFiles.forEach(file => {
-        deleteCodeFile(file.path);
-      });
-    });
+    socket.on(
+      "LOCAL_CODE_UPDATED",
+      ({ modifiedFiles = [], deletedFiles = [] }) => {
+        modifiedFiles.forEach(file => {
+          modifyCodeFile(file.path, file.content);
+        });
+        deletedFiles.forEach(file => {
+          deleteCodeFile(file.path);
+        });
+      }
+    );
   }
+
+  const registerDocumentChange = (cb = noop_) =>
+    socket.on("LOCAL_DOCUMENT_UPDATED", payload => cb(payload));
 
   const modifyCodeFile = (filePath, content) => {
     set_(editorState.codeFiles.current, filePath.split(path.sep), content);
@@ -243,6 +250,7 @@ const loadEditor = async (
     copyCodeFile,
     deleteCodeFile,
     deletePageCodeFile,
+    registerDocumentChange,
     advanced: {
       saveSiteDocument,
       saveCodeFiles

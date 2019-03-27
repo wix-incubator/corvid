@@ -56,6 +56,7 @@ const initServerApi = (
   });
 
   const onCodeChanged = callback => localSite.onCodeChanged(callback);
+  const onDocumentChanged = callback => localSite.onDocumentChanged(callback);
 
   const adminApi = {
     isCloneMode,
@@ -71,6 +72,7 @@ const initServerApi = (
     getCodeFiles,
     updateCodeFiles,
     onCodeChanged,
+    onDocumentChanged,
     getServerVersion
   };
 
