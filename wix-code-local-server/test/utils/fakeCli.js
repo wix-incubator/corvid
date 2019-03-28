@@ -1,4 +1,4 @@
-const socketClient = require("@wix/wix-code-local-test-utils/src/socketClient");
+const { socketClient } = require("@wix/wix-code-local-test-utils");
 
 const getAdminEndpoint = adminPort => `http://localhost:${adminPort}`;
 
