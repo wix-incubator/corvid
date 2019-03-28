@@ -20,6 +20,11 @@ const writeFile = async (localSitePath, filePath, content) => {
   await fs.writeFile(fullPath, content);
 };
 
+const writeFolder = async (localSitePath, folderPath) => {
+  const fullPath = path.join(localSitePath, folderPath);
+  await fs.ensureDir(fullPath);
+};
+
 const deleteFile = async (localSitePath, filePath) => {
   const fullPath = path.join(localSitePath, filePath);
   await fs.unlink(fullPath);
@@ -33,5 +38,6 @@ module.exports = {
   initLocalSite,
   readLocalSite,
   writeFile,
+  writeFolder,
   deleteFile
 };

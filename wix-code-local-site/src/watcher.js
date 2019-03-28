@@ -3,34 +3,35 @@ const fs = require("fs-extra");
 const chokidar = require("chokidar");
 const sitePaths = require("./sitePaths");
 
+const watcherConfig = {
+  persistent: true,
+  ignoreInitial: true,
+  awaitWriteFinish: true,
+  followSymlinks: false,
+  disableGlobbing: true
+};
+
 const ensureWriteFile = async (path, content) => {
   await fs.ensureFile(path);
   await fs.writeFile(path, content);
 };
 
 const ensureWriteFolder = async path => {
-  if (!(await fs.exists(path))) {
-    await fs.mkdir(path);
-  }
+  await fs.ensureDir(path);
 };
 
 const watch = async rootPath => {
-  // TODO:: add src folder to path ?
-  const watcher = chokidar.watch(rootPath, {
-    persistent: true,
-    ignoreInitial: true,
-    cwd: rootPath,
-    awaitWriteFinish: true,
-    followSymlinks: false,
-    disableGlobbing: true
-  });
+  const fullPath = relativePath => path.join(rootPath, relativePath);
+
+  const watcher = chokidar.watch(
+    sitePaths.siteFolders.map(relativePath => fullPath(relativePath)),
+    Object.assign({}, watcherConfig, { cwd: rootPath })
+  );
 
   await new Promise((resolve, reject) => {
     watcher.on("ready", () => resolve());
     watcher.on("error", () => reject());
   });
-
-  const fullPath = relativePath => path.join(rootPath, relativePath);
 
   return {
     close: () => watcher.close(),

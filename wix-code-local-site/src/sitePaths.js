@@ -93,8 +93,9 @@ const toLocalCode = file => {
 const isCodeFile = relativePath => !relativePath.endsWith(fileExtention);
 const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
 const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
-
+const siteFolders = [frontendFolder, publicFolder, backendFolder];
 module.exports = {
+  siteFolders,
   codeFolders,
   getDocumentFolderRegex,
   fromLocalCode,
