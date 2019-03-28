@@ -284,4 +284,59 @@ describe("edit mode", () => {
       { timeout: 3000 }
     );
   });
+
+  it("should notify the editor when local document has changed locally", async () => {
+    const page = sc.page({ pageId: "page1", content: "existing content" });
+    const onDocumentChange = jest.fn();
+
+    const localSitePath = await localSiteDir.initLocalSite(page);
+    const server = await localServer.startInEditMode(localSitePath);
+    const editor = await loadEditor(server.port);
+
+    const unsubscribeFromDocumentChange = editor.registerDocumentChange(
+      onDocumentChange
+    );
+    const localFilePath = localSiteBuilder.getLocalFilePath(page);
+
+    await localSiteDir.writeFile(localSitePath, localFilePath, "new content");
+
+    await eventually(
+      async () => {
+        expect(onDocumentChange).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 3000 }
+    );
+
+    unsubscribeFromDocumentChange();
+  });
+
+  it("should NOT notify document change to the editor when local public code has changed locally", async () => {
+    const code = sc.publicCode("page1.js", "existing content");
+    const onDocumentChange = jest.fn();
+    const onCodeChange = jest.fn();
+
+    const localSitePath = await localSiteDir.initLocalSite(code);
+    const server = await localServer.startInEditMode(localSitePath);
+    const editor = await loadEditor(server.port);
+
+    const unsubscribeFromDocumentChange = editor.registerDocumentChange(
+      onDocumentChange
+    );
+    const unsubscribeFromCodeChange = editor.registerCodeChange(onCodeChange);
+    const localFilePath = localSiteBuilder.getLocalFilePath(code);
+
+    await localSiteDir.writeFile(localSitePath, localFilePath, "new content");
+
+    await eventually(
+      async () => {
+        expect(onDocumentChange).not.toHaveBeenCalled();
+        // todo:: change to  => expect(onCodeChange).toHaveBeenCalledTimes(1);
+        expect(onCodeChange).toHaveBeenCalled();
+      },
+      { timeout: 3000 }
+    );
+
+    unsubscribeFromDocumentChange();
+    unsubscribeFromCodeChange();
+  });
 });

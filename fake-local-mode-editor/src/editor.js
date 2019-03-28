@@ -11,6 +11,7 @@ const set_ = require("lodash/set");
 const head_ = require("lodash/head");
 const merge_ = require("lodash/merge");
 const reduce_ = require("lodash/reduce");
+const noop_ = require("lodash/noop");
 
 const flatten = data => flat(data, { delimiter: path.sep, safe: true });
 const unflatten = data =>
@@ -133,12 +134,22 @@ const loadEditor = async (
   { siteDocument: initialSiteDocument, siteCode: initialSiteCode } = {},
   { cloneOnLoad = true } = {}
 ) => {
+  const codeChangesLocallyHandler = payload => {
+    payload.modifiedFiles.forEach(file => {
+      modifyCodeFile(file.path, file.content);
+    });
+    payload.deletedFiles.forEach(file => {
+      deleteCodeFile(file.path);
+    });
+  };
   const editorState = {
     siteDocument: initialSiteDocument || {},
     codeFiles: {
       previous: {},
       current: initialSiteCode || {}
-    }
+    },
+    codeChangesLocally: [codeChangesLocallyHandler],
+    documentChangesLocally: [noop_]
   };
 
   const saveSiteDocument = async () =>
@@ -181,12 +192,11 @@ const loadEditor = async (
       editorState.siteDocument = await getSiteDocumentFromServer(socket);
     }
     socket.on("LOCAL_CODE_UPDATED", payload => {
-      payload.modifiedFiles.forEach(file => {
-        modifyCodeFile(file.path, file.content);
-      });
-      payload.deletedFiles.forEach(file => {
-        deleteCodeFile(file.path);
-      });
+      editorState.codeChangesLocally.forEach(cb => cb(payload));
+    });
+
+    socket.on("LOCAL_DOCUMENT_UPDATED", () => {
+      editorState.documentChangesLocally.forEach(cb => cb());
     });
   }
 
@@ -226,6 +236,22 @@ const loadEditor = async (
     );
   };
 
+  const registerDocumentChange = cb => {
+    editorState.documentChangesLocally.push(cb);
+    return () => {
+      const index = editorState.documentChangesLocally.indexOf(cb);
+      editorState.documentChangesLocally.splice(index, 1);
+    };
+  };
+
+  const registerCodeChange = cb => {
+    editorState.codeChangesLocally.push(cb);
+    return () => {
+      const index = editorState.codeChangesLocally.indexOf(cb);
+      editorState.codeChangesLocally.splice(index, 1);
+    };
+  };
+
   return {
     save: async () => {
       await saveLocal();
@@ -252,6 +278,8 @@ const loadEditor = async (
     deleteCodeFile,
     deletePageCodeFile,
     modifyCollectionSchema,
+    registerDocumentChange,
+    registerCodeChange,
     advanced: {
       saveSiteDocument,
       saveCodeFiles
