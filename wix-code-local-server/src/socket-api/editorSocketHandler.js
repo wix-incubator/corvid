@@ -9,16 +9,20 @@ const initEditorApi = editorApi => ({
   GET_SERVER_VERSION: () => editorApi.getServerVersion()
 });
 
-const socketHandler = editorApi => socket => {
-  const socketApi = initEditorApi(editorApi);
-  const handleSocketRequests = socketRequestHandler(socketApi);
-  handleSocketRequests(socket);
-  editorApi.onCodeChanged(localCodePayload => {
-    socket.emit("LOCAL_CODE_UPDATED", localCodePayload);
-  });
+const socketHandler = editorApi => {
+  let currentSocket;
+  editorApi.onCodeChanged((localCodePayload) =>
+    currentSocket.emit("LOCAL_CODE_UPDATED", localCodePayload)
+  );
   editorApi.onDocumentChanged(() => {
-    socket.emit("LOCAL_DOCUMENT_UPDATED");
+    currentSocket.emit("LOCAL_DOCUMENT_UPDATED");
   });
+  return socket => {
+    currentSocket = socket;
+    const socketApi = initEditorApi(editorApi);
+    const handleSocketRequests = socketRequestHandler(socketApi);
+    handleSocketRequests(socket);
+  };
 };
 
 module.exports = socketHandler;
