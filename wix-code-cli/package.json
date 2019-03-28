@@ -26,7 +26,7 @@
   "license": "ISC",
   "devDependencies": {
     "@wix/fake-local-mode-editor": "~1.0.0",
-    "@wix/wnpm-ci": "^6.1.0",
+    "wnpm-ci": "^7.0.11",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",

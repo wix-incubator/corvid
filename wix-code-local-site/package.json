@@ -22,7 +22,7 @@
   "devDependencies": {
     "@wix/wix-code-local-test-utils": "*",
     "@wix/wix-eventually": "^1.0.454",
-    "@wix/wnpm-ci": "^6.1.0",
+    "wnpm-ci": "^7.0.11",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",
