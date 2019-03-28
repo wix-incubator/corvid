@@ -5,7 +5,8 @@ const initEditorApi = editorApi => ({
   GET_DOCUMENT: () => editorApi.getSiteDocument(),
   UPDATE_DOCUMENT: newDocument => editorApi.updateSiteDocument(newDocument),
   GET_CODE: () => editorApi.getCodeFiles(),
-  UPDATE_CODE: codeUpdates => editorApi.updateCodeFiles(codeUpdates)
+  UPDATE_CODE: codeUpdates => editorApi.updateCodeFiles(codeUpdates),
+  GET_SERVER_VERSION: () => editorApi.getServerVersion()
 });
 
 const socketHandler = editorApi => socket => {

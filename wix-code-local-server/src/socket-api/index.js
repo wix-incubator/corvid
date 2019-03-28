@@ -1,3 +1,4 @@
+const { version: moduleVersion } = require("../../package.json");
 const editorSocketApi = require("./editorSocketHandler");
 const adminSocketApi = require("./adminSocketHandler");
 
@@ -12,6 +13,8 @@ const initServerApi = (
 
   let wasSiteDocumentUpdated = false;
   let wereCodeFilesUpdated = false;
+
+  const getServerVersion = () => moduleVersion;
 
   const wasSiteSaved = () => wasSiteDocumentUpdated && wereCodeFilesUpdated;
 
@@ -57,7 +60,8 @@ const initServerApi = (
   const adminApi = {
     isCloneMode,
     getEditorPort,
-    isEditorConnected
+    isEditorConnected,
+    getServerVersion
   };
 
   const editorApi = {
@@ -66,7 +70,8 @@ const initServerApi = (
     updateSiteDocument,
     getCodeFiles,
     updateCodeFiles,
-    onCodeChanged
+    onCodeChanged,
+    getServerVersion
   };
 
   const adminSocketHandler = adminSocketApi(adminApi);
