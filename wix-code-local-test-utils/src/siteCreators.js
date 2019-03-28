@@ -10,7 +10,7 @@ const uniqueCollectionSchema = collectionName =>
   JSON.stringify({ collectionName, fields: {} });
 
 const page = ({ pageId = unique("page"), ...rest } = {}) =>
-  defaults_({ pageId, isPopUp: false }, rest, {
+  defaults_({ pageId, isPopup: false }, rest, {
     title: `${pageId} title`,
     uriSEO: `${pageId} uri SEO`,
     content: `${pageId} encoded page content`
@@ -25,7 +25,7 @@ const pageWithCode = (pageData, code) => {
 };
 
 const lightbox = ({ pageId = unique("lightbox"), ...rest } = {}) =>
-  defaults_({ pageId, isPopUp: true }, rest, {
+  defaults_({ pageId, isPopup: true }, rest, {
     title: `${pageId} title`,
     uriSEO: `${pageId} uri SEO`,
     content: `${pageId} encoded lightbox content`

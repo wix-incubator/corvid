@@ -88,9 +88,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
   const payloadConvertors = {
     pages: pagePayload => {
       return Object.values(pagePayload).map(page => {
-        const isPopUp = get_(page, "isPopUp");
+        const isPopup = get_(page, "isPopup");
         return {
-          path: isPopUp ? sitePaths.lightboxes(page) : sitePaths.pages(page),
+          path: isPopup ? sitePaths.lightboxes(page) : sitePaths.pages(page),
           content: page
         };
       });

@@ -70,8 +70,8 @@ const getPageCodeData = (path, siteDocument) => {
     path,
     metaData: {
       pageId,
-      pageTitle: get_(page, ["title"]),
-      isPopUp: get_(page, ["isPopUp"])
+      title: get_(page, ["title"]),
+      isPopup: get_(page, ["isPopup"])
     }
   };
 };
