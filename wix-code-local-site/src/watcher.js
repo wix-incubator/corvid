@@ -17,8 +17,11 @@ const ensureWriteFolder = async path => {
 };
 
 const watch = async rootPath => {
-  // TODO:: add src folder to path ?
-  const watcher = chokidar.watch(rootPath, {
+  const fullPath = relativePath => path.join(rootPath, relativePath);
+  const foldersToWatch = sitePaths.siteFolders.map(folderPath =>
+    fullPath(folderPath)
+  );
+  const watcher = chokidar.watch(foldersToWatch, {
     persistent: true,
     ignoreInitial: true,
     cwd: rootPath,
@@ -31,8 +34,6 @@ const watch = async rootPath => {
     watcher.on("ready", () => resolve());
     watcher.on("error", () => reject());
   });
-
-  const fullPath = relativePath => path.join(rootPath, relativePath);
 
   let actionsToIgnore = [];
 

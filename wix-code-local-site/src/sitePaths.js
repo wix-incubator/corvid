@@ -15,7 +15,7 @@ const codeFolders = {
   backend: backendFolder,
   database: databaseFolder
 };
-
+const siteFolders = [frontendFolder, publicFolder, backendFolder];
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
 const getPageFileName = (id, title, extention = fileExtention) =>
@@ -105,6 +105,7 @@ const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
 const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
 
 module.exports = {
+  siteFolders,
   codeFolders,
   getDocumentFolderRegex,
   fromLocalCode,
