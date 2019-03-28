@@ -6,10 +6,10 @@
     "url": "git+https://github.com/wix-private/wix-code-dev-experience.git"
   },
   "scripts": {
-    "lint": "lerna run lint --stream",
+    "lint": "lerna exec \"npm run lint\"",
     "lint:fix": "lerna exec \"eslint --fix .\"",
-    "test": "lerna run test --stream",
-    "precommit": "lerna run precommit --stream"
+    "test": "lerna exec \"npm run test\"",
+    "precommit": "lerna exec \"npm run precommit\""
   },
   "devDependencies": {
     "eslint": "^5.15.1",
