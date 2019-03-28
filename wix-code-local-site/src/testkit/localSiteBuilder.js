@@ -92,6 +92,12 @@ const lightboxWithCode = ({ lightbox: lightboxData, code }) => [
 
 const codeFile = ({ path, content }) => ({ path, content });
 
+const collectionSchema = ({ collectionName, schema }) =>
+  codeFile({
+    path: `database/${collectionName}.json`,
+    content: schema
+  });
+
 // builders
 
 const itemToFile = item =>
@@ -113,7 +119,8 @@ const itemToFile = item =>
     [sc.revision]: revision,
     [sc.dataFromMasterPage]: dataFromMasterPage,
     [sc.publicCode]: codeFile,
-    [sc.backendCode]: codeFile
+    [sc.backendCode]: codeFile,
+    [sc.collectionSchema]: collectionSchema
   });
 
 const buildPartial = (...siteItems) => {

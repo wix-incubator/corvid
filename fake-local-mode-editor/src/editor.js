@@ -218,6 +218,14 @@ const loadEditor = async (
     );
   };
 
+  const modifyCollectionSchema = (collectionName, newContent) => {
+    set_(
+      editorState.codeFiles.current,
+      [".schemas", `${collectionName}.json`],
+      newContent
+    );
+  };
+
   return {
     save: async () => {
       await saveLocal();
@@ -243,6 +251,7 @@ const loadEditor = async (
     copyCodeFile,
     deleteCodeFile,
     deletePageCodeFile,
+    modifyCollectionSchema,
     advanced: {
       saveSiteDocument,
       saveCodeFiles

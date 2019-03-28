@@ -150,8 +150,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
   const ensureCodeFoldersExsist = async () => {
     await Promise.all([
-      await filesWatcher.ignoredWriteFolder(sitePaths.codeFolders.public),
-      await filesWatcher.ignoredWriteFolder(sitePaths.codeFolders.backend)
+      Object.values(sitePaths.codeFolders).map(codeFolderPath =>
+        filesWatcher.ignoredWriteFolder(codeFolderPath)
+      )
     ]);
   };
 

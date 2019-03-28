@@ -6,12 +6,14 @@ const sanitize = require("sanitize-filename");
 const frontendFolder = "frontend";
 const publicFolder = "public";
 const backendFolder = "backend";
+const databaseFolder = "database";
 const fileExtention = ".wix";
 const pageCodeExtention = ".js";
 const titleCharReplacement = "_";
 const codeFolders = {
   public: publicFolder,
-  backend: backendFolder
+  backend: backendFolder,
+  database: databaseFolder
 };
 
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
@@ -36,6 +38,7 @@ const lightboxes = (page = null, extention = fileExtention) =>
       ? getPageFileName(get_(page, "pageId"), get_(page, "title"), extention)
       : ""
   );
+
 const styles = (fileName = "") =>
   path.join(
     frontendFolder,
@@ -65,28 +68,35 @@ const site = (fileName = "") =>
   );
 
 const fromLocalCode = filePath => {
-  const match = filePath.match(
-    /^frontend\/(pages|lightboxes)\/.*\.([^.]*)\.js/
+  const matchesPage = filePath.match(
+    /^\/{0,1}frontend\/(pages|lightboxes)\/.*\.([^.]*)\.js/
   );
-  if (isArray_(match)) {
-    const [pageId] = match.slice(-1);
+  if (isArray_(matchesPage)) {
+    const [pageId] = matchesPage.slice(-1);
     return `${publicFolder}/pages/${pageId}${pageCodeExtention}`;
-  } else {
-    return filePath;
   }
+  const matchesSchema = filePath.match(/^\/{0,1}database\//);
+  if (matchesSchema) {
+    return filePath.replace(/^\/{0,1}database\//, ".schemas/");
+  }
+
+  return filePath;
 };
 
 const toLocalCode = file => {
-  const {
-    metaData: { pageId, isPopUp, pageTitle: title }
-  } = file;
-  if (pageId) {
+  if (file.path.match(/^\/{0,1}public\/pages/)) {
+    const {
+      metaData: { pageId, isPopUp, pageTitle: title }
+    } = file;
     return isPopUp
       ? lightboxes({ pageId, title }, pageCodeExtention)
       : pages({ pageId, title }, pageCodeExtention);
-  } else {
-    return file.path;
   }
+  if (file.path.match(/^\/{0,1}\.schemas/)) {
+    return file.path.replace(/^\/{0,1}.schemas\//, "database/");
+  }
+
+  return file.path;
 };
 
 //todo:: isCodeFiles should ignore files that starts with a .

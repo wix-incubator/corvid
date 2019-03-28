@@ -131,6 +131,12 @@ const menu = menu => ({
 const codeFile = ({ path, content }) =>
   set_({}, `siteCode/${path}`.split("/"), content);
 
+const collectionSchema = ({ collectionName, schema }) =>
+  codeFile({
+    path: `.schemas/${collectionName}.json`,
+    content: schema
+  });
+
 const buildPartial = (...siteItems) =>
   merge_(
     ...siteItems.map(item =>
@@ -152,7 +158,8 @@ const buildPartial = (...siteItems) =>
         [sc.revision]: revision,
         [sc.dataFromMasterPage]: dataFromMasterPage,
         [sc.publicCode]: codeFile,
-        [sc.backendCode]: codeFile
+        [sc.backendCode]: codeFile,
+        [sc.collectionSchema]: collectionSchema
       })
     )
   );

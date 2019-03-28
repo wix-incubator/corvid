@@ -24,7 +24,11 @@ describe("edit mode", () => {
   });
 
   it("should send code files to the editor on load", async () => {
-    const siteItems = [sc.publicCode(), sc.backendCode()];
+    const siteItems = [
+      sc.publicCode(),
+      sc.backendCode(),
+      sc.collectionSchema()
+    ];
 
     const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
 
@@ -129,7 +133,8 @@ describe("edit mode", () => {
       sc.pageWithCode({ pageId: "page-2" }, "page-2 code file options"),
       sc.publicCode("public-file.json", "public code"),
       sc.publicCode("public-file1.json", "public code 1"),
-      sc.backendCode("sub-folder/backendFile.jsw", "backend code")
+      sc.backendCode("sub-folder/backendFile.jsw", "backend code"),
+      sc.collectionSchema("collection", "old schema contents")
     ];
 
     const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
@@ -149,6 +154,7 @@ describe("edit mode", () => {
       "public/public-file.json",
       "public/public-file-copied.json"
     );
+    editor.modifyCollectionSchema("collection", "new schema contents");
 
     await editor.save();
 
@@ -159,7 +165,8 @@ describe("edit mode", () => {
       sc.backendCode(
         "authorization-config.json",
         "console.log('authorization-config')"
-      )
+      ),
+      sc.collectionSchema("collection", "new schema contents")
     );
 
     const serverFiles = await localSiteDir.readLocalSite(localSitePath);
@@ -175,6 +182,7 @@ describe("edit mode", () => {
   });
 
   it("should update the editor when a new code file is added locally", async () => {
+    // TODO: add schema files when refactoring this test
     const localSitePath = await localSiteDir.initLocalSite(
       localSiteBuilder.buildFull()
     );
@@ -200,6 +208,7 @@ describe("edit mode", () => {
   });
 
   it("should update the editor when a code file is modified locally", async () => {
+    // TODO: add schema files when refactoring this test
     const publicCode = sc.publicCode();
     const pageWithCode = sc.pageWithCode(
       { pageId: "page-1" },
@@ -239,6 +248,7 @@ describe("edit mode", () => {
   });
 
   it("should update the editor when a code file is deleted locally", async () => {
+    // TODO: add schema files when refactoring this test
     const file1 = sc.publicCode("public-file.json", "public code");
     const file2 = sc.publicCode("public-file1.json", "public code 1");
     const pageWithCode = sc.pageWithCode(

@@ -6,6 +6,8 @@ const flow_ = require("lodash/flow");
 const unique = prefix => uniqueId_(prefix + "-");
 const uniqueCodeFileName = name => unique(name) + ".js";
 const uniqueCode = name => `console.log('${unique(name)}');`;
+const uniqueCollectionSchema = collectionName =>
+  JSON.stringify({ collectionName, fields: {} });
 
 const page = ({ pageId = unique("page"), ...rest } = {}) =>
   defaults_({ pageId, isPopUp: false }, rest, {
@@ -105,6 +107,13 @@ const backendCode = (
   content
 });
 
+const collectionSchema = (collectionName = unique("collection"), schema) => {
+  return {
+    collectionName,
+    schema: schema || uniqueCollectionSchema(collectionName)
+  };
+};
+
 const typeSymbol = Symbol("site-creator-type");
 
 const addType = type => item =>
@@ -151,7 +160,8 @@ const creators = mapValues_(
     revision,
     dataFromMasterPage,
     publicCode,
-    backendCode
+    backendCode,
+    collectionSchema
   },
   typedCreator
 );

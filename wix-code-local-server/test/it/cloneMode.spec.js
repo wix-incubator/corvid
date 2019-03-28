@@ -41,12 +41,17 @@ describe("clone mode", () => {
   });
 
   it("should save code files on load", async () => {
-    const siteItems = [sc.publicCode(), sc.backendCode()];
+    const siteItems = [
+      sc.publicCode(),
+      sc.backendCode(),
+      sc.collectionSchema()
+    ];
 
     const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull(...siteItems);
+
     const expectedLocalSite = localSiteBuilder.buildPartial(...siteItems);
 
     await loadEditor(server.port, editorSite);
@@ -85,34 +90,23 @@ describe("clone mode", () => {
     expect(serverFiles).toMatchObject(expectedLocalSite);
   });
 
-  it("should create empty backend folder locally when there is no backend code files exist in site", async () => {
-    const pageWithCode = sc.pageWithCode();
+  it.each(["backend", "public", "database"])(
+    "should create empty [%s] folder locally even if the site has no files for it",
+    async localFolderName => {
+      const pageWithCode = sc.pageWithCode();
 
-    const localSitePath = await initLocalSite();
-    const server = await localServer.startInCloneMode(localSitePath);
+      const localSitePath = await initLocalSite();
+      const server = await localServer.startInCloneMode(localSitePath);
 
-    const editorSite = editorSiteBuilder.buildPartial(pageWithCode);
+      const editorSite = editorSiteBuilder.buildPartial(pageWithCode);
 
-    await loadEditor(server.port, editorSite);
+      await loadEditor(server.port, editorSite);
 
-    const isBackendFolderExsist = await isFolderExsist(
-      localSitePath,
-      "backend"
-    );
-    expect(isBackendFolderExsist).toBe(true);
-  });
-
-  it("should create empty public folder locally when there is no public code files exist in site", async () => {
-    const pageWithCode = sc.pageWithCode();
-
-    const localSitePath = await initLocalSite();
-    const server = await localServer.startInCloneMode(localSitePath);
-
-    const editorSite = editorSiteBuilder.buildPartial(pageWithCode);
-
-    await loadEditor(server.port, editorSite);
-
-    const isPublicFolderExsist = await isFolderExsist(localSitePath, "public");
-    expect(isPublicFolderExsist).toBe(true);
-  });
+      const isBackendFolderExsist = await isFolderExsist(
+        localSitePath,
+        localFolderName
+      );
+      expect(isBackendFolderExsist).toBe(true);
+    }
+  );
 });
