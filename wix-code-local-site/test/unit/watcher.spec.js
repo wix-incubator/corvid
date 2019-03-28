@@ -1,8 +1,11 @@
 const fs = require("fs-extra");
 const path = require("path");
 const eventually = require("@wix/wix-eventually");
+const { withClose } = require("@wix/wix-code-local-test-utils");
 const makeTempDir = require("../utils/makeTempDir");
-const watch = require("../../src/watcher");
+const watch = withClose.add(require("../../src/watcher"));
+
+afterEach(withClose.closeAll);
 
 describe("watcher", () => {
   describe("onAdd", () => {
@@ -21,8 +24,6 @@ describe("watcher", () => {
         expect(addHandler).toHaveBeenCalledTimes(1);
         expect(addHandler).toHaveBeenCalledWith(relativeFilePath, "some code");
       });
-
-      await watcher.close();
     });
   });
 
@@ -48,8 +49,6 @@ describe("watcher", () => {
           "new code"
         );
       });
-
-      await watcher.close();
     });
   });
 
@@ -72,8 +71,6 @@ describe("watcher", () => {
         expect(deleteHandler).toHaveBeenCalledTimes(1);
         expect(deleteHandler).toHaveBeenCalledWith(relativeFilePath);
       });
-
-      await watcher.close();
     });
   });
 

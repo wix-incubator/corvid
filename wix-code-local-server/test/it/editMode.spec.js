@@ -1,13 +1,16 @@
 const eventually = require("@wix/wix-eventually");
-const {
-  editor: loadEditor,
-  editorSiteBuilder
-} = require("@wix/fake-local-mode-editor");
+const { editorSiteBuilder } = require("@wix/fake-local-mode-editor");
 const { localSiteBuilder } = require("@wix/wix-code-local-site/testkit");
 const { siteCreators: sc } = require("@wix/wix-code-local-test-utils");
 const merge_ = require("lodash/merge");
-const localServer = require("../../src/server");
+const {
+  editor: loadEditor,
+  localServer,
+  closeAll
+} = require("../utils/autoClosing");
 const localSiteDir = require("../utils/localSiteDir");
+
+afterEach(closeAll);
 
 describe("edit mode", () => {
   it("should not start the server in edit mode if the site directory is empty", async () => {
@@ -33,9 +36,6 @@ describe("edit mode", () => {
     expect(editorSite).toMatchObject(
       editorSiteBuilder.buildPartial(...siteItems)
     );
-
-    await editor.close();
-    await server.close();
   });
 
   it("should send page code files to the editor on load", async () => {
@@ -50,9 +50,6 @@ describe("edit mode", () => {
     const editorSite = await editor.getSite();
     const expectedEditorSite = editorSiteBuilder.buildPartial(pageWithCode);
     expect(editorSite).toMatchObject(expectedEditorSite);
-
-    await editor.close();
-    await server.close();
   });
 
   it("should send lightbox code files to the editor on load", async () => {
@@ -67,9 +64,6 @@ describe("edit mode", () => {
     const expectedEditorSite = editorSiteBuilder.buildPartial(lightBoxWithCode);
 
     expect(editorSite).toMatchObject(expectedEditorSite);
-
-    await editor.close();
-    await server.close();
   });
 
   it("should send site document to the editor on load", async () => {
@@ -86,9 +80,6 @@ describe("edit mode", () => {
     const expectedSite = editorSiteBuilder.buildPartial(...siteItems);
 
     expect(editorSite).toMatchObject(expectedSite);
-
-    await editor.close();
-    await server.close();
   });
 
   it("should send updated site document when user changes page content from the editor and clicks save", async () => {
@@ -129,9 +120,6 @@ describe("edit mode", () => {
     );
 
     expect(localSite).toMatchObject(expectedLocalSite);
-
-    await editor.close();
-    await server.close();
   });
 
   // todo:: split this test to 6 test, (modify pageCode & regular code), (delete pageCode & regular code), (copy pageCode & regular code)
@@ -184,9 +172,6 @@ describe("edit mode", () => {
     expect(serverFiles).not.toMatchObject(
       sc.pageWithCode({ pageId: "page-2" }, "page-2 code file options")
     );
-
-    await editor.close();
-    await server.close();
   });
 
   it("should update the editor when a new code file is added locally", async () => {
@@ -212,9 +197,6 @@ describe("edit mode", () => {
       },
       { timeout: 3000 }
     );
-
-    await editor.close();
-    await server.close();
   });
 
   it("should update the editor when a code file is modified locally", async () => {
@@ -254,9 +236,6 @@ describe("edit mode", () => {
       },
       { timeout: 3000 }
     );
-
-    await editor.close();
-    await server.close();
   });
 
   it("should update the editor when a code file is deleted locally", async () => {
@@ -294,8 +273,5 @@ describe("edit mode", () => {
       },
       { timeout: 3000 }
     );
-
-    await editor.close();
-    await server.close();
   });
 });

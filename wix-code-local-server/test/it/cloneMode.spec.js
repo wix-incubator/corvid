@@ -1,15 +1,18 @@
-const {
-  editor: loadEditor,
-  editorSiteBuilder
-} = require("@wix/fake-local-mode-editor");
+const { editorSiteBuilder } = require("@wix/fake-local-mode-editor");
 const { localSiteBuilder } = require("@wix/wix-code-local-site/testkit");
 const { siteCreators: sc } = require("@wix/wix-code-local-test-utils");
-const localServer = require("../../src/server");
+const {
+  editor: loadEditor,
+  localServer,
+  closeAll
+} = require("../utils/autoClosing");
 const {
   initLocalSite,
   readLocalSite,
   isFolderExsist
 } = require("../utils/localSiteDir");
+
+afterEach(closeAll);
 
 describe("clone mode", () => {
   it("should not start the server in clone mode if the site directory is not empty", async () => {
@@ -32,12 +35,9 @@ describe("clone mode", () => {
 
     const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
-    const editor = await loadEditor(server.port, editorSite);
+    await loadEditor(server.port, editorSite);
     const localSiteFiles = await readLocalSite(localSitePath);
     expect(localSiteFiles).toEqual(expectedLocalSite);
-
-    await editor.close();
-    await server.close();
   });
 
   it("should save code files on load", async () => {
@@ -49,13 +49,10 @@ describe("clone mode", () => {
     const editorSite = editorSiteBuilder.buildFull(...siteItems);
     const expectedLocalSite = localSiteBuilder.buildPartial(...siteItems);
 
-    const editor = await loadEditor(server.port, editorSite);
+    await loadEditor(server.port, editorSite);
     const serverFiles = await readLocalSite(localSitePath);
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
-
-    await editor.close();
-    await server.close();
   });
 
   it("should save page code files localy on load", async () => {
@@ -67,13 +64,10 @@ describe("clone mode", () => {
     const editorSite = editorSiteBuilder.buildFull(pageWithCode);
     const expectedLocalSite = localSiteBuilder.buildPartial(pageWithCode);
 
-    const editor = await loadEditor(server.port, editorSite);
+    await loadEditor(server.port, editorSite);
     const serverFiles = await readLocalSite(localSitePath);
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
-
-    await editor.close();
-    await server.close();
   });
 
   it("should save lightbox code files localy on load", async () => {
@@ -85,13 +79,10 @@ describe("clone mode", () => {
     const editorSite = editorSiteBuilder.buildFull(lightboxWithCode);
     const expectedLocalSite = localSiteBuilder.buildPartial(lightboxWithCode);
 
-    const editor = await loadEditor(server.port, editorSite);
+    await loadEditor(server.port, editorSite);
     const serverFiles = await readLocalSite(localSitePath);
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
-
-    await editor.close();
-    await server.close();
   });
 
   it("should create empty backend folder locally when there is no backend code files exist in site", async () => {
@@ -102,16 +93,13 @@ describe("clone mode", () => {
 
     const editorSite = editorSiteBuilder.buildPartial(pageWithCode);
 
-    const editor = await loadEditor(server.port, editorSite);
+    await loadEditor(server.port, editorSite);
 
     const isBackendFolderExsist = await isFolderExsist(
       localSitePath,
       "backend"
     );
     expect(isBackendFolderExsist).toBe(true);
-
-    await editor.close();
-    await server.close();
   });
 
   it("should create empty public folder locally when there is no public code files exist in site", async () => {
@@ -122,12 +110,9 @@ describe("clone mode", () => {
 
     const editorSite = editorSiteBuilder.buildPartial(pageWithCode);
 
-    const editor = await loadEditor(server.port, editorSite);
+    await loadEditor(server.port, editorSite);
 
     const isPublicFolderExsist = await isFolderExsist(localSitePath, "public");
     expect(isPublicFolderExsist).toBe(true);
-
-    await editor.close();
-    await server.close();
   });
 });

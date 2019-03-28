@@ -1,8 +1,10 @@
-const localServer = require("../../src/server");
 const socketClient = require("@wix/wix-code-local-test-utils/src/socketClient");
+const { localServer, closeAll } = require("../utils/autoClosing");
 const { initLocalSite } = require("../utils/localSiteDir");
 
 const { version: localServerModuleVersion } = require("../../package.json");
+
+afterEach(closeAll);
 
 const getEditorEndpoint = server => `http://localhost:${server.port}`;
 const getAdminEndpoint = server => `http://localhost:${server.adminPort}`;
@@ -20,8 +22,6 @@ describe("local server version", () => {
     );
 
     expect(version).toEqual(localServerModuleVersion);
-
-    await server.close();
   });
 
   it("should allow an admin to get the local server module version", async () => {
@@ -35,7 +35,5 @@ describe("local server version", () => {
     );
 
     expect(version).toEqual(localServerModuleVersion);
-
-    await server.close();
   });
 });

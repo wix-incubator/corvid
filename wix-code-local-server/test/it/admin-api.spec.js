@@ -1,11 +1,14 @@
+const { editorSiteBuilder } = require("@wix/fake-local-mode-editor");
+const { localSiteBuilder } = require("@wix/wix-code-local-site/testkit");
 const {
   editor: loadEditor,
-  editorSiteBuilder
-} = require("@wix/fake-local-mode-editor");
-const localServer = require("../../src/server");
-const connectCli = require("../utils/fakeCli");
-const { localSiteBuilder } = require("@wix/wix-code-local-site/testkit");
+  fakeCli: connectCli,
+  localServer,
+  closeAll
+} = require("../utils/autoClosing");
 const { initLocalSite } = require("../utils/localSiteDir");
+
+afterEach(closeAll);
 
 describe("admin api", () => {
   describe("GET_STATUS", () => {
@@ -20,9 +23,6 @@ describe("admin api", () => {
         editorConnected: false,
         mode: "clone"
       });
-
-      await cli.close();
-      await server.close();
     });
 
     it("should return when editor is disconnected and in edit mode", async () => {
@@ -36,22 +36,15 @@ describe("admin api", () => {
         editorConnected: false,
         mode: "edit"
       });
-
-      await cli.close();
-      await server.close();
     });
 
     it("should return when editor is connected and in clone mode", async () => {
       const localSiteDir = await initLocalSite({});
 
       const server = await localServer.startInCloneMode(localSiteDir);
-      const editor = await loadEditor(
-        server.port,
-        editorSiteBuilder.buildFull(),
-        {
-          cloneOnLoad: false
-        }
-      );
+      await loadEditor(server.port, editorSiteBuilder.buildFull(), {
+        cloneOnLoad: false
+      });
       const cli = await connectCli(server.adminPort);
 
       expect(await cli.getServerStatus()).toEqual({
@@ -59,20 +52,13 @@ describe("admin api", () => {
         editorConnected: true,
         mode: "clone"
       });
-
-      await cli.close();
-      await editor.close();
-      await server.close();
     });
 
     it("should return when editor is connected and in edit mode", async () => {
       const localSiteDir = await initLocalSite(localSiteBuilder.buildFull());
 
       const server = await localServer.startInEditMode(localSiteDir);
-      const editor = await loadEditor(
-        server.port,
-        editorSiteBuilder.buildFull()
-      );
+      await loadEditor(server.port, editorSiteBuilder.buildFull());
       const cli = await connectCli(server.adminPort);
 
       expect(await cli.getServerStatus()).toEqual({
@@ -80,10 +66,6 @@ describe("admin api", () => {
         editorConnected: true,
         mode: "edit"
       });
-
-      await cli.close();
-      await editor.close();
-      await server.close();
     });
   });
 
@@ -96,16 +78,9 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      const editor = await loadEditor(
-        server.port,
-        editorSiteBuilder.buildFull()
-      );
+      await loadEditor(server.port, editorSiteBuilder.buildFull());
 
       expect(cloneCompleteSpy).toHaveBeenCalledTimes(1);
-
-      await cli.close();
-      await editor.close();
-      await server.close();
     });
 
     it("should not be sent before cloning started", async () => {
@@ -116,19 +91,11 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      const editor = await loadEditor(
-        server.port,
-        editorSiteBuilder.buildFull(),
-        {
-          cloneOnLoad: false
-        }
-      );
+      await loadEditor(server.port, editorSiteBuilder.buildFull(), {
+        cloneOnLoad: false
+      });
 
       expect(cloneCompleteSpy).not.toHaveBeenCalledTimes(1);
-
-      await cli.close();
-      await editor.close();
-      await server.close();
     });
 
     it("should not be sent if only the document was cloned", async () => {
@@ -150,10 +117,6 @@ describe("admin api", () => {
       await editor.advanced.saveSiteDocument();
 
       expect(cloneCompleteSpy).not.toHaveBeenCalledTimes(1);
-
-      await cli.close();
-      await editor.close();
-      await server.close();
     });
 
     it("should not be sent if only the code files were cloned", async () => {
@@ -175,10 +138,6 @@ describe("admin api", () => {
       await editor.advanced.saveCodeFiles();
 
       expect(cloneCompleteSpy).not.toHaveBeenCalledTimes(1);
-
-      await cli.close();
-      await editor.close();
-      await server.close();
     });
   });
 });

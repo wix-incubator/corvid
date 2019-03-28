@@ -15,5 +15,5 @@
     "import/no-extraneous-dependencies": "error"
   },
   "plugins": ["prettier"],
-  "extends": ["eslint:recommended",  "plugin:prettier/recommended", "plugin:import/errors", "plugin:import/warnings"]
+  "extends": ["eslint:recommended",  "plugin:jest/recommended", "plugin:prettier/recommended", "plugin:import/errors", "plugin:import/warnings"]
 }
