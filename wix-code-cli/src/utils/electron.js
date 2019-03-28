@@ -11,7 +11,7 @@ const {
   startInEditMode
 } = require("@wix/wix-code-local-server/src/server");
 const serverErrors = require("../utils/server-errors");
-const readWixCodeConfig = require("../utils/read-wix-code-config");
+const { readWixCodeConfig } = require("../utils/wix-code-config");
 const { sendRequest } = require("../utils/socketIoHelpers");
 
 const signInHostname = "users.wix.com";
@@ -37,23 +37,33 @@ function launch(file, options = {}) {
     }
   );
 
-  if (options.detached) {
-    cp.unref();
-  } else {
-    if (options.stdio !== "ignore") {
-      cp.stdout.on("data", function(data) {
-        process.stdout.write(data.toString());
-      });
+  return new Promise((resolve, reject) => {
+    const messages = [];
 
-      cp.stderr.on("data", function(data) {
-        process.stderr.write(data.toString());
+    if (options.detached) {
+      cp.unref();
+      resolve();
+    } else {
+      if (options.stdio !== "ignore") {
+        cp.stdout.on("data", function(data) {
+          try {
+            const msg = JSON.parse(data);
+            messages.push(msg);
+          } catch (_) {
+            process.stdout.write(data.toString());
+          }
+        });
+
+        cp.stderr.on("data", function(data) {
+          process.stderr.write(data.toString());
+        });
+      }
+
+      cp.on("exit", code => {
+        code === 0 ? resolve(messages) : reject(code);
       });
     }
-
-    cp.on("exit", code => {
-      process.exit(code);
-    });
-  }
+  });
 }
 
 async function connectToLocalServer(serverMode, win) {

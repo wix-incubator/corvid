@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 const path = require("path");
+const chalk = require("chalk");
 const { launch } = require("../utils/electron");
 const init = require("../apps/init");
 
@@ -18,20 +19,29 @@ module.exports = {
         type: "boolean"
       }),
   handler: args => {
-    init(args).then(
-      projectDir => {
+    launch(path.resolve(path.join(__dirname, "login.js")))
+      .then(messages =>
+        init(args, messages.filter(({ msg }) => msg === "authCookie")[0].cookie)
+      )
+      .then(projectDir =>
         launch(path.resolve(path.join(__dirname, "pull.js")), {
           cwd: projectDir,
           env: {
             ...process.env,
             IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
           }
-        });
-      },
-      error => {
-        console.log(error);
-        process.exit(-1);
-      }
-    );
+        })
+      )
+      .then(
+        () => process.exit(0),
+        error => {
+          if (error.name && error.name === "FetchError") {
+            console.log(chalk.red("Failed to retrieve site list"));
+          } else {
+            console.log(error);
+          }
+          process.exit(-1);
+        }
+      );
   }
 };

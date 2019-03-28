@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* global fetch */
 require("isomorphic-fetch");
 const process = require("process");
@@ -6,36 +5,75 @@ const chalk = require("chalk");
 const normalize = require("normalize-url");
 const path = require("path");
 const fs = require("fs");
+const { writeWixCodeConfig } = require("../utils/wix-code-config");
 
-const METASITE_REGEX = /<meta http-equiv="X-Wix-Meta-Site-Id" content="(.+?)"\/>/;
-const SITE_NAME_REGEX = /<meta property="og:site_name" content="(.+?)"\/>/;
+const editorDomain = "editor.wix.com";
+const publicWixDomain = "wix.com";
+const editorPath = "/editor/";
+const editorUrlMetasiteIdParam = "metaSiteId";
+const userSiteListApi =
+  "https://www.wix.com/_api/wix-code-devex-service/listUserSites";
 
-async function extractDataFromHtml(publicSiteUrl, ...regexList) {
-  const siteHtml = await fetch(publicSiteUrl).then(res => res.text());
-  return regexList.map(re => {
-    const matches = siteHtml.match(re);
-    if (matches && matches.length > 0) {
-      return matches[1];
-    } else {
-      return null;
-    }
-  });
+async function getUserSiteList(cookie) {
+  return await fetch(userSiteListApi, {
+    headers: { cookie: `${cookie.name}=${cookie.value};` }
+  }).then(res => res.json());
 }
 
-async function init(args) {
-  const publicSiteUrl = normalize(args.url);
-  const [metasiteId, siteName] = await extractDataFromHtml(
-    publicSiteUrl,
-    METASITE_REGEX,
-    SITE_NAME_REGEX
+function extractDataFromEditorUrl(parsedUrl) {
+  const metasiteId = parsedUrl.searchParams.get(editorUrlMetasiteIdParam);
+
+  return metasiteId;
+}
+
+function extractDataFromPublicUrl(parsedUrl) {
+  const metasiteId = parsedUrl.pathname.split("/")[2];
+
+  return metasiteId;
+}
+
+async function extractMetasiteIdAndName(url, cookie) {
+  const publicSiteOrEditorUrl = normalize(url);
+  const parsedUrl = new URL(publicSiteOrEditorUrl);
+  const siteList = await getUserSiteList(cookie);
+
+  if (parsedUrl.hostname === editorDomain) {
+    const metasiteId = extractDataFromEditorUrl(parsedUrl);
+    const site = siteList.find(site => site.metasiteId === metasiteId);
+
+    return { metasiteId, siteName: site ? site.siteName : null };
+  } else if (
+    parsedUrl.hostname.endsWith(publicWixDomain) &&
+    parsedUrl.pathname.startsWith(editorPath)
+  ) {
+    const metasiteId = extractDataFromPublicUrl(parsedUrl);
+    const site = siteList.find(site => site.metasiteId === metasiteId);
+
+    return { metasiteId, siteName: site ? site.siteName : null };
+  } else {
+    const site = siteList.find(
+      site => site.publicUrl === publicSiteOrEditorUrl
+    );
+
+    return {
+      metasiteId: site ? site.metasiteId : null,
+      siteName: site ? site.siteName : null
+    };
+  }
+}
+
+async function init(args, cookie) {
+  const { metasiteId, siteName } = await extractMetasiteIdAndName(
+    args.url,
+    cookie
   );
 
   if (metasiteId == null) {
-    throw chalk.red(`Could not extract the metasite ID of ${publicSiteUrl}`);
+    throw chalk.red(`Could not extract the metasite ID of ${args.url}`);
   }
 
   if (siteName == null) {
-    throw chalk.red(`Could not extract the site name of ${publicSiteUrl}`);
+    throw chalk.red(`Could not extract the site name of ${args.url}`);
   }
 
   const dirName = path.resolve(path.join(args.dir || ".", siteName));
@@ -62,10 +100,7 @@ async function init(args) {
   }
 
   process.stdout.write(chalk.grey(`Initialising workspace in ${dirName}...`));
-  fs.writeFileSync(
-    path.join(dirName, ".wixcoderc.json"),
-    JSON.stringify({ metasiteId }, null, 2)
-  );
+  writeWixCodeConfig(dirName, { metasiteId });
   process.stdout.write(chalk.green("  Done.\n"));
 
   return dirName;

@@ -24,15 +24,28 @@ describe("init", () => {
       [path.resolve(path.join(".", "someFolder/aSite/aFile"))]: "{}"
     });
     fetchMock.mock(
-      "http://wix.com",
-      '<head><meta http-equiv="X-Wix-Meta-Site-Id" content="123456789"/><meta property="og:site_name" content="aSite"/></head><body></body>'
+      "https://www.wix.com/_api/wix-code-devex-service/listUserSites",
+      JSON.stringify(
+        [
+          {
+            metasiteId: "12345678",
+            publicUrl: "http://a-site.com",
+            siteName: "aSite"
+          }
+        ],
+        null,
+        2
+      )
     );
 
     return expect(
-      init({
-        url: "wix.com",
-        dir: "someFolder"
-      })
+      init(
+        {
+          url: "a-site.com",
+          dir: "someFolder"
+        },
+        { name: "name", value: "value" }
+      )
     ).rejects.toEqual(
       expect.stringMatching(
         /Target directory .*\/someFolder\/aSite is not empty/
@@ -40,40 +53,52 @@ describe("init", () => {
     );
   });
 
-  test("should exit with an error if extracting the metasite ID from the HTML fails", () => {
-    expect.assertions(1);
+  describe("given an editor URL", () => {
+    test("should exit with an error if the site is not returned by listUserSites", () => {
+      expect.assertions(1);
 
-    fetchMock.mock(
-      "http://wix.com",
-      '<head><meta property="og:site_name" content="aSite"/></head><body></body>'
-    );
+      fetchMock.mock(
+        "https://www.wix.com/_api/wix-code-devex-service/listUserSites",
+        JSON.stringify([], null, 2)
+      );
 
-    return expect(
-      init({
-        url: "wix.com",
-        dir: "someFolder"
-      })
-    ).rejects.toEqual(
-      expect.stringMatching(/Could not extract the metasite ID of .*/)
-    );
+      return expect(
+        init(
+          {
+            url:
+              "https://editor.wix.com/html/editor/web/renderer/edit/1633ae83-c9ff-41e2-bd1b-d5eb5a93790c?metaSiteId=96d0802a-b76d-411c-aaf4-6b8c2f474acb&editorSessionId=d3a513bd-32a0-5e3b-964e-3b69f916f17e",
+            dir: "someFolder"
+          },
+          { name: "name", value: "value" }
+        )
+      ).rejects.toEqual(
+        expect.stringMatching(/Could not extract the site name of .*/)
+      );
+    });
   });
 
-  test("should exit with an error if extracting the site name from the HTML fails", () => {
-    expect.assertions(1);
+  describe("given an pre-redirect editor URL", () => {
+    test("should exit with an error if the site is not returned by listUserSites", () => {
+      expect.assertions(1);
 
-    fetchMock.mock(
-      "http://wix.com",
-      '<head><meta http-equiv="X-Wix-Meta-Site-Id" content="123456789"/></head><body></body>'
-    );
+      fetchMock.mock(
+        "https://www.wix.com/_api/wix-code-devex-service/listUserSites",
+        JSON.stringify([], null, 2)
+      );
 
-    return expect(
-      init({
-        url: "wix.com",
-        dir: "someFolder"
-      })
-    ).rejects.toEqual(
-      expect.stringMatching(/Could not extract the site name of .*/)
-    );
+      return expect(
+        init(
+          {
+            url:
+              "https://www.wix.com/editor/96d0802a-b76d-411c-aaf4-6b8c2f474acb",
+            dir: "someFolder"
+          },
+          { name: "name", value: "value" }
+        )
+      ).rejects.toEqual(
+        expect.stringMatching(/Could not extract the site name of .*/)
+      );
+    });
   });
 
   test("should clone the site", () => {});
