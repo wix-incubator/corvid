@@ -68,14 +68,6 @@ const version = version => ({
   }
 });
 
-const revision = revision => ({
-  siteDocument: {
-    site: {
-      revision
-    }
-  }
-});
-
 const dataFromMasterPage = dataFromMasterPage => ({
   siteDocument: {
     site: {
@@ -155,7 +147,6 @@ const buildPartial = (...siteItems) =>
         [sc.multilingualInfo]: multilingualInfo,
         [sc.siteInfo]: siteInfo,
         [sc.version]: version,
-        [sc.revision]: revision,
         [sc.dataFromMasterPage]: dataFromMasterPage,
         [sc.publicCode]: codeFile,
         [sc.backendCode]: codeFile,

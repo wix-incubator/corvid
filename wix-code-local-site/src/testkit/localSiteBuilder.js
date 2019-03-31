@@ -50,7 +50,6 @@ const commonComponents = content => siteFile("commonComponents", content);
 const multilingualInfo = content => siteFile("multilingualInfo", content);
 const siteInfo = content => siteFile("siteInfo", content);
 const version = content => siteFile("version", content);
-const revision = content => siteFile("revision", content);
 const dataFromMasterPage = content => siteFile("dataFromMasterPage", content);
 
 const router = router =>
@@ -116,7 +115,6 @@ const itemToFile = item =>
     [sc.multilingualInfo]: multilingualInfo,
     [sc.siteInfo]: siteInfo,
     [sc.version]: version,
-    [sc.revision]: revision,
     [sc.dataFromMasterPage]: dataFromMasterPage,
     [sc.publicCode]: codeFile,
     [sc.backendCode]: codeFile,

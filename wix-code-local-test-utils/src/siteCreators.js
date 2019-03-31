@@ -79,10 +79,6 @@ const siteInfo = (content = unique(`Encoded siteInfo site data`)) => ({
   content
 });
 
-const revision = (content = unique(`Encoded revision site data`)) => ({
-  content
-});
-
 const version = (content = unique(`Encoded version site data`)) => ({
   content
 });
@@ -157,7 +153,6 @@ const creators = mapValues_(
     multilingualInfo,
     siteInfo,
     version,
-    revision,
     dataFromMasterPage,
     publicCode,
     backendCode,

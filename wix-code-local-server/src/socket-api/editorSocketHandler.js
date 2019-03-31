@@ -11,7 +11,7 @@ const initEditorApi = editorApi => ({
 
 const socketHandler = editorApi => {
   let currentSocket;
-  editorApi.onCodeChanged((localCodePayload) =>
+  editorApi.onCodeChanged(localCodePayload =>
     currentSocket.emit("LOCAL_CODE_UPDATED", localCodePayload)
   );
   editorApi.onDocumentChanged(() => {
