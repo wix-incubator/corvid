@@ -20,7 +20,8 @@
     "url": "git+https://github.com/wix-private/wix-code-dev-experience.git"
   },
   "bin": {
-    "corvid": "./src/index.js"
+    "corvid": "./src/index.js",
+    "corvid-debug": "./src/index.debug.js"
   },
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "ISC",
