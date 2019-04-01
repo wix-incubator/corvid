@@ -2,7 +2,7 @@ const merge_ = require("lodash/merge");
 const set_ = require("lodash/set");
 const omit_ = require("lodash/omit");
 
-const { siteCreators: sc } = require("@wix/wix-code-local-test-utils");
+const { siteCreators: sc } = require("corvid-local-test-utils");
 
 const colors = colors => ({
   siteDocument: {
