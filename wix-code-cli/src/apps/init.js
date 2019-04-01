@@ -52,7 +52,8 @@ async function extractMetasiteIdAndName(url, cookie) {
     return { metasiteId, siteName: site ? site.siteName : null };
   } else {
     const site = siteList.find(
-      site => site.publicUrl === publicSiteOrEditorUrl
+      site =>
+        site.publicUrl && normalize(site.publicUrl) === publicSiteOrEditorUrl
     );
 
     return {
