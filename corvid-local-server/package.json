@@ -34,8 +34,8 @@
     "stoppable": "^1.1.0"
   },
   "devDependencies": {
-    "dir-as-json": "*",
-    "fake-local-mode-editor": "*",
+    "corvid-dir-as-json": "*",
+    "corvid-fake-local-mode-editor": "*",
     "corvid-local-test-utils": "*",
     "wix-eventually": "^1.0.454",
     "eslint": "^5.15.1",

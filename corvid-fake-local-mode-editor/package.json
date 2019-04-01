@@ -1,5 +1,5 @@
 {
-  "name": "fake-local-mode-editor",
+  "name": "corvid-fake-local-mode-editor",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",

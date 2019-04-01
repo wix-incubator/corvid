@@ -1,5 +1,5 @@
 {
-  "name": "dir-as-json",
+  "name": "corvid-dir-as-json",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",

@@ -1,5 +1,5 @@
 const eventually = require("wix-eventually");
-const { editorSiteBuilder } = require("fake-local-mode-editor");
+const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { siteCreators: sc } = require("corvid-local-test-utils");
 const merge_ = require("lodash/merge");

@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const util = require("util");
 const temp = require("temp").track();
-const dirAsJson = require("dir-as-json");
+const dirAsJson = require("corvid-dir-as-json");
 
 const makeTempDir = util.promisify(temp.mkdir);
 
