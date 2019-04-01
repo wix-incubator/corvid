@@ -12,7 +12,7 @@ const publicWixDomain = "wix.com";
 const editorPath = "/editor/";
 const editorUrlMetasiteIdParam = "metaSiteId";
 const userSiteListApi =
-  "https://www.wix.com/_api/wix-code-devex-service/listUserSites";
+  "https://www.wix.com/_api/wix-code-devex-service/v1/listUserSites";
 
 async function getUserSiteList(cookie) {
   return await fetch(userSiteListApi, {

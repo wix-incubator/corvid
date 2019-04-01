@@ -24,7 +24,7 @@ describe("init", () => {
       [path.resolve(path.join(".", "someFolder/aSite/aFile"))]: "{}"
     });
     fetchMock.mock(
-      "https://www.wix.com/_api/wix-code-devex-service/listUserSites",
+      "https://www.wix.com/_api/wix-code-devex-service/v1/listUserSites",
       JSON.stringify(
         [
           {
@@ -58,7 +58,7 @@ describe("init", () => {
       expect.assertions(1);
 
       fetchMock.mock(
-        "https://www.wix.com/_api/wix-code-devex-service/listUserSites",
+        "https://www.wix.com/_api/wix-code-devex-service/v1/listUserSites",
         JSON.stringify([], null, 2)
       );
 
@@ -82,7 +82,7 @@ describe("init", () => {
       expect.assertions(1);
 
       fetchMock.mock(
-        "https://www.wix.com/_api/wix-code-devex-service/listUserSites",
+        "https://www.wix.com/_api/wix-code-devex-service/v1/listUserSites",
         JSON.stringify([], null, 2)
       );
 
