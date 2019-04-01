@@ -9,7 +9,7 @@ const chalk = require("chalk");
 const {
   startInCloneMode,
   startInEditMode
-} = require("@wix/wix-code-local-server/src/server");
+} = require("@wix/wix-code-local-server");
 const serverErrors = require("../utils/server-errors");
 const { readWixCodeConfig } = require("../utils/wix-code-config");
 const { sendRequest } = require("../utils/socketIoHelpers");

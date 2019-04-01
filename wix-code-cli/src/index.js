@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require("./monitoring/initSentry");
 const chalk = require("chalk");
 
 // eslint-disable-next-line no-console

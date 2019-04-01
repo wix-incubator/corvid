@@ -1,2 +1,2 @@
-const { startInCloneMode } = require("./server");
-startInCloneMode(process.cwd());
+require("./monitoring/initSentry");
+module.exports = require("./server");

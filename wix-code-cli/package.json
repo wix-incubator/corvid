@@ -26,7 +26,6 @@
   "license": "ISC",
   "devDependencies": {
     "@wix/fake-local-mode-editor": "~1.0.0",
-    "wnpm-ci": "^7.0.11",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",
@@ -37,7 +36,8 @@
     "jest": "^24.1.0",
     "jest-teamcity-reporter": "^0.9.0",
     "lint-staged": "^8.1.5",
-    "prettier": "^1.16.4"
+    "prettier": "^1.16.4",
+    "wnpm-ci": "^7.0.11"
   },
   "jest": {
     "testEnvironment": "node",
@@ -56,6 +56,7 @@
     ]
   },
   "dependencies": {
+    "@sentry/node": "^4.6.6",
     "@wix/wix-code-local-server": "~1.0.0",
     "chalk": "2.4.2",
     "electron": "4.0.8",

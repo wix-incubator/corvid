@@ -23,6 +23,7 @@
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "ISC",
   "dependencies": {
+    "@sentry/node": "^4.6.6",
     "@wix/wix-code-local-site": "*",
     "cors": "^2.8.5",
     "debug": "^4.1.1",
