@@ -1,4 +1,4 @@
-const { editorSiteBuilder } = require("fake-local-mode-editor");
+const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const {
   editor: loadEditor,

@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wixpress.devex</groupId>
-    <artifactId>dir-as-json</artifactId>
+    <artifactId>corvid-fake-local-mode-editor</artifactId>
     <packaging>pom</packaging>
-    <name>dir-as-json</name>
-    <description>Wix Code internal library for managing local saved sites</description>
+    <name>corvid-fake-local-mode-editor</name>
+    <description>Wix Code dev module for mocking editor server</description>
     <version>1.0.0-SNAPSHOT</version>
 
     <parent>
@@ -16,8 +16,8 @@
 
     <developers>
         <developer>
-            <name>Dor Itzhaki</name>
-            <email>dori@wix.com</email>
+            <name>Kobi Nemni</name>
+            <email>kobin@wix.com</email>
             <roles>
                 <role>owner</role>
             </roles>
