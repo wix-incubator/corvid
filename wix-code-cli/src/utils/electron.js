@@ -106,8 +106,8 @@ async function openWindow(app, windowOptions = {}) {
   const win = new BrowserWindow({
     width: 1280,
     height: 960,
-    show: !isHeadlessMode,
     ...windowOptions,
+    show: !isHeadlessMode,
     webPreferences: { nodeIntegration: false }
   });
 
