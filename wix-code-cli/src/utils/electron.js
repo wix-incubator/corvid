@@ -5,6 +5,7 @@ const process = require("process");
 const { BrowserWindow } = require("electron");
 const client = require("socket.io-client");
 const chalk = require("chalk");
+const electron = require("electron");
 
 const {
   startInCloneMode,
@@ -26,16 +27,10 @@ function launch(file, options = {}) {
     ...options.env,
     FORCE_COLOR: "yes"
   };
-  const cp = childProcess.spawn(
-    path.resolve(
-      path.join(__dirname, "..", "..", "node_modules", ".bin", "electron")
-    ),
-    [path.resolve(path.join(file))],
-    {
-      windowsHide: true,
-      ...options
-    }
-  );
+  const cp = childProcess.spawn(electron, [path.resolve(path.join(file))], {
+    windowsHide: true,
+    ...options
+  });
 
   return new Promise((resolve, reject) => {
     const messages = [];
