@@ -70,6 +70,20 @@ describe("edit mode", () => {
     expect(editorSite).toMatchObject(expectedEditorSite);
   });
 
+  it("should send master page code to the editor on load", async () => {
+    const masterPageCode = sc.masterPageCode();
+
+    const localSiteFiles = localSiteBuilder.buildFull(masterPageCode);
+    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+    const server = await localServer.startInEditMode(localSitePath);
+
+    const editor = await loadEditor(server.port);
+    const editorSite = await editor.getSite();
+    const expectedEditorSite = editorSiteBuilder.buildPartial(masterPageCode);
+
+    expect(editorSite).toMatchObject(expectedEditorSite);
+  });
+
   it("should send site document to the editor on load", async () => {
     const siteItems = sc.fullSiteItems();
 

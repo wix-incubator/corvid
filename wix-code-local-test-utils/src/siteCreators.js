@@ -103,6 +103,10 @@ const backendCode = (
   content
 });
 
+const masterPageCode = (content = uniqueCode("masterPageCode")) => ({
+  content
+});
+
 const collectionSchema = (collectionName = unique("collection"), schema) => {
   return {
     collectionName,
@@ -156,7 +160,8 @@ const creators = mapValues_(
     dataFromMasterPage,
     publicCode,
     backendCode,
-    collectionSchema
+    collectionSchema,
+    masterPageCode
   },
   typedCreator
 );

@@ -90,6 +90,21 @@ describe("clone mode", () => {
     expect(serverFiles).toMatchObject(expectedLocalSite);
   });
 
+  it("should save master page code locally on load", async () => {
+    const masterPageCode = sc.masterPageCode();
+
+    const localSitePath = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSitePath);
+
+    const editorSite = editorSiteBuilder.buildFull(masterPageCode);
+    const expectedLocalSite = localSiteBuilder.buildPartial(masterPageCode);
+
+    await loadEditor(server.port, editorSite);
+    const serverFiles = await readLocalSite(localSitePath);
+
+    expect(serverFiles).toMatchObject(expectedLocalSite);
+  });
+
   it.each(["backend", "public", "database"])(
     "should create empty [%s] folder locally even if the site has no files for it",
     async localFolderName => {

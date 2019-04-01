@@ -97,6 +97,12 @@ const collectionSchema = ({ collectionName, schema }) =>
     content: schema
   });
 
+const masterPageCode = ({ content }) =>
+  codeFile({
+    path: `frontend/site.js`,
+    content
+  });
+
 // builders
 
 const itemToFile = item =>
@@ -118,7 +124,8 @@ const itemToFile = item =>
     [sc.dataFromMasterPage]: dataFromMasterPage,
     [sc.publicCode]: codeFile,
     [sc.backendCode]: codeFile,
-    [sc.collectionSchema]: collectionSchema
+    [sc.collectionSchema]: collectionSchema,
+    [sc.masterPageCode]: masterPageCode
   });
 
 const buildPartial = (...siteItems) => {

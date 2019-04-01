@@ -129,6 +129,12 @@ const collectionSchema = ({ collectionName, schema }) =>
     content: schema
   });
 
+const masterPageCode = ({ content }) =>
+  codeFile({
+    path: `public/pages/masterPage.js`,
+    content
+  });
+
 const buildPartial = (...siteItems) =>
   merge_(
     ...siteItems.map(item =>
@@ -150,7 +156,8 @@ const buildPartial = (...siteItems) =>
         [sc.dataFromMasterPage]: dataFromMasterPage,
         [sc.publicCode]: codeFile,
         [sc.backendCode]: codeFile,
-        [sc.collectionSchema]: collectionSchema
+        [sc.collectionSchema]: collectionSchema,
+        [sc.masterPageCode]: masterPageCode
       })
     )
   );

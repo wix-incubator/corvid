@@ -1,6 +1,5 @@
 const path = require("path");
 const get_ = require("lodash/get");
-const isArray_ = require("lodash/isArray");
 const sanitize = require("sanitize-filename");
 
 const frontendFolder = "frontend";
@@ -25,6 +24,17 @@ const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
 const getPageFileName = (id, title, extention = fileExtention) =>
   `${sanitize(removeSpaces(title), titleCharReplacement)}.${id}${extention}`;
+
+const matchEditorPageFile = filePath => filePath.match(/^\/{0,1}public\/pages/);
+
+const matchLocalPageFile = filePath =>
+  filePath.match(/^\/{0,1}frontend\/(pages|lightboxes)\/.*\.([^.]*)\.js/);
+
+const matchEditorMasterPageFile = filePath =>
+  filePath.match(/^\/{0,1}public\/pages\/masterPage.js/);
+
+const matchLocalMasterPageFile = filePath =>
+  filePath.match(/^\/{0,1}frontend\/site.js/);
 
 const pages = (page = null, extention = fileExtention) =>
   path.join(
@@ -73,10 +83,11 @@ const site = (fileName = "") =>
   );
 
 const fromLocalCode = filePath => {
-  const matchesPage = filePath.match(
-    /^\/{0,1}frontend\/(pages|lightboxes)\/.*\.([^.]*)\.js/
-  );
-  if (isArray_(matchesPage)) {
+  const matchesPage = matchLocalPageFile(filePath);
+  if (matchLocalMasterPageFile(filePath)) {
+    return `${publicFolder}/pages/masterPage.js`;
+  }
+  if (matchLocalPageFile(filePath)) {
     const [pageId] = matchesPage.slice(-1);
     return `${publicFolder}/pages/${pageId}${pageCodeExtention}`;
   }
@@ -89,7 +100,10 @@ const fromLocalCode = filePath => {
 };
 
 const toLocalCode = file => {
-  if (file.path.match(/^\/{0,1}public\/pages/)) {
+  if (matchEditorPageFile(file.path)) {
+    if (matchEditorMasterPageFile(file.path)) {
+      return "frontend/site.js";
+    }
     const {
       metaData: { pageId, isPopup, title }
     } = file;
