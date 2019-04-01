@@ -3,6 +3,7 @@ const fs = require("fs-extra");
 const chokidar = require("chokidar");
 const find_ = require("lodash/find");
 const reject_ = require("lodash/reject");
+const debug = require("./debug");
 const sitePaths = require("./sitePaths");
 
 const ensureWriteFile = async (path, content) => {
@@ -20,7 +21,11 @@ const getSiteRoots = rootPath =>
   sitePaths.siteFolders.map(folderPath => path.join(rootPath, folderPath));
 
 const watch = async givenPath => {
+  debug.log(`watching for file changes at [${givenPath}]`);
   const rootPath = fs.realpathSync(givenPath);
+  if (rootPath !== givenPath) {
+    debug.log(`watched path resolved to [${rootPath}]`)
+  }
   const siteRoots = getSiteRoots(rootPath);
   const fullPath = relativePath => path.join(rootPath, relativePath);
   const shouldIgnoreFile = watchPath =>
@@ -60,12 +65,15 @@ const watch = async givenPath => {
 
     onAdd: callback => {
       watcher.on("add", async relativePath => {
+        const fullFilePath = fullPath(relativePath);
         if (!isIgnoredAction("write", relativePath)) {
+          debug.log(`reporting new file at [${fullFilePath}]`);
           callback(
             sitePaths.fromLocalCode(relativePath),
-            await fs.readFile(fullPath(relativePath), "utf8")
+            await fs.readFile(fullFilePath, "utf8")
           );
         } else {
+          debug.log(`ignoring new file at [${fullFilePath}]`);
           removeFromIgnoredActions("write", relativePath);
         }
       });
@@ -73,12 +81,15 @@ const watch = async givenPath => {
 
     onChange: callback => {
       watcher.on("change", async relativePath => {
+        const fullFilePath = fullPath(relativePath);
         if (!isIgnoredAction("write", relativePath)) {
+          debug.log(`reporting modified file at [${fullFilePath}]`);
           callback(
             sitePaths.fromLocalCode(relativePath),
-            await fs.readFile(fullPath(relativePath), "utf8")
+            await fs.readFile(fullFilePath, "utf8")
           );
         } else {
+          debug.log(`ignoring modified file at [${fullFilePath}]`);
           removeFromIgnoredActions("write", relativePath);
         }
       });
@@ -86,9 +97,12 @@ const watch = async givenPath => {
 
     onDelete: callback => {
       watcher.on("unlink", relativePath => {
+        const fullFilePath = fullPath(relativePath);
         if (!isIgnoredAction("delete", relativePath)) {
+          debug.log(`reporting deleted file at [${fullFilePath}]`);
           callback(sitePaths.fromLocalCode(relativePath));
         } else {
+          debug.log(`ignoring deleted file at [${fullFilePath}]`);
           removeFromIgnoredActions("delete", relativePath);
         }
       });

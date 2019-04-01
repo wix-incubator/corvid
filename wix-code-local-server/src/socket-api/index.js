@@ -1,4 +1,5 @@
 const { version: moduleVersion } = require("../../package.json");
+const debug = require("../debug");
 const editorSocketApi = require("./editorSocketHandler");
 const adminSocketApi = require("./adminSocketHandler");
 
@@ -25,6 +26,7 @@ const initServerApi = (
     const result = await asyncCallback(...args);
     const cloneModeAfter = isCloneMode();
     if (cloneModeBefore && !cloneModeAfter) {
+      debug.log("clone complete");
       notifyAdmin("clone-complete");
     }
     return result;
@@ -35,13 +37,21 @@ const initServerApi = (
   const isEditorConnected = () =>
     Object.keys(editorServer.io.sockets.connected).length > 0;
 
-  const getSiteDocument = () => localSite.getSiteDocument();
+  const getSiteDocument = () => {
+    debug.log("site document requested");
+    return localSite.getSiteDocument();
+  };
 
-  const getCodeFiles = () => localSite.getCodeFiles();
+  const getCodeFiles = () => {
+    debug.log("code files requested");
+    return localSite.getCodeFiles();
+  };
 
   const updateSiteDocument = withCloneModeNotification(
     async updatedDocument => {
+      debug.log("updating local site document");
       const result = await localSite.updateSiteDocument(updatedDocument);
+      debug.log("updating local site document done");
       notifyAdmin("document-updated");
       wasSiteDocumentUpdated = true;
       return result;
@@ -49,7 +59,9 @@ const initServerApi = (
   );
 
   const updateCodeFiles = withCloneModeNotification(async codeFileUpdates => {
+    debug.log("updating local code files");
     const result = await localSite.updateCode(codeFileUpdates);
+    debug.log("updating local code files done");
     notifyAdmin("code-updated");
     wereCodeFilesUpdated = true;
     return result;
@@ -58,35 +70,38 @@ const initServerApi = (
   const onCodeChanged = callback => localSite.onCodeChanged(callback);
   const onDocumentChanged = callback => localSite.onDocumentChanged(callback);
 
-  const adminApi = {
-    isCloneMode,
+  const serverApi = {
     getEditorPort,
     isEditorConnected,
-    getServerVersion
-  };
-
-  const editorApi = {
+    getServerVersion,
     isCloneMode,
     getSiteDocument,
     updateSiteDocument,
     getCodeFiles,
     updateCodeFiles,
     onCodeChanged,
-    onDocumentChanged,
-    getServerVersion
+    onDocumentChanged
   };
 
-  const adminSocketHandler = adminSocketApi(adminApi);
-  const editorSocketHandler = editorSocketApi(editorApi);
+  const adminSocketHandler = adminSocketApi(serverApi);
+  const editorSocketHandler = editorSocketApi(serverApi);
 
-  adminServer.io.on("connection", adminSocketHandler);
+  adminServer.io.on("connection", adminSocket => {
+    debug.log("admin connected");
+    adminSocket.on("disconnect", () => {
+      debug.log("admin disconnected");
+    });
+    return adminSocketHandler(adminSocket);
+  });
 
-  editorServer.io.on("connection", editorConnectionSocket => {
+  editorServer.io.on("connection", editorSocket => {
+    debug.log("editor connected");
     notifyAdmin("editor-connected");
-    editorConnectionSocket.on("disconnect", () => {
+    editorSocket.on("disconnect", () => {
+      debug.log("editor disconnected");
       notifyAdmin("editor-disconnected");
     });
-    return editorSocketHandler(editorConnectionSocket);
+    return editorSocketHandler(editorSocket);
   });
 };
 

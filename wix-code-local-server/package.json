@@ -25,6 +25,7 @@
   "dependencies": {
     "@wix/wix-code-local-site": "*",
     "cors": "^2.8.5",
+    "debug": "^4.1.1",
     "express": "^4.16.4",
     "fs-extra": "^7.0.1",
     "listen-on-free-port": "1.0.3",
@@ -36,7 +37,6 @@
     "@wix/fake-local-mode-editor": "*",
     "@wix/wix-code-local-test-utils": "*",
     "@wix/wix-eventually": "^1.0.454",
-    "wnpm-ci": "^7.0.11",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",
@@ -48,7 +48,8 @@
     "lint-staged": "^8.1.5",
     "lodash": "^4.17.11",
     "prettier": "^1.16.4",
-    "temp": "^0.9.0"
+    "temp": "^0.9.0",
+    "wnpm-ci": "^7.0.11"
   },
   "jest": {
     "verbose": true,

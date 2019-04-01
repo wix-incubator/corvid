@@ -22,7 +22,6 @@
   "devDependencies": {
     "@wix/wix-code-local-test-utils": "*",
     "@wix/wix-eventually": "^1.0.454",
-    "wnpm-ci": "^7.0.11",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",
@@ -33,11 +32,13 @@
     "jest-teamcity-reporter": "^0.9.0",
     "lint-staged": "^8.1.5",
     "prettier": "^1.16.4",
-    "temp": "^0.9.0"
+    "temp": "^0.9.0",
+    "wnpm-ci": "^7.0.11"
   },
   "dependencies": {
     "@wix/dir-as-json": "*",
     "chokidar": "^2.1.2",
+    "debug": "^4.1.1",
     "flat": "^4.1.0",
     "fs-extra": "^7.0.1",
     "lodash": "^4.17.11",

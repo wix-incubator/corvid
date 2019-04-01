@@ -139,13 +139,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
     const filesPromises = filesToWrite.map(file =>
       filesWatcher.ignoredWriteFile(file.path, stringify(file.content))
     );
-    await Promise.all(filesPromises)
-      .then(() =>
-        // eslint-disable-next-line no-console
-        console.log("Update document done")
-      )
-      // eslint-disable-next-line no-console
-      .catch(() => console.log("Update document failed"));
+    await Promise.all(filesPromises);
   };
 
   const ensureCodeFoldersExsist = async () => {
@@ -163,34 +157,23 @@ const readWrite = (siteRootPath, filesWatcher) => {
       copiedFiles = [],
       deletedFiles = []
     } = updateRequest;
-    try {
-      const updates = modifiedFiles.map(file =>
-        filesWatcher.ignoredWriteFile(sitePaths.toLocalCode(file), file.content)
-      );
 
-      const copies = copiedFiles.map(({ sourcePath, targetPath }) =>
-        filesWatcher.ignoredCopyFile(
-          sitePaths.toLocalCode(sourcePath),
-          sitePaths.toLocalCode(targetPath)
-        )
-      );
+    const updates = modifiedFiles.map(file =>
+      filesWatcher.ignoredWriteFile(sitePaths.toLocalCode(file), file.content)
+    );
 
-      const deletes = deletedFiles.map(file =>
-        filesWatcher.ignoredDeleteFile(sitePaths.toLocalCode(file))
-      );
+    const copies = copiedFiles.map(({ sourcePath, targetPath }) =>
+      filesWatcher.ignoredCopyFile(
+        sitePaths.toLocalCode(sourcePath),
+        sitePaths.toLocalCode(targetPath)
+      )
+    );
 
-      await Promise.all([...updates, ...copies, ...deletes])
-        .then(() =>
-          //todo:: create empty code folders if not exsist
-          // eslint-disable-next-line no-console
-          console.log("Update code done")
-        )
-        // eslint-disable-next-line no-console
-        .catch(() => console.log("Update code failed"));
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log("files save error", error);
-    }
+    const deletes = deletedFiles.map(file =>
+      filesWatcher.ignoredDeleteFile(sitePaths.toLocalCode(file))
+    );
+
+    await Promise.all([...updates, ...copies, ...deletes]);
   };
 
   return {

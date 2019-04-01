@@ -5,17 +5,25 @@ const socketIo = require("socket.io");
 const stoppable = require("stoppable");
 const listenOnFreePort = require("listen-on-free-port");
 
+const debug = require("../debug");
 const singleSocketConnectionMiddleware = require("./singleSocketConnectionMiddleware");
 
 const setupSocketServer = async defaultPort => {
   const app = express();
   app.use(cors());
   const server = http.Server(app);
-  const io = socketIo(server);
-  io.use(singleSocketConnectionMiddleware());
 
   await listenOnFreePort(defaultPort, ["localhost"], () =>
     stoppable(server, 0)
+  );
+
+  const port = server.address().port;
+
+  const io = socketIo(server);
+  io.use(
+    singleSocketConnectionMiddleware(() => {
+      debug.log(`blocking multiple connection on port [${port}]`);
+    })
   );
 
   return {
@@ -23,7 +31,7 @@ const setupSocketServer = async defaultPort => {
       io.close();
       server.close();
     },
-    port: server.address().port,
+    port,
     io
   };
 };
