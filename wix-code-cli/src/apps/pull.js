@@ -7,26 +7,6 @@ const pullApp = ({ useSsl = true } = {}) => ({
   serverMode: "clone",
   handler: async (wixCodeConfig, win, client, localServerStatus) => {
     await new Promise(async (resolve, reject) => {
-      // TODO remove this mutable state in favor of a server-supplied 'clone-complete' event
-      let documentDownloaded = false;
-      let codeDownloaded = false;
-
-      client.on("document-updated", () => {
-        documentDownloaded = true;
-        if (codeDownloaded) {
-          console.log(chalk.grey("Project downloaded"));
-          resolve();
-        }
-      });
-
-      client.on("code-updated", () => {
-        codeDownloaded = true;
-        if (documentDownloaded) {
-          console.log(chalk.grey("Project downloaded"));
-          resolve();
-        }
-      });
-
       // this event is not fired by the server yet
       client.on("clone-complete", () => {
         console.log(chalk.grey("Project downloaded"));
