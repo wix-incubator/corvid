@@ -24,7 +24,7 @@ const watch = async givenPath => {
   debug.log(`watching for file changes at [${givenPath}]`);
   const rootPath = fs.realpathSync(givenPath);
   if (rootPath !== givenPath) {
-    debug.log(`watched path resolved to [${rootPath}]`)
+    debug.log(`watched path resolved to [${rootPath}]`);
   }
   const siteRoots = getSiteRoots(rootPath);
   const fullPath = relativePath => path.join(rootPath, relativePath);
