@@ -67,7 +67,7 @@ const pullApp = ({ useSsl = true } = {}) => ({
 
     console.log(
       chalk.green(
-        "Pull complete, run 'wix-code open-editor' to start editing the local copy"
+        "Pull complete, run 'corvid open-editor' to start editing the local copy"
       )
     );
   }

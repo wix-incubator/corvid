@@ -6,7 +6,7 @@ const init = require("../apps/init");
 
 module.exports = {
   command: "init <url> [dir]",
-  describe: "intialises a local Wix Code copy",
+  describe: "intializes a local Wix Site copy",
   builder: args =>
     args
       .positional("url", { describe: "Public site URL", type: "string" })
