@@ -33,7 +33,7 @@ function extractDataFromPublicUrl(parsedUrl) {
 }
 
 async function extractMetasiteIdAndName(url, cookie) {
-  const publicSiteOrEditorUrl = normalize(url);
+  const publicSiteOrEditorUrl = normalize(url, { forceHttps: true });
   const parsedUrl = new URL(publicSiteOrEditorUrl);
   const siteList = await getUserSiteList(cookie);
 
@@ -53,7 +53,9 @@ async function extractMetasiteIdAndName(url, cookie) {
   } else {
     const site = siteList.find(
       site =>
-        site.publicUrl && normalize(site.publicUrl) === publicSiteOrEditorUrl
+        site.publicUrl &&
+        normalize(site.publicUrl, { forceHttps: true }) ===
+          publicSiteOrEditorUrl
     );
 
     return {
