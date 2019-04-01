@@ -28,7 +28,7 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
       if (editorConnected) {
         reject(
           chalk.red(
-            `The local Wix Code server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again.`
+            `The local Corvid server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again.`
           )
         );
       }

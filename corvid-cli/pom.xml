@@ -5,7 +5,7 @@
     <artifactId>corvid-cli</artifactId>
     <packaging>pom</packaging>
     <name>corvid-cli</name>
-    <description>Wix Code command line tool for local editing</description>
+    <description>Corvid command line tool for local editing</description>
     <version>1.0.0-SNAPSHOT</version>
 
     <parent>
