@@ -10,7 +10,12 @@
     "precommit": "lint-staged"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://repo.dev.wixpress.com/artifactory/api/npm/npm-repos",
+    "@wix:registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wix-private/wix-code-dev-experience.git"
   },
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "ISC",
@@ -31,7 +36,7 @@
     "wnpm-ci": "^7.0.11"
   },
   "dependencies": {
-    "corvid-dir-as-json": "*",
+    "dir-as-json": "*",
     "chokidar": "^2.1.2",
     "debug": "^4.1.1",
     "flat": "^4.1.0",

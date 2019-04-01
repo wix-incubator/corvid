@@ -1,5 +1,5 @@
 const { withClose } = require("corvid-local-test-utils");
-const { editor } = require("corvid-fake-local-mode-editor");
+const { editor } = require("fake-local-mode-editor");
 const localServer = require("../../src/server");
 const fakeCli = require("./fakeCli");
 

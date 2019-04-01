@@ -11,7 +11,7 @@ const isObject_ = require("lodash/isObject");
 const rimraf = require("rimraf");
 const path = require("path");
 const sitePaths = require("./sitePaths");
-const dirAsJson = require("corvid-dir-as-json");
+const dirAsJson = require("dir-as-json");
 const flat = require("flat");
 
 const flatten = data => flat(data, { delimiter: path.sep, safe: true });

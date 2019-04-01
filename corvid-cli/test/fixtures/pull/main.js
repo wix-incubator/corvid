@@ -1,9 +1,7 @@
 /* eslint-disable no-console */
 const process = require("process");
 const { app } = require("electron");
-const {
-  server: localFakeEditorServer
-} = require("corvid-fake-local-mode-editor");
+const { server: localFakeEditorServer } = require("fake-local-mode-editor");
 const { openWindow } = require("../../../src/utils/electron");
 const pullApp = require("../../../src/apps/pull");
 
