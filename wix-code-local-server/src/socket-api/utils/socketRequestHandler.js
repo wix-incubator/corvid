@@ -4,7 +4,10 @@ const handleRequest = handler => (...args) => {
   const payload = args.pop();
   return Promise.resolve(handler(payload))
     .then(result => callback(null, result))
-    .catch(err => callback(err));
+    .catch(err => {
+      callback(err);
+      throw err;
+    });
 };
 
 const createSocketRequestHandler = requestMap => socket => {
