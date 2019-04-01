@@ -91,9 +91,9 @@ const fromLocalCode = filePath => {
 const toLocalCode = file => {
   if (file.path.match(/^\/{0,1}public\/pages/)) {
     const {
-      metaData: { pageId, isPopUp, pageTitle: title }
+      metaData: { pageId, isPopup, title }
     } = file;
-    return isPopUp
+    return isPopup
       ? lightboxes({ pageId, title }, pageCodeExtention)
       : pages({ pageId, title }, pageCodeExtention);
   }
