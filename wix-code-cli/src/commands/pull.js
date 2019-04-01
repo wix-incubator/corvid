@@ -18,7 +18,7 @@ app &&
       );
     }
 
-    await openWindow(pullApp(), { show: false });
+    await openWindow(pullApp());
     app.exit(0);
   });
 

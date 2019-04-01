@@ -17,7 +17,7 @@ const { sendRequest } = require("../utils/socketIoHelpers");
 const signInHostname = "users.wix.com";
 const editorHostname = "editor.wix.com";
 
-const isHeadlessMode = !!process.env.WIXCODE_CLI_HEADLESS;
+const isHeadlessMode = !process.env.WIXCODE_CLI_DISABLE_HEADLESS;
 const isDevTools = !!process.env.WIXCODE_CLI_DEVTOOLS;
 
 function launch(file, options = {}) {
@@ -106,8 +106,8 @@ async function openWindow(app, windowOptions = {}) {
   const win = new BrowserWindow({
     width: 1280,
     height: 960,
-    ...windowOptions,
     show: !isHeadlessMode,
+    ...windowOptions,
     webPreferences: { nodeIntegration: false }
   });
 
