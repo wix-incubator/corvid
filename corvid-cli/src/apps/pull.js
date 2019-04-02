@@ -47,7 +47,7 @@ const pullApp = ({ useSsl = true } = {}) => ({
 
     console.log(
       chalk.green(
-        "Pull complete, run 'corvid open-editor' to start editing the local copy"
+        `Pull complete, change directory to '${process.cwd()}' and run 'corvid open-editor' to start editing the local copy`
       )
     );
   }
