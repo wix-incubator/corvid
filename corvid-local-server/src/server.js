@@ -37,13 +37,6 @@ async function startServer(siteRootPath, loadedInCloneMode) {
     }]`
   );
 
-  // eslint-disable-next-line no-console
-  console.log(
-    `Server started in ${
-      loadedInCloneMode ? "clone" : "edit"
-    } mode. Listening on ${editorServer.port}`
-  );
-
   return {
     port: editorServer.port,
     adminPort: adminServer.port,
