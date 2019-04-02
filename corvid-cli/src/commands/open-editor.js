@@ -19,6 +19,7 @@ app &&
     }
 
     await openWindow(openEditorApp(), { show: true });
+    app.exit(0);
   });
 
 module.exports = {
