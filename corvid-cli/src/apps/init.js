@@ -99,7 +99,9 @@ async function init(args, cookie) {
       throw chalk`{red Project already exists in ${dirName}}\nCancelling initialisation`;
     }
 
-    throw chalk`{red Target directory ${dirName} is not empty}\nCancelling initialisation`;
+    if (folderContents.some(item => !item.startsWith("."))) {
+      throw chalk`{red Target directory ${dirName} is not empty}\nCancelling initialisation`;
+    }
   }
 
   process.stdout.write(chalk.grey(`Initialising workspace in ${dirName}...`));

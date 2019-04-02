@@ -1,5 +1,5 @@
 const { version: moduleVersion } = require("../../package.json");
-const debug = require("../debug");
+const logger = require("corvid-local-logger");
 const editorSocketApi = require("./editorSocketHandler");
 const adminSocketApi = require("./adminSocketHandler");
 
@@ -26,7 +26,7 @@ const initServerApi = (
     const result = await asyncCallback(...args);
     const cloneModeAfter = isCloneMode();
     if (cloneModeBefore && !cloneModeAfter) {
-      debug.log("clone complete");
+      logger.verbose("clone complete");
       notifyAdmin("clone-complete");
     }
     return result;
@@ -38,20 +38,20 @@ const initServerApi = (
     Object.keys(editorServer.io.sockets.connected).length > 0;
 
   const getSiteDocument = () => {
-    debug.log("site document requested");
+    logger.verbose("site document requested");
     return localSite.getSiteDocument();
   };
 
   const getCodeFiles = () => {
-    debug.log("code files requested");
+    logger.verbose("code files requested");
     return localSite.getCodeFiles();
   };
 
   const updateSiteDocument = withCloneModeNotification(
     async updatedDocument => {
-      debug.log("updating local site document");
+      logger.verbose("updating local site document");
       const result = await localSite.updateSiteDocument(updatedDocument);
-      debug.log("updating local site document done");
+      logger.verbose("updating local site document done");
       notifyAdmin("document-updated");
       wasSiteDocumentUpdated = true;
       return result;
@@ -59,9 +59,9 @@ const initServerApi = (
   );
 
   const updateCodeFiles = withCloneModeNotification(async codeFileUpdates => {
-    debug.log("updating local code files");
+    logger.verbose("updating local code files");
     const result = await localSite.updateCode(codeFileUpdates);
-    debug.log("updating local code files done");
+    logger.verbose("updating local code files done");
     notifyAdmin("code-updated");
     wereCodeFilesUpdated = true;
     return result;
@@ -87,18 +87,18 @@ const initServerApi = (
   const editorSocketHandler = editorSocketApi(serverApi);
 
   adminServer.io.on("connection", adminSocket => {
-    debug.log("admin connected");
+    logger.verbose("admin connected");
     adminSocket.on("disconnect", () => {
-      debug.log("admin disconnected");
+      logger.verbose("admin disconnected");
     });
     return adminSocketHandler(adminSocket);
   });
 
   editorServer.io.on("connection", editorSocket => {
-    debug.log("editor connected");
+    logger.verbose("editor connected");
     notifyAdmin("editor-connected");
     editorSocket.on("disconnect", () => {
-      debug.log("editor disconnected");
+      logger.verbose("editor disconnected");
       notifyAdmin("editor-disconnected");
     });
     return editorSocketHandler(editorSocket);

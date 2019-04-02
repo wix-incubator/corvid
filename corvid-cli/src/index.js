@@ -1,3 +1,4 @@
 #!/usr/bin/env node
-require("./monitoring/initSentry");
+process.env.NODE_ENV = "production";
+require("corvid-local-logger");
 require("./cli");

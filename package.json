@@ -28,7 +28,8 @@
       "corvid-cli",
       "corvid-local-server",
       "corvid-local-site",
-      "corvid-local-test-utils"
+      "corvid-local-test-utils",
+      "corvid-local-logger"
     ],
     "nohoist": [
       "**/eslint*"
