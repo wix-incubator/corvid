@@ -157,8 +157,21 @@ const getLocalFilePath = siteItem => {
   });
 };
 
+const getLocalFileContent = siteItem => {
+  const file = itemToFile(siteItem);
+  return sc.matchItem(siteItem, {
+    [sc.pageWithCode]: () => ({ page: file[0].content, code: file[1].content }),
+    [sc.lightboxWithCode]: () => ({
+      lightbox: file[0].content,
+      code: file[1].content
+    }),
+    "*": () => file.content
+  });
+};
+
 module.exports = {
   buildFull,
   buildPartial,
-  getLocalFilePath
+  getLocalFilePath,
+  getLocalFileContent
 };

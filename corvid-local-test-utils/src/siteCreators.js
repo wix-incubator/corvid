@@ -141,12 +141,24 @@ const matchItem = (item, patterns) => {
   return matchingPattern({ ...item });
 };
 
-const creators = mapValues_(
+const isSameCreator = (item1, item2) => getType(item1) === getType(item2);
+
+const codeCreators = mapValues_(
+  {
+    pageWithCode,
+    lightboxWithCode,
+    publicCode,
+    backendCode,
+    collectionSchema,
+    masterPageCode
+  },
+  typedCreator
+);
+
+const documentCreators = mapValues_(
   {
     page,
-    pageWithCode,
     lightbox,
-    lightboxWithCode,
     router,
     colors,
     fonts,
@@ -157,19 +169,21 @@ const creators = mapValues_(
     multilingualInfo,
     siteInfo,
     version,
-    dataFromMasterPage,
-    publicCode,
-    backendCode,
-    collectionSchema,
-    masterPageCode
+    dataFromMasterPage
   },
   typedCreator
 );
 
+const creators = { ...documentCreators, ...codeCreators };
+
 const fullSiteItems = () => Object.values(creators).map(creator => creator());
 
 module.exports = {
+  getType,
   matchItem,
+  isSameCreator,
   fullSiteItems,
+  documentCreators,
+  codeCreators,
   ...creators
 };

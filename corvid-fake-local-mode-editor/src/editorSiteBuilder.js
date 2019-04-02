@@ -168,7 +168,20 @@ const buildFull = (...siteItems) => {
   return fullSite;
 };
 
+const getEditorCodeFilePath = item =>
+  sc.matchItem(item, {
+    [sc.pageWithCode]: ({ page }) => `public/pages/${page.pageId}.js`,
+    [sc.lightboxWithCode]: ({ lightbox }) =>
+      `public/pages/${lightbox.pageId}.js`,
+    [sc.publicCode]: ({ path }) => path,
+    [sc.masterPageCode]: () => `public/pages/masterPage.js`,
+    [sc.backendCode]: ({ path }) => path,
+    [sc.collectionSchema]: ({ collectionName }) =>
+      `.schemas/${collectionName}.json`
+  });
+
 module.exports = {
   buildFull,
-  buildPartial
+  buildPartial,
+  getEditorCodeFilePath
 };
