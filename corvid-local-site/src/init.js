@@ -1,4 +1,3 @@
-const fs = require("fs-extra");
 const reject_ = require("lodash/reject");
 const initWatcher = require("./watcher");
 const initReadWrite = require("./readWrite");
@@ -53,15 +52,6 @@ const initSiteManager = async siteRootPath => {
 
   return {
     close: watcher.close,
-
-    isEmpty: async () => {
-      const sitePathExists = await fs.exists(siteRootPath);
-      const siteContents = sitePathExists ? await fs.readdir(siteRootPath) : [];
-      return (
-        siteContents.length === 0 ||
-        (siteContents.length === 1 && siteContents[0] === ".corvidrc.json")
-      );
-    },
 
     getSiteDocument: readWrite.getSiteDocument,
     updateSiteDocument: readWrite.updateSiteDocument,

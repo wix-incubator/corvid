@@ -22,6 +22,21 @@ describe("edit mode", () => {
     await expect(server).rejects.toThrow("CAN_NOT_EDIT_EMPTY_SITE");
   });
 
+  it("should not start the server in edit mode if the site directoy only continas dot (.) files", async () => {
+    const localSiteFiles = {
+      ".logs": {
+        "some-log-file.log": "log log log"
+      },
+      ".corvidrc.json": "rc file"
+    };
+
+    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+
+    const server = localServer.startInEditMode(localSitePath);
+
+    await expect(server).rejects.toThrow("CAN_NOT_EDIT_EMPTY_SITE");
+  });
+
   it("should send code files to the editor on load", async () => {
     const siteItems = [
       sc.publicCode(),

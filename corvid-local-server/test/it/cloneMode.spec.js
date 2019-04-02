@@ -25,6 +25,23 @@ describe("clone mode", () => {
     await expect(server).rejects.toThrow("CAN_NOT_CLONE_NON_EMPTY_SITE");
   });
 
+  it("should start if the directoy only contains dot (.) files", async () => {
+    const localSitePath = await initLocalSite({
+      ".logs": {
+        "some-log-file.log": "log log log"
+      },
+      ".corvidrc.json": "rc file"
+    });
+
+    const server = localServer.startInCloneMode(localSitePath);
+
+    await expect(server).resolves.toMatchObject({
+      port: expect.any(Number),
+      adminPort: expect.any(Number),
+      close: expect.any(Function)
+    });
+  });
+
   // TODO: should not start the server in clone mode if the site directory does not exist ?
 
   it("should save localy the editor's document on load", async () => {
