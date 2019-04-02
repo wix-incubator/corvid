@@ -1,8 +1,7 @@
 const fs = require("fs-extra");
 const path = require("path");
 const eventually = require("wix-eventually");
-const { withClose } = require("corvid-local-test-utils");
-const makeTempDir = require("../utils/makeTempDir");
+const { withClose, initTempDir } = require("corvid-local-test-utils");
 const watch = withClose.add(require("../../src/watcher"));
 
 afterEach(withClose.closeAll);
@@ -10,7 +9,7 @@ afterEach(withClose.closeAll);
 describe("watcher", () => {
   describe("onAdd", () => {
     it("should notify about a new file", async () => {
-      const rootPath = await makeTempDir();
+      const rootPath = await initTempDir();
       const relativeFilePath = "public/test-file.js";
       const fullFilePath = path.join(rootPath, relativeFilePath);
       const watcher = await watch(rootPath);
@@ -30,7 +29,7 @@ describe("watcher", () => {
 
   describe("onChange", () => {
     it("should notify about a changed file", async () => {
-      const rootPath = await makeTempDir();
+      const rootPath = await initTempDir();
       const relativeFilePath = "public/test-file.js";
       const fullFilePath = path.join(rootPath, relativeFilePath);
 
@@ -57,7 +56,7 @@ describe("watcher", () => {
 
   describe("onDelete", () => {
     it("should notify about a deleted file", async () => {
-      const rootPath = await makeTempDir();
+      const rootPath = await initTempDir();
       const relativeFilePath = "public/test-file.js";
       const fullFilePath = path.join(rootPath, relativeFilePath);
       const deleteHandler = jest.fn();
@@ -88,7 +87,7 @@ describe("watcher", () => {
 
   describe("ignoredWriteFile", () => {
     it("should not trigger a file add event", async () => {
-      const rootPath = await makeTempDir();
+      const rootPath = await initTempDir();
       const addHandler = jest.fn();
       const watcher = await watch(rootPath);
       const relativeFilePath = "public/test-file.js";
@@ -108,7 +107,7 @@ describe("watcher", () => {
       await watcher.close();
     });
     it("should not trigger a change event on add of a new file", async () => {
-      const rootPath = await makeTempDir();
+      const rootPath = await initTempDir();
       const addHandler = jest.fn();
       const changeHandler = jest.fn();
       const watcher = await watch(rootPath);
@@ -129,7 +128,7 @@ describe("watcher", () => {
       await watcher.close();
     });
     it("should not trigger a change event on changing of an existing file", async () => {
-      const rootPath = await makeTempDir();
+      const rootPath = await initTempDir();
       const changeHandler = jest.fn();
       const relativeFilePath = "public/test-file.js";
       const relativeFilePath2 = "public/test-file-2.js";
@@ -162,7 +161,7 @@ describe("watcher", () => {
 
   describe("ignoredDeleteFile", () => {
     it("should not notify about a deleted file", async () => {
-      const rootPath = await makeTempDir();
+      const rootPath = await initTempDir();
       const relativeFilePath = "public/test-file.js";
       const relativeFilePath2 = "public/test-file-2.js";
       const fullFilePath = path.join(rootPath, relativeFilePath);
@@ -190,7 +189,7 @@ describe("watcher", () => {
 
   describe("ignoredCopyFile", () => {
     it("should not trigger an add event on copying of an existing file", async () => {
-      const rootPath = await makeTempDir();
+      const rootPath = await initTempDir();
       const addHandler = jest.fn();
       const relativeFilePath = "public/test-file.js";
       const relativeFileCopyPath = "public/test-file-copy.js";

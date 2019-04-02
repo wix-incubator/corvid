@@ -1,16 +1,7 @@
 const path = require("path");
 const fs = require("fs-extra");
-const util = require("util");
-const temp = require("temp").track();
 const dirAsJson = require("corvid-dir-as-json");
-
-const makeTempDir = util.promisify(temp.mkdir);
-
-const initLocalSite = async localSiteFiles => {
-  const tempLocalSitePath = await makeTempDir("test-site");
-  await dirAsJson.writeJsonToDir(tempLocalSitePath, localSiteFiles);
-  return tempLocalSitePath;
-};
+const { initTempDir } = require("corvid-local-test-utils");
 
 const readLocalSite = localSitePath => dirAsJson.readDirToJson(localSitePath);
 
@@ -30,7 +21,7 @@ const isFolderExsist = async (localSitePath, folderPath) =>
 
 module.exports = {
   isFolderExsist,
-  initLocalSite,
+  initLocalSite: initTempDir,
   readLocalSite,
   writeFile,
   deleteFile
