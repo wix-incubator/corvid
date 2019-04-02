@@ -32,8 +32,8 @@
   },
   "dependencies": {
     "corvid-dir-as-json": "~0.1.0",
+    "corvid-local-logger": "~0.1.0",
     "chokidar": "^2.1.2",
-    "debug": "^4.1.1",
     "flat": "^4.1.0",
     "fs-extra": "^7.0.1",
     "lodash": "^4.17.11",

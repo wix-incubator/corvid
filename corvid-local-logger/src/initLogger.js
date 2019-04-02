@@ -1,13 +1,14 @@
+const path = require("path");
 const winston = require("winston");
 const initSentry = require("./initSentry");
 const SentryTransport = require("./SentryTransport");
 
 const logFileName = sessionId => `.logs/corvid-${sessionId}.log`;
 
-const logFileTransport = sessionId =>
+const logFileTransport = (sessionId, rootPath) =>
   new winston.transports.File({
     level: process.env.LOG_LEVEL || "info",
-    filename: logFileName(sessionId),
+    filename: path.join(rootPath, logFileName(sessionId)),
     defaultMeta: { sessionId },
     format: winston.format.combine(
       winston.format.errors({ stack: true }),
@@ -56,10 +57,10 @@ const consoleTransport = () =>
     handleRejections: true
   });
 
-const initLogger = sessionId => {
+const initLogger = (sessionId, cwd) => {
   const logger = winston.createLogger({
     transports: [
-      logFileTransport(sessionId),
+      logFileTransport(sessionId, cwd),
       crashConsoleTransport(sessionId),
       sentryTransport(sessionId)
     ]

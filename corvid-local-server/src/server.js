@@ -2,7 +2,7 @@ const {
   isSiteEmpty,
   initSiteManager: initLocalSiteManager
 } = require("corvid-local-site");
-const debug = require("./debug");
+const logger = require("corvid-local-logger");
 
 const startSocketServer = require("./server/startSocketServer");
 
@@ -12,16 +12,16 @@ const DEFAULT_EDITOR_PORT = 5000;
 const DEFAULT_ADMIN_PORT = 3000;
 
 async function startServer(siteRootPath, loadedInCloneMode) {
-  debug.log(`server starting at [${siteRootPath}]`);
+  logger.info(`server starting at [${siteRootPath}]`);
 
   const isSitePathEmpty = await isSiteEmpty(siteRootPath);
 
   if (loadedInCloneMode && !isSitePathEmpty) {
-    debug.log("cannot clone into a non empty site directory");
+    logger.info("cannot clone into a non empty site directory");
     throw new Error("CAN_NOT_CLONE_NON_EMPTY_SITE");
   }
   if (!loadedInCloneMode && isSitePathEmpty) {
-    debug.log("cannot edit an empty site directory");
+    logger.info("cannot edit an empty site directory");
     throw new Error("CAN_NOT_EDIT_EMPTY_SITE");
   }
 
@@ -31,7 +31,7 @@ async function startServer(siteRootPath, loadedInCloneMode) {
 
   initServerApi(localSite, adminServer, editorServer, loadedInCloneMode);
 
-  debug.log(
+  logger.info(
     `server listening at editor port [${editorServer.port}], admin port [${
       adminServer.port
     }]`
@@ -41,7 +41,7 @@ async function startServer(siteRootPath, loadedInCloneMode) {
     port: editorServer.port,
     adminPort: adminServer.port,
     close: () => {
-      debug.log("server closing");
+      logger.info("server closing");
       localSite.close();
       editorServer.close();
       adminServer.close();
