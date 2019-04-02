@@ -65,15 +65,14 @@ const watch = async givenPath => {
 
     onAdd: callback => {
       watcher.on("add", async relativePath => {
-        const fullFilePath = fullPath(relativePath);
         if (!isIgnoredAction("write", relativePath)) {
-          debug.log(`reporting new file at [${fullFilePath}]`);
+          debug.log(`reporting new file at [${relativePath}]`);
           callback(
             sitePaths.fromLocalCode(relativePath),
-            await fs.readFile(fullFilePath, "utf8")
+            await fs.readFile(fullPath(relativePath), "utf8")
           );
         } else {
-          debug.log(`ignoring new file at [${fullFilePath}]`);
+          debug.log(`ignoring new file at [${relativePath}]`);
           removeFromIgnoredActions("write", relativePath);
         }
       });
@@ -81,15 +80,14 @@ const watch = async givenPath => {
 
     onChange: callback => {
       watcher.on("change", async relativePath => {
-        const fullFilePath = fullPath(relativePath);
         if (!isIgnoredAction("write", relativePath)) {
-          debug.log(`reporting modified file at [${fullFilePath}]`);
+          debug.log(`reporting modified file at [${relativePath}]`);
           callback(
             sitePaths.fromLocalCode(relativePath),
-            await fs.readFile(fullFilePath, "utf8")
+            await fs.readFile(fullPath(relativePath), "utf8")
           );
         } else {
-          debug.log(`ignoring modified file at [${fullFilePath}]`);
+          debug.log(`ignoring modified file at [${relativePath}]`);
           removeFromIgnoredActions("write", relativePath);
         }
       });
@@ -97,42 +95,49 @@ const watch = async givenPath => {
 
     onDelete: callback => {
       watcher.on("unlink", relativePath => {
-        const fullFilePath = fullPath(relativePath);
         if (!isIgnoredAction("delete", relativePath)) {
-          debug.log(`reporting deleted file at [${fullFilePath}]`);
+          debug.log(`reporting deleted file at [${relativePath}]`);
           callback(sitePaths.fromLocalCode(relativePath));
         } else {
-          debug.log(`ignoring deleted file at [${fullFilePath}]`);
+          debug.log(`ignoring deleted file at [${relativePath}]`);
           removeFromIgnoredActions("delete", relativePath);
         }
       });
     },
 
     ignoredWriteFile: async (relativePath, content) => {
+      debug.log(`writing file ${relativePath}`);
       try {
         ignoreAction("write", relativePath);
         await ensureWriteFile(fullPath(relativePath), content);
       } catch (e) {
         removeFromIgnoredActions("write", relativePath);
+        throw e;
       }
     },
 
     ignoredWriteFolder: async relativePath => {
+      debug.log(`writing folder ${relativePath}`);
       watcher.unwatch(relativePath);
       await ensureWriteFolder(fullPath(relativePath));
       watcher.add(relativePath);
     },
 
     ignoredDeleteFile: async relativePath => {
+      debug.log(`deleting file ${relativePath}`);
       try {
         ignoreAction("delete", relativePath);
         await fs.unlink(fullPath(relativePath));
       } catch (e) {
         removeFromIgnoredActions("delete", relativePath);
+        throw e;
       }
     },
 
     ignoredCopyFile: async (relativeSourcePath, relativeTargetPath) => {
+      debug.log(
+        `copying file from ${relativeSourcePath} to ${relativeTargetPath}`
+      );
       try {
         ignoreAction("write", relativeTargetPath);
         await fs.copyFile(
@@ -141,6 +146,7 @@ const watch = async givenPath => {
         );
       } catch (e) {
         removeFromIgnoredActions("write", relativeTargetPath);
+        throw e;
       }
     }
   };
