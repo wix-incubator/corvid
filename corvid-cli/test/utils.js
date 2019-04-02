@@ -1,19 +1,26 @@
 const childProcess = require("child_process");
 const path = require("path");
 const electron = require("electron");
+const { initTempDir } = require("corvid-local-test-utils");
+const { readDirToJson } = require("corvid-dir-as-json");
 
 function runFixture(name, site, ...args) {
-  return new Promise(resolve => {
+  return new Promise(async resolve => {
     const stderr = [];
     const stdout = [];
 
-    const wd = path.resolve(path.join(__dirname, "fixtures", name, site));
+    const fixtureDir = path.resolve(
+      path.join(__dirname, "fixtures", name, site)
+    );
+
+    const tempWorkingDir = await initTempDir(await readDirToJson(fixtureDir));
+
     const arguments_ = [
       path.resolve(path.join(__dirname, "fixtures", name, "main.js")),
       ...args
     ];
     const child = childProcess.spawn(electron, arguments_, {
-      cwd: wd,
+      cwd: tempWorkingDir,
       env: { ...process.env, FORCE_COLOR: "yes" }
     });
 
