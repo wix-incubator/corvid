@@ -14,11 +14,6 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         //resolve();
       });
 
-      client.on("editor-disconnected", () => {
-        console.log(chalk.grey("Editor disconnected"));
-        resolve();
-      });
-
       const {
         editorConnected,
         mode,

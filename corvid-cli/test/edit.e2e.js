@@ -1,38 +1,40 @@
 const { runFixture } = require("./utils");
 
 describe("edit", () => {
-  const promise = runFixture("edit", "non-empty-site");
+  describe.skip("when run in a folder with a local version of the site", () => {
+    const promise = runFixture("edit", "non-empty-site");
 
-  test("should connect to a local server", () => {
-    expect.assertions(1);
+    test("should connect to a local server", () => {
+      expect.assertions(1);
 
-    return expect(promise).resolves.toMatchObject([
-      0,
-      expect.arrayContaining([
-        expect.stringMatching(/Local server connection established/)
-      ]),
-      expect.anything()
-    ]);
-  });
+      return expect(promise).resolves.toMatchObject([
+        0,
+        expect.arrayContaining([
+          expect.stringMatching(/Local server connection established/)
+        ]),
+        expect.anything()
+      ]);
+    });
 
-  test("should open the app with the correct editor URL", () => {
-    expect.assertions(1);
+    test("should open the app with the correct editor URL", () => {
+      expect.assertions(1);
 
-    return expect(promise).resolves.toMatchObject([
-      0,
-      expect.arrayContaining([expect.stringMatching(/fake editor loaded/)]),
-      expect.anything()
-    ]);
-  });
+      return expect(promise).resolves.toMatchObject([
+        0,
+        expect.arrayContaining([expect.stringMatching(/fake editor loaded/)]),
+        expect.anything()
+      ]);
+    });
 
-  test("should open the editor with the local server port", () => {
-    expect.assertions(1);
+    test("should open the editor with the local server port", () => {
+      expect.assertions(1);
 
-    return expect(promise).resolves.toMatchObject([
-      0,
-      expect.arrayContaining([expect.stringMatching(/Editor connected/)]),
-      expect.anything()
-    ]);
+      return expect(promise).resolves.toMatchObject([
+        0,
+        expect.arrayContaining([expect.stringMatching(/Editor connected/)]),
+        expect.anything()
+      ]);
+    });
   });
 
   describe.skip("when the local server is already running in clone mode", () => {
