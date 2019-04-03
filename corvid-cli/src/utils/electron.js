@@ -25,7 +25,6 @@ function launch(file, options = {}) {
     FORCE_COLOR: "yes"
   };
   const cp = childProcess.spawn(electron, [path.resolve(path.join(file))], {
-    windowsHide: true,
     ...options
   });
 
