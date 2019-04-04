@@ -114,6 +114,18 @@ const readWrite = (siteRootPath, filesWatcher) => {
       })
     );
 
+  const siteDocumentToEmptyPageCodeFiles = siteDocument => {
+    let emptyCodeFiles = [];
+    if (isObject_(siteDocument.pages)) {
+      emptyCodeFiles = payloadConvertors
+        .pages(siteDocument.pages)
+        .map(file => ({
+          path: sitePaths.fromPageFileToCodeFile(file.path)
+        }));
+    }
+    return emptyCodeFiles;
+  };
+
   const deleteFolder = folderPath =>
     new Promise(resolve =>
       rimraf(sitePaths.getDocumentFolderRegex(fullPath(folderPath)), resolve)
@@ -132,14 +144,21 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
   const updateSiteDocument = async newDocumentPayload => {
     await deleteExistingFolders();
+
     // convert payload to filesToWrite
     const filesToWrite = siteDocumentToFiles(newDocumentPayload);
+    const filesToEnsure = siteDocumentToEmptyPageCodeFiles(newDocumentPayload);
 
     // write all files to file system
-    const filesPromises = filesToWrite.map(file =>
+    const writeFilesPromises = filesToWrite.map(file =>
       filesWatcher.ignoredWriteFile(file.path, stringify(file.content))
     );
-    await Promise.all(filesPromises);
+
+    const ensureFilesPromises = filesToEnsure.map(file =>
+      filesWatcher.ignoredEnsureFile(file.path)
+    );
+
+    await Promise.all([...writeFilesPromises, ...ensureFilesPromises]);
   };
 
   const ensureCodeFoldersExsist = async () => {

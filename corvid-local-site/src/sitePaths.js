@@ -118,6 +118,9 @@ const toLocalCode = file => {
   return file.path;
 };
 
+const fromPageFileToCodeFile = path =>
+  path.replace(fileExtention, pageCodeExtention);
+
 //todo:: isCodeFiles should ignore files that starts with a .
 const isCodeFile = relativePath => !relativePath.endsWith(fileExtention);
 const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
@@ -127,6 +130,7 @@ module.exports = {
   siteFolders,
   codeFolders,
   getDocumentFolderRegex,
+  fromPageFileToCodeFile,
   fromLocalCode,
   toLocalCode,
   fileExtention,

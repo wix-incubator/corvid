@@ -10,7 +10,7 @@ const readDirToJson = async dirPath => {
     return Object.assign({}, dirAsJson, {
       [relativePath]: stats.isDirectory()
         ? await readDirToJson(fullPath)
-        : await fs.readFile(fullPath, "utf8")
+        : (await fs.readFile(fullPath, "utf8")) || ""
     });
   }, {});
 };

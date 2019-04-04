@@ -1,3 +1,4 @@
+const get_ = require("lodash/get");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { siteCreators: sc } = require("corvid-local-test-utils");
@@ -43,7 +44,6 @@ describe("clone mode", () => {
   });
 
   // TODO: should not start the server in clone mode if the site directory does not exist ?
-
   it("should save localy the editor's document on load", async () => {
     const siteItems = sc.fullSiteItems();
 
@@ -54,7 +54,9 @@ describe("clone mode", () => {
     const server = await localServer.startInCloneMode(localSitePath);
     await loadEditor(server.port, editorSite);
     const localSiteFiles = await readLocalSite(localSitePath);
-    expect(localSiteFiles).toEqual(expectedLocalSite);
+
+    // todo:: change localSiteBuilder to add empty code page by default (when page cerator is called)
+    expect(localSiteFiles).toMatchObject(expectedLocalSite);
   });
 
   it("should save code files on load", async () => {
@@ -120,6 +122,42 @@ describe("clone mode", () => {
     const serverFiles = await readLocalSite(localSitePath);
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
+  });
+
+  it("should create empty page code file on local file system if page with no code is sent on load", async () => {
+    const page = sc.page();
+
+    const localSitePath = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSitePath);
+
+    const editorSite = editorSiteBuilder.buildFull(page);
+    await loadEditor(server.port, editorSite);
+
+    const serverFiles = await readLocalSite(localSitePath);
+    const pageCodePath = localSiteBuilder
+      .getLocalFilePath(page)
+      .replace(".wix", ".js");
+    const fileContent = get_(serverFiles, pageCodePath.split("/"));
+
+    expect(fileContent).toBe("");
+  });
+
+  it("should create empty lightbox code file on local file system if lightbox with no code is sent on load", async () => {
+    const lightbox = sc.lightbox();
+
+    const localSitePath = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSitePath);
+
+    const editorSite = editorSiteBuilder.buildFull(lightbox);
+    await loadEditor(server.port, editorSite);
+
+    const serverFiles = await readLocalSite(localSitePath);
+    const pageCodePath = localSiteBuilder
+      .getLocalFilePath(lightbox)
+      .replace(".wix", ".js");
+    const fileContent = get_(serverFiles, pageCodePath.split("/"));
+
+    expect(fileContent).toBe("");
   });
 
   it.each(["backend", "public", "database"])(

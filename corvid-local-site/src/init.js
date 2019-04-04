@@ -6,8 +6,8 @@ const sitePaths = require("./sitePaths");
 const initSiteManager = async siteRootPath => {
   const watcher = await initWatcher(siteRootPath);
   const readWrite = initReadWrite(siteRootPath, watcher);
-  const codeChangedCallbacks = [];
-  const documentChangedCallbacks = [];
+  let codeChangedCallbacks = [];
+  let documentChangedCallbacks = [];
 
   watcher.onAdd((filePath, content) => {
     if (sitePaths.isCodeFile(filePath)) {
@@ -42,12 +42,16 @@ const initSiteManager = async siteRootPath => {
 
   const onCodeChanged = cb => {
     codeChangedCallbacks.push(cb);
-    return () => reject_(codeChangedCallbacks, cb);
+    return () => {
+      codeChangedCallbacks = reject_(codeChangedCallbacks, cb);
+    };
   };
 
   const onDocumentChanged = cb => {
     documentChangedCallbacks.push(cb);
-    return () => reject_(documentChangedCallbacks, cb);
+    return () => {
+      documentChangedCallbacks = reject_(documentChangedCallbacks, cb);
+    };
   };
 
   return {
