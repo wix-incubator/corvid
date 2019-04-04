@@ -8,7 +8,7 @@ const pickBy_ = require("lodash/pickBy");
 const flatten_ = require("lodash/flatten");
 const partial_ = require("lodash/partial");
 const isObject_ = require("lodash/isObject");
-const rimraf = require("rimraf");
+const compact_ = require("lodash/compact");
 const path = require("path");
 const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
@@ -126,10 +126,30 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return emptyCodeFiles;
   };
 
-  const deleteFolder = folderPath =>
-    new Promise(resolve =>
-      rimraf(sitePaths.getDocumentFolderRegex(fullPath(folderPath)), resolve)
+  const deleteFolder = async folderPath => {
+    const isWixFile = async filePath => {
+      const stat = await fs.stat(fullPath(filePath));
+      return !stat.isDirectory() && filePath.endsWith(sitePaths.fileExtention);
+    };
+
+    if (!(await fs.exists(fullPath(folderPath)))) {
+      return;
+    }
+    const filesPaths = (await fs.readdir(fullPath(folderPath))).map(fileName =>
+      path.join(folderPath, fileName)
     );
+    const filteredPaths = compact_(
+      await Promise.all(
+        filesPaths.map(async filePath =>
+          (await isWixFile(filePath)) ? filePath : ""
+        )
+      )
+    );
+    const filePromises = filteredPaths.map(filesRelativePath => {
+      return filesWatcher.ignoredDeleteFile(filesRelativePath);
+    });
+    return Promise.all(filePromises);
+  };
 
   const deleteExistingFolders = async () => {
     await Promise.all([
