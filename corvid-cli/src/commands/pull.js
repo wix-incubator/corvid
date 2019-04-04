@@ -1,8 +1,11 @@
 /* eslint-disable no-console */
+const path = require("path");
 const process = require("process");
+const chalk = require("chalk");
 const { app } = require("electron");
 const { openWindow, launch } = require("../utils/electron");
 const pullApp = require("../apps/pull");
+const createSpinner = require("../utils/spinner");
 
 app &&
   app.on("ready", async () => {
@@ -22,6 +25,29 @@ app &&
     app.exit(0);
   });
 
+async function pullCommand(spinner, args) {
+  spinner.start(chalk.grey("Connecting to local server"));
+
+  return launch(
+    __filename,
+    {
+      cwd: args.C,
+      env: { ...process.env, IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate }
+    },
+    {
+      localServerConnected: () => {
+        spinner.start(chalk.grey("Waiting for editor to connect"));
+      },
+      editorConnected: () => {
+        spinner.start(chalk.grey("Downloading project"));
+      },
+      projectDownloaded: () => {
+        spinner.start(chalk.grey("Downloaded project"));
+      }
+    }
+  );
+}
+
 module.exports = {
   command: "pull",
   describe: "pulls a local copy of the site",
@@ -33,9 +59,24 @@ module.exports = {
         describe: "ignore certificate errors",
         type: "boolean"
       }),
-  handler: args =>
-    launch(__filename, {
-      cwd: args.C,
-      env: { ...process.env, IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate }
-    })
+  handler: async args => {
+    const { login } = require("./login");
+    const spinner = createSpinner();
+    login(spinner)
+      .then(async () => {
+        await pullCommand(spinner, args);
+        spinner.stop();
+        console.log(
+          chalk.green(
+            `Pull complete, change directory to '${path.resolve(
+              args.C
+            )}' and run 'corvid open-editor' to start editing the local copy`
+          )
+        );
+      })
+      .catch(() => {
+        spinner.fail();
+      });
+  },
+  pull: pullCommand
 };

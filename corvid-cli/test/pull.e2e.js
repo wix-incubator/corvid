@@ -8,9 +8,7 @@ describe("pull", () => {
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining([
-        expect.stringMatching(/Local server connection established/)
-      ]),
+      expect.arrayContaining([expect.stringMatching(/localServerConnected/)]),
       expect.anything()
     ]);
   });
@@ -30,7 +28,7 @@ describe("pull", () => {
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining([expect.stringMatching(/Editor connected/)]),
+      expect.arrayContaining([expect.stringMatching(/editorConnected/)]),
       expect.anything()
     ]);
   });
@@ -40,7 +38,7 @@ describe("pull", () => {
 
     return expect(promise).resolves.toMatchObject([
       0,
-      expect.arrayContaining([expect.stringMatching(/Project downloaded/)]),
+      expect.arrayContaining([expect.stringMatching(/projectDownloaded/)]),
       expect.anything()
     ]);
   });

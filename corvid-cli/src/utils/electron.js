@@ -12,13 +12,10 @@ const serverErrors = require("../utils/server-errors");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const { sendRequest } = require("../utils/socketIoHelpers");
 
-const signInHostname = "users.wix.com";
-const editorHostname = "editor.wix.com";
-
 const isHeadlessMode = !process.env.CORVID_CLI_DISABLE_HEADLESS;
 const isDevTools = !!process.env.CORVID_CLI_DEVTOOLS;
 
-function launch(file, options = {}) {
+function launch(file, options = {}, callbacks = {}) {
   options.env = {
     ...process.env,
     ...options.env,
@@ -39,9 +36,14 @@ function launch(file, options = {}) {
         cp.stdout.on("data", function(data) {
           try {
             const msg = JSON.parse(data);
-            messages.push(msg);
+            if (typeof msg === "object") {
+              messages.push(msg);
+              if (msg.event && typeof callbacks[msg.event] === "function") {
+                callbacks[msg.event](msg.payload);
+              }
+            }
           } catch (_) {
-            process.stdout.write(data.toString());
+            return;
           }
         });
 
@@ -77,7 +79,7 @@ async function connectToLocalServer(serverMode, win) {
 
   await new Promise((resolve, reject) => {
     clnt.on("connect", () => {
-      console.log(chalk.grey("Local server connection established"));
+      console.log(JSON.stringify({ event: "localServerConnected" }));
       resolve();
     });
 
@@ -85,7 +87,7 @@ async function connectToLocalServer(serverMode, win) {
   });
 
   clnt.on("editor-connected", () => {
-    console.log(chalk.grey("Editor connected"));
+    console.log(JSON.stringify({ event: "editorConnected" }));
   });
 
   const localServerStatus = await sendRequest(clnt, "GET_STATUS");
@@ -102,20 +104,7 @@ async function openWindow(app, windowOptions = {}) {
     webPreferences: { nodeIntegration: false }
   });
 
-  let didAuthenticate = false;
   try {
-    win.webContents.on("did-navigate", (event, url) => {
-      const parsed = new URL(url);
-      if (parsed.hostname === signInHostname) {
-        didAuthenticate = true;
-        process.stdout.write(chalk.grey("Authenticating Wix user..."));
-        win.show();
-      } else if (parsed.hostname === editorHostname && didAuthenticate) {
-        process.stdout.write(chalk.green("  Done\n"));
-        win.hide();
-      }
-    });
-
     if (isDevTools) {
       win.webContents.openDevTools({ mode: "detach" });
     }

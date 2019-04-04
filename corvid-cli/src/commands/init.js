@@ -1,8 +1,10 @@
 /* eslint-disable no-console */
 const path = require("path");
 const chalk = require("chalk");
-const { launch } = require("../utils/electron");
 const init = require("../apps/init");
+const { login } = require("./login");
+const { pull } = require("./pull");
+const createSpinner = require("../utils/spinner");
 
 module.exports = {
   command: "init <url> [dir]",
@@ -19,27 +21,41 @@ module.exports = {
         type: "boolean"
       }),
   handler: args => {
-    launch(path.resolve(path.join(__dirname, "login.js")))
-      .then(messages =>
-        init(args, messages.filter(({ msg }) => msg === "authCookie")[0].cookie)
-      )
-      .then(projectDir =>
-        launch(path.resolve(path.join(__dirname, "pull.js")), {
-          cwd: projectDir,
-          env: {
-            ...process.env,
-            IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
-          }
-        })
-      )
+    const spinner = createSpinner();
+    login(spinner)
+      .then(async cookie => {
+        if (cookie) {
+          const projectDir = await init(spinner, args, cookie);
+          await pull(spinner, {
+            C: projectDir,
+            ignoreCertificate: args.ignoreCertificate
+          });
+
+          spinner.stop();
+          console.log(
+            chalk.green(
+              `Initialisation complete, change directory to '${path.resolve(
+                projectDir
+              )}' and run 'corvid open-editor' to start editing the local copy`
+            )
+          );
+        } else {
+          throw new Error("Login failed");
+        }
+      })
       .then(
         () => process.exit(0),
         error => {
-          if (error.name && error.name === "FetchError") {
-            console.log(chalk.red("Failed to retrieve site list"));
-          } else {
-            console.log(error);
+          if (error) {
+            if (error.name === "FetchError") {
+              console.log(chalk.red("Failed to retrieve site list"));
+            } else if (error.message) {
+              console.log(chalk.red(error.message));
+            } else {
+              console.log(error);
+            }
           }
+
           process.exit(-1);
         }
       );

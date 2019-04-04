@@ -1,6 +1,5 @@
 /* global fetch */
 require("isomorphic-fetch");
-const process = require("process");
 const chalk = require("chalk");
 const normalize = require("normalize-url");
 const path = require("path");
@@ -65,50 +64,56 @@ async function extractMetasiteIdAndName(url, cookie) {
   }
 }
 
-async function init(args, cookie) {
-  const { metasiteId, siteName } = await extractMetasiteIdAndName(
-    args.url,
-    cookie
-  );
-
-  if (metasiteId == null) {
-    throw chalk.red(`Could not extract the metasite ID of ${args.url}`);
-  }
-
-  if (siteName == null) {
-    throw chalk.red(`Could not extract the site name of ${args.url}`);
-  }
-
-  const dirName = path.resolve(path.join(args.dir || ".", siteName));
-
-  if (dirName == null) {
-    throw chalk.red("Could not extract site name, and no directory given");
-  }
-
+async function init(spinner, args, cookie) {
+  spinner.start(chalk.grey("Getting site information"));
   try {
-    fs.mkdirSync(dirName, { recursive: true, mode: 0o755 });
+    const { metasiteId, siteName } = await extractMetasiteIdAndName(
+      args.url,
+      cookie
+    );
+
+    if (metasiteId == null) {
+      throw new Error(`Could not extract the metasite ID of ${args.url}`);
+    }
+
+    if (siteName == null) {
+      throw new Error(`Could not extract the site name of ${args.url}`);
+    }
+
+    const dirName = path.resolve(path.join(args.dir || ".", siteName));
+
+    if (dirName == null) {
+      throw new Error("Could not extract site name, and no directory given");
+    }
+
+    spinner.start(chalk.grey(`Initialising workspace in ${dirName}`));
+    try {
+      fs.mkdirSync(dirName, { recursive: true, mode: 0o755 });
+    } catch (exc) {
+      if (exc.code !== "EEXIST") {
+        throw new Error(`Error creating target directory ${dirName}`);
+      }
+    }
+
+    const folderContents = fs.readdirSync(dirName);
+    if (folderContents.length > 0 && !args.force) {
+      if (folderContents.includes(".corvidrc.json")) {
+        throw new Error(`Project already exists in ${dirName}`);
+      }
+
+      if (folderContents.some(item => !item.startsWith("."))) {
+        throw new Error(`Target directory ${dirName} is not empty`);
+      }
+    }
+
+    await writeCorvidConfig(dirName, { metasiteId });
+    spinner.start(chalk.grey(`Initialised workspace in ${dirName}`));
+
+    return dirName;
   } catch (exc) {
-    if (exc.code !== "EEXIST") {
-      throw chalk.red(`Error creating target directory ${dirName}`);
-    }
+    spinner.fail();
+    throw exc;
   }
-
-  const folderContents = fs.readdirSync(dirName);
-  if (folderContents.length > 0 && !args.force) {
-    if (folderContents.includes(".corvidrc.json")) {
-      throw chalk`{red Project already exists in ${dirName}}\nCancelling initialisation`;
-    }
-
-    if (folderContents.some(item => !item.startsWith("."))) {
-      throw chalk`{red Target directory ${dirName} is not empty}\nCancelling initialisation`;
-    }
-  }
-
-  process.stdout.write(chalk.grey(`Initialising workspace in ${dirName}...`));
-  writeCorvidConfig(dirName, { metasiteId });
-  process.stdout.write(chalk.green("  Done.\n"));
-
-  return dirName;
 }
 
 module.exports = init;

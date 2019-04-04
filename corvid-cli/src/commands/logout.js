@@ -2,6 +2,7 @@
 const chalk = require("chalk");
 const { app, BrowserWindow } = require("electron");
 const { launch } = require("../utils/electron");
+const createSpinner = require("../utils/spinner");
 
 app &&
   app.on("ready", async () => {
@@ -15,7 +16,6 @@ app &&
 
       await new Promise(resolve => {
         win.webContents.session.clearStorageData(() => {
-          console.log(chalk.green("Cleared offline data"));
           resolve();
         });
       });
@@ -30,5 +30,12 @@ app &&
 module.exports = {
   command: "logout",
   describe: "logout from www.wix.com",
-  handler: () => launch(__filename)
+  handler: () => {
+    const spinner = createSpinner();
+    spinner.start(chalk.grey("Clearing offline data"));
+
+    launch(__filename).then(() => {
+      spinner.succeed(chalk.grey("Cleared offline data"));
+    });
+  }
 };

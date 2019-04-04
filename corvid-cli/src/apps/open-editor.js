@@ -8,7 +8,6 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
   handler: async (corvidConfig, win, client, localServerStatus) => {
     await new Promise(async (resolve, reject) => {
       client.on("editor-connected", () => {
-        console.log(chalk.green("Editor opened successfully"));
         // TODO uncomment the following once the open-editor command can exit while the editor is
         // open
         //resolve();

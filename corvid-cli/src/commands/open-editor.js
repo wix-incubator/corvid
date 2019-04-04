@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 const process = require("process");
+const chalk = require("chalk");
 const { app } = require("electron");
 const { openWindow, launch } = require("../utils/electron");
+const createSpinner = require("../utils/spinner");
 const openEditorApp = require("../apps/open-editor");
 
 app &&
@@ -32,13 +34,41 @@ module.exports = {
         describe: "ignore certificate errors",
         type: "boolean"
       }),
-  handler: args =>
-    launch(__filename, {
-      // TODO uncomment the following option to spawn the app in the background once the local
-      // server can be spawned in the background as well
-      //detached: true,
-      stdio: "ignore",
-      cwd: args.C,
-      env: { ...process.env, IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate }
-    })
+  handler: async args => {
+    const { login } = require("./login");
+    try {
+      const spinner = createSpinner();
+      await login(spinner);
+
+      spinner.start(chalk.grey("Connecting to local server"));
+
+      await launch(
+        __filename,
+        {
+          // TODO uncomment the following two option to spawn the app in the
+          // background once the local server can be spawned in the background as
+          // well
+          //detached: true,
+          //stdio: "ignore",
+          cwd: args.C,
+          env: {
+            ...process.env,
+            IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
+          }
+        },
+        {
+          localServerConnected: () => {
+            spinner.start(chalk.grey("Waiting for editor to connect"));
+          },
+          editorConnected: () => {
+            spinner.succeed(chalk.grey("Editor connected"));
+          }
+        }
+      );
+
+      spinner.stop();
+    } catch (_) {
+      return;
+    }
+  }
 };

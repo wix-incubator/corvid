@@ -5,6 +5,12 @@ const init = require("../src/apps/init");
 jest.mock("fs");
 const fs = require("fs");
 
+const mockSpinner = {
+  start: () => {},
+  succeed: () => {},
+  fail: () => {}
+};
+
 describe("init", () => {
   beforeEach(() => {});
 
@@ -40,17 +46,14 @@ describe("init", () => {
 
     return expect(
       init(
+        mockSpinner,
         {
           url: "a-site.com",
           dir: "someFolder"
         },
         { name: "name", value: "value" }
       )
-    ).rejects.toEqual(
-      expect.stringMatching(
-        /Target directory .*\/someFolder\/aSite is not empty/
-      )
-    );
+    ).rejects.toThrow(/Target directory .*\/someFolder\/aSite is not empty/);
   });
 
   describe("given an editor URL", () => {
@@ -64,6 +67,7 @@ describe("init", () => {
 
       return expect(
         init(
+          mockSpinner,
           {
             url:
               "https://editor.wix.com/html/editor/web/renderer/edit/1633ae83-c9ff-41e2-bd1b-d5eb5a93790c?metaSiteId=96d0802a-b76d-411c-aaf4-6b8c2f474acb&editorSessionId=d3a513bd-32a0-5e3b-964e-3b69f916f17e",
@@ -71,9 +75,7 @@ describe("init", () => {
           },
           { name: "name", value: "value" }
         )
-      ).rejects.toEqual(
-        expect.stringMatching(/Could not extract the site name of .*/)
-      );
+      ).rejects.toThrow(/Could not extract the site name of .*/);
     });
   });
 
@@ -88,6 +90,7 @@ describe("init", () => {
 
       return expect(
         init(
+          mockSpinner,
           {
             url:
               "https://www.wix.com/editor/96d0802a-b76d-411c-aaf4-6b8c2f474acb",
@@ -95,9 +98,7 @@ describe("init", () => {
           },
           { name: "name", value: "value" }
         )
-      ).rejects.toEqual(
-        expect.stringMatching(/Could not extract the site name of .*/)
-      );
+      ).rejects.toThrow(/Could not extract the site name of .*/);
     });
   });
 

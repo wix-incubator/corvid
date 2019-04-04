@@ -9,7 +9,7 @@ const pullApp = ({ useSsl = true } = {}) => ({
     await new Promise(async (resolve, reject) => {
       // this event is not fired by the server yet
       client.on("clone-complete", () => {
-        console.log(chalk.grey("Project downloaded"));
+        console.log(JSON.stringify({ event: "projectDownloaded" }));
         resolve();
       });
 
@@ -44,12 +44,6 @@ const pullApp = ({ useSsl = true } = {}) => ({
 
       win.loadURL(editorUrl);
     });
-
-    console.log(
-      chalk.green(
-        `Pull complete, change directory to '${process.cwd()}' and run 'corvid open-editor' to start editing the local copy`
-      )
-    );
   }
 });
 

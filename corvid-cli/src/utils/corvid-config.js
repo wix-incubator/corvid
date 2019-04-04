@@ -24,11 +24,14 @@ async function readCorvidConfig(dir) {
   return JSON.parse(json);
 }
 
-function writeCorvidConfig(dir, config) {
-  fs.writeFileSync(
-    path.join(dir, ".corvidrc.json"),
-    JSON.stringify(config, null, 2)
-  );
+async function writeCorvidConfig(dir, config) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(
+      path.join(dir, ".corvidrc.json"),
+      JSON.stringify(config, null, 2),
+      error => (error == null ? resolve() : reject(error))
+    );
+  });
 }
 
 module.exports = { readCorvidConfig, writeCorvidConfig };
