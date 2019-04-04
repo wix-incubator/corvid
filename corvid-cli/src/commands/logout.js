@@ -12,10 +12,15 @@ app &&
         show: false,
         webPreferences: { nodeIntegration: false }
       });
-      win.webContents.session.clearStorageData({ storages: "cookies" });
-      win.close();
 
-      console.log(chalk.green("Cookies cleared"));
+      await new Promise(resolve => {
+        win.webContents.session.clearStorageData(() => {
+          console.log(chalk.green("Cleared offline data"));
+          resolve();
+        });
+      });
+
+      win.close();
     } catch (exc) {
       console.log(exc);
       process.exit(-1);
