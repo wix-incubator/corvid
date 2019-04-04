@@ -6,14 +6,17 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const { initLocalSite } = require("../utils/localSiteDir");
+const {
+  initLocalSite,
+  initLocalSiteWithConfig
+} = require("../utils/localSiteDir");
 
 afterEach(closeAll);
 
 describe("admin api", () => {
   describe("GET_STATUS", () => {
     it("should return when editor is disconnected and in clone mode", async () => {
-      const localSiteDir = await initLocalSite();
+      const localSiteDir = await initLocalSiteWithConfig();
 
       const server = await localServer.startInCloneMode(localSiteDir);
       const cli = await connectCli(server.adminPort);
@@ -39,7 +42,7 @@ describe("admin api", () => {
     });
 
     it("should return when editor is connected and in clone mode", async () => {
-      const localSiteDir = await initLocalSite({});
+      const localSiteDir = await initLocalSiteWithConfig();
 
       const server = await localServer.startInCloneMode(localSiteDir);
       await loadEditor(server.port, editorSiteBuilder.buildFull(), {
@@ -71,7 +74,7 @@ describe("admin api", () => {
 
   describe("clone-complete", () => {
     it("should be sent when cloning the site has ended", async () => {
-      const localSiteDir = await initLocalSite({});
+      const localSiteDir = await initLocalSiteWithConfig();
       const server = await localServer.startInCloneMode(localSiteDir);
       const cli = await connectCli(server.adminPort);
 
@@ -84,7 +87,7 @@ describe("admin api", () => {
     });
 
     it("should not be sent before cloning started", async () => {
-      const localSiteDir = await initLocalSite({});
+      const localSiteDir = await initLocalSiteWithConfig();
       const server = await localServer.startInCloneMode(localSiteDir);
       const cli = await connectCli(server.adminPort);
 
@@ -99,7 +102,7 @@ describe("admin api", () => {
     });
 
     it("should not be sent if only the document was cloned", async () => {
-      const localSiteDir = await initLocalSite({});
+      const localSiteDir = await initLocalSiteWithConfig();
       const server = await localServer.startInCloneMode(localSiteDir);
       const cli = await connectCli(server.adminPort);
 
@@ -120,7 +123,7 @@ describe("admin api", () => {
     });
 
     it("should not be sent if only the code files were cloned", async () => {
-      const localSiteDir = await initLocalSite({});
+      const localSiteDir = await initLocalSiteWithConfig();
       const server = await localServer.startInCloneMode(localSiteDir);
       const cli = await connectCli(server.adminPort);
 

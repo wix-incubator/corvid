@@ -12,17 +12,17 @@ const localSiteDir = require("../utils/localSiteDir");
 afterEach(closeAll);
 
 describe("edit mode", () => {
-  it("should not start the server in edit mode if the site directory is empty", async () => {
+  it("should not start the server in edit mode if no .corvid.json exists in site directory", async () => {
     const localSiteFiles = {};
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
 
     const server = localServer.startInEditMode(localSitePath);
 
-    await expect(server).rejects.toThrow("CAN_NOT_EDIT_EMPTY_SITE");
+    await expect(server).rejects.toThrow("CAN_NOT_EDIT_NON_WIX_SITE");
   });
 
-  it("should not start the server in edit mode if the site directoy only continas dot (.) files", async () => {
+  it("should not start the server in edit mode if the site directory is empty", async () => {
     const localSiteFiles = {
       ".logs": {
         "some-log-file.log": "log log log"
@@ -49,7 +49,6 @@ describe("edit mode", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
-
     const editorSite = await editor.getSite();
     expect(editorSite).toMatchObject(
       editorSiteBuilder.buildPartial(...siteItems)

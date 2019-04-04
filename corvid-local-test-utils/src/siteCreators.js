@@ -107,6 +107,10 @@ const masterPageCode = (content = uniqueCode("masterPageCode")) => ({
   content
 });
 
+const corvidrc = (content = uniqueCode("corvidrc")) => ({
+  content
+});
+
 const collectionSchema = (collectionName = unique("collection"), schema) => {
   return {
     collectionName,
@@ -174,7 +178,14 @@ const documentCreators = mapValues_(
   typedCreator
 );
 
-const creators = { ...documentCreators, ...codeCreators };
+const configCreators = mapValues_(
+  {
+    corvidrc
+  },
+  typedCreator
+);
+
+const creators = { ...documentCreators, ...codeCreators, ...configCreators };
 
 const fullSiteItems = () => Object.values(creators).map(creator => creator());
 
@@ -183,6 +194,7 @@ module.exports = {
   matchItem,
   isSameCreator,
   fullSiteItems,
+  configCreators,
   documentCreators,
   codeCreators,
   ...creators

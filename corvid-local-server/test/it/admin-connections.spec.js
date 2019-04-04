@@ -4,13 +4,13 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const { initLocalSite } = require("../utils/localSiteDir");
+const { initLocalSiteWithConfig } = require("../utils/localSiteDir");
 
 afterEach(closeAll);
 
 describe("admin connections", () => {
   it("should allow one admin to connect", async () => {
-    const localSiteDir = await initLocalSite({});
+    const localSiteDir = await initLocalSiteWithConfig();
 
     const server = await localServer.startInCloneMode(localSiteDir);
     const cli = await connectCli(server.adminPort);
@@ -19,7 +19,7 @@ describe("admin connections", () => {
   });
 
   it("should block multiple connections", async () => {
-    const localSiteDir = await initLocalSite({});
+    const localSiteDir = await initLocalSiteWithConfig();
     const server = await localServer.startInCloneMode(localSiteDir);
 
     await connectCli(server.adminPort);
@@ -29,7 +29,7 @@ describe("admin connections", () => {
   });
 
   it("should allow an admin to connect if a previously connected admin already closed", async () => {
-    const localSiteDir = await initLocalSite({});
+    const localSiteDir = await initLocalSiteWithConfig();
     const server = await localServer.startInCloneMode(localSiteDir);
     const cli1 = await connectCli(server.adminPort);
 
