@@ -1,7 +1,15 @@
 const initSiteManager = require("./src/init");
-const isSiteEmpty = require("./src/isEmpty");
+const {
+  isFullWixSite,
+  isWixFolder,
+  deleteWixSite,
+  moveWixSite
+} = require("./src/utils");
 
 module.exports = {
   initSiteManager,
-  isSiteEmpty
+  isWixFolder,
+  isFullWixSite,
+  deleteWixSite,
+  moveWixSite
 };
