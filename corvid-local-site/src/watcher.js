@@ -5,6 +5,7 @@ const find_ = require("lodash/find");
 const reject_ = require("lodash/reject");
 const logger = require("corvid-local-logger");
 const sitePaths = require("./sitePaths");
+const rimraf = require("rimraf");
 
 const ensureWriteFile = async (path, content) => {
   await fs.ensureFile(path);
@@ -36,6 +37,8 @@ const watch = async givenPath => {
     disableGlobbing: true
   });
 
+  watcher.on("unlinkDir", path => removeFromIgnoredActions("deleteDir", path));
+
   await new Promise((resolve, reject) => {
     watcher.on("ready", () => resolve());
     watcher.on("error", () => reject());
@@ -53,6 +56,12 @@ const watch = async givenPath => {
 
   const isIgnoredAction = (type, path) =>
     !!find_(actionsToIgnore, { type, path });
+
+  const isIgnoredDirAction = (actionType, relativePath) =>
+    !!find_(
+      actionsToIgnore,
+      ({ type, path }) => actionType === type && relativePath.startsWith(path)
+    );
 
   return {
     close: () => watcher.close(),
@@ -89,7 +98,10 @@ const watch = async givenPath => {
 
     onDelete: callback => {
       watcher.on("unlink", relativePath => {
-        if (!isIgnoredAction("delete", relativePath)) {
+        if (
+          !isIgnoredAction("delete", relativePath) &&
+          !isIgnoredDirAction("deleteDir", relativePath)
+        ) {
           logger.debug(`reporting deleted file at [${relativePath}]`);
           callback(sitePaths.fromLocalCode(relativePath));
         } else {
@@ -140,6 +152,19 @@ const watch = async givenPath => {
         );
       } catch (e) {
         removeFromIgnoredActions("write", relativeTargetPath);
+        throw e;
+      }
+    },
+
+    ignoredDeleteFolder: async relativePath => {
+      logger.debug(`deleting directory ${relativePath}`);
+      const deleteFolder = folderPath =>
+        new Promise(resolve => rimraf(fullPath(folderPath), resolve));
+      try {
+        ignoreAction("deleteDir", relativePath);
+        await deleteFolder(relativePath);
+      } catch (e) {
+        removeFromIgnoredActions("deleteDir", relativePath);
         throw e;
       }
     }

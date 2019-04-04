@@ -8,11 +8,11 @@ const pickBy_ = require("lodash/pickBy");
 const flatten_ = require("lodash/flatten");
 const partial_ = require("lodash/partial");
 const isObject_ = require("lodash/isObject");
-const rimraf = require("rimraf");
 const path = require("path");
 const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
 const flat = require("flat");
+const watcher = require("./watcher");
 
 const flatten = data => flat(data, { delimiter: path.sep, safe: true });
 
@@ -114,10 +114,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       })
     );
 
-  const deleteFolder = folderPath =>
-    new Promise(resolve =>
-      rimraf(sitePaths.getDocumentFolderRegex(fullPath(folderPath)), resolve)
-    );
+  const deleteFolder = folderPath => watcher.ignoredDeleteFolder(folderPath);
 
   const deleteExistingFolders = async () => {
     await Promise.all([

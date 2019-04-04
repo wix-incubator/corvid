@@ -216,4 +216,33 @@ describe("watcher", () => {
       await watcher.close();
     });
   });
+
+  describe("ignoredDeleteFolder", () => {
+    it("should not notify about a deleted files in ignored folder", async () => {
+      const rootPath = await initTempDir();
+      const relativeFilePath = "public/test-file.js";
+      const relativeFilePath2 = "public/toDelete/test-file-2.js";
+      const fullFilePath = path.join(rootPath, relativeFilePath);
+      const fullFilePath2 = path.join(rootPath, relativeFilePath2);
+      await fs.ensureFile(fullFilePath);
+      await fs.writeFile(fullFilePath, "some code");
+      await fs.ensureFile(fullFilePath2);
+      await fs.writeFile(fullFilePath2, "some test code");
+
+      const watcher = await watch(rootPath);
+
+      const deleteHandler = jest.fn();
+      watcher.onDelete(deleteHandler);
+
+      await watcher.ignoredDeleteFolder("public/toDelete");
+      await fs.unlink(fullFilePath);
+
+      await eventually(() => {
+        expect(deleteHandler).toHaveBeenCalledTimes(1);
+        expect(deleteHandler).toHaveBeenCalledWith(relativeFilePath);
+        expect(fs.existsSync(fullFilePath2)).toBe(false);
+      });
+      await watcher.close();
+    });
+  });
 });
