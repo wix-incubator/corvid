@@ -15,6 +15,9 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "engines": {
+    "node": ">=10"
+  },
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "ISC",
   "dependencies": {
