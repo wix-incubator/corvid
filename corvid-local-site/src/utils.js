@@ -23,12 +23,15 @@ const copyDir = async (src, dest) => {
   });
 };
 
-const isFullWixSite = async rootPath =>
-  (await fs.exists(rootPath))
-    ? sitePaths.siteFolders.some(
-        async folder => await fs.exists(path.join(rootPath, folder))
-      )
-    : false;
+const isFullWixSite = async rootPath => {
+  if (!(await fs.exists(rootPath))) false;
+  const isFull = await Promise.all(
+    sitePaths.siteFolders.map(
+      async folder => await fs.exists(path.join(rootPath, folder))
+    )
+  );
+  return isFull.some(f => f);
+};
 
 const isWixFolder = async rootPath =>
   await fs.exists(path.join(rootPath, sitePaths.configFile));
@@ -36,7 +39,7 @@ const isWixFolder = async rootPath =>
 const deleteWixSite = async rootPath => {
   sitePaths.siteFolders.forEach(async folder => {
     const fullPath = path.join(rootPath, folder);
-    if (fs.exists(fullPath)) await fs.unlink(fullPath);
+    if (await fs.exists(fullPath)) await fs.unlink(fullPath);
   });
 };
 

@@ -19,7 +19,7 @@ describe("edit mode", () => {
 
     const server = localServer.startInEditMode(localSitePath);
 
-    await expect(server).rejects.toThrow("CAN_NOT_EDIT_EMPTY_SITE");
+    await expect(server).rejects.toThrow("CAN_NOT_EDIT_NON_WIX_SITE");
   });
 
   it("should not start the server in edit mode if the site directoy only continas dot (.) files", async () => {
@@ -49,7 +49,6 @@ describe("edit mode", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
-
     const editorSite = await editor.getSite();
     expect(editorSite).toMatchObject(
       editorSiteBuilder.buildPartial(...siteItems)
