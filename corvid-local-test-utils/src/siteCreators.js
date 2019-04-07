@@ -91,7 +91,7 @@ const publicCode = (
   relativePath = uniqueCodeFileName("publicCode"),
   content = uniqueCode("public")
 ) => ({
-  path: `public/${relativePath}`,
+  path: relativePath,
   content
 });
 
@@ -99,7 +99,7 @@ const backendCode = (
   relativePath = uniqueCodeFileName("backendCode"),
   content = uniqueCode("backend")
 ) => ({
-  path: `backend/${relativePath}`,
+  path: relativePath,
   content
 });
 

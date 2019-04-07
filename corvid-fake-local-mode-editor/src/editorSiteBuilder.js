@@ -123,6 +123,18 @@ const menu = menu => ({
 const codeFile = ({ path, content }) =>
   set_({}, `siteCode/${path}`.split("/"), content);
 
+const publicCodeFile = ({ path, content }) =>
+  codeFile({
+    path: `public/${path}`,
+    content
+  });
+
+const backendCodeFile = ({ path, content }) =>
+  codeFile({
+    path: `backend/${path}`,
+    content
+  });
+
 const collectionSchema = ({ collectionName, schema }) =>
   codeFile({
     path: `.schemas/${collectionName}.json`,
@@ -154,8 +166,8 @@ const buildPartial = (...siteItems) =>
         [sc.siteInfo]: siteInfo,
         [sc.version]: version,
         [sc.dataFromMasterPage]: dataFromMasterPage,
-        [sc.publicCode]: codeFile,
-        [sc.backendCode]: codeFile,
+        [sc.publicCode]: publicCodeFile,
+        [sc.backendCode]: backendCodeFile,
         [sc.collectionSchema]: collectionSchema,
         [sc.masterPageCode]: masterPageCode,
         [sc.corvidrc]: () => ({})
@@ -174,9 +186,9 @@ const getEditorCodeFilePath = item =>
     [sc.pageWithCode]: ({ page }) => `public/pages/${page.pageId}.js`,
     [sc.lightboxWithCode]: ({ lightbox }) =>
       `public/pages/${lightbox.pageId}.js`,
-    [sc.publicCode]: ({ path }) => path,
+    [sc.publicCode]: ({ path }) => `public/${path}`,
     [sc.masterPageCode]: () => `public/pages/masterPage.js`,
-    [sc.backendCode]: ({ path }) => path,
+    [sc.backendCode]: ({ path }) => `backend/${path}`,
     [sc.collectionSchema]: ({ collectionName }) =>
       `.schemas/${collectionName}.json`
   });

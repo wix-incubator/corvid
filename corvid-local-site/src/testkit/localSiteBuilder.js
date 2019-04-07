@@ -24,12 +24,17 @@ const pageCodeFileName = page =>
 const lightboxFileName = pageFileName;
 const lightboxCodeFileName = pageCodeFileName;
 
-const stylesPath = path.join("frontend", "styles");
-const sitePath = path.join("frontend", "site");
-const routersPath = path.join("frontend", "routers");
-const menusPath = path.join("frontend", "menus");
-const pagesPath = path.join("frontend", "pages");
-const lightboxesPath = path.join("frontend", "lightboxes");
+const PATH_SRC = ""; // TODO: will be added
+const PATH_FRONTEND = path.join(PATH_SRC, "frontend");
+const PATH_BACKEND = path.join(PATH_SRC, "backend");
+const PATH_PUBLIC = path.join(PATH_SRC, "public");
+
+const PATH_STYLES = path.join(PATH_FRONTEND, "styles");
+const PATH_SITE = path.join(PATH_FRONTEND, "site");
+const PATH_ROUTERS = path.join(PATH_FRONTEND, "routers");
+const PATH_MENUS = path.join(PATH_FRONTEND, "menus");
+const PATH_PAGES = path.join(PATH_FRONTEND, "pages");
+const PATH_LIGHTBOXES = path.join(PATH_FRONTEND, "lightboxes");
 
 const wixFilePath = (filename, parentPath = "") =>
   path.join(parentPath, `${filename}.${wixFileExtension}`);
@@ -39,13 +44,13 @@ const wixFile = (parentPath, name, content) => ({
   content: stringify(content)
 });
 
-const stylesFile = (name, content) => wixFile(stylesPath, name, content);
+const stylesFile = (name, content) => wixFile(PATH_STYLES, name, content);
 const colors = content => stylesFile("colors", content);
 const fonts = content => stylesFile("fonts", content);
 const theme = content => stylesFile("theme", content);
 const topLevelStyles = content => stylesFile("topLevelStyles", content);
 
-const siteFile = (name, content) => wixFile(sitePath, name, content);
+const siteFile = (name, content) => wixFile(PATH_SITE, name, content);
 const commonComponents = content => siteFile("commonComponents", content);
 const multilingualInfo = content => siteFile("multilingualInfo", content);
 const siteInfo = content => siteFile("siteInfo", content);
@@ -53,17 +58,17 @@ const version = content => siteFile("version", content);
 const dataFromMasterPage = content => siteFile("dataFromMasterPage", content);
 
 const router = router =>
-  wixFile(routersPath, router.prefix, omit_(router, "prefix"));
+  wixFile(PATH_ROUTERS, router.prefix, omit_(router, "prefix"));
 
-const menu = menu => wixFile(menusPath, menu.menuId, omit_(menu, "menuId"));
+const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
 const page = page => ({
-  path: path.join(pagesPath, pageFileName(page)),
+  path: path.join(PATH_PAGES, pageFileName(page)),
   content: stringify(page)
 });
 
 const pageCode = (page, code) => ({
-  path: path.join(pagesPath, pageCodeFileName(page)),
+  path: path.join(PATH_PAGES, pageCodeFileName(page)),
   content: code
 });
 
@@ -73,12 +78,12 @@ const pageWithCode = ({ page: pageData, code }) => [
 ];
 
 const lightbox = lightbox => ({
-  path: path.join(lightboxesPath, lightboxFileName(lightbox)),
+  path: path.join(PATH_LIGHTBOXES, lightboxFileName(lightbox)),
   content: stringify(lightbox)
 });
 
 const lighboxCode = (lightbox, code) => ({
-  path: path.join(lightboxesPath, lightboxCodeFileName(lightbox)),
+  path: path.join(PATH_LIGHTBOXES, lightboxCodeFileName(lightbox)),
   content: code
 });
 
@@ -90,6 +95,18 @@ const lightboxWithCode = ({ lightbox: lightboxData, code }) => [
 // code
 
 const codeFile = ({ path, content }) => ({ path, content });
+
+const backendCodeFile = ({ path: relativePath, content }) =>
+  codeFile({
+    path: path.join(PATH_BACKEND, relativePath),
+    content
+  });
+
+const publicCodeFile = ({ path: relativePath, content }) =>
+  codeFile({
+    path: path.join(PATH_PUBLIC, relativePath),
+    content
+  });
 
 const collectionSchema = ({ collectionName, schema }) =>
   codeFile({
@@ -128,8 +145,8 @@ const itemToFile = item =>
     [sc.siteInfo]: siteInfo,
     [sc.version]: version,
     [sc.dataFromMasterPage]: dataFromMasterPage,
-    [sc.publicCode]: codeFile,
-    [sc.backendCode]: codeFile,
+    [sc.publicCode]: publicCodeFile,
+    [sc.backendCode]: backendCodeFile,
     [sc.collectionSchema]: collectionSchema,
     [sc.masterPageCode]: masterPageCode,
     [sc.corvidrc]: corvidrc
