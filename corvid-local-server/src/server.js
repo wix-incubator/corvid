@@ -16,20 +16,18 @@ const DEFAULT_ADMIN_PORT = 3000;
 
 const isEdit = options => options.type === "EDIT";
 const isClone = options => options.type === "CLONE";
-const isPullSoft = options => options.type === "SOFT";
-const isPullForce = options => options.type === "FORCE";
-const isPullMove = options => options.type === "MOVE";
+const isPullForce = options => options.type === "FORCE_PULL";
+const isPullMove = options => options.type === "MOVE_PULL";
 
 async function startServer(siteRootPath, options = { type: "EDIT" }) {
   logger.info(`server starting at [${siteRootPath}]`);
-
   const isFullSite = await isFullWixSite(siteRootPath);
   const isWix = await isWixFolder(siteRootPath);
 
   if (isEdit(options)) {
     if (!isWix) {
       logger.info(
-        "Project not found.  Open the Editor in the project's root folder."
+        "Project not found. Open the Editor in the project's root folder."
       );
       throw new Error("CAN_NOT_EDIT_NON_WIX_SITE");
     }
@@ -40,18 +38,11 @@ async function startServer(siteRootPath, options = { type: "EDIT" }) {
   }
 
   if (isClone(options)) {
-    if (isWix && isFullSite) {
-      logger.info("cannot clone into a non empty site directory");
-      throw new Error("CAN_NOT_CLONE_NON_EMPTY_SITE");
-    }
-  }
-
-  if (isPullSoft(options)) {
     if (!isWix) {
       logger.info(
-        "Project not found. Pull site files to the project's root folder."
+        "Project not found. Open the Editor in the project's root folder."
       );
-      throw new Error("CAN_NOT_PULL_NON_WIX_SITE");
+      throw new Error("CAN_NOT_CLONE_NON_WIX_SITE");
     }
     if (isFullSite) {
       logger.info("Project already includes site files.");
@@ -69,7 +60,7 @@ async function startServer(siteRootPath, options = { type: "EDIT" }) {
     await deleteWixSite(siteRootPath);
   }
 
-  if (isPullMove(options) && !isWix) {
+  if (isPullMove(options)) {
     if (!isWix) {
       logger.info(
         "Project not found. Pull site files to the project's root folder."
@@ -90,6 +81,16 @@ async function startServer(siteRootPath, options = { type: "EDIT" }) {
       adminServer.port
     }]`
   );
+  return {
+    port: editorServer.port,
+    adminPort: adminServer.port,
+    close: () => {
+      logger.info("server closing");
+      localSite.close();
+      editorServer.close();
+      adminServer.close();
+    }
+  };
 }
 
 const startInCloneMode = (siteRootPath, options = { type: "CLONE" }) =>

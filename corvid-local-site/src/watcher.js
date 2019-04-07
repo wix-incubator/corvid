@@ -11,10 +11,6 @@ const ensureWriteFile = async (path, content) => {
   await fs.writeFile(path, content);
 };
 
-const ensureFile = async path => {
-  await fs.ensureFile(path);
-};
-
 const getSiteRoots = rootPath =>
   sitePaths.siteFolders.map(folderPath => path.join(rootPath, folderPath));
 
@@ -120,7 +116,7 @@ const watch = async givenPath => {
       if (await fs.exists(fullPathFile)) return;
       try {
         ignoreAction("write", relativePath);
-        await ensureFile(fullPathFile);
+        await fs.ensureFile(fullPathFile);
       } catch (e) {
         removeFromIgnoredActions("write", relativePath);
         throw e;

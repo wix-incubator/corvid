@@ -1,6 +1,6 @@
 const { socketClient } = require("corvid-local-test-utils");
 const { localServer, closeAll } = require("../utils/autoClosing");
-const { initLocalSite } = require("../utils/localSiteDir");
+const { initLocalSiteWithConfig } = require("../utils/localSiteDir");
 
 const { version: localServerModuleVersion } = require("../../package.json");
 
@@ -11,7 +11,7 @@ const getAdminEndpoint = server => `http://localhost:${server.adminPort}`;
 
 describe("local server version", () => {
   it("should allow an editor to get the local server module version", async () => {
-    const localSiteDir = await initLocalSite();
+    const localSiteDir = await initLocalSiteWithConfig();
     const server = await localServer.startInCloneMode(localSiteDir);
 
     const editorSocket = await socketClient.connect(getEditorEndpoint(server));
@@ -25,7 +25,7 @@ describe("local server version", () => {
   });
 
   it("should allow an admin to get the local server module version", async () => {
-    const localSiteDir = await initLocalSite();
+    const localSiteDir = await initLocalSiteWithConfig();
     const server = await localServer.startInCloneMode(localSiteDir);
 
     const adminSocket = await socketClient.connect(getAdminEndpoint(server));
