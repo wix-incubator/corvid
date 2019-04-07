@@ -3,17 +3,17 @@ const fs = require("fs-extra");
 const rimraf = require("rimraf");
 const sitePaths = require("./sitePaths");
 
-const isFullWixSite = async rootPath => {
+const isEmptySite = async rootPath => {
   if (!(await fs.exists(rootPath))) false;
   const isFull = await Promise.all(
     sitePaths.siteFolders.map(
       async folder => await fs.exists(path.join(rootPath, folder))
     )
   );
-  return isFull.some(f => f);
+  return !isFull.some(f => f);
 };
 
-const isWixFolder = async rootPath =>
+const isSiteInitialized = async rootPath =>
   await fs.exists(path.join(rootPath, sitePaths.configFile));
 
 const deleteFolder = folderPath =>
@@ -40,7 +40,7 @@ const moveWixSite = async rootPath => {
   );
 };
 
-module.exports.isFullWixSite = isFullWixSite;
-module.exports.isWixFolder = isWixFolder;
+module.exports.isEmptySite = isEmptySite;
+module.exports.isSiteInitialized = isSiteInitialized;
 module.exports.moveWixSite = moveWixSite;
 module.exports.deleteWixSite = deleteWixSite;

@@ -1,8 +1,8 @@
 const {
   moveWixSite,
   deleteWixSite,
-  isWixFolder,
-  isFullWixSite,
+  isSiteInitialized,
+  isEmptySite,
   initSiteManager: initLocalSiteManager
 } = require("corvid-local-site");
 const logger = require("corvid-local-logger");
@@ -19,10 +19,10 @@ const isClone = options => options.type === "CLONE";
 const isPullForce = options => options.type === "FORCE_PULL";
 const isPullMove = options => options.type === "MOVE_PULL";
 
-async function startServer(siteRootPath, options = { type: "EDIT" }) {
+async function startServer(siteRootPath, options) {
   logger.info(`server starting at [${siteRootPath}]`);
-  const isFullSite = await isFullWixSite(siteRootPath);
-  const isWix = await isWixFolder(siteRootPath);
+  const isEmpty = await isEmptySite(siteRootPath);
+  const isWix = await isSiteInitialized(siteRootPath);
 
   if (isEdit(options)) {
     if (!isWix) {
@@ -31,7 +31,7 @@ async function startServer(siteRootPath, options = { type: "EDIT" }) {
       );
       throw new Error("CAN_NOT_EDIT_NON_WIX_SITE");
     }
-    if (!isFullSite) {
+    if (isEmpty) {
       logger.info("cannot edit an empty site directory");
       throw new Error("CAN_NOT_EDIT_EMPTY_SITE");
     }
@@ -44,7 +44,7 @@ async function startServer(siteRootPath, options = { type: "EDIT" }) {
       );
       throw new Error("CAN_NOT_CLONE_NON_WIX_SITE");
     }
-    if (isFullSite) {
+    if (!isEmpty) {
       logger.info("Project already includes site files.");
       throw new Error("CAN_NOT_PULL_NON_EMPTY_SITE");
     }
@@ -96,7 +96,8 @@ async function startServer(siteRootPath, options = { type: "EDIT" }) {
 const startInCloneMode = (siteRootPath, options = { type: "CLONE" }) =>
   startServer(siteRootPath, options);
 
-const startInEditMode = siteRootPath => startServer(siteRootPath);
+const startInEditMode = siteRootPath =>
+  startServer(siteRootPath, { type: "EDIT" });
 
 module.exports = {
   startInCloneMode,
