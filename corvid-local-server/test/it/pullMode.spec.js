@@ -23,7 +23,7 @@ describe("pull mode", () => {
       const localSitePath = await initLocalSite();
 
       const server = localServer.startInCloneMode(localSitePath, {
-        type: "FORCE_PULL"
+        force: true
       });
 
       await expect(server).rejects.toThrow("CAN_NOT_PULL_NON_WIX_SITE");
@@ -34,7 +34,7 @@ describe("pull mode", () => {
 
       const localSitePath = await initLocalSite(initialLocalSiteFiles);
       await localServer.startInCloneMode(localSitePath, {
-        type: "FORCE_PULL"
+        force: true
       });
 
       const localSiteFiles = await readLocalSite(localSitePath);
@@ -49,7 +49,7 @@ describe("pull mode", () => {
 
       const localSitePath = await initLocalSite(initialLocalSiteFiles);
       const server = await localServer.startInCloneMode(localSitePath, {
-        type: "FORCE_PULL"
+        force: true
       });
       await loadEditor(server.port, editorSite);
 
@@ -66,7 +66,7 @@ describe("pull mode", () => {
       const localSitePath = await initLocalSite();
 
       const server = localServer.startInCloneMode(localSitePath, {
-        type: "MOVE_PULL"
+        move: true
       });
 
       await expect(server).rejects.toThrow("CAN_NOT_PULL_NON_WIX_SITE");
@@ -77,7 +77,7 @@ describe("pull mode", () => {
 
       const localSitePath = await initLocalSite(initialLocalSiteFiles);
       await localServer.startInCloneMode(localSitePath, {
-        type: "MOVE_PULL"
+        move: true
       });
       const expectedLocalSiteFiles = {
         [Date.now()]: omit_(initialLocalSiteFiles, ".corvidrc.json")
@@ -93,7 +93,7 @@ describe("pull mode", () => {
 
       const localSitePath = await initLocalSite(initialLocalSiteFiles);
       const server = await localServer.startInCloneMode(localSitePath, {
-        type: "MOVE_PULL"
+        move: true
       });
       await loadEditor(server.port, editorSite);
 

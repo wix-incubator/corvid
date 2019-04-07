@@ -93,8 +93,17 @@ async function startServer(siteRootPath, options) {
   };
 }
 
-const startInCloneMode = (siteRootPath, options = { type: "CLONE" }) =>
-  startServer(siteRootPath, options);
+const startInCloneMode = (
+  siteRootPath,
+  options = { force: false, move: false }
+) => {
+  if (options.force && options.move) {
+    throw new Error("Only one of 'force' and 'move' may be set");
+  }
+  return startServer(siteRootPath, {
+    type: options.force ? "FORCE_PULL" : options.move ? "MOVE_PULL" : "CLONE"
+  });
+};
 
 const startInEditMode = siteRootPath =>
   startServer(siteRootPath, { type: "EDIT" });

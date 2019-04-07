@@ -77,7 +77,8 @@ module.exports = {
       .option("ignore-certificate", {
         describe: "ignore certificate errors",
         type: "boolean"
-      }),
+      })
+      .conflicts("force", "move"),
   handler: async args => {
     const { login } = require("./login");
     const spinner = createSpinner();

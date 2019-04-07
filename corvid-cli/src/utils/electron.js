@@ -64,7 +64,9 @@ function launch(file, options = {}, callbacks = {}, args = []) {
 
 async function connectToLocalServer(serverMode, serverArgs, win) {
   const server =
-    serverMode === "edit" ? startInEditMode(".") : startInCloneMode(".");
+    serverMode === "edit"
+      ? startInEditMode(".", serverArgs)
+      : startInCloneMode(".", serverArgs);
   const {
     adminPort: localServerPort,
     close: closeLocalServer
