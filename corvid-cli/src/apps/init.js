@@ -4,6 +4,7 @@ const chalk = require("chalk");
 const normalize = require("normalize-url");
 const path = require("path");
 const fs = require("fs");
+const jwt = require("jsonwebtoken");
 const { writeCorvidConfig } = require("../utils/corvid-config");
 
 const editorDomain = "editor.wix.com";
@@ -64,6 +65,16 @@ async function extractMetasiteIdAndName(url, cookie) {
   }
 }
 
+function parseSessionCookie(cookie) {
+  try {
+    const cookieData = jwt.decode(cookie.value.slice(4)).data;
+    const parsedSession = JSON.parse(cookieData);
+    return parsedSession;
+  } catch (_) {
+    return {};
+  }
+}
+
 async function init(spinner, args, cookie) {
   spinner.start(chalk.grey("Getting site information"));
   try {
@@ -75,6 +86,11 @@ async function init(spinner, args, cookie) {
     if (metasiteId == null) {
       throw new Error(`Could not extract the metasite ID of ${args.url}`);
     }
+    fetch(
+      `https://frog.wix.com/code?src=39&evid=200&msid=${metasiteId}&uuid=${
+        parseSessionCookie(cookie).userGuid
+      }&csi=${process.env.CORVID_SESSION_ID}`
+    );
 
     if (siteName == null) {
       throw new Error(`Could not extract the site name of ${args.url}`);
