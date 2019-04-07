@@ -4,7 +4,6 @@ const childProcess = require("child_process");
 const process = require("process");
 const { BrowserWindow } = require("electron");
 const client = require("socket.io-client");
-const chalk = require("chalk");
 const electron = require("electron");
 
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
@@ -15,15 +14,19 @@ const { sendRequest } = require("../utils/socketIoHelpers");
 const isHeadlessMode = !process.env.CORVID_CLI_DISABLE_HEADLESS;
 const isDevTools = !!process.env.CORVID_CLI_DEVTOOLS;
 
-function launch(file, options = {}, callbacks = {}) {
+function launch(file, options = {}, callbacks = {}, args = []) {
   options.env = {
     ...process.env,
     ...options.env,
     FORCE_COLOR: "yes"
   };
-  const cp = childProcess.spawn(electron, [path.resolve(path.join(file))], {
-    ...options
-  });
+  const cp = childProcess.spawn(
+    electron,
+    [path.resolve(path.join(file)), ...args],
+    {
+      ...options
+    }
+  );
 
   return new Promise((resolve, reject) => {
     const messages = [];
@@ -59,16 +62,15 @@ function launch(file, options = {}, callbacks = {}) {
   });
 }
 
-async function connectToLocalServer(serverMode, win) {
+async function connectToLocalServer(serverMode, serverArgs, win) {
   const server =
     serverMode === "edit" ? startInEditMode(".") : startInCloneMode(".");
   const {
     adminPort: localServerPort,
     close: closeLocalServer
   } = await server.catch(exc => {
-    if (exc.message in serverErrors) {
-      throw chalk.red(serverErrors[exc.message]);
-    }
+    console.log(JSON.stringify({ event: "error", payload: exc.message }));
+    throw new Error(serverErrors[exc.message]);
   });
 
   win.on("close", () => {
@@ -117,6 +119,7 @@ async function openWindow(app, windowOptions = {}) {
       if (app.serverMode) {
         const { client: clnt, localServerStatus } = await connectToLocalServer(
           app.serverMode,
+          app.serverArgs,
           win
         );
 
@@ -128,7 +131,6 @@ async function openWindow(app, windowOptions = {}) {
 
     win.close();
   } catch (exc) {
-    console.error(exc);
     process.exit(-1);
   }
 }

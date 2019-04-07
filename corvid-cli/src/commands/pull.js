@@ -3,9 +3,11 @@ const path = require("path");
 const process = require("process");
 const chalk = require("chalk");
 const { app } = require("electron");
+const yargs = require("yargs");
 const { openWindow, launch } = require("../utils/electron");
 const pullApp = require("../apps/pull");
 const createSpinner = require("../utils/spinner");
+const serverErrors = require("../utils/server-errors");
 
 app &&
   app.on("ready", async () => {
@@ -21,12 +23,16 @@ app &&
       );
     }
 
-    await openWindow(pullApp());
-    app.exit(0);
+    const args = yargs.argv;
+    await openWindow(pullApp({ force: args.force, move: args.move }));
   });
 
 async function pullCommand(spinner, args) {
   spinner.start(chalk.grey("Connecting to local server"));
+  const pullArgs = [];
+
+  if (args.force) pullArgs.push("--force");
+  if (args.move) pullArgs.push("--move");
 
   return launch(
     __filename,
@@ -43,8 +49,15 @@ async function pullCommand(spinner, args) {
       },
       projectDownloaded: () => {
         spinner.start(chalk.grey("Downloaded project"));
+      },
+      error: error => {
+        spinner.fail();
+        if (error in serverErrors) {
+          console.log(chalk.red(serverErrors[error]));
+        }
       }
-    }
+    },
+    pullArgs
   );
 }
 
@@ -54,6 +67,10 @@ module.exports = {
   builder: args =>
     args
       .option("force", { describe: "force pull", type: "boolean" })
+      .option("move", {
+        describe: "move existing site files before pull",
+        type: "boolean"
+      })
       .option("C", { describe: "path", type: "string" })
       .option("ignore-certificate", {
         describe: "ignore certificate errors",
@@ -75,7 +92,7 @@ module.exports = {
         );
       })
       .catch(() => {
-        spinner.fail();
+        if (spinner.isSpinning) spinner.fail();
       });
   },
   pull: pullCommand
