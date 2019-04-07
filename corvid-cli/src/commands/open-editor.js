@@ -5,6 +5,7 @@ const { app } = require("electron");
 const { openWindow, launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const openEditorApp = require("../apps/open-editor");
+const serverErrors = require("../utils/server-errors");
 
 app &&
   app.on("ready", async () => {
@@ -62,6 +63,14 @@ module.exports = {
           },
           editorConnected: () => {
             spinner.succeed(chalk.grey("Editor connected"));
+          },
+          error: error => {
+            spinner.fail();
+            if (error in serverErrors) {
+              console.log(chalk.red(serverErrors[error]));
+            } else {
+              console.log(chalk.red(error));
+            }
           }
         }
       );

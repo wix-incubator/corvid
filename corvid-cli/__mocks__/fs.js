@@ -31,8 +31,13 @@ function readFileSync(filename) {
   return _.get(mockFiles, [path.dirname(filename), path.basename(filename)]);
 }
 
+function writeFile(file, contents, cb) {
+  cb();
+}
+
 fs.__setMockFiles = __setMockFiles;
 fs.readdirSync = readdirSync;
 fs.readFileSync = readFileSync;
+fs.writeFile = writeFile;
 
 module.exports = fs;

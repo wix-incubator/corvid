@@ -1,17 +1,12 @@
 const fs = require("fs");
 const path = require("path");
-const chalk = require("chalk");
 
 async function readCorvidConfig(dir) {
   const json = await new Promise((resolve, reject) => {
     fs.readFile(path.join(dir, ".corvidrc.json"), (exc, config) => {
       if (exc) {
         if (exc.code === "ENOENT") {
-          reject(
-            chalk`{red Project not found in ${path.resolve(
-              dir
-            )}}\nRun the command from a project's root folder`
-          );
+          reject(new Error(`Project not found in ${path.resolve(dir)}`));
         } else {
           reject(exc);
         }

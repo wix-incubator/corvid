@@ -69,7 +69,6 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
     adminPort: localServerPort,
     close: closeLocalServer
   } = await server.catch(exc => {
-    console.log(JSON.stringify({ event: "error", payload: exc.message }));
     throw new Error(serverErrors[exc.message]);
   });
 
@@ -131,6 +130,7 @@ async function openWindow(app, windowOptions = {}) {
 
     win.close();
   } catch (exc) {
+    console.log(JSON.stringify({ event: "error", payload: exc.message }));
     process.exit(-1);
   }
 }

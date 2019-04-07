@@ -54,6 +54,8 @@ async function pullCommand(spinner, args) {
         spinner.fail();
         if (error in serverErrors) {
           console.log(chalk.red(serverErrors[error]));
+        } else {
+          console.log(chalk.red(error));
         }
       }
     },

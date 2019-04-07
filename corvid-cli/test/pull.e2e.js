@@ -87,10 +87,10 @@ describe("pull", () => {
 
       return expect(promise).resolves.toMatchObject([
         expect.anything(),
-        expect.anything(),
         expect.arrayContaining([
           expect.stringMatching(/.*Project not found in /)
-        ])
+        ]),
+        expect.anything()
       ]);
     });
   });
