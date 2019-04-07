@@ -6,7 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const { writeCorvidConfig } = require("../utils/corvid-config");
-const package = require("../../package.json");
+const packageJson = require("../../package.json");
 
 const editorDomain = "editor.wix.com";
 const publicWixDomain = "wix.com";
@@ -91,7 +91,7 @@ async function init(spinner, args, cookie) {
       `http://frog.wix.com/code?src=39&evid=200&msid=${metasiteId}&uuid=${
         parseSessionCookie(cookie).userGuid
       }&csi=${process.env.CORVID_SESSION_ID}`,
-      { headers: { "User-Agent": `Corvid CLI v${package.version}` } }
+      { headers: { "User-Agent": `Corvid CLI v${packageJson.version}` } }
     );
 
     if (siteName == null) {
