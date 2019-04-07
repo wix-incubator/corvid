@@ -3,9 +3,9 @@ const process = require("process");
 const chalk = require("chalk");
 const genEditorUrl = require("../utils/genEditorUrl");
 
-const pullApp = ({ useSsl = true, force = false, move = false } = {}) => ({
+const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
   serverMode: "clone",
-  serverArgs: { force, move },
+  serverArgs: { override, move },
   handler: async (corvidConfig, win, client, localServerStatus) => {
     await new Promise(async (resolve, reject) => {
       // this event is not fired by the server yet

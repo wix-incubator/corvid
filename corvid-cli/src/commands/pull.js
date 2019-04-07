@@ -24,14 +24,14 @@ app &&
     }
 
     const args = yargs.argv;
-    await openWindow(pullApp({ force: args.force, move: args.move }));
+    await openWindow(pullApp({ override: args.override, move: args.move }));
   });
 
 async function pullCommand(spinner, args) {
   spinner.start(chalk.grey("Connecting to local server"));
   const pullArgs = [];
 
-  if (args.force) pullArgs.push("--force");
+  if (args.override) pullArgs.push("--override");
   if (args.move) pullArgs.push("--move");
 
   return launch(
@@ -53,7 +53,17 @@ async function pullCommand(spinner, args) {
       error: error => {
         spinner.fail();
         if (error in serverErrors) {
-          console.log(chalk.red(serverErrors[error]));
+          if (error === "CAN_NOT_PULL_NON_EMPTY_SITE") {
+            console.log(chalk`{red Project directory already includes site files}
+
+Run either:
+  - 'corvid pull --move' to create a snapshot of your current project and pull the
+    latest revision from the remote repository.
+  - 'corvid pull --override' to override the existing site files with the latest
+    revision from the remote repository.`);
+          } else {
+            console.log(chalk.red(serverErrors[error]));
+          }
         } else {
           console.log(chalk.red(error));
         }
@@ -68,7 +78,10 @@ module.exports = {
   describe: "pulls a local copy of the site",
   builder: args =>
     args
-      .option("force", { describe: "force pull", type: "boolean" })
+      .option("override", {
+        describe: "overwrite existing site files",
+        type: "boolean"
+      })
       .option("move", {
         describe: "move existing site files before pull",
         type: "boolean"
@@ -78,7 +91,7 @@ module.exports = {
         describe: "ignore certificate errors",
         type: "boolean"
       })
-      .conflicts("force", "move"),
+      .conflicts("override", "move"),
   handler: async args => {
     const { login } = require("./login");
     const spinner = createSpinner();

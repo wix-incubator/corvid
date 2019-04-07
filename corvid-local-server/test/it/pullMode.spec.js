@@ -23,7 +23,7 @@ describe("pull mode", () => {
       const localSitePath = await initLocalSite();
 
       const server = localServer.startInCloneMode(localSitePath, {
-        force: true
+        override: true
       });
 
       await expect(server).rejects.toThrow("CAN_NOT_PULL_NON_WIX_SITE");
@@ -34,7 +34,7 @@ describe("pull mode", () => {
 
       const localSitePath = await initLocalSite(initialLocalSiteFiles);
       await localServer.startInCloneMode(localSitePath, {
-        force: true
+        override: true
       });
 
       const localSiteFiles = await readLocalSite(localSitePath);
@@ -49,7 +49,7 @@ describe("pull mode", () => {
 
       const localSitePath = await initLocalSite(initialLocalSiteFiles);
       const server = await localServer.startInCloneMode(localSitePath, {
-        force: true
+        override: true
       });
       await loadEditor(server.port, editorSite);
 

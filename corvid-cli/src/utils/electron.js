@@ -7,7 +7,6 @@ const client = require("socket.io-client");
 const electron = require("electron");
 
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
-const serverErrors = require("../utils/server-errors");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const { sendRequest } = require("../utils/socketIoHelpers");
 
@@ -71,7 +70,7 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
     adminPort: localServerPort,
     close: closeLocalServer
   } = await server.catch(exc => {
-    throw new Error(serverErrors[exc.message]);
+    throw new Error(exc.message);
   });
 
   win.on("close", () => {

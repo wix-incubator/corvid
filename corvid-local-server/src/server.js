@@ -95,13 +95,13 @@ async function startServer(siteRootPath, options) {
 
 const startInCloneMode = (
   siteRootPath,
-  options = { force: false, move: false }
+  options = { override: false, move: false }
 ) => {
-  if (options.force && options.move) {
-    throw new Error("Only one of 'force' and 'move' may be set");
+  if (options.override && options.move) {
+    throw new Error("Only one of 'override' and 'move' may be set");
   }
   return startServer(siteRootPath, {
-    type: options.force ? "FORCE_PULL" : options.move ? "MOVE_PULL" : "CLONE"
+    type: options.override ? "FORCE_PULL" : options.move ? "MOVE_PULL" : "CLONE"
   });
 };
 
