@@ -8,7 +8,6 @@ const pickBy_ = require("lodash/pickBy");
 const flatten_ = require("lodash/flatten");
 const partial_ = require("lodash/partial");
 const isObject_ = require("lodash/isObject");
-const rimraf = require("rimraf");
 const path = require("path");
 const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
@@ -126,10 +125,20 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return emptyCodeFiles;
   };
 
-  const deleteFolder = folderPath =>
-    new Promise(resolve =>
-      rimraf(sitePaths.getDocumentFolderRegex(fullPath(folderPath)), resolve)
-    );
+  const deleteFolder = async folderPath => {
+    if (!(await fs.exists(fullPath(folderPath)))) {
+      return;
+    }
+    const filesPaths = (await fs.readdir(fullPath(folderPath), {
+      withFileTypes: true
+    }))
+      .filter(item => item.isFile() && sitePaths.isDocumentFile(item.name))
+      .map(file => path.join(folderPath, file.name));
+    const filePromises = filesPaths.map(filesRelativePath => {
+      return filesWatcher.ignoredDeleteFile(filesRelativePath);
+    });
+    return Promise.all(filePromises);
+  };
 
   const deleteExistingFolders = async () => {
     await Promise.all([

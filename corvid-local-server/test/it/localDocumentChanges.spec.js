@@ -1,5 +1,6 @@
 const eventually = require("wix-eventually");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
+const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { siteCreators: sc } = require("corvid-local-test-utils");
 const {
   editor: loadEditor,
@@ -102,6 +103,40 @@ describe("local changes", () => {
         unsubscribeFromCodeChange();
       }
     );
+
+    it("should not trigger watcher callbacks on document save", async () => {
+      const siteItems = sc.fullSiteItems();
+
+      const localSiteFiles = localSiteBuilder.buildPartial(...siteItems);
+      const localSitePath = await initLocalSite(localSiteFiles);
+      const server = await localServer.startInEditMode(localSitePath);
+      const editor = await loadEditor(server.port);
+
+      const onDocChange = jest.fn();
+      const unsubscribeFromDocumentChange = editor.registerDocumentChange(
+        onDocChange
+      );
+
+      const updatedEditorSite = editorSiteBuilder.buildPartial(
+        ...siteItems,
+        sc.colors()
+      );
+
+      editor.modifyDocument(updatedEditorSite.siteDocument);
+      await editor.save();
+
+      const newPage = sc.page();
+      await writeFile(
+        localSitePath,
+        localSiteBuilder.getLocalFilePath(newPage),
+        localSiteBuilder.getLocalFileContent(newPage)
+      );
+
+      await eventually(async () => {
+        expect(onDocChange).toHaveBeenCalledTimes(1);
+      });
+      unsubscribeFromDocumentChange();
+    });
   });
 });
 // todo:: make sure when a user is changing file locally on unfamiller folders we should not nofity the editor
