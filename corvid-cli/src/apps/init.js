@@ -87,7 +87,7 @@ async function init(spinner, args, cookie) {
       throw new Error(`Could not extract the metasite ID of ${args.url}`);
     }
     fetch(
-      `https://frog.wix.com/code?src=39&evid=200&msid=${metasiteId}&uuid=${
+      `http://frog.wix.com/code?src=39&evid=200&msid=${metasiteId}&uuid=${
         parseSessionCookie(cookie).userGuid
       }&csi=${process.env.CORVID_SESSION_ID}`
     );

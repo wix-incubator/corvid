@@ -49,7 +49,7 @@ describe("init", () => {
         )
       )
       .mock(
-        `https://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
+        `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
           process.env.CORVID_SESSION_ID
         }`,
         JSON.stringify({})
@@ -73,7 +73,7 @@ describe("init", () => {
         }
       ).then(() =>
         fetchMock.called(
-          `https://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
+          `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
           }`
         )
@@ -103,7 +103,7 @@ describe("init", () => {
         )
       )
       .mock(
-        `https://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
+        `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
           process.env.CORVID_SESSION_ID
         }`,
         JSON.stringify({})
@@ -139,7 +139,7 @@ describe("init", () => {
           JSON.stringify([], null, 2)
         )
         .mock(
-          `https://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
+          `http://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
           }`,
           JSON.stringify({})
@@ -177,7 +177,7 @@ describe("init", () => {
           JSON.stringify([], null, 2)
         )
         .mock(
-          `https://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
+          `http://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
           }`,
           JSON.stringify({})
