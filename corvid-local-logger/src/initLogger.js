@@ -3,13 +3,13 @@ const winston = require("winston");
 const initSentry = require("./initSentry");
 const SentryTransport = require("./SentryTransport");
 
-const logFileName = sessionId => `.logs/corvid-${sessionId}.log`;
+const LOG_FILE_PATH = path.join(".corvid", "session.log");
 
-const logFileTransport = (sessionId, rootPath) =>
+const logFileTransport = rootPath =>
   new winston.transports.File({
-    level: process.env.LOG_LEVEL || "info",
-    filename: path.join(rootPath, logFileName(sessionId)),
-    defaultMeta: { sessionId },
+    level: process.env.LOG_LEVEL || "verbose",
+    filename: path.join(rootPath, LOG_FILE_PATH),
+    options: { flags: "w" },
     format: winston.format.combine(
       winston.format.errors({ stack: true }),
       winston.format.timestamp(),
@@ -19,15 +19,13 @@ const logFileTransport = (sessionId, rootPath) =>
     handleRejections: true
   });
 
-const crashConsoleTransport = sessionId =>
+const crashConsoleTransport = () =>
   new winston.transports.Console({
     level: "error",
     format: winston.format.combine(
       winston.format.printf(
         () =>
-          `[corvid] an error has occured. see [${logFileName(
-            sessionId
-          )}] for details.`
+          `[corvid] an error has occured. see [${LOG_FILE_PATH}] for details.`
       )
     ),
     handleExceptions: true,
@@ -59,9 +57,10 @@ const consoleTransport = () =>
 
 const initLogger = (sessionId, cwd) => {
   const logger = winston.createLogger({
+    defaultMeta: { sessionId },
     transports: [
-      logFileTransport(sessionId, cwd),
-      crashConsoleTransport(sessionId),
+      logFileTransport(cwd),
+      crashConsoleTransport(),
       sentryTransport(sessionId)
     ]
   });
