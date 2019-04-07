@@ -1,11 +1,11 @@
 const path = require("path");
+const fs = require("fs");
 const process = require("process");
 const fetchMock = require("fetch-mock");
 const jwt = require("jsonwebtoken");
 const init = require("../src/apps/init");
-
-jest.mock("fs");
-const fs = require("fs");
+const { version: cliModuleVersion } = require("../package.json");
+const { initTempDir } = require("corvid-local-test-utils");
 
 const mockSpinner = {
   start: () => {},
@@ -24,14 +24,61 @@ describe("init", () => {
   describe("should create a .corvidrc.json", () => {
     test("at the supplied directory", () => {});
     test("with the metasiteId of the site specified by the url", () => {});
+
+    test("with the current cli module version", async () => {
+      const tempDir = await initTempDir();
+
+      fetchMock
+        .mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
+          )
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }`,
+          JSON.stringify({})
+        );
+
+      await init(
+        mockSpinner,
+        {
+          url: "a-site.com",
+          dir: tempDir
+        },
+        {
+          name: "name",
+          value:
+            "JWT." +
+            jwt.sign(
+              { data: JSON.stringify({ userGuid: "testGuid" }) },
+              "secret"
+            )
+        }
+      );
+
+      const corvidrc = JSON.parse(
+        fs.readFileSync(path.join(tempDir, "aSite", ".corvidrc.json"), "utf8")
+      );
+
+      expect(corvidrc).toMatchObject({ cliVersion: cliModuleVersion });
+    });
   });
 
-  test("should send a BI event with the userGuid and metasiteId", () => {
+  test("should send a BI event with the userGuid and metasiteId", async () => {
     expect.assertions(1);
 
-    fs.__setMockFiles({
-      [path.resolve(path.join(".", "someFolder/aSite"))]: "{}"
-    });
+    const tempDir = await initTempDir({ aSite: {} });
 
     fetchMock
       .mock(
@@ -60,7 +107,7 @@ describe("init", () => {
         mockSpinner,
         {
           url: "a-site.com",
-          dir: "someFolder"
+          dir: tempDir
         },
         {
           name: "name",
@@ -81,12 +128,10 @@ describe("init", () => {
     ).resolves.toBe(true);
   });
 
-  test("should exit with an error if the given directory is not empty", () => {
+  test("should exit with an error if the given directory is not empty", async () => {
     expect.assertions(1);
 
-    fs.__setMockFiles({
-      [path.resolve(path.join(".", "someFolder/aSite/aFile"))]: "{}"
-    });
+    const tempDir = await initTempDir({ aSite: { aFile: "file contents" } });
     fetchMock
       .mock(
         "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
@@ -114,7 +159,7 @@ describe("init", () => {
         mockSpinner,
         {
           url: "a-site.com",
-          dir: "someFolder"
+          dir: tempDir
         },
         {
           name: "name",
@@ -126,7 +171,7 @@ describe("init", () => {
             )
         }
       )
-    ).rejects.toThrow(/Target directory .*\/someFolder\/aSite is not empty/);
+    ).rejects.toThrow(`Target directory ${tempDir}/aSite is not empty`);
   });
 
   describe("given an editor URL", () => {

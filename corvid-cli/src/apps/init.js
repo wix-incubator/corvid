@@ -124,8 +124,11 @@ async function init(spinner, args, cookie) {
       }
     }
 
-    await writeCorvidConfig(dirName, { metasiteId });
-    spinner.start(chalk.grey(`Initialised workspace in ${dirName}`));
+    await writeCorvidConfig(dirName, {
+      metasiteId,
+      cliVersion: packageJson.version
+    });
+    await spinner.start(chalk.grey(`Initialised workspace in ${dirName}`));
 
     return dirName;
   } catch (exc) {
