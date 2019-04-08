@@ -14,6 +14,8 @@ const { sendRequest } = require("../utils/socketIoHelpers");
 const isHeadlessMode = !process.env.CORVID_CLI_DISABLE_HEADLESS;
 const isDevTools = !!process.env.CORVID_CLI_DEVTOOLS;
 
+const runningProcesses = [];
+
 function launch(file, options = {}, callbacks = {}, args = []) {
   options.env = {
     ...process.env,
@@ -27,6 +29,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
       ...options
     }
   );
+  runningProcesses.push(cp);
 
   return new Promise((resolve, reject) => {
     const messages = [];
@@ -56,6 +59,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
       }
 
       cp.on("exit", code => {
+        runningProcesses.splice(runningProcesses.indexOf(cp), 1);
         code === 0 ? resolve(messages) : reject(code);
       });
     }
@@ -133,11 +137,14 @@ async function openWindow(app, windowOptions = {}) {
     win.close();
   } catch (exc) {
     console.log(JSON.stringify({ event: "error", payload: exc.message }));
-    process.exit(-1);
+    throw exc;
   }
 }
 
 module.exports = {
   openWindow,
-  launch
+  launch,
+  killAllChildProcesses: () => {
+    runningProcesses.splice(0).map(cp => cp.kill("SIGQUIT"));
+  }
 };

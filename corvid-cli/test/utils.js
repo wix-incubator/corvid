@@ -3,6 +3,9 @@ const path = require("path");
 const electron = require("electron");
 const { initTempDir } = require("corvid-local-test-utils");
 const { readDirToJson } = require("corvid-dir-as-json");
+const {
+  server: localFakeEditorServer
+} = require("corvid-fake-local-mode-editor");
 
 function runFixture(name, site, ...args) {
   return new Promise(async resolve => {
@@ -15,8 +18,12 @@ function runFixture(name, site, ...args) {
 
     const tempWorkingDir = await initTempDir(await readDirToJson(fixtureDir));
 
+    const localEditorServerPort = await localFakeEditorServer.start();
+    process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${localEditorServerPort}`;
+    process.env.DISABLE_SSL = true;
+
     const arguments_ = [
-      path.resolve(path.join(__dirname, "fixtures", name, "main.js")),
+      path.resolve(path.join(__dirname, "..", "src", "commands", name)),
       ...args
     ];
     const child = childProcess.spawn(electron, arguments_, {
@@ -32,7 +39,12 @@ function runFixture(name, site, ...args) {
       stderr.push(data.toString());
     });
 
-    child.on("exit", code => resolve([code, stdout, stderr]));
+    child.on("exit", code => {
+      localFakeEditorServer.killAllRunningServers();
+      resolve([code, stdout, stderr]);
+    });
+
+    setTimeout(() => child.kill("SIGQUIT"), 4000);
   });
 }
 

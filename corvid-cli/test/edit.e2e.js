@@ -1,89 +1,166 @@
-const { runFixture } = require("./utils");
+const fetchMock = require("fetch-mock");
+const { initTempDir } = require("corvid-local-test-utils");
+const {
+  server: localFakeEditorServer
+} = require("corvid-fake-local-mode-editor");
+const sessionData = require("../src/utils/sessionData");
+const { killAllChildProcesses } = require("../src/utils/electron");
+
+jest.mock("../src/commands/login");
+const { openEditorHandler } = require("../src/commands/open-editor");
 
 describe("edit", () => {
-  describe.skip("when run in a folder with a local version of the site", () => {
-    const promise = runFixture("edit", "non-empty-site");
+  jest.setTimeout(10000);
+  process.env.CORVID_SESSION_ID = "testCorvidId";
+  process.env.CORVID_FORCE_HEADLESS = 1;
 
-    test("should connect to a local server", () => {
-      expect.assertions(1);
-
-      return expect(promise).resolves.toMatchObject([
-        0,
-        expect.arrayContaining([
-          expect.stringMatching(/Local server connection established/)
-        ]),
-        expect.anything()
-      ]);
-    });
-
-    test("should open the app with the correct editor URL", () => {
-      expect.assertions(1);
-
-      return expect(promise).resolves.toMatchObject([
-        0,
-        expect.arrayContaining([expect.stringMatching(/fake editor loaded/)]),
-        expect.anything()
-      ]);
-    });
-
-    test("should open the editor with the local server port", () => {
-      expect.assertions(1);
-
-      return expect(promise).resolves.toMatchObject([
-        0,
-        expect.arrayContaining([expect.stringMatching(/Editor connected/)]),
-        expect.anything()
-      ]);
-    });
+  afterEach(() => {
+    sessionData.reset();
+    fetchMock.restore();
+    killAllChildProcesses();
   });
 
-  describe.skip("when the local server is already running in clone mode", () => {
-    const promise = runFixture("edit", "empty-site", "clone");
-
-    test("should exit with status code 255", () => {
-      expect.assertions(1);
-
-      return expect(promise).resolves.toMatchObject([
-        255,
-        expect.anything(),
-        expect.anything()
-      ]);
+  describe("when run in a directory with a local version of the site", () => {
+    beforeEach(async () => {
+      const localEditorServerPort = await localFakeEditorServer.start();
+      process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${localEditorServerPort}`;
+      process.env.DISABLE_SSL = true;
     });
 
-    test("should print to stderr a message explaining the error", () => {
-      expect.assertions(1);
+    afterEach(() => {
+      localFakeEditorServer.killAllRunningServers();
+    });
 
-      return expect(promise).resolves.toMatchObject([
-        expect.anything(),
-        expect.anything(),
-        expect.arrayContaining(["Local server is not in edit mode\n"])
-      ]);
+    test("should open the editor with the local server port", async () => {
+      expect.assertions(1);
+      const tempDir = await initTempDir({
+        ".corvidrc.json": '{ "metasiteId": "12345678" }',
+        backend: {},
+        frontend: {},
+        public: {},
+        database: {}
+      });
+
+      return expect(
+        openEditorHandler({
+          C: tempDir
+        })
+      ).resolves.toBeUndefined();
+    });
+
+    test("should report to BI an open-editor start event", async () => {
+      expect.assertions(1);
+      const tempDir = await initTempDir({
+        ".corvidrc.json": '{ "metasiteId": "12345678" }',
+        backend: {},
+        frontend: {},
+        public: {},
+        database: {}
+      });
+
+      fetchMock
+        .mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
+          )
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=start`,
+          JSON.stringify({})
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=success`,
+          JSON.stringify({})
+        );
+
+      await openEditorHandler({
+        C: tempDir
+      });
+
+      expect(
+        fetchMock.called(
+          `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=start`
+        )
+      ).toBe(true);
+    });
+
+    test("should report to BI an open-editor success event", async () => {
+      expect.assertions(1);
+      const tempDir = await initTempDir({
+        ".corvidrc.json": '{ "metasiteId": "12345678" }',
+        backend: {},
+        frontend: {},
+        public: {},
+        database: {}
+      });
+
+      fetchMock
+        .mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
+          )
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=start`,
+          JSON.stringify({})
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=success`,
+          JSON.stringify({})
+        );
+
+      await openEditorHandler({
+        C: tempDir
+      });
+
+      expect(
+        fetchMock.called(
+          `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=success`
+        )
+      ).toBe(true);
     });
   });
 
   describe("when run in a directory without a config file", () => {
-    const promise = runFixture("edit", ".");
-
-    test("should exit with error code 255", () => {
+    test("should reject with an error explaining the issue", async () => {
       expect.assertions(1);
+      const tempDir = await initTempDir({});
 
-      return expect(promise).resolves.toMatchObject([
-        255,
-        expect.anything(),
-        expect.anything()
-      ]);
-    });
-
-    test("should print to stderr a message explaining the error", () => {
-      expect.assertions(1);
-
-      return expect(promise).resolves.toMatchObject([
-        expect.anything(),
-        expect.arrayContaining([
-          expect.stringMatching(/.*Project not found in /)
-        ]),
-        expect.anything()
-      ]);
+      return expect(
+        openEditorHandler({
+          C: tempDir
+        })
+      ).rejects.toThrow(/Project not found in/);
     });
   });
 });

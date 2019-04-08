@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
 const chalk = require("chalk");
+const jwt = require("jsonwebtoken");
 const { app, BrowserWindow } = require("electron");
 const _ = require("lodash");
 const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
+const sessionData = require("../utils/sessionData");
 
 const mySitesUrl = "https://www.wix.com/account/sites";
 const signInHostname = "users.wix.com";
@@ -54,6 +56,16 @@ app &&
     }
   });
 
+function parseSessionCookie(cookie) {
+  try {
+    const cookieData = jwt.decode(cookie.value.slice(4)).data;
+    const parsedSession = JSON.parse(cookieData);
+    return parsedSession;
+  } catch (_) {
+    return {};
+  }
+}
+
 async function loginCommand(spinner) {
   spinner.start(chalk.grey("Accessing www.wix.com"));
 
@@ -68,11 +80,14 @@ async function loginCommand(spinner) {
         spinner.start(chalk.grey("Authenticated on www.wix.com"));
       }
     }
-  ).then(messages => {
+  ).then(async messages => {
     const cookieMessages = messages
       ? messages.filter(({ msg }) => msg === "authCookie")
       : [];
-    return _.get(cookieMessages, [0, "cookie"]);
+    const authCookie = _.get(cookieMessages, [0, "cookie"]);
+    await sessionData.set({ uuid: parseSessionCookie(authCookie).userGuid });
+
+    return authCookie;
   });
 }
 
@@ -90,5 +105,6 @@ module.exports = {
       })
       .catch(() => spinner.fail());
   },
-  login: loginCommand
+  login: loginCommand,
+  parseSessionCookie
 };

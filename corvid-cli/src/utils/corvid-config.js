@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const sessionData = require("./sessionData");
 
 async function readCorvidConfig(dir) {
   const json = await new Promise((resolve, reject) => {
@@ -16,7 +17,9 @@ async function readCorvidConfig(dir) {
     });
   });
 
-  return JSON.parse(json);
+  const configObj = JSON.parse(json);
+  await sessionData.set({ msid: configObj.metasiteId });
+  return configObj;
 }
 
 async function writeCorvidConfig(dir, config) {

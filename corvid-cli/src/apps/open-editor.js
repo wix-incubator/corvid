@@ -36,7 +36,7 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
       }
 
       const editorUrl = genEditorUrl(
-        useSsl,
+        process.env.DISABLE_SSL ? false : useSsl,
         process.env.CORVID_CLI_WIX_DOMAIN || "www.wix.com",
         corvidConfig.metasiteId,
         localServerEditorPort,

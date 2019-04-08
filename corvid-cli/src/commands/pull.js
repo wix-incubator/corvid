@@ -8,6 +8,9 @@ const { openWindow, launch } = require("../utils/electron");
 const pullApp = require("../apps/pull");
 const createSpinner = require("../utils/spinner");
 const serverErrors = require("../utils/server-errors");
+const sessionData = require("../utils/sessionData");
+const { sendPullEvent } = require("../utils/bi");
+const { readCorvidConfig } = require("../utils/corvid-config");
 
 app &&
   app.on("ready", async () => {
@@ -24,7 +27,11 @@ app &&
     }
 
     const args = yargs.argv;
-    await openWindow(pullApp({ override: args.override, move: args.move }));
+    try {
+      await openWindow(pullApp({ override: args.override, move: args.move }));
+    } catch (exc) {
+      process.exit(-1);
+    }
   });
 
 async function pullCommand(spinner, args) {
@@ -34,43 +41,88 @@ async function pullCommand(spinner, args) {
   if (args.override) pullArgs.push("--override");
   if (args.move) pullArgs.push("--move");
 
-  return launch(
-    __filename,
-    {
-      cwd: args.C,
-      env: { ...process.env, IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate }
-    },
-    {
-      localServerConnected: () => {
-        spinner.start(chalk.grey("Waiting for editor to connect"));
+  await new Promise((resolve, reject) => {
+    launch(
+      __filename,
+      {
+        cwd: args.C,
+        env: {
+          ...process.env,
+          IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
+        }
       },
-      editorConnected: () => {
-        spinner.start(chalk.grey("Downloading project"));
-      },
-      projectDownloaded: () => {
-        spinner.start(chalk.grey("Downloaded project"));
-      },
-      error: error => {
-        spinner.fail();
-        if (error in serverErrors) {
-          if (error === "CAN_NOT_PULL_NON_EMPTY_SITE") {
-            console.log(chalk`{red Project directory already includes site files}
+      {
+        localServerConnected: () => {
+          spinner.start(chalk.grey("Waiting for editor to connect"));
+        },
+        editorConnected: () => {
+          spinner.start(chalk.grey("Downloading project"));
+        },
+        projectDownloaded: () => {
+          spinner.start(chalk.grey("Downloaded project"));
+          resolve();
+        },
+        error: error => {
+          spinner.fail();
+          if (error in serverErrors) {
+            if (error === "CAN_NOT_PULL_NON_EMPTY_SITE") {
+              console.log(chalk`{red Project directory already includes site files}
 
 Run either:
   - 'corvid pull --move' to create a snapshot of your current project and pull the
     latest revision from the remote repository.
   - 'corvid pull --override' to override the existing site files with the latest
     revision from the remote repository.`);
+            } else {
+              reject(new Error(serverErrors[error]));
+            }
           } else {
-            console.log(chalk.red(serverErrors[error]));
+            reject(new Error(error));
           }
-        } else {
-          console.log(chalk.red(error));
         }
-      }
-    },
-    pullArgs
+      },
+      pullArgs
+    ).catch(reject);
+  });
+}
+
+async function pullHandler(args) {
+  const { login } = require("./login");
+  const spinner = createSpinner();
+  sessionData.on(["msid", "uuid"], (msid, uuid) =>
+    sendPullEvent(msid, uuid, "start", {
+      type: args.override ? "override" : args.move ? "move" : "regular"
+    })
   );
+  await readCorvidConfig(args.C || ".");
+  return login(spinner)
+    .then(async () => {
+      await pullCommand(spinner, args);
+      spinner.stop();
+      await sessionData.callWithKeys(
+        (msid, uuid) =>
+          sendPullEvent(msid, uuid, "success", {
+            type: args.override ? "override" : args.move ? "move" : "regular"
+          }),
+        "msid",
+        "uuid"
+      );
+      return `Pull complete, change directory to '${path.resolve(
+        args.C
+      )}' and run 'corvid open-editor' to start editing the local copy`;
+    })
+    .catch(async error => {
+      if (spinner.isSpinning) spinner.fail();
+      await sessionData.callWithKeys(
+        (msid, uuid) =>
+          sendPullEvent(msid, uuid, "fail", {
+            type: args.override ? "override" : args.move ? "move" : "regular"
+          }),
+        "msid",
+        "uuid"
+      );
+      throw error;
+    });
 }
 
 module.exports = {
@@ -92,24 +144,17 @@ module.exports = {
         type: "boolean"
       })
       .conflicts("override", "move"),
-  handler: async args => {
-    const { login } = require("./login");
-    const spinner = createSpinner();
-    login(spinner)
-      .then(async () => {
-        await pullCommand(spinner, args);
-        spinner.stop();
-        console.log(
-          chalk.green(
-            `Pull complete, change directory to '${path.resolve(
-              args.C
-            )}' and run 'corvid open-editor' to start editing the local copy`
-          )
-        );
-      })
-      .catch(() => {
-        if (spinner.isSpinning) spinner.fail();
-      });
-  },
-  pull: pullCommand
+  handler: async args =>
+    pullHandler(args).then(
+      message => {
+        if (message) console.log(chalk.green(message));
+        process.exit(0);
+      },
+      error => {
+        if (error && error.message) console.log(chalk.red(error.message));
+        process.exit(-1);
+      }
+    ),
+  pull: pullCommand,
+  pullHandler
 };

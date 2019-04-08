@@ -1,11 +1,19 @@
 /* eslint-disable no-console */
+const fs = require("fs");
 const process = require("process");
 const chalk = require("chalk");
 const { app } = require("electron");
-const { openWindow, launch } = require("../utils/electron");
+const {
+  openWindow,
+  launch,
+  killAllChildProcesses
+} = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const openEditorApp = require("../apps/open-editor");
 const serverErrors = require("../utils/server-errors");
+const sessionData = require("../utils/sessionData");
+const { sendOpenEditorEvent } = require("../utils/bi");
+const { readCorvidConfig } = require("../utils/corvid-config");
 
 app &&
   app.on("ready", async () => {
@@ -21,9 +29,81 @@ app &&
       );
     }
 
-    await openWindow(openEditorApp(), { show: true });
-    app.exit(0);
+    try {
+      await openWindow(openEditorApp(), {
+        show: true && !process.env.CORVID_FORCE_HEADLESS
+      });
+    } catch (exc) {
+      process.exit(-1);
+    }
   });
+
+async function openEditorHandler(args) {
+  const { login } = require("./login");
+  const spinner = createSpinner();
+  await readCorvidConfig(args.C || ".");
+  sessionData.on(["msid", "uuid"], (msid, uuid) =>
+    sendOpenEditorEvent(msid, uuid)
+  );
+
+  try {
+    fs.readdirSync(args.C);
+  } catch (exc) {
+    throw new Error(`Directory ${args.C} does not exist`);
+  }
+  await login(spinner);
+
+  spinner.start(chalk.grey("Connecting to local server"));
+
+  await new Promise((resolve, reject) => {
+    process.on("exit", () => killAllChildProcesses());
+
+    launch(
+      __filename,
+      {
+        // TODO uncomment the following two option to spawn the app in the
+        // background once the local server can be spawned in the background as
+        // well
+        //detached: true,
+        //stdio: "ignore",
+        cwd: args.C,
+        env: {
+          ...process.env,
+          IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
+        }
+      },
+      {
+        localServerConnected: () => {
+          spinner.start(chalk.grey("Waiting for editor to connect"));
+        },
+        editorConnected: () => {
+          sessionData.callWithKeys(
+            (msid, uuid) => sendOpenEditorEvent(msid, uuid, "success"),
+            "msid",
+            "uuid"
+          );
+          spinner.succeed(chalk.grey("Editor connected"));
+          resolve();
+        },
+        error: error => {
+          spinner.fail();
+          sessionData.callWithKeys(
+            (msid, uuid) => sendOpenEditorEvent(msid, uuid, "fail"),
+            "msid",
+            "uuid"
+          );
+          if (error in serverErrors) {
+            reject(new Error(serverErrors[error]));
+          } else {
+            reject(new Error(error));
+          }
+        }
+      }
+    ).then(resolve, reject);
+  });
+
+  spinner.stop();
+}
 
 module.exports = {
   command: "open-editor",
@@ -36,48 +116,10 @@ module.exports = {
         type: "boolean"
       }),
   handler: async args => {
-    const { login } = require("./login");
-    try {
-      const spinner = createSpinner();
-      await login(spinner);
-
-      spinner.start(chalk.grey("Connecting to local server"));
-
-      await launch(
-        __filename,
-        {
-          // TODO uncomment the following two option to spawn the app in the
-          // background once the local server can be spawned in the background as
-          // well
-          //detached: true,
-          //stdio: "ignore",
-          cwd: args.C,
-          env: {
-            ...process.env,
-            IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
-          }
-        },
-        {
-          localServerConnected: () => {
-            spinner.start(chalk.grey("Waiting for editor to connect"));
-          },
-          editorConnected: () => {
-            spinner.succeed(chalk.grey("Editor connected"));
-          },
-          error: error => {
-            spinner.fail();
-            if (error in serverErrors) {
-              console.log(chalk.red(serverErrors[error]));
-            } else {
-              console.log(chalk.red(error));
-            }
-          }
-        }
-      );
-
-      spinner.stop();
-    } catch (_) {
-      return;
-    }
-  }
+    openEditorHandler(args).catch(error => {
+      console.log(chalk.red(error.message));
+      process.exit(-1);
+    });
+  },
+  openEditorHandler
 };

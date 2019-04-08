@@ -1,97 +1,490 @@
-const { runFixture } = require("./utils");
+const fetchMock = require("fetch-mock");
+const { initTempDir } = require("corvid-local-test-utils");
+const {
+  server: localFakeEditorServer
+} = require("corvid-fake-local-mode-editor");
+const sessionData = require("../src/utils/sessionData");
+
+jest.mock("../src/commands/login");
+const { pullHandler } = require("../src/commands/pull");
 
 describe("pull", () => {
-  const promise = runFixture("pull", "empty-site");
-
-  test("should connect to local server", () => {
-    expect.assertions(1);
-
-    return expect(promise).resolves.toMatchObject([
-      0,
-      expect.arrayContaining([expect.stringMatching(/localServerConnected/)]),
-      expect.anything()
-    ]);
+  process.env.CORVID_SESSION_ID = "testCorvidId";
+  beforeEach(async () => {
+    const localEditorServerPort = await localFakeEditorServer.start();
+    process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${localEditorServerPort}`;
+    process.env.DISABLE_SSL = true;
   });
 
-  test("should open the app with the correct editor URL", () => {
-    expect.assertions(1);
-
-    return expect(promise).resolves.toMatchObject([
-      0,
-      expect.arrayContaining([expect.stringMatching(/fake editor loaded/)]),
-      expect.anything()
-    ]);
+  afterEach(() => {
+    sessionData.reset();
+    localFakeEditorServer.killAllRunningServers();
+    fetchMock.restore();
   });
 
-  test("should open the editor with the local server port", () => {
-    expect.assertions(1);
-
-    return expect(promise).resolves.toMatchObject([
-      0,
-      expect.arrayContaining([expect.stringMatching(/editorConnected/)]),
-      expect.anything()
-    ]);
-  });
-
-  test("should report to stdout when the process is complete", () => {
-    expect.assertions(1);
-
-    return expect(promise).resolves.toMatchObject([
-      0,
-      expect.arrayContaining([expect.stringMatching(/projectDownloaded/)]),
-      expect.anything()
-    ]);
-  });
-
-  test("should disconnect from the local server after download is complete", () => {});
-
-  describe.skip("when the local server is already running in edit more", () => {
-    const promise = runFixture("pull", "non-empty-site", "edit");
-
-    test("should exit with error code 255", () => {
+  describe("when run in a directory with a config file and no site files", () => {
+    test("should report to stdout when the process is complete", async () => {
       expect.assertions(1);
+      const tempDir = await initTempDir({
+        ".corvidrc.json": '{ "metasiteId": "12345678" }'
+      });
 
-      return expect(promise).resolves.toMatchObject([
-        255,
-        expect.anything(),
-        expect.arrayContaining(["Local server is not in clone mode\n"])
-      ]);
+      fetchMock
+        .mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
+          )
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=start&type=regular`,
+          JSON.stringify({})
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=success&type=regular`,
+          JSON.stringify({})
+        );
+
+      return expect(
+        pullHandler({
+          C: tempDir
+        })
+      ).resolves.toMatch(/Pull complete/);
     });
 
-    test("should print to stderr a message explaining the error", () => {
+    test("should report to BI a pull start event", async () => {
       expect.assertions(1);
+      const tempDir = await initTempDir({
+        ".corvidrc.json": '{ "metasiteId": "12345678" }'
+      });
 
-      return expect(promise).resolves.toMatchObject([
-        255,
-        expect.anything(),
-        expect.arrayContaining(["Local server is not in clone mode\n"])
-      ]);
+      fetchMock
+        .mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
+          )
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=start&type=regular`,
+          JSON.stringify({})
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=success&type=regular`,
+          JSON.stringify({})
+        );
+
+      await pullHandler({
+        C: tempDir
+      });
+
+      expect(
+        fetchMock.called(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=start&type=regular`
+        )
+      ).toBe(true);
+    });
+
+    test("should report to BI a pull success event", async () => {
+      expect.assertions(1);
+      const tempDir = await initTempDir({
+        ".corvidrc.json": '{ "metasiteId": "12345678" }'
+      });
+
+      fetchMock
+        .mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
+          )
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=start&type=regular`,
+          JSON.stringify({})
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=success&type=regular`,
+          JSON.stringify({})
+        );
+
+      await pullHandler({
+        C: tempDir
+      });
+
+      expect(
+        fetchMock.called(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=success&type=regular`
+        )
+      ).toBe(true);
+    });
+  });
+
+  describe("when run in a directory with a config file and site files", () => {
+    test("should report to BI a pull start event", async () => {
+      expect.assertions(1);
+      const tempDir = await initTempDir({
+        ".corvidrc.json": '{ "metasiteId": "12345678" }',
+        backend: {},
+        frontend: {},
+        public: {},
+        database: {}
+      });
+
+      fetchMock
+        .mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
+          )
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=start&type=regular`,
+          JSON.stringify({})
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=fail&type=regular`,
+          JSON.stringify({})
+        );
+
+      await pullHandler({
+        C: tempDir
+      }).catch(() => {});
+
+      expect(
+        fetchMock.called(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=start&type=regular`
+        )
+      ).toBe(true);
+    });
+
+    test("should report to BI a pull fail event", async () => {
+      expect.assertions(1);
+      const tempDir = await initTempDir({
+        ".corvidrc.json": '{ "metasiteId": "12345678" }',
+        backend: {},
+        frontend: {},
+        public: {},
+        database: {}
+      });
+
+      fetchMock
+        .mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
+          )
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=start&type=regular`,
+          JSON.stringify({})
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=fail&type=regular`,
+          JSON.stringify({})
+        );
+
+      await pullHandler({
+        C: tempDir
+      }).catch(() => {});
+
+      expect(
+        fetchMock.called(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status_text=fail&type=regular`
+        )
+      ).toBe(true);
+    });
+
+    describe("and given the --override flag", () => {
+      test("should report to BI a pull start event", async () => {
+        expect.assertions(1);
+        const tempDir = await initTempDir({
+          ".corvidrc.json": '{ "metasiteId": "12345678" }',
+          backend: {},
+          frontend: {},
+          public: {},
+          database: {}
+        });
+
+        fetchMock
+          .mock(
+            "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+            JSON.stringify(
+              [
+                {
+                  metasiteId: "12345678",
+                  publicUrl: "http://a-site.com",
+                  siteName: "aSite"
+                }
+              ],
+              null,
+              2
+            )
+          )
+          .mock(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=start&type=override`,
+            JSON.stringify({})
+          )
+          .mock(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=success&type=override`,
+            JSON.stringify({})
+          );
+
+        await pullHandler({
+          C: tempDir,
+          override: true
+        }).catch(() => {});
+
+        expect(
+          fetchMock.called(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=start&type=override`
+          )
+        ).toBe(true);
+      });
+
+      test("should report to BI a pull success event", async () => {
+        expect.assertions(1);
+        const tempDir = await initTempDir({
+          ".corvidrc.json": '{ "metasiteId": "12345678" }',
+          backend: {},
+          frontend: {},
+          public: {},
+          database: {}
+        });
+
+        fetchMock
+          .mock(
+            "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+            JSON.stringify(
+              [
+                {
+                  metasiteId: "12345678",
+                  publicUrl: "http://a-site.com",
+                  siteName: "aSite"
+                }
+              ],
+              null,
+              2
+            )
+          )
+          .mock(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=start&type=override`,
+            JSON.stringify({})
+          )
+          .mock(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=success&type=override`,
+            JSON.stringify({})
+          );
+
+        await pullHandler({
+          C: tempDir,
+          override: true
+        }).catch(() => {});
+
+        expect(
+          fetchMock.called(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=success&type=override`
+          )
+        ).toBe(true);
+      });
+    });
+
+    describe("and given the --move flag", () => {
+      test("should report to BI a pull start event", async () => {
+        expect.assertions(1);
+        const tempDir = await initTempDir({
+          ".corvidrc.json": '{ "metasiteId": "12345678" }',
+          backend: {},
+          frontend: {},
+          public: {},
+          database: {}
+        });
+
+        fetchMock
+          .mock(
+            "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+            JSON.stringify(
+              [
+                {
+                  metasiteId: "12345678",
+                  publicUrl: "http://a-site.com",
+                  siteName: "aSite"
+                }
+              ],
+              null,
+              2
+            )
+          )
+          .mock(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=start&type=move`,
+            JSON.stringify({})
+          )
+          .mock(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=success&type=move`,
+            JSON.stringify({})
+          );
+
+        await pullHandler({
+          C: tempDir,
+          move: true
+        }).catch(() => {});
+
+        expect(
+          fetchMock.called(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=start&type=move`
+          )
+        ).toBe(true);
+      });
+
+      test("should report to BI a pull success event", async () => {
+        expect.assertions(1);
+        const tempDir = await initTempDir({
+          ".corvidrc.json": '{ "metasiteId": "12345678" }',
+          backend: {},
+          frontend: {},
+          public: {},
+          database: {}
+        });
+
+        fetchMock
+          .mock(
+            "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+            JSON.stringify(
+              [
+                {
+                  metasiteId: "12345678",
+                  publicUrl: "http://a-site.com",
+                  siteName: "aSite"
+                }
+              ],
+              null,
+              2
+            )
+          )
+          .mock(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=start&type=move`,
+            JSON.stringify({})
+          )
+          .mock(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=success&type=move`,
+            JSON.stringify({})
+          );
+
+        await pullHandler({
+          C: tempDir,
+          move: true
+        }).catch(() => {});
+
+        expect(
+          fetchMock.called(
+            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status_text=success&type=move`
+          )
+        ).toBe(true);
+      });
     });
   });
 
   describe("when run in a directory without a config file", () => {
-    const promise = runFixture("pull", ".");
-
-    test("should exit with error code 255", () => {
+    test("should print to stderr a message explaining the error", async () => {
       expect.assertions(1);
+      const tempDir = await initTempDir({});
 
-      return expect(promise).resolves.toMatchObject([
-        255,
-        expect.anything(),
-        expect.anything()
-      ]);
-    });
-
-    test("should print to stderr a message explaining the error", () => {
-      expect.assertions(1);
-
-      return expect(promise).resolves.toMatchObject([
-        expect.anything(),
-        expect.arrayContaining([
-          expect.stringMatching(/.*Project not found in /)
-        ]),
-        expect.anything()
-      ]);
+      return expect(
+        pullHandler({
+          C: tempDir
+        })
+      ).rejects.toThrow(/Project not found in/);
     });
   });
 });
