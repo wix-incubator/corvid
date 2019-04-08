@@ -40,10 +40,12 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
         useSsl,
         process.env.CORVID_CLI_WIX_DOMAIN || "www.wix.com",
         corvidConfig.metasiteId,
-        localServerEditorPort
+        localServerEditorPort,
+        true,
+        "pull"
       );
 
-      win.loadURL(editorUrl);
+      win.loadURL(editorUrl, { httpReferrer: editorUrl });
     });
   }
 });

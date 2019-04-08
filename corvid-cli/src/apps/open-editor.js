@@ -39,10 +39,12 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         useSsl,
         process.env.CORVID_CLI_WIX_DOMAIN || "www.wix.com",
         corvidConfig.metasiteId,
-        localServerEditorPort
+        localServerEditorPort,
+        false,
+        "local"
       );
 
-      win.loadURL(editorUrl);
+      win.loadURL(editorUrl, { httpReferrer: editorUrl });
     });
   }
 });
