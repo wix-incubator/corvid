@@ -5,8 +5,8 @@ module.exports = {
   check: () => {
     const nodeVersion = process.versions.node;
     // eslint-disable-next-line no-unused-vars
-    const [major, minor, patch] = nodeVersion.split(".");
+    const [major] = nodeVersion.split(".");
 
-    return (major == 10 && minor >= 10) || major > 10;
+    return major >= 10;
   }
 };
