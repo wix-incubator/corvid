@@ -14,6 +14,9 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "engines": {
+    "node": ">=10"
+  },
   "bin": {
     "corvid": "./src/index.js",
     "corvid-debug": "./src/index.debug.js"

@@ -13,6 +13,9 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "engines": {
+    "node": ">=10"
+  },
   "license": "ISC",
   "devDependencies": {
     "wnpm-ci": "^7.0.11",
