@@ -2,6 +2,7 @@
 const process = require("process");
 const chalk = require("chalk");
 const genEditorUrl = require("../utils/genEditorUrl");
+const FATAL_ERROR_MESSAGE = "CORVID_FATAL_ERROR";
 
 const openEditorApp = ({ useSsl = true } = {}) => ({
   serverMode: "edit",
@@ -21,18 +22,22 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
 
       if (editorConnected) {
         reject(
-          chalk.red(
-            `The local Corvid server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again.`
+          new Error(
+            chalk.red(
+              `The local Corvid server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again.`
+            )
           )
         );
       }
 
       if (mode !== "edit") {
-        reject(chalk.red("Local server is not in edit mode"));
+        reject(new Error(chalk.red("Local server is not in edit mode")));
       }
 
       if (!localServerEditorPort) {
-        reject(chalk.red("Local server did not return an editor port"));
+        reject(
+          new Error(chalk.red("Local server did not return an editor port"))
+        );
       }
 
       const editorUrl = genEditorUrl(
@@ -43,6 +48,13 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         false,
         "local"
       );
+
+      win.webContents.on("console-message", (event, level, message) => {
+        if (message.startsWith(FATAL_ERROR_MESSAGE)) {
+          const reason = message.replace(FATAL_ERROR_MESSAGE, "").trim(":");
+          reject(new Error(chalk.red(`Fatal error! ${reason}`)));
+        }
+      });
 
       win.loadURL(editorUrl, { httpReferrer: editorUrl });
     });
