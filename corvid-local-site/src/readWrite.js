@@ -16,7 +16,8 @@ const flat = require("flat");
 
 const flatten = data => flat(data, { delimiter: path.sep, safe: true });
 
-const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
+const removeFileExtension = filename =>
+  filename.replace(new RegExp(`\.[^${path.sep}.]+$`), ""); // eslint-disable-line no-useless-escape
 const stringify = content => JSON.stringify(content, null, 2);
 const isEmptyFolder = content => isObject_(content);
 const readWrite = (siteRootPath, filesWatcher) => {

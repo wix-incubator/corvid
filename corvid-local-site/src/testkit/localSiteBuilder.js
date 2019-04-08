@@ -93,13 +93,13 @@ const codeFile = ({ path, content }) => ({ path, content });
 
 const collectionSchema = ({ collectionName, schema }) =>
   codeFile({
-    path: `database/${collectionName}.json`,
+    path: `database${path.sep}${collectionName}.json`,
     content: schema
   });
 
 const masterPageCode = ({ content }) =>
   codeFile({
-    path: `frontend/site.js`,
+    path: `frontend${path.sep}site.js`,
     content
   });
 

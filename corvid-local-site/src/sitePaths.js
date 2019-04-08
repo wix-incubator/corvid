@@ -22,19 +22,25 @@ const siteFolders = [
 ];
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
+const sep = () => `${path.sep}`;
 const getPageFileName = (id, title, extention = fileExtention) =>
   `${sanitize(removeSpaces(title), titleCharReplacement)}.${id}${extention}`;
 
-const matchEditorPageFile = filePath => filePath.match(/^\/{0,1}public\/pages/);
+const editorPageFileRegexpStr = `^${sep()}{0,1}public${sep()}pages`;
+const matchEditorPageFile = filePath =>
+  filePath.match(new RegExp(editorPageFileRegexpStr));
 
+const localPageFileRegexpStr = `^${sep()}{0,1}frontend${sep()}(pages|lightboxes)${sep()}.*\\.([^.]*)\\.js`;
 const matchLocalPageFile = filePath =>
-  filePath.match(/^\/{0,1}frontend\/(pages|lightboxes)\/.*\.([^.]*)\.js/);
+  filePath.match(new RegExp(localPageFileRegexpStr));
 
+const editorMasterPageFileRegexpStr = `^${sep()}{0,1}public${sep()}pages${sep()}masterPage.js`;
 const matchEditorMasterPageFile = filePath =>
-  filePath.match(/^\/{0,1}public\/pages\/masterPage.js/);
+  filePath.match(new RegExp(editorMasterPageFileRegexpStr));
 
+const localMasterPageFileRegexpStr = `^${sep()}{0,1}frontend${sep()}site.js`;
 const matchLocalMasterPageFile = filePath =>
-  filePath.match(/^\/{0,1}frontend\/site.js/);
+  filePath.match(new RegExp(localMasterPageFileRegexpStr));
 
 const pages = (page = null, extention = fileExtention) =>
   path.join(
@@ -85,15 +91,20 @@ const site = (fileName = "") =>
 const fromLocalCode = filePath => {
   const matchesPage = matchLocalPageFile(filePath);
   if (matchLocalMasterPageFile(filePath)) {
-    return `${publicFolder}/pages/masterPage.js`;
+    return `${publicFolder}${sep()}pages${sep()}masterPage.js`;
   }
   if (matchLocalPageFile(filePath)) {
     const [pageId] = matchesPage.slice(-1);
-    return `${publicFolder}/pages/${pageId}${pageCodeExtention}`;
+    return `${publicFolder}${sep()}pages${sep()}${pageId}${pageCodeExtention}`;
   }
-  const matchesSchema = filePath.match(/^\/{0,1}database\//);
+  const matchesSchema = filePath.match(
+    new RegExp(`^${sep()}{0,1}database${sep()}`)
+  );
   if (matchesSchema) {
-    return filePath.replace(/^\/{0,1}database\//, ".schemas/");
+    return filePath.replace(
+      new RegExp(`^${sep()}{0,1}database${sep()}`),
+      `.schemas${sep()}`
+    );
   }
 
   return filePath;
@@ -102,7 +113,7 @@ const fromLocalCode = filePath => {
 const toLocalCode = file => {
   if (matchEditorPageFile(file.path)) {
     if (matchEditorMasterPageFile(file.path)) {
-      return "frontend/site.js";
+      return `frontend${sep()}site.js`;
     }
     const {
       metaData: { pageId, isPopup, title }
@@ -111,8 +122,13 @@ const toLocalCode = file => {
       ? lightboxes({ pageId, title }, pageCodeExtention)
       : pages({ pageId, title }, pageCodeExtention);
   }
-  if (file.path.match(/^\/{0,1}\.schemas/)) {
-    return file.path.replace(/^\/{0,1}.schemas\//, "database/");
+
+  // eslint-disable-next-line no-useless-escape
+  if (file.path.match(new RegExp(`^${sep()}{0,1}\.schemas`))) {
+    return file.path.replace(
+      new RegExp(`^${sep()}{0,1}.schemas${sep()}`),
+      `database${sep()}`
+    );
   }
 
   return file.path;
@@ -124,7 +140,8 @@ const fromPageFileToCodeFile = path =>
 //todo:: isCodeFiles should ignore files that starts with a .
 const isCodeFile = relativePath => !relativePath.endsWith(fileExtention);
 const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
-const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
+const getDocumentFolderRegex = fullPath =>
+  `${fullPath}${sep()}**${sep()}*${fileExtention}`;
 
 module.exports = {
   siteFolders,
