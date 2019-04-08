@@ -129,11 +129,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
     if (!(await fs.exists(fullPath(folderPath)))) {
       return;
     }
-    const filesPaths = (await fs.readdir(fullPath(folderPath), {
-      withFileTypes: true
-    }))
-      .filter(item => item.isFile() && sitePaths.isDocumentFile(item.name))
-      .map(file => path.join(folderPath, file.name));
+    const filesPaths = (await fs.readdir(fullPath(folderPath)))
+      .filter(fileName => sitePaths.isDocumentFile(fileName))
+      .map(fileName => path.join(folderPath, fileName));
     const filePromises = filesPaths.map(filesRelativePath => {
       return filesWatcher.ignoredDeleteFile(filesRelativePath);
     });
