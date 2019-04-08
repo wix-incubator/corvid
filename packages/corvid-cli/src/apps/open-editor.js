@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const process = require("process");
 const chalk = require("chalk");
+const logger = require("corvid-local-logger");
 const genEditorUrl = require("../utils/genEditorUrl");
 const FATAL_ERROR_MESSAGE = "CORVID_FATAL_ERROR";
 
@@ -52,7 +53,8 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
       win.webContents.on("console-message", (event, level, message) => {
         if (message.startsWith(FATAL_ERROR_MESSAGE)) {
           const reason = message.replace(FATAL_ERROR_MESSAGE, "").trim(":");
-          reject(new Error(chalk.red(`Fatal error! ${reason}`)));
+          logger.error(`Fatal error! ${reason}`);
+          reject(new Error(chalk.red("Fatal error")));
         }
       });
 
