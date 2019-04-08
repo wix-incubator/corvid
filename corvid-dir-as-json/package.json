@@ -16,7 +16,7 @@
   "engines": {
     "node": ">=10"
   },
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "wnpm-ci": "^7.0.11",
     "eslint": "^5.15.1",

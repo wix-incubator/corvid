@@ -22,7 +22,7 @@
     "corvid-debug": "./src/index.debug.js"
   },
   "author": "Kobi Nemni <kobin@wix.com>",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "corvid-dir-as-json": "~0.1.0",
     "corvid-fake-local-mode-editor": "~0.1.0",

@@ -4,6 +4,7 @@
   "engines": {
     "node": ">=10"
   },
+  "license": "MIT",
   "scripts": {
     "lint": "lerna exec \"npm run lint\"",
     "lint:fix": "lerna exec \"eslint --fix .\"",

@@ -16,7 +16,7 @@
     "node": ">=10"
   },
   "author": "Kobi Nemni <kobin@wix.com>",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "corvid-local-test-utils": "~0.1.0",
     "wix-eventually": "^2.2.0",

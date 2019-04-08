@@ -17,7 +17,7 @@
     "node": ">=10"
   },
   "author": "Kobi Nemni <kobin@wix.com>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "corvid-local-test-utils": "~0.1.0",
     "browserify": "^16.2.3",
