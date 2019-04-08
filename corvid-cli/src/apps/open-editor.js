@@ -42,6 +42,14 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         localServerEditorPort
       );
 
+      win.webContents.executeJavaScript(`
+      window.nodeRequire = require;
+      delete window.require;
+      delete window.exports;
+      delete window.module;
+      window.electron = nodeRequire('electron')
+    `);
+
       win.loadURL(editorUrl);
     });
   }

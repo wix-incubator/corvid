@@ -21,9 +21,13 @@ function launch(file, options = {}, callbacks = {}) {
     ...options.env,
     FORCE_COLOR: "yes"
   };
-  const cp = childProcess.spawn(electron, [path.resolve(path.join(file))], {
-    ...options
-  });
+  const cp = childProcess.spawn(
+    electron,
+    [path.resolve(path.join(file)), "--enable-logging"],
+    {
+      ...options
+    }
+  );
 
   return new Promise((resolve, reject) => {
     const messages = [];
