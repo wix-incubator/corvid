@@ -6,6 +6,7 @@ const { BrowserWindow } = require("electron");
 const client = require("socket.io-client");
 const electron = require("electron");
 
+const logger = require("corvid-local-logger");
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const { sendRequest } = require("../utils/socketIoHelpers");
@@ -50,7 +51,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
         });
 
         cp.stderr.on("data", function(data) {
-          process.stderr.write(data.toString());
+          logger.error(data.toString());
         });
       }
 
