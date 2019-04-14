@@ -41,15 +41,16 @@ app &&
 async function openEditorHandler(args) {
   const { login } = require("./login");
   const spinner = createSpinner();
-  await readCorvidConfig(args.C || ".");
+  const directory = args.C || ".";
+  await readCorvidConfig(directory);
   sessionData.on(["msid", "uuid"], (msid, uuid) =>
     sendOpenEditorEvent(msid, uuid)
   );
 
   try {
-    fs.readdirSync(args.C);
+    fs.readdirSync(directory);
   } catch (exc) {
-    throw new Error(`Directory ${args.C} does not exist`);
+    throw new Error(`Directory ${directory} does not exist`);
   }
   await login(spinner);
 
@@ -66,7 +67,7 @@ async function openEditorHandler(args) {
         // well
         //detached: true,
         //stdio: "ignore",
-        cwd: args.C,
+        cwd: directory,
         env: {
           ...process.env,
           IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
