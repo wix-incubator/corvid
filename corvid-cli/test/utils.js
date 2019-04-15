@@ -44,7 +44,7 @@ function runFixture(name, site, ...args) {
       resolve([code, stdout, stderr]);
     });
 
-    setTimeout(() => child.kill("SIGQUIT"), 4000);
+    setTimeout(() => child.kill(), 4000);
   });
 }
 

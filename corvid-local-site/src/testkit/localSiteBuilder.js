@@ -1,4 +1,3 @@
-const path = require("path");
 const flatten_ = require("lodash/flatten");
 const set_ = require("lodash/set");
 const omit_ = require("lodash/omit");
@@ -24,20 +23,20 @@ const pageCodeFileName = page =>
 const lightboxFileName = pageFileName;
 const lightboxCodeFileName = pageCodeFileName;
 
-const PATH_SRC = ""; // TODO: will be added
-const PATH_FRONTEND = path.join(PATH_SRC, "frontend");
-const PATH_BACKEND = path.join(PATH_SRC, "backend");
-const PATH_PUBLIC = path.join(PATH_SRC, "public");
+const PATH_FRONTEND = "frontend";
+const PATH_BACKEND = "backend";
+const PATH_PUBLIC = "public";
+const PATH_DATABASE = "database";
 
-const PATH_STYLES = path.join(PATH_FRONTEND, "styles");
-const PATH_SITE = path.join(PATH_FRONTEND, "site");
-const PATH_ROUTERS = path.join(PATH_FRONTEND, "routers");
-const PATH_MENUS = path.join(PATH_FRONTEND, "menus");
-const PATH_PAGES = path.join(PATH_FRONTEND, "pages");
-const PATH_LIGHTBOXES = path.join(PATH_FRONTEND, "lightboxes");
+const PATH_STYLES = `${PATH_FRONTEND}/styles`;
+const PATH_SITE = `${PATH_FRONTEND}/site`;
+const PATH_ROUTERS = `${PATH_FRONTEND}/routers`;
+const PATH_MENUS = `${PATH_FRONTEND}/menus`;
+const PATH_PAGES = `${PATH_FRONTEND}/pages`;
+const PATH_LIGHTBOXES = `${PATH_FRONTEND}/lightboxes`;
 
 const wixFilePath = (filename, parentPath = "") =>
-  path.join(parentPath, `${filename}.${wixFileExtension}`);
+  `${parentPath}/${filename}.${wixFileExtension}`;
 
 const wixFile = (parentPath, name, content) => ({
   path: wixFilePath(name, parentPath),
@@ -63,12 +62,12 @@ const router = router =>
 const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
 const page = page => ({
-  path: path.join(PATH_PAGES, pageFileName(page)),
+  path: `${PATH_PAGES}/${pageFileName(page)}`,
   content: stringify(page)
 });
 
 const pageCode = (page, code) => ({
-  path: path.join(PATH_PAGES, pageCodeFileName(page)),
+  path: `${PATH_PAGES}/${pageCodeFileName(page)}`,
   content: code
 });
 
@@ -78,12 +77,12 @@ const pageWithCode = ({ page: pageData, code }) => [
 ];
 
 const lightbox = lightbox => ({
-  path: path.join(PATH_LIGHTBOXES, lightboxFileName(lightbox)),
+  path: `${PATH_LIGHTBOXES}/${lightboxFileName(lightbox)}`,
   content: stringify(lightbox)
 });
 
 const lighboxCode = (lightbox, code) => ({
-  path: path.join(PATH_LIGHTBOXES, lightboxCodeFileName(lightbox)),
+  path: `${PATH_LIGHTBOXES}/${lightboxCodeFileName(lightbox)}`,
   content: code
 });
 
@@ -98,25 +97,25 @@ const codeFile = ({ path, content }) => ({ path, content });
 
 const backendCodeFile = ({ path: relativePath, content }) =>
   codeFile({
-    path: path.join(PATH_BACKEND, relativePath),
+    path: `${PATH_BACKEND}/${relativePath}`,
     content
   });
 
 const publicCodeFile = ({ path: relativePath, content }) =>
   codeFile({
-    path: path.join(PATH_PUBLIC, relativePath),
+    path: `${PATH_PUBLIC}/${relativePath}`,
     content
   });
 
 const collectionSchema = ({ collectionName, schema }) =>
   codeFile({
-    path: `database/${collectionName}.json`,
+    path: `${PATH_DATABASE}/${collectionName}.json`,
     content: schema
   });
 
 const masterPageCode = ({ content }) =>
   codeFile({
-    path: `frontend/site.js`,
+    path: `${PATH_FRONTEND}/site.js`,
     content
   });
 
@@ -156,7 +155,7 @@ const buildPartial = (...siteItems) => {
   const localFiles = flatten_(siteItems.map(item => itemToFile(item)));
 
   const localSite = localFiles.reduce(
-    (site, file) => set_(site, file.path.split(path.sep), file.content),
+    (site, file) => set_(site, file.path.split("/"), file.content),
     {}
   );
 

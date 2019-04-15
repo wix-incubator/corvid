@@ -23,6 +23,14 @@ const siteFolders = [
 ];
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
+const isSitePath = (rootPath, pathToCheck) => {
+  const pathRelativeToRoot = path.relative(rootPath, pathToCheck);
+  if (pathRelativeToRoot === "") {
+    return true;
+  }
+  return siteFolders.includes(pathRelativeToRoot.split(path.sep)[0]);
+};
+
 const getPageFileName = (id, title, extention = fileExtention) =>
   `${sanitize(removeSpaces(title), titleCharReplacement)}.${id}${extention}`;
 
@@ -38,7 +46,7 @@ const matchLocalMasterPageFile = filePath =>
   filePath.match(/^\/{0,1}frontend\/site.js/);
 
 const pages = (page = null, extention = fileExtention) =>
-  path.join(
+  path.posix.join(
     frontendFolder,
     "pages",
     page
@@ -47,7 +55,7 @@ const pages = (page = null, extention = fileExtention) =>
   );
 
 const lightboxes = (page = null, extention = fileExtention) =>
-  path.join(
+  path.posix.join(
     frontendFolder,
     "lightboxes",
     page
@@ -56,28 +64,28 @@ const lightboxes = (page = null, extention = fileExtention) =>
   );
 
 const styles = (fileName = "") =>
-  path.join(
+  path.posix.join(
     frontendFolder,
     "styles",
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
 const routers = (fileName = "") =>
-  path.join(
+  path.posix.join(
     frontendFolder,
     "routers",
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
 const menus = (fileName = "") =>
-  path.join(
+  path.posix.join(
     frontendFolder,
     "menus",
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
 const site = (fileName = "") =>
-  path.join(
+  path.posix.join(
     frontendFolder,
     "site",
     fileName ? `${fileName}${fileExtention}` : ""
@@ -128,6 +136,7 @@ const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
 const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
 
 module.exports = {
+  isSitePath,
   configFile,
   siteFolders,
   codeFolders,

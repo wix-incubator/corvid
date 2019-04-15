@@ -13,13 +13,14 @@ const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
 const flat = require("flat");
 
-const flatten = data => flat(data, { delimiter: path.sep, safe: true });
+const flatten = data => flat(data, { delimiter: "/", safe: true });
 
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
 const stringify = content => JSON.stringify(content, null, 2);
 const isEmptyFolder = content => isObject_(content);
 const readWrite = (siteRootPath, filesWatcher) => {
   const fullPath = filePath => path.resolve(siteRootPath, filePath);
+
   const getCodeFiles = async (dirPath = siteRootPath) => {
     const siteDirJson = await dirAsJson.readDirToJson(dirPath);
     const flatDirFiles = mapKeys_(
@@ -131,10 +132,12 @@ const readWrite = (siteRootPath, filesWatcher) => {
     }
     const filesPaths = (await fs.readdir(fullPath(folderPath)))
       .filter(fileName => sitePaths.isDocumentFile(fileName))
-      .map(fileName => path.join(folderPath, fileName));
+      .map(fileName => `${folderPath}/${fileName}`);
+
     const filePromises = filesPaths.map(filesRelativePath => {
       return filesWatcher.ignoredDeleteFile(filesRelativePath);
     });
+
     return Promise.all(filePromises);
   };
 

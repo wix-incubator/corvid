@@ -289,7 +289,9 @@ describe("init", () => {
           url: "a-site.com",
           dir: tempDir
         })
-      ).rejects.toThrow(`Target directory ${tempDir}/aSite is not empty`);
+      ).rejects.toThrow(
+        `Target directory ${path.join(tempDir, "aSite")} is not empty`
+      );
     });
 
     test("should report to BI an init fail event", async () => {

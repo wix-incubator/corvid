@@ -1,5 +1,4 @@
 const io = require("socket.io-client");
-const path = require("path");
 const flat = require("flat");
 const cloneDeep_ = require("lodash/cloneDeep");
 const get_ = require("lodash/get");
@@ -13,9 +12,8 @@ const merge_ = require("lodash/merge");
 const reduce_ = require("lodash/reduce");
 const noop_ = require("lodash/noop");
 
-const flatten = data => flat(data, { delimiter: path.sep, safe: true });
-const unflatten = data =>
-  flat.unflatten(data, { delimiter: path.sep, safe: true });
+const flatten = data => flat(data, { delimiter: "/", safe: true });
+const unflatten = data => flat.unflatten(data, { delimiter: "/", safe: true });
 
 const getLocalServerURL = port => `http://localhost:${port}`;
 
@@ -201,16 +199,14 @@ const loadEditor = async (
   }
 
   const modifyCodeFile = (filePath, content) => {
-    set_(editorState.codeFiles.current, filePath.split(path.sep), content);
+    set_(editorState.codeFiles.current, filePath.split("/"), content);
   };
 
   const copyCodeFile = (sourcePath, targetPath) => {
-    set_(editorState.codeFiles.current, targetPath.split(path.sep), [
-      sourcePath
-    ]);
+    set_(editorState.codeFiles.current, targetPath.split("/"), [sourcePath]);
   };
   const deleteCodeFile = filePath => {
-    set_(editorState.codeFiles.current, filePath.split(path.sep), null);
+    set_(editorState.codeFiles.current, filePath.split("/"), null);
   };
 
   const modifyPageCodeFile = (pageId, content) => {

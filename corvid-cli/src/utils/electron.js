@@ -145,6 +145,6 @@ module.exports = {
   openWindow,
   launch,
   killAllChildProcesses: () => {
-    runningProcesses.splice(0).map(cp => cp.kill("SIGQUIT"));
+    runningProcesses.splice(0).map(cp => cp.kill());
   }
 };
