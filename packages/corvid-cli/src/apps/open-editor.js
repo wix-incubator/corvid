@@ -54,7 +54,13 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         if (message.startsWith(FATAL_ERROR_MESSAGE)) {
           const reason = message.replace(FATAL_ERROR_MESSAGE, "").trim(":");
           logger.error(`Fatal error! ${reason}`);
-          reject(new Error(chalk.red("Fatal error")));
+          reject(
+            new Error(
+              chalk.red(
+                "There was an error initializing your site. Please try again."
+              )
+            )
+          );
         }
       });
 
