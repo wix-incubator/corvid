@@ -256,7 +256,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       filesWatcher.ignoredDeleteFile(toLocalPath(file))
     );
 
-    await Promise.all([...updates, ...copies, ...deletes]);
+    return await Promise.all([...updates, ...copies, ...deletes]);
   };
 
   return {

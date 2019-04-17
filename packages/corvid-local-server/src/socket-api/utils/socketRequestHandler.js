@@ -5,8 +5,11 @@ const handleRequest = handler => (...args) => {
   return Promise.resolve(handler(payload))
     .then(result => callback(null, result))
     .catch(err => {
-      callback(err);
-      throw err;
+      callback({
+        name: err.name,
+        message: err.message,
+        stack: err.stack
+      });
     });
 };
 
