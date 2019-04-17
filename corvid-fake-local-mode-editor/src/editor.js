@@ -103,8 +103,8 @@ const calculateCodeFileChanges = (codeFiles, siteDocument) => {
   const copiedFiles = Object.keys(currentFlat)
     .filter(targetPath => isArray_(currentFlat[targetPath]))
     .map(targetPath => ({
-      sourcePath: getFileData(head_(currentFlat[targetPath]), siteDocument),
-      targetPath: getFileData(targetPath, siteDocument)
+      source: getFileData(head_(currentFlat[targetPath]), siteDocument),
+      target: getFileData(targetPath, siteDocument)
     }));
   return {
     modifiedFiles,
