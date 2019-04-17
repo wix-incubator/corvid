@@ -68,14 +68,44 @@ describe("Security", () => {
         ],
         copiedFiles: [
           {
-            sourcePath: "public/test.js",
-            targetPath: "public/../../test.js"
+            source: { path: "public/test.js" },
+            target: { path: "public/../../test.js" }
           }
         ]
       },
       err => {
         expect(err).toMatchObject({
-          message: "tried to copy outside of project"
+          message: "tried to write outside of project"
+        });
+        done();
+      }
+    );
+  });
+
+  it("should not permit to copy file from outside of project into project folder", async done => {
+    const localSiteDir = await initLocalSiteWithConfig();
+    const server = await localServer.startInCloneMode(localSiteDir);
+    const editorSocket = await socketClient.connect(getEditorEndpoint(server));
+    editorSocket.emit(
+      "UPDATE_CODE",
+      {
+        modifiedFiles: [
+          {
+            path: "public/test.js",
+            metaData: {},
+            content: "console.log('malicious code')"
+          }
+        ],
+        copiedFiles: [
+          {
+            source: { path: "public/../../test.js" },
+            target: { path: "public/test.js" }
+          }
+        ]
+      },
+      err => {
+        expect(err).toMatchObject({
+          message: "tried to write outside of project"
         });
         done();
       }
