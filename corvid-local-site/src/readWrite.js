@@ -191,10 +191,10 @@ const readWrite = (siteRootPath, filesWatcher) => {
       filesWatcher.ignoredWriteFile(sitePaths.toLocalCode(file), file.content)
     );
 
-    const copies = copiedFiles.map(({ sourcePath, targetPath }) =>
+    const copies = copiedFiles.map(({ source, target }) =>
       filesWatcher.ignoredCopyFile(
-        sitePaths.toLocalCode(sourcePath),
-        sitePaths.toLocalCode(targetPath)
+        sitePaths.toLocalCode(source),
+        sitePaths.toLocalCode(target)
       )
     );
 
