@@ -14,6 +14,7 @@ const isEdit = options => options.type === "EDIT";
 const isClone = options => options.type === "CLONE";
 const isPullForce = options => options.type === "FORCE_PULL";
 const isPullMove = options => options.type === "MOVE_PULL";
+const isTest = options => !!options.test;
 
 const isEmptyDir = async path => {
   const contents = await fs.readdir(path);
@@ -81,8 +82,11 @@ async function startServer(siteRootPath, options) {
     await fs.emptyDir(siteSrcPath);
   }
 
-  const localSite = await initLocalSiteManager(siteSrcPath);
-  const editorServer = await startSocketServer(DEFAULT_EDITOR_PORT);
+  const localSite = await initLocalSiteManager(siteRootPath);
+  const editorServer = await startSocketServer(
+    DEFAULT_EDITOR_PORT,
+    isTest(options) ? undefined : "https://editor.wix.com"
+  );
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
   initServerApi(localSite, adminServer, editorServer, !isEdit(options));
@@ -106,18 +110,23 @@ async function startServer(siteRootPath, options) {
 
 const startInCloneMode = (
   siteRootPath,
-  options = { override: false, move: false }
+  options = { override: false, move: false, test: false }
 ) => {
   if (options.override && options.move) {
     throw new Error("Only one of 'override' and 'move' may be set");
   }
   return startServer(siteRootPath, {
-    type: options.override ? "FORCE_PULL" : options.move ? "MOVE_PULL" : "CLONE"
+    type: options.override
+      ? "FORCE_PULL"
+      : options.move
+      ? "MOVE_PULL"
+      : "CLONE",
+    test: options.test
   });
 };
 
-const startInEditMode = siteRootPath =>
-  startServer(siteRootPath, { type: "EDIT" });
+const startInEditMode = (siteRootPath, options = { test: false }) =>
+  startServer(siteRootPath, { type: "EDIT", test: options.test });
 
 module.exports = {
   startInCloneMode,
