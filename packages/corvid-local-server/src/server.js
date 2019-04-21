@@ -89,6 +89,15 @@ async function startServer(siteRootPath, options) {
   );
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
+  adminServer.io.use((socket, next) => {
+    let token = socket.handshake.query.token;
+    if (token === options.token) {
+      return next();
+    }
+    logger.warn("admin server authentication error");
+    return next(new Error("authentication error"));
+  });
+
   initServerApi(localSite, adminServer, editorServer, !isEdit(options));
 
   logger.info(
@@ -110,7 +119,7 @@ async function startServer(siteRootPath, options) {
 
 const startInCloneMode = (
   siteRootPath,
-  options = { override: false, move: false, test: false }
+  options = { override: false, move: false, test: false, token: "" }
 ) => {
   if (options.override && options.move) {
     throw new Error("Only one of 'override' and 'move' may be set");
@@ -121,12 +130,17 @@ const startInCloneMode = (
       : options.move
       ? "MOVE_PULL"
       : "CLONE",
-    test: options.test
+    test: options.test,
+    token: options.token
   });
 };
 
-const startInEditMode = (siteRootPath, options = { test: false }) =>
-  startServer(siteRootPath, { type: "EDIT", test: options.test });
+const startInEditMode = (siteRootPath, options = { test: false, token: "" }) =>
+  startServer(siteRootPath, {
+    type: "EDIT",
+    test: options.test,
+    token: options.token
+  });
 
 module.exports = {
   startInCloneMode,
