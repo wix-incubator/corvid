@@ -25,7 +25,7 @@ const setupSocketServer = async (defaultPort, origin) => {
   );
   if (origin) {
     io.origins((o, callback) => {
-      if (![origin].includes(o)) {
+      if (origin !== o) {
         logger.warn(`refused origin [${o}]`);
         return callback("origin not allowed", false);
       }
