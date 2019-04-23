@@ -178,6 +178,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
   const restoreBackupFolder = async folderPath => {
     const backupPath = getBackupFolderPath(folderPath);
+    if (!(await fs.exists(fullPath(backupPath)))) {
+      return;
+    }
     await deleteFolder(folderPath);
     await moveFolder(backupPath, folderPath);
     return rmdir(fullPath(backupPath));
@@ -189,7 +192,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       return;
     }
     await deleteFolder(backupPath);
-    return rmdir(fullPath(backupPath));
+    await rmdir(fullPath(backupPath));
   };
 
   const backupExistingFolders = () => actionOnDocumentFolders(backupFolder);
