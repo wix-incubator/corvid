@@ -90,7 +90,10 @@ async function startServer(siteRootPath, options) {
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
   adminServer.io.use((socket, next) => {
-    if (socket.handshake.query.token === process.env.CORVID_SESSION_ID) {
+    if (
+      isTest() ||
+      socket.handshake.query.token === process.env.CORVID_SESSION_ID
+    ) {
       return next();
     }
     logger.warn("admin server authentication error");
