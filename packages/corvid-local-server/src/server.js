@@ -90,8 +90,7 @@ async function startServer(siteRootPath, options) {
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
   adminServer.io.use((socket, next) => {
-    let token = socket.handshake.query.token;
-    if (token === options.token) {
+    if (socket.handshake.query.token === process.env.CORVID_SESSION_ID) {
       return next();
     }
     logger.warn("admin server authentication error");
@@ -119,20 +118,18 @@ async function startServer(siteRootPath, options) {
 
 const startInCloneMode = (
   siteRootPath,
-  { override = false, move = false, token } = {}
+  { override = false, move = false } = {}
 ) => {
   if (override && move) {
     throw new Error("Only one of 'override' and 'move' may be set");
   }
   return startServer(siteRootPath, {
-    type: override ? "FORCE_PULL" : move ? "MOVE_PULL" : "CLONE",
-    token
+    type: override ? "FORCE_PULL" : move ? "MOVE_PULL" : "CLONE"
   });
 };
-const startInEditMode = (siteRootPath, { token } = {}) =>
+const startInEditMode = siteRootPath =>
   startServer(siteRootPath, {
-    type: "EDIT",
-    token
+    type: "EDIT"
   });
 
 module.exports = {

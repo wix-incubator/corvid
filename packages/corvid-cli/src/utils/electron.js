@@ -10,8 +10,6 @@ const logger = require("corvid-local-logger");
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const { sendRequest } = require("../utils/socketIoHelpers");
-const uuidv1 = require("uuid/v1");
-const token = uuidv1();
 
 const isHeadlessMode = !process.env.CORVID_CLI_DISABLE_HEADLESS;
 const isDevTools = !!process.env.CORVID_CLI_DEVTOOLS;
@@ -71,8 +69,8 @@ function launch(file, options = {}, callbacks = {}, args = []) {
 async function connectToLocalServer(serverMode, serverArgs, win) {
   const server =
     serverMode === "edit"
-      ? startInEditMode(".", { ...serverArgs, token })
-      : startInCloneMode(".", { ...serverArgs, token });
+      ? startInEditMode(".", serverArgs)
+      : startInCloneMode(".", serverArgs);
   const {
     adminPort: localServerPort,
     close: closeLocalServer
@@ -84,7 +82,7 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
     closeLocalServer();
   });
   const clnt = client.connect(`http://localhost:${localServerPort}`, {
-    query: { token }
+    query: { token: process.env.CORVID_SESSION_ID }
   });
 
   await new Promise((resolve, reject) => {
