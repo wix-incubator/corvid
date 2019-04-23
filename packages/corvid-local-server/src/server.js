@@ -85,7 +85,7 @@ async function startServer(siteRootPath, options) {
   const localSite = await initLocalSiteManager(siteRootPath);
   const editorServer = await startSocketServer(
     DEFAULT_EDITOR_PORT,
-    isTest() ? undefined : "https://editor.wix.com"
+    !isTest() && "https://editor.wix.com"
   );
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
@@ -123,8 +123,15 @@ const startInCloneMode = (
   if (override && move) {
     throw new Error("Only one of 'override' and 'move' may be set");
   }
+  let type = "CLONE";
+  if (move) {
+    type = "MOVE_PULL";
+  }
+  if (override) {
+    type = "FORCE_PULL";
+  }
   return startServer(siteRootPath, {
-    type: override ? "FORCE_PULL" : move ? "MOVE_PULL" : "CLONE"
+    type
   });
 };
 const startInEditMode = siteRootPath =>
