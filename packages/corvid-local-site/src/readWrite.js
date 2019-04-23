@@ -10,6 +10,10 @@ const partial_ = require("lodash/partial");
 const path = require("path");
 const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
+const util = require("util");
+const logger = require("corvid-local-logger");
+
+const backupsPath = ".backup";
 const { prettyStringify, tryToPrettifyJsonString } = require("./prettify");
 
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
@@ -118,7 +122,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
     }
     const filesPaths = (await fs.readdir(fullPath(folderPath)))
       .filter(fileName => sitePaths.isDocumentFile(fileName))
-      .map(fileName => `${folderPath}/${fileName}`);
+      .map(fileName => path.join(folderPath, fileName));
 
     const filePromises = filesPaths.map(filesRelativePath => {
       return filesWatcher.ignoredDeleteFile(filesRelativePath);
@@ -127,16 +131,79 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return Promise.all(filePromises);
   };
 
-  const deleteExistingFolders = async () => {
-    await Promise.all([
-      deleteFolder(sitePaths.pages()),
-      deleteFolder(sitePaths.lightboxes()),
-      deleteFolder(sitePaths.styles()),
-      deleteFolder(sitePaths.site()),
-      deleteFolder(sitePaths.routers()),
-      deleteFolder(sitePaths.menus())
-    ]);
+  const moveFolder = async (folderPath, targetPath) => {
+    if (!(await fs.exists(fullPath(folderPath)))) {
+      return;
+    }
+    deleteFolder(targetPath);
+    filesWatcher.ignoredWriteFolder(targetPath);
+    if (!(await fs.exists(fullPath(folderPath)))) {
+      return;
+    }
+    const filesPaths = (await fs.readdir(fullPath(folderPath)))
+      .filter(fileName => sitePaths.isDocumentFile(fileName))
+      .map(fileName => path.join(folderPath, fileName));
+
+    const filePromises = filesPaths.map(fileRelativePath => {
+      const fileTargetPath = path.join(
+        targetPath,
+        path.basename(fileRelativePath)
+      );
+      return filesWatcher.ignoredCopyFile(fileRelativePath, fileTargetPath);
+    });
+
+    return Promise.all(filePromises).then(() => deleteFolder(targetPath));
   };
+
+  const getBackupFolderPath = folderPath =>
+    path.join(backupsPath, path.basename(folderPath));
+
+  const backupFolder = async folderPath => {
+    const backupFolderPath = getBackupFolderPath(folderPath);
+    await deleteFolder(backupFolderPath);
+    return moveFolder(folderPath, backupFolderPath);
+  };
+
+  const actionOnDocumentFolders = action =>
+    Promise.all([
+      action(sitePaths.pages()),
+      action(sitePaths.lightboxes()),
+      action(sitePaths.styles()),
+      action(sitePaths.site()),
+      action(sitePaths.routers()),
+      action(sitePaths.menus())
+    ]);
+
+  const rmdir = util.promisify(fs.rmdir);
+
+  const restoreBackupFolder = async folderPath => {
+    const backupPath = getBackupFolderPath(folderPath);
+    await deleteFolder(folderPath);
+    await moveFolder(backupPath, folderPath);
+    return rmdir(fullPath(backupPath));
+  };
+
+  const deleteBackupFolder = async folderPath => {
+    const backupPath = getBackupFolderPath(folderPath);
+    if (!(await fs.exists(fullPath(backupPath)))) {
+      return;
+    }
+    await deleteFolder(backupPath);
+    return rmdir(fullPath(backupPath));
+  };
+
+  const backupExistingFolders = () => actionOnDocumentFolders(backupFolder);
+
+  const restoreBackupedFolders = () =>
+    actionOnDocumentFolders(restoreBackupFolder).then(() =>
+      logger.info("Site document restored from backup")
+    );
+
+  const deleteBackupFolders = () =>
+    actionOnDocumentFolders(deleteBackupFolder).then(() => {
+      logger.info("Backups deleted");
+      return rmdir(fullPath(backupsPath));
+    });
 
   const syncLocalPageCodeFilesWithLocalDocument = async () => {
     const existingPageRelatedFiles = await getLocalPageFiles();
@@ -183,14 +250,25 @@ const readWrite = (siteRootPath, filesWatcher) => {
   };
 
   const updateSiteDocument = async newDocumentPayload => {
-    await deleteExistingFolders();
+    await backupExistingFolders();
 
     const filesToWrite = siteDocumentToFiles(newDocumentPayload);
     await Promise.all(
       filesToWrite.map(file =>
         filesWatcher.ignoredWriteFile(file.path, prettyStringify(file.content))
       )
-    );
+    )
+      .then(() => {
+        logger.info("Site document updated");
+        return deleteBackupFolders();
+      })
+      .catch(e => {
+        logger.error(
+          "Failed to update site document. Restoring to previous state"
+        );
+        restoreBackupedFolders();
+        throw e;
+      });
 
     await syncLocalPageCodeFilesWithLocalDocument();
   };
