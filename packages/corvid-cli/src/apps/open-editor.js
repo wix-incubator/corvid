@@ -52,7 +52,9 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
 
       win.webContents.on("console-message", (event, level, message) => {
         if (message.startsWith(FATAL_ERROR_MESSAGE)) {
-          const reason = message.replace(FATAL_ERROR_MESSAGE, "").trim(":");
+          const reason = message
+            .replace(FATAL_ERROR_MESSAGE, "")
+            .replace(/^:/, "");
           logger.error(`Fatal error! ${reason}`);
           reject(
             new Error(
