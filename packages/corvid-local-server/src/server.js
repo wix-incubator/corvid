@@ -85,7 +85,7 @@ async function startServer(siteRootPath, options) {
   const localSite = await initLocalSiteManager(siteRootPath);
   const editorServer = await startSocketServer(
     DEFAULT_EDITOR_PORT,
-    !isTest() && "https://editor.wix.com"
+    !isTest() && "editor.wix.com"
   );
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
