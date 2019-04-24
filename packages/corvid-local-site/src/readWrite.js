@@ -135,8 +135,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
     if (!(await fs.exists(fullPath(folderPath)))) {
       return;
     }
-    deleteFolder(targetPath);
-    filesWatcher.ignoredWriteFolder(targetPath);
+    await deleteFolder(targetPath);
+    await filesWatcher.ignoredWriteFolder(targetPath);
     if (!(await fs.exists(fullPath(folderPath)))) {
       return;
     }
@@ -203,8 +203,11 @@ const readWrite = (siteRootPath, filesWatcher) => {
     );
 
   const deleteBackupFolders = () =>
-    actionOnDocumentFolders(deleteBackupFolder).then(() => {
+    actionOnDocumentFolders(deleteBackupFolder).then(async () => {
       logger.info("Backups deleted");
+      if (!(await fs.exists(fullPath(backupsPath)))) {
+        return;
+      }
       return rmdir(fullPath(backupsPath));
     });
 
