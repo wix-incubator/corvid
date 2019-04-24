@@ -89,12 +89,13 @@ Run either:
 async function pullHandler(args) {
   const { login } = require("./login");
   const spinner = createSpinner();
+  const targetDirectory = path.resolve(args.C || ".");
   sessionData.on(["msid", "uuid"], (msid, uuid) =>
     sendPullEvent(msid, uuid, "start", {
       type: args.override ? "override" : args.move ? "move" : "regular"
     })
   );
-  await readCorvidConfig(args.C || ".");
+  await readCorvidConfig(targetDirectory);
   return login(spinner)
     .then(async () => {
       await pullCommand(spinner, args);
@@ -107,9 +108,7 @@ async function pullHandler(args) {
         "msid",
         "uuid"
       );
-      return `Pull complete, change directory to '${path.resolve(
-        args.C
-      )}' and run 'corvid open-editor' to start editing the local copy`;
+      return `Pull complete, change directory to '${targetDirectory}' and run 'corvid open-editor' to start editing the local copy`;
     })
     .catch(async error => {
       if (spinner.isSpinning) spinner.fail();
