@@ -33,7 +33,8 @@
       "corvid-local-site",
       "corvid-local-test-utils",
       "corvid-local-logger",
-      "corvid-local-testkit"
+      "corvid-local-testkit",
+      "init-corvid"
     ],
     "nohoist": [
       "**/eslint*"
