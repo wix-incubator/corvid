@@ -24,9 +24,9 @@
     "wnpm-ci": "^7.0.11"
   },
   "dependencies": {
-    "corvid-local-server": "^1.0.1",
-    "corvid-local-site": "^1.0.1",
-    "corvid-local-test-utils": "^1.0.0",
+    "corvid-local-server": "^0.1.30",
+    "corvid-local-site": "^0.1.35",
+    "corvid-local-test-utils": "^0.1.32",
     "bs-platform": "5.0.3"
   },
   "husky": {
