@@ -35,15 +35,17 @@ describe("edit", () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvidrc.json": '{ "metasiteId": "12345678" }',
-        backend: {},
-        frontend: {},
-        public: {},
-        database: {}
+        src: {
+          backend: {},
+          frontend: {},
+          public: {},
+          database: {}
+        }
       });
 
       return expect(
         openEditorHandler({
-          C: tempDir
+          dir: tempDir
         })
       ).resolves.toBeUndefined();
     });
@@ -52,10 +54,12 @@ describe("edit", () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvidrc.json": '{ "metasiteId": "12345678" }',
-        backend: {},
-        frontend: {},
-        public: {},
-        database: {}
+        src: {
+          backend: {},
+          frontend: {},
+          public: {},
+          database: {}
+        }
       });
 
       fetchMock
@@ -87,7 +91,7 @@ describe("edit", () => {
         );
 
       await openEditorHandler({
-        C: tempDir
+        dir: tempDir
       });
 
       expect(
@@ -103,10 +107,12 @@ describe("edit", () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvidrc.json": '{ "metasiteId": "12345678" }',
-        backend: {},
-        frontend: {},
-        public: {},
-        database: {}
+        src: {
+          backend: {},
+          frontend: {},
+          public: {},
+          database: {}
+        }
       });
 
       fetchMock
@@ -138,7 +144,7 @@ describe("edit", () => {
         );
 
       await openEditorHandler({
-        C: tempDir
+        dir: tempDir
       });
 
       expect(
@@ -158,7 +164,7 @@ describe("edit", () => {
 
       return expect(
         openEditorHandler({
-          C: tempDir
+          dir: tempDir
         })
       ).rejects.toThrow(/Project not found in/);
     });

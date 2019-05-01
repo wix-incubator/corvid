@@ -4,13 +4,13 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const { initLocalSiteWithConfig } = require("../utils/localSiteDir");
+const { initLocalSite } = require("../utils/localSiteDir");
 
 afterEach(closeAll);
 
 describe("editor connections", () => {
   it("should allow one editor to connect", async () => {
-    const localSiteDir = await initLocalSiteWithConfig();
+    const localSiteDir = await initLocalSite();
 
     const server = await localServer.startInCloneMode(localSiteDir);
     const editor = await loadEditor(server.port);
@@ -19,7 +19,7 @@ describe("editor connections", () => {
   });
 
   it("should block multiple connections", async () => {
-    const localSiteDir = await initLocalSiteWithConfig();
+    const localSiteDir = await initLocalSite();
     const server = await localServer.startInCloneMode(localSiteDir);
 
     await loadEditor(server.port);
@@ -29,7 +29,7 @@ describe("editor connections", () => {
   });
 
   it("should allow an editor to connect if a previously connected editor already closed", async () => {
-    const localSiteDir = await initLocalSiteWithConfig();
+    const localSiteDir = await initLocalSite();
     const server = await localServer.startInCloneMode(localSiteDir);
     const editor1 = await loadEditor(server.port);
 

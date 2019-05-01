@@ -59,7 +59,7 @@ describe("pull", () => {
 
       return expect(
         pullHandler({
-          C: tempDir
+          dir: tempDir
         })
       ).resolves.toMatch(/Pull complete/);
     });
@@ -99,7 +99,7 @@ describe("pull", () => {
         );
 
       await pullHandler({
-        C: tempDir
+        dir: tempDir
       });
 
       expect(
@@ -146,7 +146,7 @@ describe("pull", () => {
         );
 
       await pullHandler({
-        C: tempDir
+        dir: tempDir
       });
 
       expect(
@@ -164,10 +164,12 @@ describe("pull", () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvidrc.json": '{ "metasiteId": "12345678" }',
-        backend: {},
-        frontend: {},
-        public: {},
-        database: {}
+        src: {
+          backend: {},
+          frontend: {},
+          public: {},
+          database: {}
+        }
       });
 
       fetchMock
@@ -199,7 +201,7 @@ describe("pull", () => {
         );
 
       await pullHandler({
-        C: tempDir
+        dir: tempDir
       }).catch(() => {});
 
       expect(
@@ -215,10 +217,12 @@ describe("pull", () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvidrc.json": '{ "metasiteId": "12345678" }',
-        backend: {},
-        frontend: {},
-        public: {},
-        database: {}
+        src: {
+          backend: {},
+          frontend: {},
+          public: {},
+          database: {}
+        }
       });
 
       fetchMock
@@ -250,7 +254,7 @@ describe("pull", () => {
         );
 
       await pullHandler({
-        C: tempDir
+        dir: tempDir
       }).catch(() => {});
 
       expect(
@@ -267,10 +271,12 @@ describe("pull", () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
           ".corvidrc.json": '{ "metasiteId": "12345678" }',
-          backend: {},
-          frontend: {},
-          public: {},
-          database: {}
+          src: {
+            backend: {},
+            frontend: {},
+            public: {},
+            database: {}
+          }
         });
 
         fetchMock
@@ -302,7 +308,7 @@ describe("pull", () => {
           );
 
         await pullHandler({
-          C: tempDir,
+          dir: tempDir,
           override: true
         }).catch(() => {});
 
@@ -319,10 +325,12 @@ describe("pull", () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
           ".corvidrc.json": '{ "metasiteId": "12345678" }',
-          backend: {},
-          frontend: {},
-          public: {},
-          database: {}
+          src: {
+            backend: {},
+            frontend: {},
+            public: {},
+            database: {}
+          }
         });
 
         fetchMock
@@ -354,7 +362,7 @@ describe("pull", () => {
           );
 
         await pullHandler({
-          C: tempDir,
+          dir: tempDir,
           override: true
         }).catch(() => {});
 
@@ -373,10 +381,12 @@ describe("pull", () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
           ".corvidrc.json": '{ "metasiteId": "12345678" }',
-          backend: {},
-          frontend: {},
-          public: {},
-          database: {}
+          src: {
+            backend: {},
+            frontend: {},
+            public: {},
+            database: {}
+          }
         });
 
         fetchMock
@@ -408,7 +418,7 @@ describe("pull", () => {
           );
 
         await pullHandler({
-          C: tempDir,
+          dir: tempDir,
           move: true
         }).catch(() => {});
 
@@ -425,10 +435,12 @@ describe("pull", () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
           ".corvidrc.json": '{ "metasiteId": "12345678" }',
-          backend: {},
-          frontend: {},
-          public: {},
-          database: {}
+          src: {
+            backend: {},
+            frontend: {},
+            public: {},
+            database: {}
+          }
         });
 
         fetchMock
@@ -460,7 +472,7 @@ describe("pull", () => {
           );
 
         await pullHandler({
-          C: tempDir,
+          dir: tempDir,
           move: true
         }).catch(() => {});
 
@@ -482,7 +494,7 @@ describe("pull", () => {
 
       return expect(
         pullHandler({
-          C: tempDir
+          dir: tempDir
         })
       ).rejects.toThrow(/Project not found in/);
     });

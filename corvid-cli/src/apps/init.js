@@ -2,9 +2,10 @@
 require("isomorphic-fetch");
 const chalk = require("chalk");
 const normalize = require("normalize-url");
-const path = require("path");
-const fs = require("fs");
-const { writeCorvidConfig } = require("../utils/corvid-config");
+const {
+  writeCorvidConfig,
+  doesConfigExist
+} = require("../utils/corvid-config");
 const sessionData = require("../utils/sessionData");
 const packageJson = require("../../package.json");
 
@@ -69,51 +70,24 @@ async function extractMetasiteIdAndName(url, cookie) {
 async function init(spinner, args, cookie) {
   spinner.start(chalk.grey("Getting site information"));
   try {
-    const { metasiteId, siteName } = await extractMetasiteIdAndName(
-      args.url,
-      cookie
-    );
+    const { metasiteId } = await extractMetasiteIdAndName(args.url, cookie);
 
     if (metasiteId == null) {
-      throw new Error(`Could not extract the metasite ID of ${args.url}`);
+      throw new Error(`Could not get site information from ${args.url}`);
     }
     const msidUpdatePromise = sessionData.set({ msid: metasiteId });
 
-    if (siteName == null) {
-      throw new Error(`Could not extract the site name of ${args.url}`);
-    }
+    const dirName = args.dir;
 
-    const dirName = path.resolve(path.join(args.dir || ".", siteName));
-
-    if (dirName == null) {
-      throw new Error("Could not extract site name, and no directory given");
-    }
-
-    spinner.start(chalk.grey(`Initialising workspace in ${dirName}`));
-    try {
-      fs.mkdirSync(dirName, { recursive: true, mode: 0o755 });
-    } catch (exc) {
-      if (exc.code !== "EEXIST") {
-        throw new Error(`Error creating target directory ${dirName}`);
-      }
-    }
-
-    const folderContents = fs.readdirSync(dirName);
-    if (folderContents.length > 0 && !args.force) {
-      if (folderContents.includes(".corvidrc.json")) {
-        throw new Error(`Project already exists in ${dirName}`);
-      }
-
-      if (folderContents.some(item => !item.startsWith("."))) {
-        throw new Error(`Target directory ${dirName} is not empty`);
-      }
+    if (await doesConfigExist(dirName)) {
+      throw new Error(`Project already exists`);
     }
 
     await writeCorvidConfig(dirName, {
       metasiteId,
       cliVersion: packageJson.version
     });
-    await spinner.start(chalk.grey(`Initialised workspace in ${dirName}`));
+    await spinner.start(chalk.grey(`Initialised workspace`));
 
     await msidUpdatePromise;
     return dirName;

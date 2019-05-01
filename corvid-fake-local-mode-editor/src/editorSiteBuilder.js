@@ -169,8 +169,7 @@ const buildPartial = (...siteItems) =>
         [sc.publicCode]: publicCodeFile,
         [sc.backendCode]: backendCodeFile,
         [sc.collectionSchema]: collectionSchema,
-        [sc.masterPageCode]: masterPageCode,
-        [sc.corvidrc]: () => ({})
+        [sc.masterPageCode]: masterPageCode
       })
     )
   );
