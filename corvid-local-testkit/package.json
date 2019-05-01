@@ -7,7 +7,9 @@
     "test": ":",
     "build": "bsb -make-world",
     "lint": "bsb && bsrefmt --in-place src/*.re",
-    "precommit": "bsb && lint-staged"
+    "precommit": "bsb && lint-staged",
+    "release": "wnpm-release"
+    
   },
   "author": "Álvaro Morais <alvarom@wix.com>",
   "license": "ISC",
@@ -19,7 +21,7 @@
   },
   "devDependencies": {
     "lint-staged": "^8.0.0",
-    "wnpm-ci": "latest"
+    "wnpm-ci": "^7.0.11"
   },
   "dependencies": {
     "corvid-local-server": "^1.0.1",
