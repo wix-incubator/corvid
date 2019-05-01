@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-const path = require("path");
 const chalk = require("chalk");
 const init = require("../apps/init");
 const { login } = require("./login");
@@ -14,9 +13,9 @@ async function initHandler(args) {
   return login(spinner)
     .then(async cookie => {
       if (cookie) {
-        const projectDir = await init(spinner, args, cookie);
+        await init(spinner, args, cookie);
         await pull(spinner, {
-          C: projectDir,
+          dir: args.dir,
           ignoreCertificate: args.ignoreCertificate
         });
 
@@ -26,9 +25,7 @@ async function initHandler(args) {
           "msid",
           "uuid"
         );
-        return `Initialisation complete, change directory to '${path.resolve(
-          projectDir
-        )}' and run 'corvid open-editor' to start editing the local copy`;
+        return `Initialisation complete, run 'corvid open-editor' to start editing the local copy`;
       } else {
         throw new Error("Login failed");
       }
@@ -45,21 +42,17 @@ async function initHandler(args) {
 }
 
 module.exports = {
-  command: "init <url> [dir]",
+  command: "init <url>",
   describe: "intializes a local Wix Site copy",
   builder: args =>
     args
       .positional("url", { describe: "Public site URL", type: "string" })
-      .positional("dir", {
-        describe: "local directory to download data to",
-        type: "string"
-      })
       .option("ignore-certificate", {
         describe: "ignore certificate errors",
         type: "boolean"
       }),
   handler: args =>
-    initHandler(args).then(
+    initHandler(Object.assign({}, args, { dir: process.cwd() })).then(
       message => {
         console.log(chalk.green(message));
         process.exit(0);

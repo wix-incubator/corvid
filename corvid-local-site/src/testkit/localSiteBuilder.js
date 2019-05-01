@@ -119,12 +119,6 @@ const masterPageCode = ({ content }) =>
     content
   });
 
-const corvidrc = ({ content }) =>
-  codeFile({
-    path: `.corvidrc.json`,
-    content
-  });
-
 // builders
 
 const itemToFile = item =>
@@ -147,8 +141,7 @@ const itemToFile = item =>
     [sc.publicCode]: publicCodeFile,
     [sc.backendCode]: backendCodeFile,
     [sc.collectionSchema]: collectionSchema,
-    [sc.masterPageCode]: masterPageCode,
-    [sc.corvidrc]: corvidrc
+    [sc.masterPageCode]: masterPageCode
   });
 
 const buildPartial = (...siteItems) => {

@@ -2,7 +2,6 @@ const path = require("path");
 const get_ = require("lodash/get");
 const sanitize = require("sanitize-filename");
 
-const configFile = ".corvidrc.json";
 const frontendFolder = "frontend";
 const publicFolder = "public";
 const backendFolder = "backend";
@@ -137,7 +136,6 @@ const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
 
 module.exports = {
   isSitePath,
-  configFile,
   siteFolders,
   codeFolders,
   getDocumentFolderRegex,

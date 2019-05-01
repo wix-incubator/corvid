@@ -41,7 +41,7 @@ app &&
 async function openEditorHandler(args) {
   const { login } = require("./login");
   const spinner = createSpinner();
-  const directory = args.C || ".";
+  const directory = args.dir;
   await readCorvidConfig(directory);
   sessionData.on(["msid", "uuid"], (msid, uuid) =>
     sendOpenEditorEvent(msid, uuid)
@@ -110,17 +110,17 @@ module.exports = {
   command: "open-editor",
   describe: "launches the local editor to edit the local site",
   builder: args =>
-    args
-      .option("C", { describe: "path", type: "string" })
-      .option("ignore-certificate", {
-        describe: "ignore certificate errors",
-        type: "boolean"
-      }),
+    args.option("ignore-certificate", {
+      describe: "ignore certificate errors",
+      type: "boolean"
+    }),
   handler: async args => {
-    openEditorHandler(args).catch(error => {
-      console.log(chalk.red(error.message));
-      process.exit(-1);
-    });
+    openEditorHandler(Object.assign({}, args, { dir: process.cwd() })).catch(
+      error => {
+        console.log(chalk.red(error.message));
+        process.exit(-1);
+      }
+    );
   },
   openEditorHandler
 };

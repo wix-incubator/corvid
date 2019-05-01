@@ -45,7 +45,7 @@ async function pullCommand(spinner, args) {
     launch(
       __filename,
       {
-        cwd: args.C,
+        cwd: args.dir,
         env: {
           ...process.env,
           IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
@@ -89,7 +89,7 @@ Run either:
 async function pullHandler(args) {
   const { login } = require("./login");
   const spinner = createSpinner();
-  const targetDirectory = path.resolve(args.C || ".");
+  const targetDirectory = path.resolve(args.dir);
   sessionData.on(["msid", "uuid"], (msid, uuid) =>
     sendPullEvent(msid, uuid, "start", {
       type: args.override ? "override" : args.move ? "move" : "regular"
@@ -108,7 +108,7 @@ async function pullHandler(args) {
         "msid",
         "uuid"
       );
-      return `Pull complete, change directory to '${targetDirectory}' and run 'corvid open-editor' to start editing the local copy`;
+      return `Pull complete, run 'corvid open-editor' to start editing the local copy`;
     })
     .catch(async error => {
       if (spinner.isSpinning) spinner.fail();
@@ -137,14 +137,13 @@ module.exports = {
         describe: "move existing site files before pull",
         type: "boolean"
       })
-      .option("C", { describe: "path", type: "string" })
       .option("ignore-certificate", {
         describe: "ignore certificate errors",
         type: "boolean"
       })
       .conflicts("override", "move"),
   handler: async args =>
-    pullHandler(args).then(
+    pullHandler(Object.assign({}, args, { dir: process.cwd() })).then(
       message => {
         if (message) console.log(chalk.green(message));
         process.exit(0);

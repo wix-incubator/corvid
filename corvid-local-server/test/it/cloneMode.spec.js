@@ -1,7 +1,7 @@
 const get_ = require("lodash/get");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
-const { siteCreators: sc } = require("corvid-local-test-utils");
+const { siteCreators: sc, initTempDir } = require("corvid-local-test-utils");
 const {
   editor: loadEditor,
   localServer,
@@ -9,43 +9,35 @@ const {
 } = require("../utils/autoClosing");
 const {
   initLocalSite,
-  initLocalSiteWithConfig,
   readLocalSite,
   isFolderExsist
 } = require("../utils/localSiteDir");
 
-const getConfig = expectedLocalSite => ({
-  ".corvidrc.json": expectedLocalSite[".corvidrc.json"]
-});
-
 afterEach(closeAll);
 
 describe("clone mode", () => {
-  it("should not start the server in clone mode if no .corvid.json exists in site directory", async () => {
-    const localSitePath = await initLocalSite();
+  it("should not start the server in clone mode for a non corvid project directory", async () => {
+    const localPath = await initTempDir({
+      src: {
+        "something.js": "console.log('something')"
+      },
+      "package.json": "blah blah blah"
+    });
 
-    const server = localServer.startInCloneMode(localSitePath);
+    const server = localServer.startInCloneMode(localPath);
 
     await expect(server).rejects.toThrow("CAN_NOT_CLONE_NON_WIX_SITE");
   });
 
-  it("should not start the server in clone mode if the site directory is not empty", async () => {
-    const localSiteFiles = localSiteBuilder.buildFull(sc.publicCode());
-
+  it("should not start the server in clone mode for a non empty site", async () => {
+    const localSiteFiles = localSiteBuilder.buildPartial(sc.publicCode());
     const localSitePath = await initLocalSite(localSiteFiles);
-
     const server = localServer.startInCloneMode(localSitePath);
-
     await expect(server).rejects.toThrow("CAN_NOT_PULL_NON_EMPTY_SITE");
   });
 
-  it("should start if the directoy only contains dot (.) files", async () => {
-    const localSitePath = await initLocalSite({
-      ".logs": {
-        "some-log-file.log": "log log log"
-      },
-      ".corvidrc.json": "rc file"
-    });
+  it("should start if the src directory is empty", async () => {
+    const localSitePath = await initLocalSite({});
 
     const server = localServer.startInCloneMode(localSitePath);
 
@@ -63,9 +55,7 @@ describe("clone mode", () => {
     const editorSite = editorSiteBuilder.buildPartial(...siteItems);
     const expectedLocalSite = localSiteBuilder.buildPartial(...siteItems);
 
-    const localSitePath = await initLocalSiteWithConfig(
-      getConfig(expectedLocalSite)
-    );
+    const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
     await loadEditor(server.port, editorSite);
     const localSiteFiles = await readLocalSite(localSitePath);
@@ -81,7 +71,7 @@ describe("clone mode", () => {
       sc.collectionSchema()
     ];
 
-    const localSitePath = await initLocalSiteWithConfig();
+    const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull(...siteItems);
@@ -97,7 +87,7 @@ describe("clone mode", () => {
   it("should save page code files localy on load", async () => {
     const pageWithCode = sc.pageWithCode();
 
-    const localSitePath = await initLocalSiteWithConfig();
+    const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull(pageWithCode);
@@ -112,7 +102,7 @@ describe("clone mode", () => {
   it("should save lightbox code files localy on load", async () => {
     const lightboxWithCode = sc.lightboxWithCode();
 
-    const localSitePath = await initLocalSiteWithConfig();
+    const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull(lightboxWithCode);
@@ -127,7 +117,7 @@ describe("clone mode", () => {
   it("should save master page code locally on load", async () => {
     const masterPageCode = sc.masterPageCode();
 
-    const localSitePath = await initLocalSiteWithConfig();
+    const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull(masterPageCode);
@@ -142,7 +132,7 @@ describe("clone mode", () => {
   it("should create empty page code file on local file system if page with no code is sent on load", async () => {
     const page = sc.page();
 
-    const localSitePath = await initLocalSiteWithConfig();
+    const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull(page);
@@ -161,7 +151,7 @@ describe("clone mode", () => {
   it("should create empty lightbox code file on local file system if lightbox with no code is sent on load", async () => {
     const lightbox = sc.lightbox();
 
-    const localSitePath = await initLocalSiteWithConfig();
+    const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull(lightbox);
@@ -181,7 +171,7 @@ describe("clone mode", () => {
     async localFolderName => {
       const pageWithCode = sc.pageWithCode();
 
-      const localSitePath = await initLocalSiteWithConfig();
+      const localSitePath = await initLocalSite();
       const server = await localServer.startInCloneMode(localSitePath);
 
       const editorSite = editorSiteBuilder.buildPartial(pageWithCode);

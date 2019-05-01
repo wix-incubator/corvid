@@ -1,17 +1,15 @@
-const omit_ = require("lodash/omit");
+const path = require("path");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
-const { siteCreators: sc } = require("corvid-local-test-utils");
+const { siteCreators: sc, initTempDir } = require("corvid-local-test-utils");
 const {
   editor: loadEditor,
   localServer,
   closeAll
 } = require("../utils/autoClosing");
 const { initLocalSite, readLocalSite } = require("../utils/localSiteDir");
+const { readDirToJson } = require("corvid-dir-as-json");
 
-const getConfig = expectedLocalSite => ({
-  ".corvidrc.json": expectedLocalSite[".corvidrc.json"]
-});
 const now = Date.now();
 jest.spyOn(Date, "now").mockImplementation(() => now);
 
@@ -19,77 +17,72 @@ afterEach(closeAll);
 
 describe("pull mode", () => {
   describe("force pull", () => {
-    it("should not start the server in pull mode if no .corvidrc.json exists in site directory", async () => {
-      const localSitePath = await initLocalSite();
+    it("should not start the server in pull mode for a non corvid project directory", async () => {
+      const localPath = await initTempDir({
+        src: {
+          "something.js": "console.log('something')"
+        },
+        "package.json": "blah blah blah"
+      });
 
-      const server = localServer.startInCloneMode(localSitePath, {
+      const server = localServer.startInCloneMode(localPath, {
         override: true
       });
 
       await expect(server).rejects.toThrow("CAN_NOT_PULL_NON_WIX_SITE");
     });
-    it("should remove exsisting site", async () => {
-      const corvidrc = sc.corvidrc();
-      const initialLocalSiteFiles = localSiteBuilder.buildFull(corvidrc);
 
-      const localSitePath = await initLocalSite(initialLocalSiteFiles);
-      await localServer.startInCloneMode(localSitePath, {
-        override: true
-      });
+    it("should replace the existing with the one from the editor", async () => {
+      const editorSiteItems = sc.fullSiteItems();
+      const editorSite = editorSiteBuilder.buildPartial(...editorSiteItems);
+      const localSite = localSiteBuilder.buildFull();
 
-      const localSiteFiles = await readLocalSite(localSitePath);
-      expect(localSiteFiles).toEqual(getConfig(initialLocalSiteFiles));
-    });
-
-    it("should remove exsisting site and download the latest site from the editor", async () => {
-      const corvidrc = sc.corvidrc();
-      const siteItems = sc.fullSiteItems();
-      const editorSite = editorSiteBuilder.buildPartial(...siteItems);
-      const initialLocalSiteFiles = localSiteBuilder.buildFull(corvidrc);
-
-      const localSitePath = await initLocalSite(initialLocalSiteFiles);
+      const localSitePath = await initLocalSite(localSite);
       const server = await localServer.startInCloneMode(localSitePath, {
         override: true
       });
       await loadEditor(server.port, editorSite);
 
       const localSiteFiles = await readLocalSite(localSitePath);
-      const expectedLocalSiteFiles = localSiteBuilder.buildPartial(
-        ...siteItems,
-        corvidrc
+      expect(localSiteFiles).toMatchObject(
+        localSiteBuilder.buildPartial(...editorSiteItems)
       );
-      expect(localSiteFiles).toMatchObject(expectedLocalSiteFiles);
     });
   });
   describe("move pull", () => {
-    it("should not start the server in pull mode if no .corvidrc.json exists in site directory", async () => {
-      const localSitePath = await initLocalSite();
+    it("should not start the server in pull mode for a non corvid project directory", async () => {
+      const localPath = await initTempDir({
+        src: {
+          "something.js": "console.log('something')"
+        },
+        "package.json": "blah blah blah"
+      });
 
-      const server = localServer.startInCloneMode(localSitePath, {
+      const server = localServer.startInCloneMode(localPath, {
         move: true
       });
 
       await expect(server).rejects.toThrow("CAN_NOT_PULL_NON_WIX_SITE");
     });
-    it("should move exsisting site to snapshots/timestemp", async () => {
-      const corvidrc = sc.corvidrc();
-      const initialLocalSiteFiles = localSiteBuilder.buildFull(corvidrc);
+    it("should move the existing local site to snapshots/timestemp", async () => {
+      const initialLocalSiteFiles = localSiteBuilder.buildFull();
 
       const localSitePath = await initLocalSite(initialLocalSiteFiles);
       await localServer.startInCloneMode(localSitePath, {
         move: true
       });
-      const expectedLocalSiteFiles = {
-        [Date.now()]: omit_(initialLocalSiteFiles, ".corvidrc.json")
-      };
-      const localSiteFiles = await readLocalSite(localSitePath);
-      expect(localSiteFiles.snapshots).toEqual(expectedLocalSiteFiles);
+
+      const localSnapshots = await readDirToJson(
+        path.join(localSitePath, "snapshots")
+      );
+      expect(localSnapshots).toEqual({
+        [Date.now()]: initialLocalSiteFiles
+      });
     });
-    it("should move exsisting site to snapshots/timestemp and download the latest site from the editor", async () => {
-      const corvidrc = sc.corvidrc();
-      const siteItems = sc.fullSiteItems();
-      const editorSite = editorSiteBuilder.buildPartial(...siteItems);
-      const initialLocalSiteFiles = localSiteBuilder.buildFull(corvidrc);
+    it("should download the latest site from the editor", async () => {
+      const editorSiteItems = sc.fullSiteItems();
+      const editorSite = editorSiteBuilder.buildPartial(...editorSiteItems);
+      const initialLocalSiteFiles = localSiteBuilder.buildFull();
 
       const localSitePath = await initLocalSite(initialLocalSiteFiles);
       const server = await localServer.startInCloneMode(localSitePath, {
@@ -98,11 +91,9 @@ describe("pull mode", () => {
       await loadEditor(server.port, editorSite);
 
       const localSiteFiles = await readLocalSite(localSitePath);
-      const expectedLocalSiteFiles = localSiteBuilder.buildPartial(
-        ...siteItems,
-        corvidrc
+      expect(localSiteFiles).toMatchObject(
+        localSiteBuilder.buildPartial(...editorSiteItems)
       );
-      expect(localSiteFiles).toMatchObject(expectedLocalSiteFiles);
     });
   });
 });

@@ -1,10 +1,6 @@
-const {
-  moveWixSite,
-  deleteWixSite,
-  isSiteInitialized,
-  isEmptySite,
-  initSiteManager: initLocalSiteManager
-} = require("corvid-local-site");
+const fs = require("fs-extra");
+const path = require("path");
+const { initSiteManager: initLocalSiteManager } = require("corvid-local-site");
 const logger = require("corvid-local-logger");
 
 const startSocketServer = require("./server/startSocketServer");
@@ -19,10 +15,17 @@ const isClone = options => options.type === "CLONE";
 const isPullForce = options => options.type === "FORCE_PULL";
 const isPullMove = options => options.type === "MOVE_PULL";
 
+const isEmptyDir = async path => {
+  const contents = await fs.readdir(path);
+  return contents.length === 0;
+};
+
 async function startServer(siteRootPath, options) {
-  logger.info(`server starting at [${siteRootPath}]`);
-  const isEmpty = await isEmptySite(siteRootPath);
-  const isWix = await isSiteInitialized(siteRootPath);
+  logger.info(`server starting at [${path.resolve(siteRootPath)}]`);
+  const siteSrcPath = path.join(siteRootPath, "src");
+  await fs.ensureDir(siteSrcPath);
+  const isEmpty = await isEmptyDir(siteSrcPath);
+  const isWix = await fs.exists(path.join(siteRootPath, ".corvidrc.json")); // TEMPORARY
 
   if (isEdit(options)) {
     if (!isWix) {
@@ -57,7 +60,7 @@ async function startServer(siteRootPath, options) {
       );
       throw new Error("CAN_NOT_PULL_NON_WIX_SITE");
     }
-    await deleteWixSite(siteRootPath);
+    await fs.emptyDir(siteSrcPath);
   }
 
   if (isPullMove(options)) {
@@ -67,10 +70,17 @@ async function startServer(siteRootPath, options) {
       );
       throw new Error("CAN_NOT_PULL_NON_WIX_SITE");
     }
-    await moveWixSite(siteRootPath);
+    const snapshotFolder = path.join(
+      siteRootPath,
+      "snapshots",
+      Date.now().toString()
+    );
+
+    await fs.move(siteSrcPath, snapshotFolder);
+    await fs.emptyDir(siteSrcPath);
   }
 
-  const localSite = await initLocalSiteManager(siteRootPath);
+  const localSite = await initLocalSiteManager(siteSrcPath);
   const editorServer = await startSocketServer(DEFAULT_EDITOR_PORT);
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 

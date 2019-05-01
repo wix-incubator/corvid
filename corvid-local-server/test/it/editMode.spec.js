@@ -1,6 +1,6 @@
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
-const { siteCreators: sc } = require("corvid-local-test-utils");
+const { siteCreators: sc, initTempDir } = require("corvid-local-test-utils");
 const merge_ = require("lodash/merge");
 const {
   editor: loadEditor,
@@ -12,28 +12,22 @@ const localSiteDir = require("../utils/localSiteDir");
 afterEach(closeAll);
 
 describe("edit mode", () => {
-  it("should not start the server in edit mode if no .corvid.json exists in site directory", async () => {
-    const localSiteFiles = {};
+  it("should not start the server in edit mode for a non corvid project directory", async () => {
+    const localPath = await initTempDir({
+      src: {
+        "something.js": "console.log('something')"
+      },
+      "package.json": "blah blah blah"
+    });
 
-    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
-
-    const server = localServer.startInEditMode(localSitePath);
+    const server = localServer.startInEditMode(localPath);
 
     await expect(server).rejects.toThrow("CAN_NOT_EDIT_NON_WIX_SITE");
   });
 
   it("should not start the server in edit mode if the site directory is empty", async () => {
-    const localSiteFiles = {
-      ".logs": {
-        "some-log-file.log": "log log log"
-      },
-      ".corvidrc.json": "rc file"
-    };
-
-    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
-
+    const localSitePath = await localSiteDir.initLocalSite({});
     const server = localServer.startInEditMode(localSitePath);
-
     await expect(server).rejects.toThrow("CAN_NOT_EDIT_EMPTY_SITE");
   });
 

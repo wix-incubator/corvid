@@ -1,10 +1,12 @@
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 const sessionData = require("./sessionData");
 
+const configFilePath = root => path.join(root, ".corvidrc.json");
+
 async function readCorvidConfig(dir) {
   const json = await new Promise((resolve, reject) => {
-    fs.readFile(path.join(dir, ".corvidrc.json"), (exc, config) => {
+    fs.readFile(configFilePath(dir), (exc, config) => {
       if (exc) {
         if (exc.code === "ENOENT") {
           reject(new Error(`Project not found in ${path.resolve(dir)}`));
@@ -22,14 +24,16 @@ async function readCorvidConfig(dir) {
   return configObj;
 }
 
+async function doesConfigExist(dir) {
+  return fs.exists(configFilePath(dir));
+}
+
 async function writeCorvidConfig(dir, config) {
   return new Promise((resolve, reject) => {
-    fs.writeFile(
-      path.join(dir, ".corvidrc.json"),
-      JSON.stringify(config, null, 2),
-      error => (error == null ? resolve() : reject(error))
+    fs.writeFile(configFilePath(dir), JSON.stringify(config, null, 2), error =>
+      error == null ? resolve() : reject(error)
     );
   });
 }
 
-module.exports = { readCorvidConfig, writeCorvidConfig };
+module.exports = { readCorvidConfig, writeCorvidConfig, doesConfigExist };
