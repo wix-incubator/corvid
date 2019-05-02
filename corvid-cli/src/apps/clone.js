@@ -67,7 +67,7 @@ async function extractMetasiteIdAndName(url, cookie) {
   }
 }
 
-async function init(spinner, args, cookie) {
+async function clone(spinner, args, cookie) {
   spinner.start(chalk.grey("Getting site information"));
   try {
     const { metasiteId } = await extractMetasiteIdAndName(args.url, cookie);
@@ -97,4 +97,4 @@ async function init(spinner, args, cookie) {
   }
 }
 
-module.exports = init;
+module.exports = clone;

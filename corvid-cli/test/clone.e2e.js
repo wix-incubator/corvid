@@ -10,9 +10,9 @@ const {
 const sessionData = require("../src/utils/sessionData");
 
 jest.mock("../src/commands/login");
-const { init } = require("../src/commands/init");
+const { clone } = require("../src/commands/clone");
 
-describe("init", () => {
+describe("clone", () => {
   process.env.CORVID_SESSION_ID = "testCorvidId";
   beforeEach(async () => {
     const localEditorServerPort = await localFakeEditorServer.start();
@@ -57,7 +57,7 @@ describe("init", () => {
           JSON.stringify({})
         );
 
-      await init({
+      await clone({
         url: "a-site.com",
         dir: tempDir
       });
@@ -97,7 +97,7 @@ describe("init", () => {
           JSON.stringify({})
         );
 
-      await init({
+      await clone({
         url: "a-site.com",
         dir: tempDir
       });
@@ -130,7 +130,7 @@ describe("init", () => {
           JSON.stringify({})
         );
 
-      await init({
+      await clone({
         url:
           "https://editor.wix.com/html/editor/web/renderer/edit/1633ae83-c9ff-41e2-bd1b-d5eb5a93790c?metaSiteId=96d0802a-b76d-411c-aaf4-6b8c2f474acb&editorSessionId=d3a513bd-32a0-5e3b-964e-3b69f916f17e",
         dir: tempDir
@@ -166,7 +166,7 @@ describe("init", () => {
           JSON.stringify({})
         );
 
-      await init({
+      await clone({
         url: "https://www.wix.com/editor/96d0802a-b76d-411c-aaf4-6b8c2f474acb",
         dir: tempDir
       });
@@ -210,7 +210,7 @@ describe("init", () => {
           JSON.stringify({})
         );
 
-      await init({
+      await clone({
         url: "a-site.com",
         dir: tempDir
       });
@@ -222,7 +222,7 @@ describe("init", () => {
       expect(corvidrc).toMatchObject({ cliVersion: cliModuleVersion });
     });
 
-    test("should report to BI an init start event with the userGuid and metasiteId", async () => {
+    test("should report to BI a clone start event with the userGuid and metasiteId", async () => {
       expect.assertions(1);
 
       const tempDir = await initTempDir({ aSite: {} });
@@ -254,7 +254,7 @@ describe("init", () => {
           JSON.stringify({})
         );
 
-      await init({
+      await clone({
         url: "a-site.com",
         dir: tempDir
       });
@@ -268,7 +268,7 @@ describe("init", () => {
       ).toBe(true);
     });
 
-    test("should report to BI an init success event with the userGuid and metasiteId", async () => {
+    test("should report to BI a clone success event with the userGuid and metasiteId", async () => {
       expect.assertions(1);
 
       const tempDir = await initTempDir({ aSite: {} });
@@ -300,7 +300,7 @@ describe("init", () => {
           JSON.stringify({})
         );
 
-      await init({
+      await clone({
         url: "a-site.com",
         dir: tempDir
       });

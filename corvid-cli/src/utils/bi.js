@@ -33,7 +33,7 @@ function sendBiEvent(evid) {
 }
 
 module.exports = {
-  sendInitEvent: sendBiEvent(200),
+  sendCloneEvent: sendBiEvent(200),
   sendOpenEditorEvent: sendBiEvent(201),
   sendPullEvent: sendBiEvent(202)
 };
