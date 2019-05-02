@@ -15,8 +15,7 @@ async function cloneHandler(args) {
       if (cookie) {
         await clone(spinner, args, cookie);
         await pull(spinner, {
-          dir: args.dir,
-          ignoreCertificate: args.ignoreCertificate
+          dir: args.dir
         });
 
         spinner.stop();
@@ -45,12 +44,7 @@ module.exports = {
   command: "clone <url>",
   describe: "clones a local Wix Site copy",
   builder: args =>
-    args
-      .positional("url", { describe: "Public site URL", type: "string" })
-      .option("ignore-certificate", {
-        describe: "ignore certificate errors",
-        type: "boolean"
-      }),
+    args.positional("url", { describe: "Public site URL", type: "string" }),
   handler: args =>
     cloneHandler(Object.assign({}, args, { dir: process.cwd() })).then(
       message => {

@@ -17,18 +17,6 @@ const { readCorvidConfig } = require("../utils/corvid-config");
 
 app &&
   app.on("ready", async () => {
-    if (process.env.IGNORE_CERTIFICATE_ERRORS) {
-      app.on(
-        "certificate-error",
-        (event, webContents, url, error, certificate, callback) => {
-          // On certificate error we disable default behaviour (stop loading the page)
-          // and we then say "it is all fine - true" to the callback
-          event.preventDefault();
-          callback(true);
-        }
-      );
-    }
-
     try {
       await openWindow(openEditorApp(), {
         show: true && !process.env.CORVID_FORCE_HEADLESS
@@ -69,8 +57,7 @@ async function openEditorHandler(args) {
         //stdio: "ignore",
         cwd: directory,
         env: {
-          ...process.env,
-          IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
+          ...process.env
         }
       },
       {
@@ -109,11 +96,7 @@ async function openEditorHandler(args) {
 module.exports = {
   command: "open-editor",
   describe: "launches the local editor to edit the local site",
-  builder: args =>
-    args.option("ignore-certificate", {
-      describe: "ignore certificate errors",
-      type: "boolean"
-    }),
+  builder: {},
   handler: async args => {
     openEditorHandler(Object.assign({}, args, { dir: process.cwd() })).catch(
       error => {

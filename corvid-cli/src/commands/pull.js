@@ -14,18 +14,6 @@ const { readCorvidConfig } = require("../utils/corvid-config");
 
 app &&
   app.on("ready", async () => {
-    if (process.env.IGNORE_CERTIFICATE_ERRORS) {
-      app.on(
-        "certificate-error",
-        (event, webContents, url, error, certificate, callback) => {
-          // On certificate error we disable default behaviour (stop loading the page)
-          // and we then say "it is all fine - true" to the callback
-          event.preventDefault();
-          callback(true);
-        }
-      );
-    }
-
     const args = yargs.argv;
     try {
       await openWindow(pullApp({ override: args.override, move: args.move }));
@@ -47,8 +35,7 @@ async function pullCommand(spinner, args) {
       {
         cwd: args.dir,
         env: {
-          ...process.env,
-          IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate
+          ...process.env
         }
       },
       {
@@ -135,10 +122,6 @@ module.exports = {
       })
       .option("move", {
         describe: "move existing site files before pull",
-        type: "boolean"
-      })
-      .option("ignore-certificate", {
-        describe: "ignore certificate errors",
         type: "boolean"
       })
       .conflicts("override", "move"),
