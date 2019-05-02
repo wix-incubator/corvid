@@ -64,7 +64,7 @@ describe("pull mode", () => {
 
       await expect(server).rejects.toThrow("CAN_NOT_PULL_NON_WIX_SITE");
     });
-    it("should move the existing local site to snapshots/timestemp", async () => {
+    it("should move the existing local site to .corvid/snapshots/{timestemp}", async () => {
       const initialLocalSiteFiles = localSiteBuilder.buildFull();
 
       const localSitePath = await initLocalSite(initialLocalSiteFiles);
@@ -72,12 +72,10 @@ describe("pull mode", () => {
         move: true
       });
 
-      const localSnapshots = await readDirToJson(
-        path.join(localSitePath, "snapshots")
+      const movedSnapshot = await readDirToJson(
+        path.join(localSitePath, ".corvid", "snapshots", Date.now().toString())
       );
-      expect(localSnapshots).toEqual({
-        [Date.now()]: initialLocalSiteFiles
-      });
+      expect(movedSnapshot).toEqual(initialLocalSiteFiles);
     });
     it("should download the latest site from the editor", async () => {
       const editorSiteItems = sc.fullSiteItems();

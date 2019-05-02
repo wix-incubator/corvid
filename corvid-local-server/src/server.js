@@ -72,6 +72,7 @@ async function startServer(siteRootPath, options) {
     }
     const snapshotFolder = path.join(
       siteRootPath,
+      ".corvid",
       "snapshots",
       Date.now().toString()
     );
