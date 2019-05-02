@@ -149,13 +149,18 @@ describe("edit mode", () => {
 
   // todo:: split this test to 6 test, (modify pageCode & regular code), (delete pageCode & regular code), (copy pageCode & regular code)
   it("should update code files after editor changes and clicks save", async () => {
+    const schemaItem = sc.collectionSchema("collection", {
+      collectionName: "oldSchema",
+      fields: {}
+    });
+
     const siteItems = [
       sc.pageWithCode({ pageId: "page-1" }, "page code"),
       sc.pageWithCode({ pageId: "page-2" }, "page-2 code file options"),
       sc.publicCode("public-file.json", "public code"),
       sc.publicCode("public-file1.json", "public code 1"),
       sc.backendCode("sub-folder/backendFile.jsw", "backend code"),
-      sc.collectionSchema("collection", "old schema contents")
+      schemaItem
     ];
 
     const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
@@ -163,6 +168,7 @@ describe("edit mode", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
+    // TODO: use "editorBuilder.getEditorCodeFilePath" for all modified items
     editor.modifyCodeFile(
       "backend/authorization-config.json",
       "console.log('authorization-config')"
@@ -175,7 +181,10 @@ describe("edit mode", () => {
       "public/public-file.json",
       "public/public-file-copied.json"
     );
-    editor.modifyCollectionSchema("collection", "new schema contents");
+    editor.modifyCodeFile(
+      editorSiteBuilder.getEditorCodeFilePath(schemaItem),
+      JSON.stringify({ collectionName: "updatedSchema", fields: {} })
+    );
 
     await editor.save();
 
@@ -187,7 +196,10 @@ describe("edit mode", () => {
         "authorization-config.json",
         "console.log('authorization-config')"
       ),
-      sc.collectionSchema("collection", "new schema contents")
+      sc.collectionSchema("collection", {
+        collectionName: "updatedSchema",
+        fields: {}
+      })
     );
 
     const serverFiles = await localSiteDir.readLocalSite(localSitePath);

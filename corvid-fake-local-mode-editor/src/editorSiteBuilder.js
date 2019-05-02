@@ -138,7 +138,7 @@ const backendCodeFile = ({ path, content }) =>
 const collectionSchema = ({ collectionName, schema }) =>
   codeFile({
     path: `.schemas/${collectionName}.json`,
-    content: schema
+    content: JSON.stringify(schema)
   });
 
 const masterPageCode = ({ content }) =>

@@ -17,6 +17,13 @@ const unflatten = data => flat.unflatten(data, { delimiter: "/", safe: true });
 
 const getLocalServerURL = port => `http://localhost:${port}`;
 
+// TODO: refactor schemas to be something different than code. than we won't need to handle it in such a weird way
+
+const isSchemaPath = filePath => filePath.startsWith(".schemas/");
+
+const ensureSchemaStructure = schemaContent =>
+  JSON.stringify(JSON.parse(schemaContent));
+
 const connectToLocalServer = port => {
   return new Promise((resolve, reject) => {
     const socket = io.connect(getLocalServerURL(port));
@@ -183,7 +190,11 @@ const loadEditor = async (
         reduce_(
           await getCodeFilesFromServer(socket),
           (result, value) =>
-            Object.assign(result, { [value.path]: value.content }),
+            Object.assign(result, {
+              [value.path]: isSchemaPath(value.path)
+                ? ensureSchemaStructure(value.content)
+                : value.content
+            }),
           {}
         )
       );
@@ -199,6 +210,9 @@ const loadEditor = async (
   }
 
   const modifyCodeFile = (filePath, content) => {
+    if (isSchemaPath(filePath)) {
+      content = ensureSchemaStructure(content);
+    }
     set_(editorState.codeFiles.current, filePath.split("/"), content);
   };
 
@@ -221,14 +235,6 @@ const loadEditor = async (
       editorState.codeFiles.current,
       ["public", "pages", `${pageId}.js`],
       null
-    );
-  };
-
-  const modifyCollectionSchema = (collectionName, newContent) => {
-    set_(
-      editorState.codeFiles.current,
-      [".schemas", `${collectionName}.json`],
-      newContent
     );
   };
 
@@ -273,7 +279,6 @@ const loadEditor = async (
     copyCodeFile,
     deleteCodeFile,
     deletePageCodeFile,
-    modifyCollectionSchema,
     registerDocumentChange,
     registerCodeChange,
     advanced: {

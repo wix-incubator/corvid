@@ -9,7 +9,7 @@ const wixFileExtension = "wix";
 const pageCodeExtention = "js";
 const titleCharReplacement = "_";
 
-const stringify = content => JSON.stringify(content, null, 2);
+const prettyStringify = content => JSON.stringify(content, null, 2);
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
 const pageFileName = page =>
@@ -40,7 +40,7 @@ const wixFilePath = (filename, parentPath = "") =>
 
 const wixFile = (parentPath, name, content) => ({
   path: wixFilePath(name, parentPath),
-  content: stringify(content)
+  content: prettyStringify(content)
 });
 
 const stylesFile = (name, content) => wixFile(PATH_STYLES, name, content);
@@ -63,7 +63,7 @@ const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
 const page = page => ({
   path: `${PATH_PAGES}/${pageFileName(page)}`,
-  content: stringify(page)
+  content: prettyStringify(page)
 });
 
 const pageCode = (page, code) => ({
@@ -78,7 +78,7 @@ const pageWithCode = ({ page: pageData, code }) => [
 
 const lightbox = lightbox => ({
   path: `${PATH_LIGHTBOXES}/${lightboxFileName(lightbox)}`,
-  content: stringify(lightbox)
+  content: prettyStringify(lightbox)
 });
 
 const lighboxCode = (lightbox, code) => ({
@@ -110,7 +110,7 @@ const publicCodeFile = ({ path: relativePath, content }) =>
 const collectionSchema = ({ collectionName, schema }) =>
   codeFile({
     path: `${PATH_DATABASE}/${collectionName}.json`,
-    content: schema
+    content: prettyStringify(schema)
   });
 
 const masterPageCode = ({ content }) =>

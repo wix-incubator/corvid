@@ -12,12 +12,13 @@ const path = require("path");
 const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
 const flat = require("flat");
+const { prettyStringify, tryToPrettifyJsonString } = require("./prettify");
 
 const flatten = data => flat(data, { delimiter: "/", safe: true });
 
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
-const stringify = content => JSON.stringify(content, null, 2);
 const isEmptyFolder = content => isObject_(content);
+
 const readWrite = (siteRootPath, filesWatcher) => {
   const fullPath = filePath => path.resolve(siteRootPath, filePath);
 
@@ -161,7 +162,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
     // write all files to file system
     const writeFilesPromises = filesToWrite.map(file =>
-      filesWatcher.ignoredWriteFile(file.path, stringify(file.content))
+      filesWatcher.ignoredWriteFile(file.path, prettyStringify(file.content))
     );
 
     const ensureFilesPromises = filesToEnsure.map(file =>
@@ -188,7 +189,13 @@ const readWrite = (siteRootPath, filesWatcher) => {
     } = updateRequest;
 
     const updates = modifiedFiles.map(file =>
-      filesWatcher.ignoredWriteFile(sitePaths.toLocalCode(file), file.content)
+      filesWatcher.ignoredWriteFile(
+        sitePaths.toLocalCode(file),
+        // TODO: refactor. we shouldn't deal with specific file types here
+        sitePaths.isEditorDatabaseSchemaPath(file.path)
+          ? tryToPrettifyJsonString(file.content)
+          : file.content
+      )
     );
 
     const copies = copiedFiles.map(({ source, target }) =>

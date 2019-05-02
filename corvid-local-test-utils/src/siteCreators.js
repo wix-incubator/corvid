@@ -2,12 +2,15 @@ const uniqueId_ = require("lodash/uniqueId");
 const defaults_ = require("lodash/defaults");
 const mapValues_ = require("lodash/mapValues");
 const flow_ = require("lodash/flow");
+const omit_ = require("lodash/omit");
 
 const unique = prefix => uniqueId_(prefix + "-");
 const uniqueCodeFileName = name => unique(name) + ".js";
 const uniqueCode = name => `console.log('${unique(name)}');`;
-const uniqueCollectionSchema = collectionName =>
-  JSON.stringify({ collectionName, fields: {} });
+const uniqueCollectionSchema = collectionName => ({
+  collectionName,
+  fields: {}
+});
 
 const page = ({ pageId = unique("page"), ...rest } = {}) =>
   defaults_({ pageId, isPopup: false }, rest, {
@@ -121,6 +124,8 @@ const addType = type => item =>
     [typeSymbol]: type
   });
 
+const removeType = item => omit_(item, typeSymbol);
+
 const getType = item => item[typeSymbol];
 
 const typedCreator = (creator, type) => {
@@ -138,7 +143,7 @@ const matchItem = (item, patterns) => {
   if (!matchingPattern) {
     throw new Error(`Cannot find mattching pattern for type ${type}`);
   }
-  return matchingPattern({ ...item });
+  return matchingPattern(removeType(item));
 };
 
 const isSameCreator = (item1, item2) => getType(item1) === getType(item2);
