@@ -7,33 +7,33 @@ var CorvidLocalTestUtils = require("corvid-local-test-utils");
 var Testkit = require("corvid-local-site/testkit");
 var Testkit$1 = require("corvid-local-server/src/testkit");
 
-function createTestKit(param) {
-  var initSite = function (siteItems) {
-    return CorvidLocalTestUtils.initTempDir(siteItems).then((function (localSite) {
-                  Fs.writeFileSync(Path.join(localSite, ".corvidrc.json"), "", "utf8");
-                  return Promise.resolve(localSite);
-                }));
-  };
-  var server = {
-    startInEditMode: (function (prim) {
-        return Testkit$1.startInEditMode(prim);
-      }),
-    startInCloneMode: (function (prim) {
-        return Testkit$1.startInCloneMode(prim);
-      })
-  };
-  return {
-          initSite: initSite,
-          server: server,
-          siteCreators: CorvidLocalTestUtils.siteCreators,
-          localSiteBuilder: Testkit.localSiteBuilder
-        };
+function initSite(siteItems) {
+  return CorvidLocalTestUtils.initTempDir(siteItems).then((function (localSite) {
+                Fs.writeFileSync(Path.join(localSite, ".corvidrc.json"), "", "utf8");
+                return Promise.resolve(localSite);
+              }));
 }
 
-var $$default = createTestKit;
+var server = {
+  startInEditMode: (function (prim) {
+      return Testkit$1.startInEditMode(prim);
+    }),
+  startInCloneMode: (function (prim) {
+      return Testkit$1.startInCloneMode(prim);
+    })
+};
 
-exports.createTestKit = createTestKit;
+var localTestkit = {
+  initSite: initSite,
+  server: server,
+  siteCreators: CorvidLocalTestUtils.siteCreators,
+  localSiteBuilder: Testkit.localSiteBuilder
+};
+
+var $$default = localTestkit;
+
+exports.localTestkit = localTestkit;
 exports.$$default = $$default;
 exports.default = $$default;
 exports.__esModule = true;
-/* fs Not a pure module */
+/* localTestkit Not a pure module */

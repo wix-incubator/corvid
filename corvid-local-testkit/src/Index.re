@@ -33,7 +33,7 @@ type testkit = {
   localSiteBuilder,
 };
 
-let createTestKit = () => {
+let localTestkit = {
   let initSite = siteItems => {
     initTempDir(siteItems)
     |> Js.Promise.then_(localSite => {
@@ -59,4 +59,4 @@ let createTestKit = () => {
   );
 };
 
-let default = createTestKit;
+let default = localTestkit;

@@ -9,7 +9,6 @@
     "lint": "bsb && bsrefmt --in-place src/*.re",
     "precommit": "bsb && lint-staged",
     "release": "wnpm-release"
-    
   },
   "author": "Álvaro Morais <alvarom@wix.com>",
   "license": "ISC",
@@ -36,7 +35,10 @@
   },
   "lint-staged": {
     "linters": {
-      "*.re": ["bsrefmt --in-place", "git add"]
+      "*.re": [
+        "bsrefmt --in-place",
+        "git add"
+      ]
     }
   }
 }
