@@ -82,7 +82,7 @@ async function startServer(siteRootPath, options) {
     await fs.emptyDir(siteSrcPath);
   }
 
-  const localSite = await initLocalSiteManager(siteRootPath);
+  const localSite = await initLocalSiteManager(siteSrcPath);
   const editorServer = await startSocketServer(
     DEFAULT_EDITOR_PORT,
     !isTest() && "editor.wix.com"
