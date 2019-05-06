@@ -21,14 +21,15 @@
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "corvid-local-logger": "~0.1.0",
     "corvid-local-site": "~0.1.0",
-    "cors": "^2.8.5",
     "express": "^4.16.4",
     "fs-extra": "^7.0.1",
     "listen-on-free-port": "1.0.3",
     "socket.io": "^2.2.0",
-    "stoppable": "^1.1.0"
+    "stoppable": "^1.1.0",
+    "temp": "^0.9.0"
   },
   "devDependencies": {
     "corvid-dir-as-json": "~0.1.0",

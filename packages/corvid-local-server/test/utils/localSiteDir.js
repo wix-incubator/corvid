@@ -27,8 +27,8 @@ const deleteFile = async (rootPath, filePath) => {
 const doesExist = async (rootPath, localPath) =>
   await fs.exists(path.join(siteSrcPath(rootPath), localPath));
 
-const initLocalSite = async localSiteFiles => {
-  const rootDir = await initTempDir();
+const initLocalSite = async (localSiteFiles, parentDir) => {
+  const rootDir = await initTempDir(undefined, parentDir);
   await fs.writeFile(
     path.join(rootDir, ".corvidrc.json"),
     JSON.stringify({ metasiteId: 12345 })
