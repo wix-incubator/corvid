@@ -14,7 +14,6 @@ const isEdit = options => options.type === "EDIT";
 const isClone = options => options.type === "CLONE";
 const isPullForce = options => options.type === "FORCE_PULL";
 const isPullMove = options => options.type === "MOVE_PULL";
-const isTest = () => process.env.NODE_ENV === "test";
 
 const isEmptyDir = async path => {
   const contents = await fs.readdir(path);
@@ -83,17 +82,13 @@ async function startServer(siteRootPath, options) {
   }
 
   const localSite = await initLocalSiteManager(siteSrcPath);
-  const editorServer = await startSocketServer(
-    DEFAULT_EDITOR_PORT,
-    !isTest() && "editor.wix.com"
-  );
+  const editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
+    allowedDomains: ["editor.wix.com"]
+  });
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
   adminServer.io.use((socket, next) => {
-    if (
-      isTest() ||
-      socket.handshake.query.token === process.env.CORVID_SESSION_ID
-    ) {
+    if (socket.handshake.query.token === options.token) {
       return next();
     }
     logger.warn("admin server authentication error");
@@ -121,25 +116,27 @@ async function startServer(siteRootPath, options) {
 
 const startInCloneMode = (
   siteRootPath,
-  { override = false, move = false } = {}
+  options = { override: false, move: false, token: "" }
 ) => {
-  if (override && move) {
+  if (options.override && options.move) {
     throw new Error("Only one of 'override' and 'move' may be set");
   }
   let type = "CLONE";
-  if (move) {
+  if (options.move) {
     type = "MOVE_PULL";
   }
-  if (override) {
+  if (options.override) {
     type = "FORCE_PULL";
   }
   return startServer(siteRootPath, {
-    type
+    type,
+    token: options.token
   });
 };
-const startInEditMode = siteRootPath =>
+const startInEditMode = (siteRootPath, options = { token: "" }) =>
   startServer(siteRootPath, {
-    type: "EDIT"
+    type: "EDIT",
+    token: options.token
   });
 
 module.exports = {

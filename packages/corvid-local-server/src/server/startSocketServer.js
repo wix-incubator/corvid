@@ -7,7 +7,7 @@ const listenOnFreePort = require("listen-on-free-port");
 const logger = require("corvid-local-logger");
 const singleSocketConnectionMiddleware = require("./singleSocketConnectionMiddleware");
 
-const setupSocketServer = async (defaultPort, origin) => {
+const setupSocketServer = async (defaultPort, options) => {
   const app = express();
   const server = http.Server(app);
 
@@ -23,14 +23,14 @@ const setupSocketServer = async (defaultPort, origin) => {
       logger.warn(`blocking multiple connection on port [${port}]`);
     })
   );
-  if (origin) {
-    io.origins((o, callback) => {
-      let hostname = o.replace(/^https?:\/\//, "");
-      if (origin !== hostname) {
-        logger.warn(`refused origin [${o}]`);
+  if (options && options.allowedDomains) {
+    io.origins((origin, callback) => {
+      let hostname = origin.replace(/^https?:\/\//, "");
+      if (!options.allowedDomains.includes(hostname)) {
+        logger.warn(`refused origin [${origin}]`);
         return callback("origin not allowed", false);
       }
-      logger.warn(`accepted origin [${o}]`);
+      logger.warn(`accepted origin [${origin}]`);
       callback(null, true);
     });
   }

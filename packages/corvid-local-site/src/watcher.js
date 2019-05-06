@@ -12,11 +12,6 @@ const ensureWriteFile = async (path, content) => {
 };
 
 const toPosixPath = winPath => winPath.replace(/\\/g, "/");
-const assert = (value, errorMessage) => {
-  if (!value) {
-    throw new Error(errorMessage);
-  }
-};
 
 const watch = async givenPath => {
   logger.verbose(`watching for file changes at [${givenPath}]`);
@@ -32,6 +27,12 @@ const watch = async givenPath => {
   };
   const isUnderRoot = relativePath =>
     !path.relative(rootPath, fullPath(relativePath)).startsWith("..");
+
+  const assertUnderRoot = relativePath => {
+    if (!isUnderRoot(relativePath)) {
+      throw new Error("tried to access file outside project");
+    }
+  };
 
   const watcher = chokidar.watch(rootPath, {
     ignored: shouldIgnoreFile,
@@ -113,7 +114,7 @@ const watch = async givenPath => {
       logger.debug(`writing file ${relativePath}`);
       try {
         ignoreAction("write", relativePath);
-        assert(isUnderRoot(relativePath), "tried to write outside of project");
+        assertUnderRoot(relativePath);
         await ensureWriteFile(fullPath(relativePath), content);
       } catch (e) {
         logger.error(
@@ -130,7 +131,7 @@ const watch = async givenPath => {
       if (await fs.exists(fullPathFile)) return;
       try {
         ignoreAction("write", relativePath);
-        assert(isUnderRoot(relativePath), "tried to write outside of project");
+        assertUnderRoot(relativePath);
         await fs.ensureFile(fullPathFile);
       } catch (e) {
         logger.error(
@@ -145,7 +146,7 @@ const watch = async givenPath => {
       logger.debug(`deleting file ${relativePath}`);
       try {
         ignoreAction("delete", relativePath);
-        assert(isUnderRoot(relativePath), "tried to delete outside of project");
+        assertUnderRoot(relativePath);
         await fs.unlink(fullPath(relativePath));
       } catch (e) {
         logger.error(
@@ -162,14 +163,8 @@ const watch = async givenPath => {
       );
       try {
         ignoreAction("write", relativeTargetPath);
-        assert(
-          isUnderRoot(relativeSourcePath),
-          "tried to write outside of project"
-        );
-        assert(
-          isUnderRoot(relativeTargetPath),
-          "tried to write outside of project"
-        );
+        assertUnderRoot(relativeSourcePath);
+        assertUnderRoot(relativeTargetPath);
 
         await fs.copyFile(
           fullPath(relativeSourcePath),

@@ -1,27 +1,29 @@
 const { socketClient } = require("corvid-local-test-utils");
-const {
-  localServer,
-  closeAll,
-  editor: loadEditor
-} = require("../utils/autoClosing");
-const { siteCreators: sc } = require("corvid-local-test-utils");
-const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
-const { localSiteBuilder } = require("corvid-local-site/testkit");
-const { initLocalSiteWithConfig } = require("../utils/localSiteDir");
+const { localServer, closeAll } = require("../utils/autoClosing");
+const { initLocalSite } = require("../utils/localSiteDir");
 
 const getEditorEndpoint = server => `http://localhost:${server.port}`;
 
-const getConfig = expectedLocalSite => ({
-  ".corvidrc.json": expectedLocalSite[".corvidrc.json"]
-});
+const clientSocketOptions = {
+  transportOptions: {
+    polling: {
+      extraHeaders: {
+        origin: "https://editor.wix.com"
+      }
+    }
+  }
+};
 
 afterEach(closeAll);
 
 describe("Security", () => {
   it("should not permit to add file outside of project folder", async done => {
-    const localSiteDir = await initLocalSiteWithConfig();
+    const localSiteDir = await initLocalSite();
     const server = await localServer.startInCloneMode(localSiteDir);
-    const editorSocket = await socketClient.connect(getEditorEndpoint(server));
+    const editorSocket = await socketClient.connect(
+      getEditorEndpoint(server),
+      clientSocketOptions
+    );
     editorSocket.emit(
       "UPDATE_CODE",
       {
@@ -35,16 +37,19 @@ describe("Security", () => {
       },
       err => {
         expect(err).toMatchObject({
-          message: "tried to write outside of project"
+          message: "tried to access file outside project"
         });
         done();
       }
     );
   });
   it("should not permit to delete file outside of project folder", async done => {
-    const localSiteDir = await initLocalSiteWithConfig();
+    const localSiteDir = await initLocalSite();
     const server = await localServer.startInCloneMode(localSiteDir);
-    const editorSocket = await socketClient.connect(getEditorEndpoint(server));
+    const editorSocket = await socketClient.connect(
+      getEditorEndpoint(server),
+      clientSocketOptions
+    );
     editorSocket.emit(
       "UPDATE_CODE",
       {
@@ -57,16 +62,19 @@ describe("Security", () => {
       },
       err => {
         expect(err).toMatchObject({
-          message: "tried to delete outside of project"
+          message: "tried to access file outside project"
         });
         done();
       }
     );
   });
   it("should not permit to copy file from project outside of project folder", async done => {
-    const localSiteDir = await initLocalSiteWithConfig();
+    const localSiteDir = await initLocalSite();
     const server = await localServer.startInCloneMode(localSiteDir);
-    const editorSocket = await socketClient.connect(getEditorEndpoint(server));
+    const editorSocket = await socketClient.connect(
+      getEditorEndpoint(server),
+      clientSocketOptions
+    );
     editorSocket.emit(
       "UPDATE_CODE",
       {
@@ -86,7 +94,7 @@ describe("Security", () => {
       },
       err => {
         expect(err).toMatchObject({
-          message: "tried to write outside of project"
+          message: "tried to access file outside project"
         });
         done();
       }
@@ -94,9 +102,12 @@ describe("Security", () => {
   });
 
   it("should not permit to copy file from outside of project into project folder", async done => {
-    const localSiteDir = await initLocalSiteWithConfig();
+    const localSiteDir = await initLocalSite();
     const server = await localServer.startInCloneMode(localSiteDir);
-    const editorSocket = await socketClient.connect(getEditorEndpoint(server));
+    const editorSocket = await socketClient.connect(
+      getEditorEndpoint(server),
+      clientSocketOptions
+    );
     editorSocket.emit(
       "UPDATE_CODE",
       {
@@ -116,24 +127,17 @@ describe("Security", () => {
       },
       err => {
         expect(err).toMatchObject({
-          message: "tried to write outside of project"
+          message: "tried to access file outside project"
         });
         done();
       }
     );
   });
-  it("should not permit requests with wrong origin", async () => {
-    process.env.NODE_ENV = "test-origin";
-    const siteItems = sc.fullSiteItems();
-
-    const editorSite = editorSiteBuilder.buildPartial(...siteItems);
-    const expectedLocalSite = localSiteBuilder.buildPartial(...siteItems);
-
-    const localSitePath = await initLocalSiteWithConfig(
-      getConfig(expectedLocalSite)
-    );
-    const server = await localServer.startInCloneMode(localSitePath);
-    await expect(loadEditor(server.port, editorSite)).rejects.toThrow();
-    process.env.NODE_ENV = "test";
+  it("should not permit editor connection with wrong origin", async () => {
+    const localSiteDir = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSiteDir);
+    await expect(
+      socketClient.connect(getEditorEndpoint(server))
+    ).rejects.toThrow();
   });
 });

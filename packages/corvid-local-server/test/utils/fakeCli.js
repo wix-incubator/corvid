@@ -2,8 +2,11 @@ const { socketClient } = require("corvid-local-test-utils");
 
 const getAdminEndpoint = adminPort => `http://localhost:${adminPort}`;
 
-const startCli = async adminPort => {
-  const adminSocket = await socketClient.connect(getAdminEndpoint(adminPort));
+const startCli = async (adminPort, options = {}) => {
+  const adminSocket = await socketClient.connect(
+    getAdminEndpoint(adminPort),
+    options
+  );
 
   return {
     isConnected: () => !!(adminSocket && adminSocket.connected),
