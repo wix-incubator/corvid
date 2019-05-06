@@ -10,6 +10,8 @@ const makeTempDir = util.promisify(temp.mkdir);
 const exists = util.promisify(fs.exists);
 const writeFile = util.promisify(fs.writeFile);
 
+const { fakeCli: connectCli } = require("../utils/autoClosing");
+
 const getEditorEndpoint = server => `http://localhost:${server.port}`;
 
 const clientSocketOptions = {
@@ -159,6 +161,19 @@ describe("Security", () => {
     const server = await localServer.startInCloneMode(localSiteDir);
     await expect(
       socketClient.connect(getEditorEndpoint(server))
+    ).rejects.toThrow();
+  });
+
+  it("should not allow admin to connect with wrong token", async () => {
+    const localSiteDir = await initLocalSite();
+
+    const server = await localServer.startInCloneMode(localSiteDir, {
+      token: "test_token"
+    });
+    await expect(
+      connectCli(server.adminPort, {
+        query: { token: "another_token" }
+      })
     ).rejects.toThrow();
   });
 });
