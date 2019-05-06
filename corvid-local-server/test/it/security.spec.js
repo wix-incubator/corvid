@@ -161,7 +161,7 @@ describe("Security", () => {
     const server = await localServer.startInCloneMode(localSiteDir);
     await expect(
       socketClient.connect(getEditorEndpoint(server))
-    ).rejects.toThrow();
+    ).rejects.toThrow("origin not allowed");
   });
 
   it("should not allow admin to connect with wrong token", async () => {
@@ -174,6 +174,6 @@ describe("Security", () => {
       connectCli(server.adminPort, {
         query: { token: "another_token" }
       })
-    ).rejects.toThrow();
+    ).rejects.toThrow("authentication error");
   });
 });
