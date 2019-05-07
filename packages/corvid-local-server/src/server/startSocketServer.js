@@ -24,13 +24,7 @@ const setupSocketServer = async (defaultPort, options = {}) => {
       logger.warn(`blocking multiple connection on port [${port}]`);
     })
   );
-  io.use(
-    originsMiddleware(
-      options.allowedDomains,
-      origin => logger.warn(`refused origin [${origin}]`),
-      origin => logger.warn(`accepted origin [${origin}]`)
-    )
-  );
+  io.use(originsMiddleware(options.allowedDomains));
 
   return {
     close: () => {

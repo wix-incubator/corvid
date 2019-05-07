@@ -1,12 +1,15 @@
 const fs = require("fs-extra");
 const path = require("path");
 const { initSiteManager: initLocalSiteManager } = require("corvid-local-site");
+const uuid = require("uuid/v4");
 const logger = require("corvid-local-logger");
 
 const startSocketServer = require("./server/startSocketServer");
 
 const initServerApi = require("./socket-api");
+const adminTokenMiddleware = require("./adminTokenMiddleware");
 
+const adminToken = uuid();
 const DEFAULT_EDITOR_PORT = 5000;
 const DEFAULT_ADMIN_PORT = 3000;
 
@@ -87,13 +90,7 @@ async function startServer(siteRootPath, options) {
   });
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
-  adminServer.io.use((socket, next) => {
-    if (socket.handshake.query.token === options.token) {
-      return next();
-    }
-    logger.warn("admin server authentication error");
-    return next(new Error("authentication error"));
-  });
+  adminServer.io.use(adminTokenMiddleware(adminToken));
 
   initServerApi(localSite, adminServer, editorServer, !isEdit(options));
 
@@ -105,6 +102,7 @@ async function startServer(siteRootPath, options) {
   return {
     port: editorServer.port,
     adminPort: adminServer.port,
+    adminToken,
     close: () => {
       logger.info("server closing");
       localSite.close();
@@ -116,7 +114,7 @@ async function startServer(siteRootPath, options) {
 
 const startInCloneMode = (
   siteRootPath,
-  options = { override: false, move: false, token: "" }
+  options = { override: false, move: false }
 ) => {
   if (options.override && options.move) {
     throw new Error("Only one of 'override' and 'move' may be set");
@@ -129,14 +127,12 @@ const startInCloneMode = (
     type = "FORCE_PULL";
   }
   return startServer(siteRootPath, {
-    type,
-    token: options.token
+    type
   });
 };
-const startInEditMode = (siteRootPath, options = { token: "" }) =>
+const startInEditMode = siteRootPath =>
   startServer(siteRootPath, {
-    type: "EDIT",
-    token: options.token
+    type: "EDIT"
   });
 
 module.exports = {

@@ -19,15 +19,10 @@ const clientSocketOptions = {
   }
 };
 
-const token = "test_token";
-const adminSocketOptions = {
-  query: { token }
-};
-
 describe("local server version", () => {
   it("should allow an editor to get the local server module version", async () => {
     const localSiteDir = await initLocalSite();
-    const server = await localServer.startInCloneMode(localSiteDir, { token });
+    const server = await localServer.startInCloneMode(localSiteDir);
 
     const editorSocket = await socketClient.connect(
       getEditorEndpoint(server),
@@ -44,12 +39,11 @@ describe("local server version", () => {
 
   it("should allow an admin to get the local server module version", async () => {
     const localSiteDir = await initLocalSite();
-    const server = await localServer.startInCloneMode(localSiteDir, { token });
+    const server = await localServer.startInCloneMode(localSiteDir);
 
-    const adminSocket = await socketClient.connect(
-      getAdminEndpoint(server),
-      adminSocketOptions
-    );
+    const adminSocket = await socketClient.connect(getAdminEndpoint(server), {
+      query: { token: server.adminToken }
+    });
     const version = await socketClient.sendRequest(
       adminSocket,
       "GET_SERVER_VERSION"

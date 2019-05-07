@@ -1,14 +1,9 @@
-const { socketClient } = require("corvid-local-test-utils");
+const { socketClient, initTempDir } = require("corvid-local-test-utils");
 const { localServer, closeAll } = require("../utils/autoClosing");
 const { initLocalSite, readLocalSite } = require("../utils/localSiteDir");
-const util = require("util");
-const fs = require("fs");
-const path = require("path");
-const temp = require("temp").track();
 
-const makeTempDir = util.promisify(temp.mkdir);
-const exists = util.promisify(fs.exists);
-const writeFile = util.promisify(fs.writeFile);
+const fs = require("fs-extra");
+const path = require("path");
 
 const { fakeCli: connectCli } = require("../utils/autoClosing");
 
@@ -28,9 +23,10 @@ afterEach(closeAll);
 
 describe("Security", () => {
   it("should not permit to add file outside of project folder", async done => {
-    const tempDirPath = await makeTempDir("test-parent-dir");
+    const tempDirPath = await initTempDir();
+    const siteDir = await fs.mkdir(path.join(tempDirPath, "test-site"));
     const tempFilePath = path.join(tempDirPath, "test.js");
-    const localSiteDir = await initLocalSite(undefined, tempDirPath);
+    const localSiteDir = await initLocalSite(undefined, siteDir);
     const server = await localServer.startInCloneMode(localSiteDir);
     const editorSocket = await socketClient.connect(
       getEditorEndpoint(server),
@@ -51,16 +47,17 @@ describe("Security", () => {
         expect(err).toMatchObject({
           message: "tried to access file outside project"
         });
-        expect(exists(tempFilePath)).resolves.toEqual(false);
+        expect(fs.exists(tempFilePath)).resolves.toEqual(false);
         done();
       }
     );
   });
   it("should not permit to delete file outside of project folder", async done => {
-    const tempDirPath = await makeTempDir("test-parent-dir");
+    const tempDirPath = await initTempDir();
+    const siteDir = await fs.mkdir(path.join(tempDirPath, "test-site"));
     const tempFilePath = path.join(tempDirPath, "test.js");
-    await writeFile(tempFilePath, "test");
-    const localSiteDir = await initLocalSite(undefined, tempDirPath);
+    await fs.writeFile(tempFilePath, "test");
+    const localSiteDir = await initLocalSite(undefined, siteDir);
     const server = await localServer.startInCloneMode(localSiteDir);
     const editorSocket = await socketClient.connect(
       getEditorEndpoint(server),
@@ -80,15 +77,16 @@ describe("Security", () => {
         expect(err).toMatchObject({
           message: "tried to access file outside project"
         });
-        expect(exists(tempFilePath)).resolves.toEqual(true);
+        expect(fs.exists(tempFilePath)).resolves.toEqual(true);
         done();
       }
     );
   });
   it("should not permit to copy file from project outside of project folder", async done => {
-    const tempDirPath = await makeTempDir("test-parent-dir");
+    const tempDirPath = await initTempDir();
+    const siteDir = await fs.mkdir(path.join(tempDirPath, "test-site"));
     const tempFilePath = path.join(tempDirPath, "test.js");
-    const localSiteDir = await initLocalSite(undefined, tempDirPath);
+    const localSiteDir = await initLocalSite(undefined, siteDir);
     const server = await localServer.startInCloneMode(localSiteDir);
     const editorSocket = await socketClient.connect(
       getEditorEndpoint(server),
@@ -115,7 +113,7 @@ describe("Security", () => {
         expect(err).toMatchObject({
           message: "tried to access file outside project"
         });
-        expect(exists(tempFilePath)).resolves.toEqual(false);
+        expect(fs.exists(tempFilePath)).resolves.toEqual(false);
         done();
       }
     );
@@ -156,7 +154,8 @@ describe("Security", () => {
       }
     );
   });
-  it("should not permit editor connection with wrong origin", async () => {
+
+  it("should not permit editor connection with empty origin", async () => {
     const localSiteDir = await initLocalSite();
     const server = await localServer.startInCloneMode(localSiteDir);
     await expect(
@@ -164,16 +163,67 @@ describe("Security", () => {
     ).rejects.toThrow("origin not allowed");
   });
 
+  it("should not permit editor connection with wrong origin", async () => {
+    const localSiteDir = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSiteDir);
+    await expect(
+      socketClient.connect(getEditorEndpoint(server), {
+        transportOptions: {
+          polling: {
+            extraHeaders: {
+              origin: "wrong.origin.test"
+            }
+          }
+        }
+      })
+    ).rejects.toThrow("origin not allowed");
+  });
+  it("should permit editor connection http origin", async () => {
+    const localSiteDir = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSiteDir);
+    await expect(
+      socketClient.connect(getEditorEndpoint(server), {
+        transportOptions: {
+          polling: {
+            extraHeaders: {
+              origin: "http://editor.wix.com"
+            }
+          }
+        }
+      })
+    ).resolves.toMatchObject({ connected: true });
+  });
+
+  it("should permit editor connection https origin", async () => {
+    const localSiteDir = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSiteDir);
+    await expect(
+      socketClient.connect(getEditorEndpoint(server), {
+        transportOptions: {
+          polling: {
+            extraHeaders: {
+              origin: "https://editor.wix.com"
+            }
+          }
+        }
+      })
+    ).resolves.toMatchObject({ connected: true });
+  });
+
   it("should not allow admin to connect with wrong token", async () => {
     const localSiteDir = await initLocalSite();
 
-    const server = await localServer.startInCloneMode(localSiteDir, {
-      token: "test_token"
-    });
-    await expect(
-      connectCli(server.adminPort, {
-        query: { token: "another_token" }
-      })
-    ).rejects.toThrow("authentication error");
+    const server = await localServer.startInCloneMode(localSiteDir);
+    await expect(connectCli(server.adminPort, "another_token")).rejects.toThrow(
+      "authentication error"
+    );
+  });
+
+  it("should allow admin to connect with correct token", async () => {
+    const localSiteDir = await initLocalSite();
+
+    const server = await localServer.startInCloneMode(localSiteDir);
+    const cli = await connectCli(server.adminPort, server.adminToken);
+    expect(cli.isConnected()).toBe(true);
   });
 });
