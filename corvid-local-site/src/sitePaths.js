@@ -33,22 +33,28 @@ const isSitePath = (rootPath, pathToCheck) => {
 const getPageFileName = (id, title, extention = fileExtention) =>
   `${sanitize(removeSpaces(title), titleCharReplacement)}.${id}${extention}`;
 
-const isEditorPageCodePath = filePath =>
-  !!filePath.match(/^\/{0,1}public\/pages/);
+const matchEditorPageCodePath = filePath => {
+  const matches = filePath.match(/^\/{0,1}public\/pages\/([^.]*)\.js/);
+  return matches ? { pageId: matches.slice(-1) } : null;
+};
 
-const matchLocalPageCodePath = filePath =>
-  filePath.match(
-    /^\/{0,1}frontend\/(pages|lightboxes)\/.*\.(?<pageId>[^.]*)\.js/
+const matchLocalPageCodePath = filePath => {
+  const matches = filePath.match(
+    /^\/{0,1}frontend\/(pages|lightboxes)\/.*\.([^.]*)\.js/
   );
+  return matches ? { pageId: matches.slice(-1) } : null;
+};
 
 const isEditorMasterPageCodePath = filePath =>
   !!filePath.match(/^\/{0,1}public\/pages\/masterPage.js/);
 
-const isLocalMsterPageCodePath = filePath =>
+const isLocalMasterPageCodePath = filePath =>
   !!filePath.match(/^\/{0,1}frontend\/site.js/);
 
 const isEditorDatabaseSchemaPath = isEditorDatabaseSchemaPath =>
   !!isEditorDatabaseSchemaPath.match(/^\/{0,1}\.schemas/);
+
+const masterPageCode = () => path.posix.join(frontendFolder, "site.js");
 
 const pages = (page = null, extention = fileExtention) =>
   path.posix.join(
@@ -97,12 +103,12 @@ const site = (fileName = "") =>
   );
 
 const fromLocalCode = filePath => {
-  if (isLocalMsterPageCodePath(filePath)) {
+  if (isLocalMasterPageCodePath(filePath)) {
     return `${publicFolder}/pages/masterPage.js`;
   }
   const localPageCodeMatches = matchLocalPageCodePath(filePath);
   if (localPageCodeMatches) {
-    const pageId = localPageCodeMatches.groups.pageId;
+    const pageId = localPageCodeMatches.pageId;
     return `${publicFolder}/pages/${pageId}${pageCodeExtention}`;
   }
   const matchesSchema = filePath.match(/^\/{0,1}database\//);
@@ -113,16 +119,30 @@ const fromLocalCode = filePath => {
   return filePath;
 };
 
-const toLocalCode = ({ path, metaData = {} }) => {
+const toLocalCode = ({ path }, localPageFiles) => {
   if (isEditorMasterPageCodePath(path)) {
-    return "frontend/site.js";
+    return masterPageCode();
   }
 
-  if (isEditorPageCodePath(path)) {
-    const { pageId, isPopup, title } = metaData;
-    return isPopup
-      ? lightboxes({ pageId, title }, pageCodeExtention)
-      : pages({ pageId, title }, pageCodeExtention);
+  const editorPageCodeMatches = matchEditorPageCodePath(path);
+  if (editorPageCodeMatches) {
+    const pageId = editorPageCodeMatches.pageId;
+
+    const existingPageCodeFile = localPageFiles.find(filePath =>
+      filePath.endsWith(pageId + pageCodeExtention)
+    );
+    if (existingPageCodeFile) {
+      return existingPageCodeFile;
+    }
+    const existingPageStructureFile = localPageFiles.find(filePath =>
+      filePath.endsWith(pageId + fileExtention)
+    );
+
+    if (existingPageStructureFile) {
+      return fromPageFileToCodeFile(existingPageStructureFile);
+    }
+
+    return pages({ pageId, title: "Unknown" }, pageCodeExtention);
   }
 
   if (isEditorDatabaseSchemaPath(path)) {
@@ -157,5 +177,7 @@ module.exports = {
   styles,
   pages,
   site,
-  isEditorDatabaseSchemaPath
+  isEditorDatabaseSchemaPath,
+  matchLocalPageCodePath,
+  masterPageCode
 };

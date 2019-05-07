@@ -3,36 +3,33 @@ const get_ = require("lodash/get");
 const mapValues_ = require("lodash/mapValues");
 const merge_ = require("lodash/merge");
 const mapKeys_ = require("lodash/mapKeys");
-const map_ = require("lodash/map");
+const filter_ = require("lodash/filter");
 const pickBy_ = require("lodash/pickBy");
 const flatten_ = require("lodash/flatten");
 const partial_ = require("lodash/partial");
-const isObject_ = require("lodash/isObject");
 const path = require("path");
 const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
-const flat = require("flat");
 const { prettyStringify, tryToPrettifyJsonString } = require("./prettify");
 
-const flatten = data => flat(data, { delimiter: "/", safe: true });
-
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
-const isEmptyFolder = content => isObject_(content);
 
 const readWrite = (siteRootPath, filesWatcher) => {
   const fullPath = filePath => path.resolve(siteRootPath, filePath);
 
   const getCodeFiles = async (dirPath = siteRootPath) => {
-    const siteDirJson = await dirAsJson.readDirToJson(dirPath);
-    const flatDirFiles = mapKeys_(
-      flatten(siteDirJson),
-      (fileContent, filePath) => sitePaths.fromLocalCode(filePath)
+    const siteDirJson = await dirAsJson.readDirToJson(dirPath, {
+      delimiter: "/"
+    });
+
+    const codeFilesByPath = pickBy_(siteDirJson, (_, localFilePath) =>
+      sitePaths.isCodeFile(localFilePath)
     );
-    const codeFiles = pickBy_(
-      flatDirFiles,
-      (content, path) => sitePaths.isCodeFile(path) && !isEmptyFolder(content)
-    );
-    return map_(codeFiles, (content, path) => ({ content, path }));
+
+    return Object.keys(codeFilesByPath).map(localFilePath => ({
+      path: sitePaths.fromLocalCode(localFilePath),
+      content: codeFilesByPath[localFilePath]
+    }));
   };
 
   const getFilenameFromKey = (value, key) => {
@@ -115,18 +112,6 @@ const readWrite = (siteRootPath, filesWatcher) => {
       })
     );
 
-  const siteDocumentToEmptyPageCodeFiles = siteDocument => {
-    let emptyCodeFiles = [];
-    if (isObject_(siteDocument.pages)) {
-      emptyCodeFiles = payloadConvertors
-        .pages(siteDocument.pages)
-        .map(file => ({
-          path: sitePaths.fromPageFileToCodeFile(file.path)
-        }));
-    }
-    return emptyCodeFiles;
-  };
-
   const deleteFolder = async folderPath => {
     if (!(await fs.exists(fullPath(folderPath)))) {
       return;
@@ -153,35 +138,100 @@ const readWrite = (siteRootPath, filesWatcher) => {
     ]);
   };
 
+  const syncLocalPageCodeFilesWithLocalDocument = async () => {
+    const existingPageRelatedFiles = await getLocalPageFiles();
+
+    const exitingPageCodeFilesByPageId = mapKeys_(
+      existingPageRelatedFiles.filter(filePath =>
+        sitePaths.isCodeFile(filePath)
+      ),
+      filePath => sitePaths.matchLocalPageCodePath(filePath).pageId
+    );
+
+    const requiredPageCodeFilesByPageId = mapKeys_(
+      existingPageRelatedFiles
+        .filter(filePath => sitePaths.isDocumentFile(filePath))
+        .map(pageDocumentPage =>
+          sitePaths.fromPageFileToCodeFile(pageDocumentPage)
+        ),
+      filePath => sitePaths.matchLocalPageCodePath(filePath).pageId
+    );
+
+    const modifications = Object.keys(requiredPageCodeFilesByPageId).map(
+      pageId => {
+        const requiredCodePath = requiredPageCodeFilesByPageId[pageId];
+        const existingCodePath = exitingPageCodeFilesByPageId[pageId];
+        if (!existingCodePath) {
+          return filesWatcher.ignoredEnsureFile(requiredCodePath);
+        }
+        if (existingCodePath && existingCodePath !== requiredCodePath) {
+          return filesWatcher.ignoredMoveFile(
+            existingCodePath,
+            requiredCodePath
+          );
+        }
+        return Promise.resolve();
+      }
+    );
+
+    const deletions = filter_(
+      exitingPageCodeFilesByPageId,
+      (_, pageId) => !requiredPageCodeFilesByPageId[pageId]
+    ).map(fileToDelete => filesWatcher.ignoredDeleteFile(fileToDelete));
+
+    await Promise.all([...modifications, ...deletions]);
+  };
+
   const updateSiteDocument = async newDocumentPayload => {
     await deleteExistingFolders();
 
-    // convert payload to filesToWrite
     const filesToWrite = siteDocumentToFiles(newDocumentPayload);
-    const filesToEnsure = siteDocumentToEmptyPageCodeFiles(newDocumentPayload);
-
-    // write all files to file system
-    const writeFilesPromises = filesToWrite.map(file =>
-      filesWatcher.ignoredWriteFile(file.path, prettyStringify(file.content))
+    await Promise.all(
+      filesToWrite.map(file =>
+        filesWatcher.ignoredWriteFile(file.path, prettyStringify(file.content))
+      )
     );
 
-    const ensureFilesPromises = filesToEnsure.map(file =>
-      filesWatcher.ignoredEnsureFile(file.path)
-    );
-
-    await Promise.all([...writeFilesPromises, ...ensureFilesPromises]);
+    await syncLocalPageCodeFilesWithLocalDocument();
   };
 
-  const ensureCodeFoldersExsist = async () => {
+  const ensureCodeFoldersExists = async () => {
     await Promise.all([
-      Object.values(sitePaths.codeFolders).map(codeFolderPath =>
-        filesWatcher.ignoredWriteFolder(codeFolderPath)
-      )
+      ...Object.values(sitePaths.codeFolders).map(codeFolderPath =>
+        fs.ensureDir(fullPath(codeFolderPath))
+      ),
+      filesWatcher.ignoredEnsureFile(sitePaths.masterPageCode())
     ]);
   };
 
+  const getLocalPageFiles = async () => {
+    const [pageFiles, lightboxFiles] = await Promise.all(
+      [sitePaths.pages(), sitePaths.lightboxes()].map(subDir => {
+        const fullPath = path.posix.join(siteRootPath, subDir);
+        return dirAsJson
+          .readDirToJson(fullPath, {
+            readFiles: false,
+            delimiter: "/",
+            safe: true
+          })
+          .then(dirJson =>
+            Object.keys(dirJson).map(relativePath =>
+              path.posix.join(subDir, relativePath)
+            )
+          );
+      })
+    );
+
+    return [...pageFiles, ...lightboxFiles];
+  };
+
   const updateCode = async updateRequest => {
-    await ensureCodeFoldersExsist();
+    await ensureCodeFoldersExists();
+
+    const localPageFiles = await getLocalPageFiles();
+    const toLocalPath = filePath =>
+      sitePaths.toLocalCode(filePath, localPageFiles);
+
     const {
       modifiedFiles = [],
       copiedFiles = [],
@@ -190,7 +240,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
     const updates = modifiedFiles.map(file =>
       filesWatcher.ignoredWriteFile(
-        sitePaths.toLocalCode(file),
+        toLocalPath(file),
         // TODO: refactor. we shouldn't deal with specific file types here
         sitePaths.isEditorDatabaseSchemaPath(file.path)
           ? tryToPrettifyJsonString(file.content)
@@ -199,14 +249,11 @@ const readWrite = (siteRootPath, filesWatcher) => {
     );
 
     const copies = copiedFiles.map(({ source, target }) =>
-      filesWatcher.ignoredCopyFile(
-        sitePaths.toLocalCode(source),
-        sitePaths.toLocalCode(target)
-      )
+      filesWatcher.ignoredCopyFile(toLocalPath(source), toLocalPath(target))
     );
 
     const deletes = deletedFiles.map(file =>
-      filesWatcher.ignoredDeleteFile(sitePaths.toLocalCode(file))
+      filesWatcher.ignoredDeleteFile(toLocalPath(file))
     );
 
     await Promise.all([...updates, ...copies, ...deletes]);

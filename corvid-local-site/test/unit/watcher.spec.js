@@ -216,4 +216,43 @@ describe("watcher", () => {
       await watcher.close();
     });
   });
+
+  describe("ignoredMoveFile", () => {
+    it("should not trigger an add or delete events on moving of an existing file", async () => {
+      const rootPath = await initTempDir();
+
+      const sourcePath = "public/test-file.js";
+      const targetPath = "public/test-file-target.js";
+
+      const fullSourcePath = path.join(rootPath, sourcePath);
+      await fs.ensureFile(fullSourcePath);
+      await fs.writeFile(fullSourcePath, "some code");
+
+      const changeHandler = jest.fn();
+
+      const watcher = await watch(rootPath);
+      watcher.onAdd(changeHandler);
+      watcher.onDelete(changeHandler);
+      watcher.onChange(changeHandler);
+
+      await watcher.ignoredMoveFile(sourcePath, targetPath);
+
+      expect(changeHandler).not.toHaveBeenCalled();
+
+      await fs.writeFile(
+        path.join(rootPath, "public/another-file.js"),
+        "something"
+      );
+
+      await eventually(() => {
+        expect(changeHandler).toHaveBeenCalledTimes(1);
+        expect(changeHandler).toHaveBeenCalledWith(
+          "public/another-file.js",
+          "something"
+        );
+      });
+
+      await watcher.close();
+    });
+  });
 });

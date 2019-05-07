@@ -1,14 +1,12 @@
 const io = require("socket.io-client");
 const flat = require("flat");
 const cloneDeep_ = require("lodash/cloneDeep");
-const get_ = require("lodash/get");
 const mapValues_ = require("lodash/mapValues");
 const map_ = require("lodash/map");
 const pickBy_ = require("lodash/pickBy");
 const isArray_ = require("lodash/isArray");
 const set_ = require("lodash/set");
 const head_ = require("lodash/head");
-const merge_ = require("lodash/merge");
 const reduce_ = require("lodash/reduce");
 const noop_ = require("lodash/noop");
 
@@ -59,34 +57,7 @@ const sendRequest = async (socket, event, payload) =>
 
 const isCloneMode = async socket => sendRequest(socket, "IS_CLONE_MODE");
 
-const getPageIdFromCodePath = filePath =>
-  filePath.replace(/^.*[\\/]/, "").replace(/\.[^/.]+$/, "");
-
-const isPageCodeFile = (filePath, siteDocument) => {
-  const fileName = getPageIdFromCodePath(filePath);
-  const page = get_(siteDocument, ["pages", fileName]);
-  return filePath.startsWith("public/pages") && page;
-};
-
-const getPageCodeData = (path, siteDocument) => {
-  const pageId = getPageIdFromCodePath(path);
-  const page = get_(siteDocument, ["pages", pageId]);
-  return {
-    path,
-    metaData: {
-      pageId,
-      title: get_(page, ["title"]),
-      isPopup: get_(page, ["isPopup"])
-    }
-  };
-};
-
-const getFileData = (path, siteDocument) =>
-  isPageCodeFile(path, siteDocument)
-    ? getPageCodeData(path, siteDocument)
-    : { path, metaData: {} };
-
-const calculateCodeFileChanges = (codeFiles, siteDocument) => {
+const calculateCodeFileChanges = codeFiles => {
   const previousFlat = flatten(codeFiles.previous);
   const currentFlat = flatten(codeFiles.current);
 
@@ -98,21 +69,20 @@ const calculateCodeFileChanges = (codeFiles, siteDocument) => {
       currentContent !== previousFlat[filePath]
   );
 
-  const modifiedFiles = map_(modified, (content, path) =>
-    merge_(getFileData(path, siteDocument), { content })
-  );
+  const modifiedFiles = map_(modified, (content, path) => ({ path, content }));
 
   const deletedFiles = map_(
     pickBy_(currentFlat, currentContent => currentContent === null),
-    (content, path) => getFileData(path, siteDocument)
+    (content, path) => ({ path })
   );
 
   const copiedFiles = Object.keys(currentFlat)
     .filter(targetPath => isArray_(currentFlat[targetPath]))
     .map(targetPath => ({
-      source: getFileData(head_(currentFlat[targetPath]), siteDocument),
-      target: getFileData(targetPath, siteDocument)
+      source: { path: head_(currentFlat[targetPath]) },
+      target: { path: targetPath }
     }));
+
   return {
     modifiedFiles,
     deletedFiles,
@@ -161,10 +131,7 @@ const loadEditor = async (
     sendRequest(socket, "UPDATE_DOCUMENT", editorState.siteDocument);
 
   const saveCodeFiles = async () => {
-    const codeFileChanges = calculateCodeFileChanges(
-      editorState.codeFiles,
-      editorState.siteDocument
-    );
+    const codeFileChanges = calculateCodeFileChanges(editorState.codeFiles);
     await sendRequest(socket, "UPDATE_CODE", codeFileChanges);
     const currentCodeFiles = getCurrentCodeFiles(editorState.codeFiles);
     editorState.codeFiles = {
@@ -238,6 +205,15 @@ const loadEditor = async (
     );
   };
 
+  const deletePage = pageId => {
+    delete editorState.siteDocument.pages[pageId];
+  };
+
+  const togglePageLightbox = pageId => {
+    const pageOrLightbox = editorState.siteDocument.pages[pageId];
+    pageOrLightbox.isPopup = !pageOrLightbox.isPopup;
+  };
+
   const registerDocumentChange = cb => {
     editorState.documentChangesLocally.push(cb);
     return () => {
@@ -274,17 +250,29 @@ const loadEditor = async (
     modifyDocument: newDocumnet => {
       editorState.siteDocument = newDocumnet;
     },
-    modifyCodeFile,
-    modifyPageCodeFile,
-    copyCodeFile,
-    deleteCodeFile,
-    deletePageCodeFile,
+    modifySite: newSite => {
+      editorState.siteDocument = newSite.siteDocument;
+      editorState.codeFiles = {
+        previous: editorState.codeFiles.current,
+        current: newSite.siteCode
+      };
+    },
+
     registerDocumentChange,
     registerCodeChange,
     advanced: {
       saveSiteDocument,
       saveCodeFiles
-    }
+    },
+
+    // TODO: move to editorSiteBuilder ?
+    modifyCodeFile,
+    modifyPageCodeFile,
+    copyCodeFile,
+    deleteCodeFile,
+    deletePageCodeFile,
+    deletePage,
+    togglePageLightbox
   };
 };
 

@@ -126,14 +126,6 @@ const watch = async givenPath => {
       }
     },
 
-    // todo:: stop watching unwatch & watch
-    ignoredWriteFolder: async relativePath => {
-      logger.debug(`writing folder ${relativePath}`);
-      watcher.unwatch(relativePath);
-      await fs.ensureDir(fullPath(relativePath));
-      watcher.add(relativePath);
-    },
-
     ignoredDeleteFile: async relativePath => {
       logger.debug(`deleting file ${relativePath}`);
       try {
@@ -156,6 +148,24 @@ const watch = async givenPath => {
           fullPath(relativeTargetPath)
         );
       } catch (e) {
+        removeFromIgnoredActions("write", relativeTargetPath);
+        throw e;
+      }
+    },
+
+    ignoredMoveFile: async (relativeSourcePath, relativeTargetPath) => {
+      logger.debug(
+        `moving file from ${relativeSourcePath} to ${relativeTargetPath}`
+      );
+      try {
+        ignoreAction("delete", relativeSourcePath);
+        ignoreAction("write", relativeTargetPath);
+        await fs.move(
+          fullPath(relativeSourcePath),
+          fullPath(relativeTargetPath)
+        );
+      } catch (e) {
+        removeFromIgnoredActions("delete", relativeSourcePath);
         removeFromIgnoredActions("write", relativeTargetPath);
         throw e;
       }

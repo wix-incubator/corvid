@@ -1,4 +1,3 @@
-const get_ = require("lodash/get");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { siteCreators: sc, initTempDir } = require("corvid-local-test-utils");
@@ -10,7 +9,7 @@ const {
 const {
   initLocalSite,
   readLocalSite,
-  isFolderExsist
+  doesExist: doesLocalFileExist
 } = require("../utils/localSiteDir");
 
 afterEach(closeAll);
@@ -129,43 +128,6 @@ describe("clone mode", () => {
     expect(serverFiles).toMatchObject(expectedLocalSite);
   });
 
-  it("should create empty page code file on local file system if page with no code is sent on load", async () => {
-    const page = sc.page();
-
-    const localSitePath = await initLocalSite();
-    const server = await localServer.startInCloneMode(localSitePath);
-
-    const editorSite = editorSiteBuilder.buildFull(page);
-    await loadEditor(server.port, editorSite);
-
-    const serverFiles = await readLocalSite(localSitePath);
-
-    const pageCodePath = localSiteBuilder
-      .getLocalFilePath(page)
-      .replace(".wix", ".js"); // todo:: move to site creator/localSiteBuilder
-    const fileContent = get_(serverFiles, pageCodePath.split("/"));
-
-    expect(fileContent).toBe("");
-  });
-
-  it("should create empty lightbox code file on local file system if lightbox with no code is sent on load", async () => {
-    const lightbox = sc.lightbox();
-
-    const localSitePath = await initLocalSite();
-    const server = await localServer.startInCloneMode(localSitePath);
-
-    const editorSite = editorSiteBuilder.buildFull(lightbox);
-    await loadEditor(server.port, editorSite);
-
-    const serverFiles = await readLocalSite(localSitePath);
-    const pageCodePath = localSiteBuilder
-      .getLocalFilePath(lightbox)
-      .replace(".wix", ".js"); // todo:: move to site creator/localSiteBuilder
-    const fileContent = get_(serverFiles, pageCodePath.split("/"));
-
-    expect(fileContent).toBe("");
-  });
-
   it.each(["backend", "public", "database"])(
     "should create empty [%s] folder locally even if the site has no files for it",
     async localFolderName => {
@@ -178,7 +140,7 @@ describe("clone mode", () => {
 
       await loadEditor(server.port, editorSite);
 
-      const isBackendFolderExsist = await isFolderExsist(
+      const isBackendFolderExsist = await doesLocalFileExist(
         localSitePath,
         localFolderName
       );

@@ -18,7 +18,6 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "wnpm-ci": "^7.0.11",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",
@@ -29,7 +28,8 @@
     "jest-teamcity-reporter": "^0.9.0",
     "lint-staged": "^8.1.5",
     "prettier": "^1.16.4",
-    "temp": "^0.9.0"
+    "temp": "^0.9.0",
+    "wnpm-ci": "^7.0.11"
   },
   "husky": {
     "hooks": {
@@ -42,6 +42,7 @@
     ]
   },
   "dependencies": {
+    "flat": "^4.1.0",
     "fs-extra": "^7.0.1"
   },
   "jest": {

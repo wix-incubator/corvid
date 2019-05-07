@@ -105,25 +105,38 @@ describe("local changes", () => {
     );
 
     it("should not trigger watcher callbacks on document save", async () => {
-      const siteItems = sc.fullSiteItems();
+      const renamedPage = sc.page({
+        pageId: "test-page",
+        title: "original title"
+      });
+      const renamedLightobx = sc.lightbox({
+        pageId: "test-lightbox",
+        title: "original title"
+      });
 
-      const localSiteFiles = localSiteBuilder.buildPartial(...siteItems);
-      const localSitePath = await initLocalSite(localSiteFiles);
-      const server = await localServer.startInEditMode(localSitePath);
-      const editor = await loadEditor(server.port);
-
-      const onDocChange = jest.fn();
-      const unsubscribeFromDocumentChange = editor.registerDocumentChange(
-        onDocChange
+      const originalEditorSite = editorSiteBuilder.buildFull(
+        renamedPage,
+        renamedLightobx
+      );
+      const newEditorSite = editorSiteBuilder.buildFull(
+        Object.assign({}, renamedPage, { title: "new title" }),
+        Object.assign({}, renamedLightobx, { title: "new title" })
       );
 
-      const updatedEditorSite = editorSiteBuilder.buildPartial(
-        ...siteItems,
-        sc.colors()
-      );
+      const localSitePath = await initLocalSite();
+      const server = await localServer.startInCloneMode(localSitePath);
 
-      editor.modifyDocument(updatedEditorSite.siteDocument);
+      const editor = await loadEditor(server.port, originalEditorSite);
+
+      const onChange = jest.fn();
+      editor.registerDocumentChange(onChange);
+      editor.registerCodeChange(onChange);
+
+      editor.modifySite(newEditorSite);
+
       await editor.save();
+
+      expect(onChange).not.toHaveBeenCalled();
 
       const newPage = sc.page();
       await writeFile(
@@ -133,9 +146,8 @@ describe("local changes", () => {
       );
 
       await eventually(async () => {
-        expect(onDocChange).toHaveBeenCalledTimes(1);
+        expect(onChange).toHaveBeenCalledTimes(1);
       });
-      unsubscribeFromDocumentChange();
     });
   });
 });

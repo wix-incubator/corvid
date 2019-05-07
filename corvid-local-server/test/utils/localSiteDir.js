@@ -14,13 +14,18 @@ const writeFile = async (rootPath, filePath, content) => {
   await fs.writeFile(fullPath, content);
 };
 
+const readFile = async (rootPath, filePath) => {
+  const fullPath = path.join(siteSrcPath(rootPath), filePath);
+  return fs.readFile(fullPath, "utf8");
+};
+
 const deleteFile = async (rootPath, filePath) => {
   const fullPath = path.join(siteSrcPath(rootPath), filePath);
   await fs.unlink(fullPath);
 };
 
-const isFolderExsist = async (rootPath, folderPath) =>
-  await fs.exists(path.join(siteSrcPath(rootPath), folderPath));
+const doesExist = async (rootPath, localPath) =>
+  await fs.exists(path.join(siteSrcPath(rootPath), localPath));
 
 const initLocalSite = async localSiteFiles => {
   const rootDir = await initTempDir();
@@ -33,9 +38,10 @@ const initLocalSite = async localSiteFiles => {
 };
 
 module.exports = {
-  isFolderExsist,
+  doesExist,
   initLocalSite,
   readLocalSite,
   writeFile,
+  readFile,
   deleteFile
 };
