@@ -26,15 +26,7 @@
   },
   "workspaces": {
     "packages": [
-      "corvid-dir-as-json",
-      "corvid-fake-local-mode-editor",
-      "corvid-cli",
-      "corvid-local-server",
-      "corvid-local-site",
-      "corvid-local-test-utils",
-      "corvid-local-logger",
-      "corvid-local-testkit",
-      "init-corvid"
+      "packages/*"
     ],
     "nohoist": [
       "**/eslint*"
