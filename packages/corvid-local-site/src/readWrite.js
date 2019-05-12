@@ -136,7 +136,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       return;
     }
     await deleteFolder(targetPath);
-    await filesWatcher.ignoredWriteFolder(targetPath);
+    await fs.ensureDir(fullPath(targetPath));
     if (!(await fs.exists(fullPath(folderPath)))) {
       return;
     }
