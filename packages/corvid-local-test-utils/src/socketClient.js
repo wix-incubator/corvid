@@ -11,9 +11,9 @@ const sendRequest = async (socket, ...args) =>
     });
   });
 
-const connect = async endpoint => {
+const connect = async (endpoint, options = {}) => {
   const connectedSocketPromise = new Promise((resolve, reject) => {
-    const socket = io.connect(endpoint);
+    const socket = io.connect(endpoint, options);
 
     const rejectConnection = reason => {
       socket.removeAllListeners();

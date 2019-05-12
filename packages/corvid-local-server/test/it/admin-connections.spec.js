@@ -13,7 +13,7 @@ describe("admin connections", () => {
     const localSiteDir = await initLocalSite();
 
     const server = await localServer.startInCloneMode(localSiteDir);
-    const cli = await connectCli(server.adminPort);
+    const cli = await connectCli(server.adminPort, server.adminToken);
 
     expect(cli.isConnected()).toBe(true);
   });
@@ -22,21 +22,21 @@ describe("admin connections", () => {
     const localSiteDir = await initLocalSite();
     const server = await localServer.startInCloneMode(localSiteDir);
 
-    await connectCli(server.adminPort);
-    await expect(connectCli(server.adminPort)).rejects.toThrow(
-      "ONLY_ONE_CONNECTION_ALLOWED"
-    );
+    await connectCli(server.adminPort, server.adminToken);
+    await expect(
+      connectCli(server.adminPort, server.adminToken)
+    ).rejects.toThrow("ONLY_ONE_CONNECTION_ALLOWED");
   });
 
   it("should allow an admin to connect if a previously connected admin already closed", async () => {
     const localSiteDir = await initLocalSite();
     const server = await localServer.startInCloneMode(localSiteDir);
-    const cli1 = await connectCli(server.adminPort);
+    const cli1 = await connectCli(server.adminPort, server.adminToken);
 
     await cli1.close();
 
     await eventually(async () => {
-      const cli2 = await connectCli(server.adminPort);
+      const cli2 = await connectCli(server.adminPort, server.adminToken);
       expect(cli2.isConnected()).toBe(true);
     });
   });

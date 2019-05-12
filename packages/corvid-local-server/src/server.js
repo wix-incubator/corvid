@@ -1,12 +1,15 @@
 const fs = require("fs-extra");
 const path = require("path");
 const { initSiteManager: initLocalSiteManager } = require("corvid-local-site");
+const uuid = require("uuid/v4");
 const logger = require("corvid-local-logger");
 
 const startSocketServer = require("./server/startSocketServer");
 
 const initServerApi = require("./socket-api");
+const adminTokenMiddleware = require("./adminTokenMiddleware");
 
+const adminToken = uuid();
 const DEFAULT_EDITOR_PORT = 5000;
 const DEFAULT_ADMIN_PORT = 3000;
 
@@ -82,8 +85,12 @@ async function startServer(siteRootPath, options) {
   }
 
   const localSite = await initLocalSiteManager(siteSrcPath);
-  const editorServer = await startSocketServer(DEFAULT_EDITOR_PORT);
+  const editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
+    allowedDomains: ["editor.wix.com"]
+  });
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
+
+  adminServer.io.use(adminTokenMiddleware(adminToken));
 
   initServerApi(localSite, adminServer, editorServer, !isEdit(options));
 
@@ -95,6 +102,7 @@ async function startServer(siteRootPath, options) {
   return {
     port: editorServer.port,
     adminPort: adminServer.port,
+    adminToken,
     close: () => {
       logger.info("server closing");
       localSite.close();
@@ -111,13 +119,21 @@ const startInCloneMode = (
   if (options.override && options.move) {
     throw new Error("Only one of 'override' and 'move' may be set");
   }
+  let type = "CLONE";
+  if (options.move) {
+    type = "MOVE_PULL";
+  }
+  if (options.override) {
+    type = "FORCE_PULL";
+  }
   return startServer(siteRootPath, {
-    type: options.override ? "FORCE_PULL" : options.move ? "MOVE_PULL" : "CLONE"
+    type
   });
 };
-
 const startInEditMode = siteRootPath =>
-  startServer(siteRootPath, { type: "EDIT" });
+  startServer(siteRootPath, {
+    type: "EDIT"
+  });
 
 module.exports = {
   startInCloneMode,

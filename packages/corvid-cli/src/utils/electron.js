@@ -10,7 +10,6 @@ const logger = require("corvid-local-logger");
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const { sendRequest } = require("../utils/socketIoHelpers");
-
 const isHeadlessMode = !process.env.CORVID_CLI_DISABLE_HEADLESS;
 const isDevTools = !!process.env.CORVID_CLI_DEVTOOLS;
 
@@ -73,6 +72,7 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
       : startInCloneMode(".", serverArgs);
   const {
     adminPort: localServerPort,
+    adminToken: token,
     close: closeLocalServer
   } = await server.catch(exc => {
     throw new Error(exc.message);
@@ -81,8 +81,9 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
   win.on("close", () => {
     closeLocalServer();
   });
-
-  const clnt = client.connect(`http://localhost:${localServerPort}`);
+  const clnt = client.connect(`http://localhost:${localServerPort}`, {
+    query: { token }
+  });
 
   await new Promise((resolve, reject) => {
     clnt.on("connect", () => {

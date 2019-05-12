@@ -24,7 +24,15 @@ const ensureSchemaStructure = schemaContent =>
 
 const connectToLocalServer = port => {
   return new Promise((resolve, reject) => {
-    const socket = io.connect(getLocalServerURL(port));
+    const socket = io.connect(getLocalServerURL(port), {
+      transportOptions: {
+        polling: {
+          extraHeaders: {
+            origin: "https://editor.wix.com"
+          }
+        }
+      }
+    });
 
     const rejectConnection = reason => {
       socket.removeAllListeners();

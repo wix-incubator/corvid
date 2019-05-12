@@ -16,7 +16,7 @@ describe("admin api", () => {
       const localSiteDir = await initLocalSite();
 
       const server = await localServer.startInCloneMode(localSiteDir);
-      const cli = await connectCli(server.adminPort);
+      const cli = await connectCli(server.adminPort, server.adminToken);
 
       expect(await cli.getServerStatus()).toEqual({
         editorPort: server.port,
@@ -29,7 +29,7 @@ describe("admin api", () => {
       const localSiteDir = await initLocalSite(localSiteBuilder.buildFull());
 
       const server = await localServer.startInEditMode(localSiteDir);
-      const cli = await connectCli(server.adminPort);
+      const cli = await connectCli(server.adminPort, server.adminToken);
 
       expect(await cli.getServerStatus()).toEqual({
         editorPort: server.port,
@@ -45,7 +45,7 @@ describe("admin api", () => {
       await loadEditor(server.port, editorSiteBuilder.buildFull(), {
         cloneOnLoad: false
       });
-      const cli = await connectCli(server.adminPort);
+      const cli = await connectCli(server.adminPort, server.adminToken);
 
       expect(await cli.getServerStatus()).toEqual({
         editorPort: server.port,
@@ -59,7 +59,7 @@ describe("admin api", () => {
 
       const server = await localServer.startInEditMode(localSiteDir);
       await loadEditor(server.port, editorSiteBuilder.buildFull());
-      const cli = await connectCli(server.adminPort);
+      const cli = await connectCli(server.adminPort, server.adminToken);
 
       expect(await cli.getServerStatus()).toEqual({
         editorPort: server.port,
@@ -73,7 +73,7 @@ describe("admin api", () => {
     it("should be sent when cloning the site has ended", async () => {
       const localSiteDir = await initLocalSite();
       const server = await localServer.startInCloneMode(localSiteDir);
-      const cli = await connectCli(server.adminPort);
+      const cli = await connectCli(server.adminPort, server.adminToken);
 
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
@@ -86,7 +86,7 @@ describe("admin api", () => {
     it("should not be sent before cloning started", async () => {
       const localSiteDir = await initLocalSite();
       const server = await localServer.startInCloneMode(localSiteDir);
-      const cli = await connectCli(server.adminPort);
+      const cli = await connectCli(server.adminPort, server.adminToken);
 
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
@@ -101,7 +101,7 @@ describe("admin api", () => {
     it("should not be sent if only the document was cloned", async () => {
       const localSiteDir = await initLocalSite();
       const server = await localServer.startInCloneMode(localSiteDir);
-      const cli = await connectCli(server.adminPort);
+      const cli = await connectCli(server.adminPort, server.adminToken);
 
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
@@ -122,7 +122,7 @@ describe("admin api", () => {
     it("should not be sent if only the code files were cloned", async () => {
       const localSiteDir = await initLocalSite();
       const server = await localServer.startInCloneMode(localSiteDir);
-      const cli = await connectCli(server.adminPort);
+      const cli = await connectCli(server.adminPort, server.adminToken);
 
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);

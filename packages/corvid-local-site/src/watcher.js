@@ -25,6 +25,14 @@ const watch = async givenPath => {
   const shouldIgnoreFile = watchPath => {
     return !sitePaths.isSitePath(rootPath, watchPath);
   };
+  const isUnderRoot = relativePath =>
+    !path.relative(rootPath, fullPath(relativePath)).startsWith("..");
+
+  const assertUnderRoot = relativePath => {
+    if (!isUnderRoot(relativePath)) {
+      throw new Error("tried to access file outside project");
+    }
+  };
 
   const watcher = chokidar.watch(rootPath, {
     ignored: shouldIgnoreFile,
@@ -106,8 +114,12 @@ const watch = async givenPath => {
       logger.debug(`writing file ${relativePath}`);
       try {
         ignoreAction("write", relativePath);
+        assertUnderRoot(relativePath);
         await ensureWriteFile(fullPath(relativePath), content);
       } catch (e) {
+        logger.error(
+          `writing file ${relativePath} failed with error "${e.message}"`
+        );
         removeFromIgnoredActions("write", relativePath);
         throw e;
       }
@@ -119,8 +131,12 @@ const watch = async givenPath => {
       if (await fs.exists(fullPathFile)) return;
       try {
         ignoreAction("write", relativePath);
+        assertUnderRoot(relativePath);
         await fs.ensureFile(fullPathFile);
       } catch (e) {
+        logger.error(
+          `writing file ${relativePath} failed with error "${e.message}"`
+        );
         removeFromIgnoredActions("write", relativePath);
         throw e;
       }
@@ -130,8 +146,12 @@ const watch = async givenPath => {
       logger.debug(`deleting file ${relativePath}`);
       try {
         ignoreAction("delete", relativePath);
+        assertUnderRoot(relativePath);
         await fs.unlink(fullPath(relativePath));
       } catch (e) {
+        logger.error(
+          `deleting file ${relativePath} failed with error "${e.message}"`
+        );
         removeFromIgnoredActions("delete", relativePath);
         throw e;
       }
@@ -143,11 +163,15 @@ const watch = async givenPath => {
       );
       try {
         ignoreAction("write", relativeTargetPath);
+        assertUnderRoot(relativeSourcePath);
+        assertUnderRoot(relativeTargetPath);
+
         await fs.copyFile(
           fullPath(relativeSourcePath),
           fullPath(relativeTargetPath)
         );
       } catch (e) {
+        logger.error(`copying file failed with error "${e.message}"`);
         removeFromIgnoredActions("write", relativeTargetPath);
         throw e;
       }
