@@ -122,7 +122,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
     }
     const filesPaths = (await fs.readdir(fullPath(folderPath)))
       .filter(fileName => sitePaths.isDocumentFile(fileName))
-      .map(fileName => path.join(folderPath, fileName));
+      .map(fileName => `${folderPath}/${fileName}`);
 
     const filePromises = filesPaths.map(filesRelativePath => {
       return filesWatcher.ignoredDeleteFile(filesRelativePath);
@@ -145,18 +145,15 @@ const readWrite = (siteRootPath, filesWatcher) => {
       .map(fileName => path.join(folderPath, fileName));
 
     const filePromises = filesPaths.map(fileRelativePath => {
-      const fileTargetPath = path.join(
-        targetPath,
-        path.basename(fileRelativePath)
-      );
+      const fileTargetPath = `${targetPath}/${path.basename(fileRelativePath)}`;
       return filesWatcher.ignoredCopyFile(fileRelativePath, fileTargetPath);
     });
 
-    return Promise.all(filePromises).then(() => deleteFolder(targetPath));
+    return Promise.all(filePromises).then(() => deleteFolder(folderPath));
   };
 
   const getBackupFolderPath = folderPath =>
-    path.join(backupsPath, path.basename(folderPath));
+    `${backupsPath}/${path.basename(folderPath)}`;
 
   const backupFolder = async folderPath => {
     const backupFolderPath = getBackupFolderPath(folderPath);
