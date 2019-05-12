@@ -13,9 +13,9 @@ const dirAsJson = require("corvid-dir-as-json");
 const util = require("util");
 const logger = require("corvid-local-logger");
 
-const backupsPath = ".backup";
 const { prettyStringify, tryToPrettifyJsonString } = require("./prettify");
 
+const backupsPath = ".corvid/backup";
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
 
 const readWrite = (siteRootPath, filesWatcher) => {
@@ -259,24 +259,25 @@ const readWrite = (siteRootPath, filesWatcher) => {
     await backupExistingFolders();
 
     const filesToWrite = siteDocumentToFiles(newDocumentPayload);
-    await Promise.all(
-      filesToWrite.map(file =>
-        filesWatcher.ignoredWriteFile(file.path, prettyStringify(file.content))
-      )
-    )
-      .then(() => {
-        logger.info("Site document updated");
-        return deleteBackupFolders();
-      })
-      .catch(e => {
-        logger.error(
-          "Failed to update site document. Restoring to previous state"
-        );
-        restoreBackupedFolders();
-        throw e;
-      });
-
-    await syncLocalPageCodeFilesWithLocalDocument();
+    try {
+      await Promise.all(
+        filesToWrite.map(file =>
+          filesWatcher.ignoredWriteFile(
+            file.path,
+            prettyStringify(file.content)
+          )
+        )
+      );
+      await syncLocalPageCodeFilesWithLocalDocument();
+      logger.info("Site document updated");
+      return deleteBackupFolders();
+    } catch (error) {
+      logger.error(
+        "Failed to update site document. Restoring to previous state"
+      );
+      restoreBackupedFolders();
+      throw error;
+    }
   };
 
   const ensureCodeFoldersExists = async () => {
