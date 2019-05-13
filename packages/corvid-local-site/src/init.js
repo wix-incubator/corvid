@@ -59,6 +59,8 @@ const initSiteManager = async siteRootPath => {
 
     getSiteDocument: readWrite.getSiteDocument,
     updateSiteDocument: readWrite.updateSiteDocument,
+    restoreBackupedFolders: readWrite.restoreBackupedFolders,
+    isBackuped: readWrite.isBackuped,
 
     getCodeFiles: readWrite.getCodeFiles,
     updateCode: readWrite.updateCode,

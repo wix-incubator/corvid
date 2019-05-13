@@ -131,7 +131,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return Promise.all(filePromises);
   };
 
-  const moveFolder = async (folderPath, targetPath) => {
+  const copyFolder = async (folderPath, targetPath) => {
     if (!(await fs.exists(fullPath(folderPath)))) {
       return;
     }
@@ -149,8 +149,10 @@ const readWrite = (siteRootPath, filesWatcher) => {
       return filesWatcher.ignoredCopyFile(fileRelativePath, fileTargetPath);
     });
 
-    return Promise.all(filePromises).then(() => deleteFolder(folderPath));
+    return Promise.all(filePromises);
   };
+
+  const isBackuped = () => fs.exists(fullPath(backupsPath));
 
   const getBackupFolderPath = folderPath =>
     `${backupsPath}/${path.basename(folderPath)}`;
@@ -158,7 +160,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
   const backupFolder = async folderPath => {
     const backupFolderPath = getBackupFolderPath(folderPath);
     await deleteFolder(backupFolderPath);
-    return moveFolder(folderPath, backupFolderPath);
+    await copyFolder(folderPath, backupFolderPath);
   };
 
   const actionOnDocumentFolders = action =>
@@ -179,8 +181,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       return;
     }
     await deleteFolder(folderPath);
-    await moveFolder(backupPath, folderPath);
-    return rmdir(fullPath(backupPath));
+    return copyFolder(backupPath, folderPath);
   };
 
   const deleteBackupFolder = async folderPath => {
@@ -193,11 +194,13 @@ const readWrite = (siteRootPath, filesWatcher) => {
   };
 
   const backupExistingFolders = () => actionOnDocumentFolders(backupFolder);
+  const deleteExistingFolders = () => actionOnDocumentFolders(deleteFolder);
 
-  const restoreBackupedFolders = () =>
-    actionOnDocumentFolders(restoreBackupFolder).then(() =>
-      logger.info("Site document restored from backup")
-    );
+  const restoreBackupedFolders = async () => {
+    await actionOnDocumentFolders(restoreBackupFolder);
+    await deleteBackupFolders();
+    logger.info("Site document restored from backup");
+  };
 
   const deleteBackupFolders = () =>
     actionOnDocumentFolders(deleteBackupFolder).then(async () => {
@@ -205,7 +208,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       if (!(await fs.exists(fullPath(backupsPath)))) {
         return;
       }
-      return rmdir(fullPath(backupsPath));
+      await rmdir(fullPath(backupsPath));
     });
 
   const syncLocalPageCodeFilesWithLocalDocument = async () => {
@@ -254,6 +257,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
   const updateSiteDocument = async newDocumentPayload => {
     await backupExistingFolders();
+    await deleteExistingFolders();
 
     const filesToWrite = siteDocumentToFiles(newDocumentPayload);
     try {
@@ -267,12 +271,12 @@ const readWrite = (siteRootPath, filesWatcher) => {
       );
       await syncLocalPageCodeFilesWithLocalDocument();
       logger.info("Site document updated");
-      return deleteBackupFolders();
+      await deleteBackupFolders();
     } catch (error) {
       logger.error(
         "Failed to update site document. Restoring to previous state"
       );
-      restoreBackupedFolders();
+      await restoreBackupedFolders();
       throw error;
     }
   };
@@ -345,7 +349,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
     updateSiteDocument,
     getSiteDocument,
     getCodeFiles,
-    updateCode
+    updateCode,
+    restoreBackupedFolders,
+    isBackuped
   };
 };
 

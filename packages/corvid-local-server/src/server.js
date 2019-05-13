@@ -85,6 +85,10 @@ async function startServer(siteRootPath, options) {
   }
 
   const localSite = await initLocalSiteManager(siteSrcPath);
+  if (isEdit(options) && (await localSite.isBackuped())) {
+    logger.info("found backups from previous session. Restoring...");
+    await localSite.restoreBackupedFolders();
+  }
   const editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
     allowedDomains: ["editor.wix.com"]
   });
