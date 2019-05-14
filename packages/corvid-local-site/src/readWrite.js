@@ -109,9 +109,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
         if (payloadConvertors.hasOwnProperty(paylodKey)) {
           return payloadConvertors[paylodKey](siteDocument[paylodKey]);
         } else {
-          // eslint-disable-next-line no-console
-          console.error(`Unknown document property ${paylodKey}`);
-          return [];
+          const message = `Unknown document property ${paylodKey}`;
+          logger.error(message);
+          throw new Error(message);
         }
       })
     );
@@ -259,8 +259,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
     await backupExistingFolders();
     await deleteExistingFolders();
 
-    const filesToWrite = siteDocumentToFiles(newDocumentPayload);
     try {
+      const filesToWrite = siteDocumentToFiles(newDocumentPayload);
       await Promise.all(
         filesToWrite.map(file =>
           filesWatcher.ignoredWriteFile(
