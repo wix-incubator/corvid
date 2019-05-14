@@ -3,7 +3,7 @@ const process = require("process");
 const chalk = require("chalk");
 const logger = require("corvid-local-logger");
 const genEditorUrl = require("../utils/genEditorUrl");
-const FATAL_ERROR_MESSAGE = "CORVID_FATAL_ERROR";
+const FATAL_ERROR_MESSAGE = "[CORVID]";
 
 const openEditorApp = ({ useSsl = true } = {}) => ({
   serverMode: "edit",
