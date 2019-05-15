@@ -6,7 +6,7 @@ var currentNodeVersion = process.versions.node;
 var semver = currentNodeVersion.split(".");
 var major = semver[0];
 
-const requiredVersion = 10;
+const requiredVersion = 8;
 
 if (major < requiredVersion) {
   // eslint-disable-next-line no-console

@@ -2,6 +2,8 @@
 require("isomorphic-fetch");
 const chalk = require("chalk");
 const normalize = require("normalize-url");
+const { URL } = require("url");
+
 const {
   writeCorvidConfig,
   doesConfigExist
