@@ -10,12 +10,10 @@ const partial_ = require("lodash/partial");
 const path = require("path");
 const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
-const util = require("util");
 const logger = require("corvid-local-logger");
 
 const { prettyStringify, tryToPrettifyJsonString } = require("./prettify");
 
-const backupsPath = ".corvid/backup";
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
 
 const readWrite = (siteRootPath, filesWatcher) => {
@@ -131,35 +129,28 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return Promise.all(filePromises);
   };
 
-  const copyFolder = async (folderPath, targetPath) => {
-    if (!(await fs.exists(fullPath(folderPath)))) {
+  const copyFolder = async (sourcePath, targetPath) => {
+    if (!(await fs.exists(fullPath(sourcePath)))) {
       return;
     }
     await deleteFolder(targetPath);
     await fs.ensureDir(fullPath(targetPath));
-    if (!(await fs.exists(fullPath(folderPath)))) {
-      return;
-    }
-    const filesPaths = (await fs.readdir(fullPath(folderPath)))
-      .filter(fileName => sitePaths.isDocumentFile(fileName))
-      .map(fileName => path.join(folderPath, fileName));
 
-    const filePromises = filesPaths.map(fileRelativePath => {
-      const fileTargetPath = `${targetPath}/${path.basename(fileRelativePath)}`;
-      return filesWatcher.ignoredCopyFile(fileRelativePath, fileTargetPath);
-    });
+    const filePromises = (await fs.readdir(fullPath(sourcePath)))
+      .filter(fileName => sitePaths.isDocumentFile(fileName))
+      .map(fileName => {
+        const fileRelativePath = `${sourcePath}/${fileName}`;
+        const fileTargetPath = `${targetPath}/${fileName}`;
+        return filesWatcher.ignoredCopyFile(fileRelativePath, fileTargetPath);
+      });
 
     return Promise.all(filePromises);
   };
 
-  const isBackuped = () => fs.exists(fullPath(backupsPath));
-
-  const getBackupFolderPath = folderPath =>
-    `${backupsPath}/${path.basename(folderPath)}`;
+  const isBackuped = () => fs.exists(fullPath(sitePaths.backupsPath));
 
   const backupFolder = async folderPath => {
-    const backupFolderPath = getBackupFolderPath(folderPath);
-    await deleteFolder(backupFolderPath);
+    const backupFolderPath = sitePaths.getBackupFolderPath(folderPath);
     await copyFolder(folderPath, backupFolderPath);
   };
 
@@ -173,24 +164,22 @@ const readWrite = (siteRootPath, filesWatcher) => {
       action(sitePaths.menus())
     ]);
 
-  const rmdir = util.promisify(fs.rmdir);
-
-  const restoreBackupFolder = async folderPath => {
-    const backupPath = getBackupFolderPath(folderPath);
+  const restoreBackupFolder = async targetPath => {
+    const backupPath = sitePaths.getBackupFolderPath(targetPath);
     if (!(await fs.exists(fullPath(backupPath)))) {
       return;
     }
-    await deleteFolder(folderPath);
-    return copyFolder(backupPath, folderPath);
+    await deleteFolder(targetPath);
+    return copyFolder(backupPath, targetPath);
   };
 
   const deleteBackupFolder = async folderPath => {
-    const backupPath = getBackupFolderPath(folderPath);
+    const backupPath = sitePaths.getBackupFolderPath(folderPath);
     if (!(await fs.exists(fullPath(backupPath)))) {
       return;
     }
     await deleteFolder(backupPath);
-    await rmdir(fullPath(backupPath));
+    await fs.rmdir(fullPath(backupPath));
   };
 
   const backupExistingFolders = () => actionOnDocumentFolders(backupFolder);
@@ -202,14 +191,14 @@ const readWrite = (siteRootPath, filesWatcher) => {
     logger.info("Site document restored from backup");
   };
 
-  const deleteBackupFolders = () =>
-    actionOnDocumentFolders(deleteBackupFolder).then(async () => {
-      logger.info("Backups deleted");
-      if (!(await fs.exists(fullPath(backupsPath)))) {
-        return;
-      }
-      await rmdir(fullPath(backupsPath));
-    });
+  const deleteBackupFolders = async () => {
+    await actionOnDocumentFolders(deleteBackupFolder);
+    logger.info("Backups deleted");
+    if (!(await fs.exists(fullPath(sitePaths.backupsPath)))) {
+      return;
+    }
+    await fs.rmdir(fullPath(sitePaths.backupsPath));
+  };
 
   const syncLocalPageCodeFilesWithLocalDocument = async () => {
     const existingPageRelatedFiles = await getLocalPageFiles();

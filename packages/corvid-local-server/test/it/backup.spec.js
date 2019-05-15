@@ -1,5 +1,6 @@
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
+const { backupsPath } = require("corvid-local-site/src/sitePaths");
 const { siteCreators: sc } = require("corvid-local-test-utils");
 const {
   editor: loadEditor,
@@ -15,27 +16,15 @@ afterEach(closeAll);
 
 describe("Backup", () => {
   it("should restore from backup if updating site document is failed", async done => {
-    const siteItems = [
-      sc.publicCode(),
-      sc.backendCode(),
-      sc.collectionSchema()
-    ];
-    const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
+    const localSiteFiles = localSiteBuilder.buildFull();
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
     const editorSite = await editor.getSite();
-    const updatedSiteItems = [
-      sc.page({ pageId: "page1", content: "modified content" }),
-      sc.lightbox({
-        pageId: "lightbox1",
-        content: "modified content"
-      }),
-      sc.page({ pageId: "page2" }) //  new page
-    ];
-
-    const siteUpdates = editorSiteBuilder.buildPartial(...updatedSiteItems);
+    const siteUpdates = editorSiteBuilder.buildPartial(
+      sc.page({ pageId: "page1", content: "modified content" })
+    );
     editor.modifyDocument(
       merge_({ siteDocument: { shouldFail: true } }, editorSite, siteUpdates)
         .siteDocument
@@ -50,24 +39,14 @@ describe("Backup", () => {
     }
   });
   it("should delete backup after updating site document", async done => {
-    const siteItems = [
-      sc.publicCode(),
-      sc.backendCode(),
-      sc.collectionSchema()
-    ];
-    const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
+    const localSiteFiles = localSiteBuilder.buildFull();
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
     const editorSite = await editor.getSite();
     const updatedSiteItems = [
-      sc.page({ pageId: "page1", content: "modified content" }),
-      sc.lightbox({
-        pageId: "lightbox1",
-        content: "modified content"
-      }),
-      sc.page({ pageId: "page2" }) //  new page
+      sc.page({ pageId: "page1", content: "modified content" })
     ];
 
     const siteUpdates = editorSiteBuilder.buildPartial(...updatedSiteItems);
@@ -79,9 +58,20 @@ describe("Backup", () => {
       ...updatedSiteItems
     );
     expect(localSite).toMatchObject(expectedLocalSite);
-    const backupFolderPath = path.join(localSitePath, ".corvid/backup");
+    const backupFolderPath = path.join(localSitePath, backupsPath);
     await expect(fs.exists(backupFolderPath)).resolves.toBe(false);
     done();
   });
-  //   it("should restore from backup if server restarted after exiting in middle of updating site document", () => {});
+
+  it("should restore from backup if backup folder exists on server start", async () => {
+    const backupItems = Object.values(sc.documentCreators).map(fn => fn());
+    const backupFiles = localSiteBuilder.buildPartial(...backupItems);
+
+    const localSiteFiles = localSiteBuilder.buildFull();
+    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+    await localSiteDir.initBackup(backupFiles.frontend, localSitePath);
+    await localServer.startInEditMode(localSitePath);
+    const localSite = await localSiteDir.readLocalSite(localSitePath);
+    expect(localSite).toMatchObject(backupFiles);
+  });
 });

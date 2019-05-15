@@ -2,6 +2,7 @@ const path = require("path");
 const get_ = require("lodash/get");
 const sanitize = require("sanitize-filename");
 
+const backupsPath = ".corvid/backup";
 const frontendFolder = "frontend";
 const publicFolder = "public";
 const backendFolder = "backend";
@@ -159,6 +160,8 @@ const fromPageFileToCodeFile = path =>
 const isCodeFile = relativePath => !relativePath.endsWith(fileExtention);
 const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
 const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
+const getBackupFolderPath = folderPath =>
+  `${backupsPath}/${path.basename(folderPath)}`;
 
 module.exports = {
   isSitePath,
@@ -179,5 +182,7 @@ module.exports = {
   site,
   isEditorDatabaseSchemaPath,
   matchLocalPageCodePath,
-  masterPageCode
+  masterPageCode,
+  backupsPath,
+  getBackupFolderPath
 };
