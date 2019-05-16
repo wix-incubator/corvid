@@ -2,6 +2,8 @@
 const process = require("process");
 const chalk = require("chalk");
 const genEditorUrl = require("../utils/genEditorUrl");
+const logger = require("corvid-local-logger");
+const clientMessages = require("../utils/console-messages");
 
 const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
   serverMode: "clone",
@@ -44,6 +46,22 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
         true,
         "pull"
       );
+
+      win.webContents.on("console-message", (event, level, message) => {
+        if (message.startsWith(clientMessages.FATAL_ERROR_MESSAGE)) {
+          const reason = message
+            .replace(clientMessages.FATAL_ERROR_MESSAGE, "")
+            .replace(/^:/, "");
+          logger.error(`Fatal error! ${reason}`);
+          reject(
+            new Error(
+              chalk.red(
+                "There was an error initializing your site. Please try again."
+              )
+            )
+          );
+        }
+      });
 
       win.loadURL(editorUrl, { httpReferrer: editorUrl });
     });
