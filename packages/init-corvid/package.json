@@ -15,7 +15,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=8"
   },
   "bin": {
     "init-corvid": "./src/index.js"

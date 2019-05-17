@@ -2,7 +2,7 @@
   "name": "corvid-dev-experience",
   "private": true,
   "engines": {
-    "node": ">=10"
+    "node": ">=8"
   },
   "license": "MIT",
   "scripts": {

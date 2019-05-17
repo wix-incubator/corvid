@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const chalk = require("chalk");
 const jwt = require("jsonwebtoken");
+const { URL } = require("url");
 const { app, BrowserWindow } = require("electron");
 const _ = require("lodash");
 const { launch } = require("../utils/electron");
