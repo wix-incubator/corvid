@@ -18,7 +18,7 @@
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "MIT",
   "devDependencies": {
-    "corvid-local-test-utils": "~0.1.0",
+    "corvid-local-test-utils": "^0.1.36",
     "eslint": "^5.15.1",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",
@@ -35,8 +35,8 @@
   },
   "dependencies": {
     "chokidar": "^2.1.2",
-    "corvid-dir-as-json": "~0.1.0",
-    "corvid-local-logger": "~0.1.0",
+    "corvid-dir-as-json": "^0.1.30",
+    "corvid-local-logger": "^0.1.27",
     "fs-extra": "^7.0.1",
     "lodash": "^4.17.11",
     "rimraf": "^2.6.3",
