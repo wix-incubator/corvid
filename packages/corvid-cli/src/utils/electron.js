@@ -53,7 +53,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
         });
 
         cp.stderr.on("data", function(data) {
-          logger.error(data.toString());
+          logger.silly(data.toString());
         });
       }
 
