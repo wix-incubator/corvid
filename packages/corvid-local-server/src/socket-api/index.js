@@ -60,9 +60,7 @@ const initServerApi = (
         await backup.deleteBackup();
         return result;
       } catch (e) {
-        //need to stop watcher
         await backup.restoreSite();
-        //restart watcher
         throw e;
       }
     }

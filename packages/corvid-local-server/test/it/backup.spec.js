@@ -45,7 +45,7 @@ describe("Backup", () => {
       done();
     }
   });
-  it("should delete backup after updating site document", async done => {
+  it("should delete backup after updating site document", async () => {
     const localSiteFiles = localSiteBuilder.buildFull();
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
@@ -67,7 +67,6 @@ describe("Backup", () => {
     expect(localSite).toMatchObject(expectedLocalSite);
     const backupFolderPath = path.join(localSitePath, backupsPath);
     await expect(fs.exists(backupFolderPath)).resolves.toBe(false);
-    done();
   });
 
   it("should restore from backup if backup folder exists on server start", async () => {
@@ -79,8 +78,10 @@ describe("Backup", () => {
       path.join(localSitePath, ".corvid", "backup")
     );
     await localServer.startInEditMode(localSitePath);
-    const localSite = await localSiteDir.readLocalSite(localSitePath);
-    expect(localSite).toMatchObject(backupFiles);
+    await eventually(async () => {
+      const localSite = await localSiteDir.readLocalSite(localSitePath);
+      expect(localSite).toMatchObject(backupFiles);
+    });
   });
 
   it("should continue watch file changes", async done => {
