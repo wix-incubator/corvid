@@ -77,11 +77,10 @@ describe("Backup", () => {
       backupFiles,
       path.join(localSitePath, ".corvid", "backup")
     );
-    await localServer.startInEditMode(localSitePath);
-    await eventually(async () => {
-      const localSite = await localSiteDir.readLocalSite(localSitePath);
-      expect(localSite).toMatchObject(backupFiles);
-    });
+    const server = await localServer.startInEditMode(localSitePath);
+    await loadEditor(server.port);
+    const localSite = await localSiteDir.readLocalSite(localSitePath);
+    expect(localSite).toMatchObject(backupFiles);
   });
 
   it("should continue watch file changes", async done => {
