@@ -1,3 +1,5 @@
+const eventually = require("wix-eventually");
+const isObject_ = require("lodash/isObject");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { siteCreators: sc } = require("corvid-local-test-utils");
@@ -12,6 +14,11 @@ const fs = require("fs-extra");
 const path = require("path");
 const backupsPath = ".corvid/backup";
 
+const createCodeChangePayload = (path, content) => ({
+  modifiedFiles: [{ path, content }],
+  deletedFiles: []
+});
+
 afterEach(closeAll);
 
 describe("Backup", () => {
@@ -22,12 +29,10 @@ describe("Backup", () => {
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
     const editorSite = await editor.getSite();
-    const siteUpdates = editorSiteBuilder.buildPartial(
-      sc.page({ pageId: "page1", content: "modified content" })
-    );
+    const illegalPayload = { siteDocument: { pages: null } };
+    // it should fail save
     editor.modifyDocument(
-      merge_({ siteDocument: { shouldFail: true } }, editorSite, siteUpdates)
-        .siteDocument
+      Object.assign(editorSite, illegalPayload).siteDocument
     );
     const prevLocalSite = await localSiteDir.readLocalSite(localSitePath);
     try {
@@ -74,5 +79,39 @@ describe("Backup", () => {
     await localServer.startInEditMode(localSitePath);
     const localSite = await localSiteDir.readLocalSite(localSitePath);
     expect(localSite).toMatchObject(backupFiles);
+  });
+
+  it("should continue watch file changes", async done => {
+    const onCodeChange = jest.fn();
+    const localSiteFiles = localSiteBuilder.buildFull();
+
+    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+    const server = await localServer.startInEditMode(localSitePath);
+    const editor = await loadEditor(server.port);
+    const unsubscribeFromCodeChange = editor.registerCodeChange(onCodeChange);
+    const editorSite = await editor.getSite();
+    const updatedSiteItems = [
+      sc.page({ pageId: "page1", content: "modified content" })
+    ];
+    const siteUpdates = editorSiteBuilder.buildPartial(...updatedSiteItems);
+    editor.modifyDocument(merge_({}, editorSite, siteUpdates).siteDocument);
+
+    await editor.save();
+    const code = sc.backendCode();
+    let filePath = localSiteBuilder.getLocalFilePath(code);
+    filePath = isObject_(filePath) ? filePath.code : filePath;
+    let fileContent = localSiteBuilder.getLocalFileContent(code);
+    fileContent = isObject_(fileContent) ? fileContent.code : fileContent;
+    localSiteDir.writeFile(localSitePath, filePath, fileContent);
+    const watcherPayload = createCodeChangePayload(
+      editorSiteBuilder.getEditorCodeFilePath(code),
+      fileContent
+    );
+
+    await eventually(async () => {
+      expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
+    });
+    unsubscribeFromCodeChange();
+    done();
   });
 });
