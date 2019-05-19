@@ -7,7 +7,8 @@ const initServerApi = (
   localSite,
   adminServer,
   editorServer,
-  loadedInCloneMode
+  loadedInCloneMode,
+  backup
 ) => {
   const notifyAdmin = (event, payload) =>
     adminServer.io.sockets.emit(event, payload);
@@ -50,11 +51,20 @@ const initServerApi = (
   const updateSiteDocument = withCloneModeNotification(
     async updatedDocument => {
       logger.verbose("updating local site document");
-      const result = await localSite.updateSiteDocument(updatedDocument);
-      logger.verbose("updating local site document done");
-      notifyAdmin("document-updated");
-      wasSiteDocumentUpdated = true;
-      return result;
+      await backup.backupSite();
+      try {
+        const result = await localSite.updateSiteDocument(updatedDocument);
+        logger.verbose("updating local site document done");
+        notifyAdmin("document-updated");
+        wasSiteDocumentUpdated = true;
+        await backup.deleteBackup();
+        return result;
+      } catch (e) {
+        //need to stop watcher
+        await backup.restoreSite();
+        //restart watcher
+        throw e;
+      }
     }
   );
 

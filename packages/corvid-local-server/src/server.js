@@ -29,6 +29,38 @@ async function startServer(siteRootPath, options) {
   await fs.ensureDir(siteSrcPath);
   const isEmpty = await isEmptyDir(siteSrcPath);
   const isWix = await fs.exists(path.join(siteRootPath, ".corvidrc.json")); // TEMPORARY
+  const backupFolder = path.join(siteRootPath, ".corvid", "backup");
+  const hasBackup = await fs.exists(backupFolder);
+  const backup = {
+    backupSite: async () => {
+      logger.info("Backing up site");
+      try {
+        await fs.emptyDir(backupFolder);
+        await fs.copy(siteSrcPath, backupFolder);
+        logger.info("Backing up site complete");
+      } catch (e) {
+        logger.info("Backing up site is failed");
+        await backup.deleteBackup();
+        throw e;
+      }
+    },
+    deleteBackup: async () => {
+      logger.info("Deleting backup");
+      await fs.emptyDir(backupFolder);
+      await fs.rmdir(backupFolder);
+      logger.info("Deleting backup complete");
+    },
+    restoreSite: async () => {
+      logger.info("Restoring site from backup");
+      await fs.emptyDir(siteSrcPath);
+      await fs.move(backupFolder, siteSrcPath, { overwrite: true });
+      logger.info("Restoring site from backup complete");
+    }
+  };
+
+  if (hasBackup) {
+    backup.restoreSite();
+  }
 
   if (isEdit(options)) {
     if (!isWix) {
@@ -92,7 +124,7 @@ async function startServer(siteRootPath, options) {
 
   adminServer.io.use(adminTokenMiddleware(adminToken));
 
-  initServerApi(localSite, adminServer, editorServer, !isEdit(options));
+  initServerApi(localSite, adminServer, editorServer, !isEdit(options), backup);
 
   logger.info(
     `server listening at editor port [${editorServer.port}], admin port [${

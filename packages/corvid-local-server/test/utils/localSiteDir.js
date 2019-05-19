@@ -37,11 +37,15 @@ const initLocalSite = async (localSiteFiles, createdRoodDir) => {
   return rootDir;
 };
 
+const initBackup = (localSiteFiles, backupDir) =>
+  dirAsJson.writeJsonToDir(backupDir, localSiteFiles);
+
 module.exports = {
   doesExist,
   initLocalSite,
   readLocalSite,
   writeFile,
   readFile,
-  deleteFile
+  deleteFile,
+  initBackup
 };
