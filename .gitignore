@@ -7,6 +7,9 @@ npm-debug.log*
 # Dependency directories
 node_modules
 
+# Private npm registry
+storage
+
 # Optional npm cache directory
 .npm
 

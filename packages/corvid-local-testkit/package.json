@@ -12,9 +12,6 @@
   },
   "author": "Álvaro Morais <alvarom@wix.com>",
   "license": "ISC",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
   "engines": {
     "node": ">=8"
   },
@@ -23,10 +20,10 @@
     "wnpm-ci": "^7.0.11"
   },
   "dependencies": {
+    "bs-platform": "5.0.3",
     "corvid-local-server": "^0.1.30",
     "corvid-local-site": "^0.1.35",
-    "corvid-local-test-utils": "^0.1.32",
-    "bs-platform": "5.0.3"
+    "corvid-local-test-utils": "^0.1.32"
   },
   "husky": {
     "hooks": {
@@ -40,5 +37,6 @@
         "git add"
       ]
     }
-  }
+  },
+  "gitHead": "826fcc3c4bb092da740b8dfea8241ac28ece4fe3"
 }

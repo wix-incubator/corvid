@@ -10,9 +10,6 @@
     "release": "wnpm-release",
     "precommit": "lint-staged"
   },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
   "engines": {
     "node": ">=10"
   },
@@ -39,12 +36,13 @@
     ]
   },
   "dependencies": {
-    "corvid-dir-as-json": "~0.1.0",
+    "corvid-dir-as-json": "0.1.0",
     "lodash": "^4.17.11",
     "socket.io-client": "^2.2.0",
     "temp": "^0.9.0"
   },
   "peerDependencies": {
     "jest": "^24.1.0"
-  }
+  },
+  "gitHead": "826fcc3c4bb092da740b8dfea8241ac28ece4fe3"
 }

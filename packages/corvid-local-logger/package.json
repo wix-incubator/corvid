@@ -10,9 +10,6 @@
     "release": "wnpm-release",
     "precommit": "lint-staged"
   },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
   "engines": {
     "node": ">=10"
   },
@@ -42,5 +39,6 @@
     "uuid": "^3.3.2",
     "winston": "^3.2.1",
     "winston-transport": "^4.3.0"
-  }
+  },
+  "gitHead": "826fcc3c4bb092da740b8dfea8241ac28ece4fe3"
 }

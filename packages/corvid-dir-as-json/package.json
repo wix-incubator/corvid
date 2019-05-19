@@ -10,9 +10,6 @@
     "release": "wnpm-release",
     "precommit": "lint-staged"
   },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
   "engines": {
     "node": ">=10"
   },
@@ -50,5 +47,6 @@
     "testMatch": [
       "**/test/**/*.+(e2e|spec|unit).js"
     ]
-  }
+  },
+  "gitHead": "826fcc3c4bb092da740b8dfea8241ac28ece4fe3"
 }
