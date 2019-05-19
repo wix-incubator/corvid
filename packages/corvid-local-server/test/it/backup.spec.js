@@ -40,6 +40,8 @@ describe("Backup", () => {
     } catch (e) {
       const localSite = await localSiteDir.readLocalSite(localSitePath);
       expect(localSite).toMatchObject(prevLocalSite);
+      const backupFolderPath = path.join(localSitePath, backupsPath);
+      await expect(fs.exists(backupFolderPath)).resolves.toBe(false);
       done();
     }
   });

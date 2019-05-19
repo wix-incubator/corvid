@@ -59,6 +59,7 @@ async function startServer(siteRootPath, options) {
   };
 
   if (hasBackup) {
+    logger.warn("Backup folder found.");
     backup.restoreSite();
   }
 
