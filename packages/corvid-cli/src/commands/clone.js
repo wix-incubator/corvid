@@ -30,6 +30,7 @@ async function cloneHandler(args) {
       }
     })
     .catch(async error => {
+      spinner.fail(error.message);
       await sessionData.callWithKeys(
         (msid, uuid) => sendCloneEvent(msid, uuid, "fail"),
         "msid",
