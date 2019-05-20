@@ -19,7 +19,7 @@
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "MIT",
   "dependencies": {
-    "corvid-local-test-utils": "^0.1.36",
+    "corvid-local-test-utils": "~0.1.0",
     "browserify": "^16.2.3",
     "express": "^4.16.4",
     "flat": "^4.1.0",
