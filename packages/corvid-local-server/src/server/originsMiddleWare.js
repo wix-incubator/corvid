@@ -3,7 +3,12 @@ function originsMiddleware(allowedDomains) {
   return (socket, next) => {
     const origin = socket.handshake.headers.origin || "";
     let hostname = origin.replace(/^https?:\/\//, "");
-    if (allowedDomains && !allowedDomains.includes(hostname)) {
+    const isNodeEnvTest = process.env.NODE_ENV === "test";
+    if (
+      !isNodeEnvTest &&
+      allowedDomains &&
+      !allowedDomains.includes(hostname)
+    ) {
       logger.warn(`refused origin [${origin}]`);
       return next(new Error("origin not allowed"));
     }

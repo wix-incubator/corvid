@@ -6,6 +6,7 @@
   "scripts": {
     "build": ":",
     "test": ":",
+    "test": "jest --runInBand",
     "lint": "eslint .",
     "release": "wnpm-release",
     "precommit": "lint-staged",
