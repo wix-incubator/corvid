@@ -107,9 +107,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
           return payloadConvertors[paylodKey](siteDocument[paylodKey]);
         } else {
           const message = `Unknown document property ${paylodKey}`;
-          // eslint-disable-next-line no-console
-          console.error(message);
-          logger.error(message);
+          logger.warning(message);
           return [];
         }
       })

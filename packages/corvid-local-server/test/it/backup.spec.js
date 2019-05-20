@@ -72,10 +72,7 @@ describe("Backup", () => {
     const backupFiles = localSiteBuilder.buildFull();
     const localSiteFiles = localSiteBuilder.buildFull();
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
-    await localSiteDir.initBackup(
-      backupFiles,
-      path.join(localSitePath, ".corvid", "backup")
-    );
+    await localSiteDir.initBackup(localSitePath, backupFiles);
     const server = await localServer.startInEditMode(localSitePath);
     await loadEditor(server.port);
     const localSite = await localSiteDir.readLocalSite(localSitePath);

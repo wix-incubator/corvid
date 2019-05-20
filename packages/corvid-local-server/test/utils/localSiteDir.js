@@ -37,8 +37,11 @@ const initLocalSite = async (localSiteFiles, createdRoodDir) => {
   return rootDir;
 };
 
-const initBackup = (localSiteFiles, backupDir) =>
-  dirAsJson.writeJsonToDir(backupDir, localSiteFiles);
+const initBackup = (rootPath, localSiteFiles) =>
+  dirAsJson.writeJsonToDir(
+    path.join(rootPath, ".corvid", "backup"),
+    localSiteFiles
+  );
 
 module.exports = {
   doesExist,
