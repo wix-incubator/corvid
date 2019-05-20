@@ -2,12 +2,12 @@
   "name": "corvid-local-testkit",
   "version": "0.1.0",
   "description": "",
-  "main": "src/Index.bs.js",
+  "main": "src/index.js",
   "scripts": {
     "test": ":",
     "build": "bsb -make-world",
-    "lint": "bsb && bsrefmt --in-place src/*.re",
-    "precommit": "bsb && lint-staged",
+    "lint": "eslint .",
+    "precommit": "lint-staged",
     "release": "wnpm-release"
   },
   "author": "Álvaro Morais <alvarom@wix.com>",
@@ -24,9 +24,10 @@
   },
   "dependencies": {
     "corvid-local-server": "^0.1.30",
-    "corvid-local-site": "^0.1.35",
     "corvid-local-test-utils": "^0.1.32",
-    "bs-platform": "5.0.3"
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "prettier": "^1.17.1"
   },
   "husky": {
     "hooks": {
@@ -34,11 +35,8 @@
     }
   },
   "lint-staged": {
-    "linters": {
-      "*.re": [
-        "bsrefmt --in-place",
-        "git add"
-      ]
-    }
+    "*.js": [
+      "eslint"
+    ]
   }
 }
