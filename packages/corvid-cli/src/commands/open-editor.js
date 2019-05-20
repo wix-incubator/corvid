@@ -87,7 +87,9 @@ async function openEditorHandler(args) {
           }
         }
       }
-    ).then(resolve, reject);
+    )
+      .then(resolve, reject)
+      .catch(e => spinner.fail(e.message));
   });
 
   spinner.stop();

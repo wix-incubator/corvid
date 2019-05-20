@@ -98,7 +98,7 @@ async function pullHandler(args) {
       return `Pull complete, run 'corvid open-editor' to start editing the local copy`;
     })
     .catch(async error => {
-      if (spinner.isSpinning) spinner.fail();
+      if (spinner.isSpinning) spinner.fail(error.message);
       await sessionData.callWithKeys(
         (msid, uuid) =>
           sendPullEvent(msid, uuid, "fail", {

@@ -1,7 +1,10 @@
 /* eslint-disable no-console */
 const process = require("process");
 const chalk = require("chalk");
+const logger = require("corvid-local-logger");
 const genEditorUrl = require("../utils/genEditorUrl");
+const clientMessages = require("../utils/console-messages");
+const clientMessageActions = require("../utils/clientMessageActions");
 
 const openEditorApp = ({ useSsl = true } = {}) => ({
   serverMode: "edit",
@@ -21,18 +24,22 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
 
       if (editorConnected) {
         reject(
-          chalk.red(
-            `The local Corvid server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again.`
+          new Error(
+            chalk.red(
+              `The local Corvid server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again.`
+            )
           )
         );
       }
 
       if (mode !== "edit") {
-        reject(chalk.red("Local server is not in edit mode"));
+        reject(new Error(chalk.red("Local server is not in edit mode")));
       }
 
       if (!localServerEditorPort) {
-        reject(chalk.red("Local server did not return an editor port"));
+        reject(
+          new Error(chalk.red("Local server did not return an editor port"))
+        );
       }
 
       const editorUrl = genEditorUrl(
@@ -42,6 +49,22 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         localServerEditorPort,
         false,
         "local"
+      );
+
+      win.webContents.on(
+        "console-message",
+        clientMessageActions({
+          [clientMessages.FATAL_ERROR_MESSAGE]: message => {
+            logger.error(`Fatal error! ${message}`);
+            reject(
+              new Error(
+                chalk.red(
+                  "There was an error initializing your site. Please try again."
+                )
+              )
+            );
+          }
+        })
       );
 
       win.loadURL(editorUrl, { httpReferrer: editorUrl });
