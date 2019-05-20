@@ -3,7 +3,8 @@ const path = require("path");
 const { initSiteManager: initLocalSiteManager } = require("corvid-local-site");
 const uuid = require("uuid/v4");
 const logger = require("corvid-local-logger");
-
+const projectPaths = require("./projectPaths");
+const backup = require("./backup");
 const startSocketServer = require("./server/startSocketServer");
 
 const initServerApi = require("./socket-api");
@@ -25,42 +26,15 @@ const isEmptyDir = async path => {
 
 async function startServer(siteRootPath, options) {
   logger.info(`server starting at [${path.resolve(siteRootPath)}]`);
-  const siteSrcPath = path.join(siteRootPath, "src");
+  const siteSrcPath = projectPaths.siteSrcPath(siteRootPath);
   await fs.ensureDir(siteSrcPath);
   const isEmpty = await isEmptyDir(siteSrcPath);
   const isWix = await fs.exists(path.join(siteRootPath, ".corvidrc.json")); // TEMPORARY
-  const backupFolder = path.join(siteRootPath, ".corvid", "backup");
-  const hasBackup = await fs.exists(backupFolder);
-  const backup = {
-    backupSite: async () => {
-      logger.info("Backing up site");
-      try {
-        await fs.emptyDir(backupFolder);
-        await fs.copy(siteSrcPath, backupFolder);
-        logger.info("Backing up site complete");
-      } catch (e) {
-        logger.info("Backing up site is failed");
-        await backup.deleteBackup();
-        throw e;
-      }
-    },
-    deleteBackup: async () => {
-      logger.info("Deleting backup");
-      await fs.emptyDir(backupFolder);
-      await fs.rmdir(backupFolder);
-      logger.info("Deleting backup complete");
-    },
-    restoreSite: async () => {
-      logger.info("Restoring site from backup");
-      await fs.emptyDir(siteSrcPath);
-      await fs.move(backupFolder, siteSrcPath, { overwrite: true });
-      logger.info("Restoring site from backup complete");
-    }
-  };
+  const hasBackup = await backup.hasBackup(siteRootPath);
 
   if (hasBackup) {
     logger.warn("Backup folder found.");
-    backup.restoreSite();
+    backup.restoreSite(siteRootPath);
   }
 
   if (isEdit(options)) {
@@ -125,7 +99,13 @@ async function startServer(siteRootPath, options) {
 
   adminServer.io.use(adminTokenMiddleware(adminToken));
 
-  initServerApi(localSite, adminServer, editorServer, !isEdit(options), backup);
+  initServerApi(
+    localSite,
+    adminServer,
+    editorServer,
+    !isEdit(options),
+    siteRootPath
+  );
 
   logger.info(
     `server listening at editor port [${editorServer.port}], admin port [${

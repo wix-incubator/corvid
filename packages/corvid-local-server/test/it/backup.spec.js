@@ -1,5 +1,4 @@
 const eventually = require("wix-eventually");
-const isObject_ = require("lodash/isObject");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { siteCreators: sc } = require("corvid-local-test-utils");
@@ -45,7 +44,7 @@ describe("Backup", () => {
       done();
     }
   });
-  it("should delete backup after updating site document", async () => {
+  it("should not keep a backup for a succesful save", async () => {
     const localSiteFiles = localSiteBuilder.buildFull();
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
@@ -83,14 +82,18 @@ describe("Backup", () => {
     expect(localSite).toMatchObject(backupFiles);
   });
 
-  it("should continue watch file changes", async done => {
+  it("should continue watch file changes after successful save", async done => {
     const onCodeChange = jest.fn();
+    const onDocumentChange = jest.fn();
     const localSiteFiles = localSiteBuilder.buildFull();
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
     const unsubscribeFromCodeChange = editor.registerCodeChange(onCodeChange);
+    const unsubscribeFromDocumentChange = editor.registerDocumentChange(
+      onDocumentChange
+    );
     const editorSite = await editor.getSite();
     const updatedSiteItems = [
       sc.page({ pageId: "page1", content: "modified content" })
@@ -101,19 +104,75 @@ describe("Backup", () => {
     await editor.save();
     const code = sc.backendCode();
     let filePath = localSiteBuilder.getLocalFilePath(code);
-    filePath = isObject_(filePath) ? filePath.code : filePath;
     let fileContent = localSiteBuilder.getLocalFileContent(code);
-    fileContent = isObject_(fileContent) ? fileContent.code : fileContent;
     localSiteDir.writeFile(localSitePath, filePath, fileContent);
     const watcherPayload = createCodeChangePayload(
       editorSiteBuilder.getEditorCodeFilePath(code),
       fileContent
     );
+    const page = sc.page();
+    let pageFilePath = localSiteBuilder.getLocalFilePath(page);
+    let pageFileContent = localSiteBuilder.getLocalFileContent(page);
+    await localSiteDir.writeFile(localSitePath, pageFilePath, pageFileContent);
 
     await eventually(async () => {
       expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
+      expect(onCodeChange).toHaveBeenCalledTimes(1);
+      expect(onDocumentChange).toHaveBeenCalledTimes(1);
     });
     unsubscribeFromCodeChange();
+    unsubscribeFromDocumentChange();
     done();
+  });
+
+  it("should continue watch file changes after failed save", async done => {
+    const onCodeChange = jest.fn();
+    const onDocumentChange = jest.fn();
+    const localSiteFiles = localSiteBuilder.buildFull();
+
+    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+    const server = await localServer.startInEditMode(localSitePath);
+    const editor = await loadEditor(server.port);
+    const unsubscribeFromCodeChange = editor.registerCodeChange(onCodeChange);
+    const unsubscribeFromDocumentChange = editor.registerDocumentChange(
+      onDocumentChange
+    );
+    const editorSite = await editor.getSite();
+    const illegalPayload = { siteDocument: { pages: null } };
+    // it should fail save
+    editor.modifyDocument(
+      Object.assign(editorSite, illegalPayload).siteDocument
+    );
+    try {
+      await editor.save();
+    } catch (e) {
+      const code = sc.backendCode();
+      let filePath = localSiteBuilder.getLocalFilePath(code);
+      let fileContent = localSiteBuilder.getLocalFileContent(code);
+      localSiteDir.writeFile(localSitePath, filePath, fileContent);
+      const watcherPayload = createCodeChangePayload(
+        editorSiteBuilder.getEditorCodeFilePath(code),
+        fileContent
+      );
+      const page = sc.page();
+      let pageFilePath = localSiteBuilder.getLocalFilePath(page);
+      let pageFileContent = localSiteBuilder.getLocalFileContent(page);
+      await localSiteDir.writeFile(
+        localSitePath,
+        pageFilePath,
+        pageFileContent
+      );
+
+      await eventually(
+        async () => {
+          expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
+          expect(onDocumentChange).toHaveBeenCalled();
+        },
+        { timeout: 4000 }
+      );
+      unsubscribeFromCodeChange();
+      unsubscribeFromDocumentChange();
+      done();
+    }
   });
 });
