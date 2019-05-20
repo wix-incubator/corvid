@@ -110,6 +110,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
           // eslint-disable-next-line no-console
           console.error(message);
           logger.error(message);
+          return [];
         }
       })
     );
