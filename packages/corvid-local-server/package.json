@@ -5,9 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "build": ":",
-    "test": "jest",
-    "start": "node ./src/index.js",
     "lint": "eslint .",
+    "test": "yarn lint && jest",
     "release": "wnpm-release",
     "precommit": "lint-staged",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand"

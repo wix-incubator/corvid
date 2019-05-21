@@ -5,8 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "build": ":",
-    "test": ":",
     "lint": "eslint .",
+    "test": "yarn lint",
     "release": "wnpm-release",
     "precommit": "lint-staged"
   },

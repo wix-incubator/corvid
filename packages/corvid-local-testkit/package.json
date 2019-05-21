@@ -4,9 +4,9 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test": ":",
     "build": ":",
     "lint": "eslint .",
+    "test": "yarn lint",
     "precommit": "lint-staged",
     "release": "wnpm-release"
   },

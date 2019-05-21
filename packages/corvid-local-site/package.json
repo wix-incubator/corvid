@@ -4,8 +4,8 @@
   "description": "",
   "scripts": {
     "build": ":",
-    "test": "jest",
     "lint": "eslint .",
+    "test": "yarn lint && jest",
     "release": "wnpm-release",
     "precommit": "lint-staged"
   },

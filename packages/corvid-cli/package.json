@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": ":",
-    "test": "jest --runInBand",
     "lint": "eslint .",
+    "test": "yarn lint && jest --runInBand",
     "release": "wnpm-release",
     "precommit": "lint-staged",
     "watch": "jest --runInBand --watch",
