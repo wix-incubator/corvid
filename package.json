@@ -12,12 +12,12 @@
     "precommit": "lerna exec \"yarn precommit\""
   },
   "devDependencies": {
-    "eslint": "^5.15.1",
+    "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-prettier": "^3.0.1",
     "husky": "^1.3.1",
-    "lerna": "3.13.1",
-    "prettier": "1.12.0"
+    "lerna": "^3.14.1",
+    "prettier": "^1.17.1"
   },
   "husky": {
     "hooks": {
@@ -27,9 +27,6 @@
   "workspaces": {
     "packages": [
       "packages/*"
-    ],
-    "nohoist": [
-      "**/eslint*"
     ]
   }
 }
