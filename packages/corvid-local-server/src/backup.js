@@ -46,9 +46,10 @@ const withBackupInit = rootPath => {
       const result = await asyncCallback(...args);
       await deleteBackup(backupPath);
       return result;
-    } catch (e) {
+    } catch (error) {
+      logger.error(error);
       await restore(siteSrcPath, backupPath);
-      throw e;
+      throw error;
     }
   };
 };
