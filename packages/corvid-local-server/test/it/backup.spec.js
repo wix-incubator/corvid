@@ -8,10 +8,11 @@ const {
   closeAll
 } = require("../utils/autoClosing");
 const localSiteDir = require("../utils/localSiteDir");
+const dirAsJson = require("corvid-dir-as-json");
 const merge_ = require("lodash/merge");
 const fs = require("fs-extra");
 const path = require("path");
-const backupsPath = ".corvid/backup";
+const backupsPath = rootPath => path.join(rootPath, ".corvid", "backup");
 
 const createCodeChangePayload = (path, content) => ({
   modifiedFiles: [{ path, content }],
@@ -39,7 +40,7 @@ describe("Backup", () => {
     } catch (e) {
       const localSite = await localSiteDir.readLocalSite(localSitePath);
       expect(localSite).toMatchObject(prevLocalSite);
-      const backupFolderPath = path.join(localSitePath, backupsPath);
+      const backupFolderPath = backupsPath(localSitePath);
       await expect(fs.exists(backupFolderPath)).resolves.toBe(false);
       done();
     }
@@ -64,11 +65,11 @@ describe("Backup", () => {
       ...updatedSiteItems
     );
     expect(localSite).toMatchObject(expectedLocalSite);
-    const backupFolderPath = path.join(localSitePath, backupsPath);
+    const backupFolderPath = backupsPath(localSitePath);
     await expect(fs.exists(backupFolderPath)).resolves.toBe(false);
   });
 
-  it("should restore from backup if backup folder exists on server start", async () => {
+  it("should restore from backup if backup folder exists on server start in edit mode", async () => {
     const backupFiles = localSiteBuilder.buildFull();
     const localSiteFiles = localSiteBuilder.buildFull();
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
@@ -77,6 +78,62 @@ describe("Backup", () => {
     await loadEditor(server.port);
     const localSite = await localSiteDir.readLocalSite(localSitePath);
     expect(localSite).toMatchObject(backupFiles);
+  });
+
+  it("should delete backup if backup folder exists on server start in clone mode", async () => {
+    const backupFiles = localSiteBuilder.buildFull();
+    const siteItems = sc.fullSiteItems();
+    const editorSite = editorSiteBuilder.buildPartial(...siteItems);
+    const expectedLocalSite = localSiteBuilder.buildPartial(...siteItems);
+    const localSitePath = await localSiteDir.initLocalSite();
+    await localSiteDir.initBackup(localSitePath, backupFiles);
+    const server = await localServer.startInCloneMode(localSitePath);
+    await loadEditor(server.port, editorSite);
+    const localSiteFiles = await localSiteDir.readLocalSite(localSitePath);
+    expect(localSiteFiles).toMatchObject(expectedLocalSite);
+    const backupFolderPath = backupsPath(localSitePath);
+    await expect(fs.exists(backupFolderPath)).resolves.toBe(false);
+  });
+
+  it("should delete backup if backup folder exists on server start in override clone mode", async () => {
+    const backupFiles = localSiteBuilder.buildFull();
+    const siteItems = sc.fullSiteItems();
+    const editorSite = editorSiteBuilder.buildPartial(...siteItems);
+    const expectedLocalSite = localSiteBuilder.buildPartial(...siteItems);
+    const localSitePath = await localSiteDir.initLocalSite();
+    await localSiteDir.initBackup(localSitePath, backupFiles);
+    const server = await localServer.startInCloneMode(localSitePath, {
+      override: true
+    });
+    await loadEditor(server.port, editorSite);
+    const localSiteFiles = await localSiteDir.readLocalSite(localSitePath);
+    expect(localSiteFiles).toMatchObject(expectedLocalSite);
+    const backupFolderPath = backupsPath(localSitePath);
+    await expect(fs.exists(backupFolderPath)).resolves.toBe(false);
+  });
+
+  it("should move backup to snapshots if backup folder exists on server start in move clone mode", async () => {
+    const backupFiles = localSiteBuilder.buildFull();
+    const siteItems = sc.fullSiteItems();
+    const editorSite = editorSiteBuilder.buildPartial(...siteItems);
+    const expectedLocalSite = localSiteBuilder.buildPartial(...siteItems);
+    const localSitePath = await localSiteDir.initLocalSite();
+    await localSiteDir.initBackup(localSitePath, backupFiles);
+    const server = await localServer.startInCloneMode(localSitePath, {
+      move: true
+    });
+    await loadEditor(server.port, editorSite);
+    const localSiteFiles = await localSiteDir.readLocalSite(localSitePath);
+    expect(localSiteFiles).toMatchObject(expectedLocalSite);
+    const backupFolderPath = backupsPath(localSitePath);
+    const snapshotsPath = path.join(localSitePath, ".corvid", "snapshots");
+    const snapshotPath = path.join(
+      snapshotsPath,
+      (await fs.readdir(snapshotsPath))[0]
+    );
+    const movedSnapshotFiles = await dirAsJson.readDirToJson(snapshotPath);
+    expect(movedSnapshotFiles).toEqual(backupFiles);
+    await expect(fs.exists(backupFolderPath)).resolves.toBe(false);
   });
 
   it("should continue watch file changes after successful save", async done => {

@@ -32,6 +32,9 @@ const restoreSite = rootPath => {
   return restore(siteSrcPath, backupPath);
 };
 
+const deleteSiteBackup = rootPath =>
+  deleteBackup(projectPaths.backupPath(rootPath));
+
 const hasBackup = rootPath => fs.exists(projectPaths.backupPath(rootPath));
 
 const withBackupInit = rootPath => {
@@ -52,5 +55,6 @@ const withBackupInit = rootPath => {
 module.exports = {
   withBackupInit,
   restoreSite,
+  deleteSiteBackup,
   hasBackup
 };

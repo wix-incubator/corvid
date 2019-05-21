@@ -34,7 +34,11 @@ async function startServer(siteRootPath, options) {
 
   if (hasBackup) {
     logger.warn("Backup folder found.");
-    backup.restoreSite(siteRootPath);
+    if (isClone(options)) {
+      await backup.deleteSiteBackup(siteRootPath);
+    } else {
+      await backup.restoreSite(siteRootPath);
+    }
   }
 
   if (isEdit(options)) {
