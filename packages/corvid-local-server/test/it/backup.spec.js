@@ -229,4 +229,26 @@ describe("Backup", () => {
       done();
     }
   });
+
+  it("should create backup folder on save", async () => {
+    const localSiteFiles = localSiteBuilder.buildFull();
+
+    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+    const server = await localServer.startInEditMode(localSitePath);
+    const editor = await loadEditor(server.port);
+    const editorSite = await editor.getSite();
+    const updatedSiteItems = [
+      sc.page({ pageId: "page1", content: "modified content" })
+    ];
+
+    const siteUpdates = editorSiteBuilder.buildPartial(...updatedSiteItems);
+    editor.modifyDocument(merge_({}, editorSite, siteUpdates).siteDocument);
+    const corvidPath = path.join(localSitePath, ".corvid");
+    await fs.ensureDir(corvidPath);
+    const watchHandler = jest.fn();
+    const watcher = fs.watch(corvidPath, watchHandler);
+    await editor.save();
+    expect(watchHandler).toHaveBeenCalledWith("rename", "backup");
+    watcher.close();
+  });
 });
