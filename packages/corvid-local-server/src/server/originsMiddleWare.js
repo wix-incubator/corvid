@@ -1,11 +1,12 @@
+const { URL } = require("url");
 const logger = require("corvid-local-logger");
-function originsMiddleware(allowedDomains) {
+
+function originsMiddleware(allowedDomains = []) {
   return (socket, next) => {
     const origin = socket.handshake.headers.origin || "";
-    let hostname = origin.replace(/^https?:\/\//, "");
-    const isTesting =
-      process.env.NODE_ENV === "test" && hostname === "localhost:3000";
-    if (!isTesting && allowedDomains && !allowedDomains.includes(hostname)) {
+    const hostname = origin && new URL(origin).hostname;
+
+    if (!allowedDomains.includes(hostname)) {
       logger.warn(`refused origin [${origin}]`);
       return next(new Error("origin not allowed"));
     }

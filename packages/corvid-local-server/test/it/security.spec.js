@@ -171,7 +171,7 @@ describe("Security", () => {
         transportOptions: {
           polling: {
             extraHeaders: {
-              origin: "wrong.origin.test"
+              origin: "http://wrong.origin.test"
             }
           }
         }
