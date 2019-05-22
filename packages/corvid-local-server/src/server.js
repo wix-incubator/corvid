@@ -4,7 +4,6 @@ const { initSiteManager: initLocalSiteManager } = require("corvid-local-site");
 const uuid = require("uuid/v4");
 const logger = require("corvid-local-logger");
 const projectPaths = require("./projectPaths");
-const backup = require("./backup");
 const startSocketServer = require("./server/startSocketServer");
 
 const initServerApi = require("./socket-api");
@@ -30,15 +29,11 @@ async function startServer(siteRootPath, options) {
   await fs.ensureDir(siteSrcPath);
   const isEmpty = await isEmptyDir(siteSrcPath);
   const isWix = await fs.exists(path.join(siteRootPath, ".corvidrc.json")); // TEMPORARY
-  const hasBackup = await backup.hasBackup(siteRootPath);
+  const hasBackup = await fs.exists(projectPaths.backupPath(siteRootPath));
 
   if (hasBackup) {
-    logger.warn("Backup folder found.");
-    if (isClone(options)) {
-      await backup.deleteSiteBackup(siteRootPath);
-    } else {
-      await backup.restoreSite(siteRootPath);
-    }
+    logger.info("Backup folder found.");
+    throw new Error("BACKUP_FOLDER_EXISTS");
   }
 
   if (isEdit(options)) {

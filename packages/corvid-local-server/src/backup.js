@@ -26,18 +26,7 @@ const restore = async (siteSrcPath, backupPath) => {
   logger.info("Restoring site from backup complete");
 };
 
-const restoreSite = rootPath => {
-  const siteSrcPath = projectPaths.siteSrcPath(rootPath);
-  const backupPath = projectPaths.backupPath(rootPath);
-  return restore(siteSrcPath, backupPath);
-};
-
-const deleteSiteBackup = rootPath =>
-  deleteBackup(projectPaths.backupPath(rootPath));
-
-const hasBackup = rootPath => fs.exists(projectPaths.backupPath(rootPath));
-
-const withBackupInit = rootPath => {
+const withBackupInit = (rootPath, localSite) => {
   const siteSrcPath = projectPaths.siteSrcPath(rootPath);
   const backupPath = projectPaths.backupPath(rootPath);
   return asyncCallback => async (...args) => {
@@ -48,14 +37,13 @@ const withBackupInit = rootPath => {
       return result;
     } catch (error) {
       logger.error(error);
+      await localSite.pause();
       await restore(siteSrcPath, backupPath);
+      await localSite.resume();
       throw error;
     }
   };
 };
 module.exports = {
-  withBackupInit,
-  restoreSite,
-  deleteSiteBackup,
-  hasBackup
+  withBackupInit
 };

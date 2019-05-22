@@ -34,7 +34,7 @@ const initServerApi = (
     return result;
   };
 
-  const withBackup = backup.withBackupInit(siteRootPath);
+  const withBackup = backup.withBackupInit(siteRootPath, localSite);
 
   const getEditorPort = () => editorServer.port;
 
