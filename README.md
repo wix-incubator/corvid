@@ -6,13 +6,25 @@
 Before doing anything else, you need to make sure you have [Node.JS](https://nodejs.org)  version >= 8.0.0 installed and working.
 
 
-#### Working on your Wix site in local mode
+#### Getting ready to use corvid-cli
 
-Initialize a new directory and get it ready for working with the Corvid CLI:
+Create a new empty directory that will contain your site files and cd into it:
 ```
-npx init-corvid <any-folder-name>
+mkdir <any-folder-name>
 cd <any-folder-name>
 ```
+
+Initialize a package.json file so that you can install local dependencies:
+```
+npm init -y
+```
+
+Install corvid-cli as a local development dependency:
+```
+npm install --save-dev corvid-cli
+```
+
+#### Work on your site
 
 Download your exising wix site locally:
 ```
