@@ -3,7 +3,7 @@ const path = require("path");
 const { initSiteManager: initLocalSiteManager } = require("corvid-local-site");
 const uuid = require("uuid/v4");
 const logger = require("corvid-local-logger");
-
+const projectPaths = require("./projectPaths");
 const startSocketServer = require("./server/startSocketServer");
 
 const initServerApi = require("./socket-api");
@@ -25,10 +25,16 @@ const isEmptyDir = async path => {
 
 async function startServer(siteRootPath, options) {
   logger.info(`server starting at [${path.resolve(siteRootPath)}]`);
-  const siteSrcPath = path.join(siteRootPath, "src");
+  const siteSrcPath = projectPaths.siteSrcPath(siteRootPath);
   await fs.ensureDir(siteSrcPath);
   const isEmpty = await isEmptyDir(siteSrcPath);
   const isWix = await fs.exists(path.join(siteRootPath, ".corvidrc.json")); // TEMPORARY
+  const hasBackup = await fs.exists(projectPaths.backupPath(siteRootPath));
+
+  if (hasBackup) {
+    logger.info("Backup folder found.");
+    throw new Error("BACKUP_FOLDER_EXISTS");
+  }
 
   if (isEdit(options)) {
     if (!isWix) {
@@ -94,7 +100,13 @@ async function startServer(siteRootPath, options) {
 
   adminServer.io.use(adminTokenMiddleware(adminToken));
 
-  initServerApi(localSite, adminServer, editorServer, !isEdit(options));
+  initServerApi(
+    localSite,
+    adminServer,
+    editorServer,
+    !isEdit(options),
+    siteRootPath
+  );
 
   logger.info(
     `server listening at editor port [${editorServer.port}], admin port [${

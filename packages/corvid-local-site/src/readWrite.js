@@ -10,6 +10,7 @@ const partial_ = require("lodash/partial");
 const path = require("path");
 const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
+const logger = require("corvid-local-logger");
 const { prettyStringify, tryToPrettifyJsonString } = require("./prettify");
 
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
@@ -105,8 +106,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
         if (payloadConvertors.hasOwnProperty(paylodKey)) {
           return payloadConvertors[paylodKey](siteDocument[paylodKey]);
         } else {
-          // eslint-disable-next-line no-console
-          console.error(`Unknown document property ${paylodKey}`);
+          const message = `Unknown document property ${paylodKey}`;
+          logger.warning(message);
           return [];
         }
       })

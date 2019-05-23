@@ -14,6 +14,8 @@ const ensureWriteFile = async (path, content) => {
 const toPosixPath = winPath => winPath.replace(/\\/g, "/");
 
 const watch = async givenPath => {
+  let ignoreBefore = 0;
+  let ignoreAll = false;
   logger.verbose(`watching for file changes at [${givenPath}]`);
   const rootPath = fs.realpathSync(givenPath);
   if (rootPath !== givenPath) {
@@ -41,7 +43,8 @@ const watch = async givenPath => {
     cwd: rootPath,
     awaitWriteFinish: true,
     followSymlinks: false,
-    disableGlobbing: true
+    disableGlobbing: true,
+    alwaysStat: true
   });
 
   await new Promise((resolve, reject) => {
@@ -59,16 +62,18 @@ const watch = async givenPath => {
     actionsToIgnore = reject_(actionsToIgnore, { type, path });
   };
 
-  const isIgnoredAction = (type, path) =>
+  const isIgnoredAction = (type, path, mtimeMs = Date.now()) =>
+    ignoreAll ||
+    mtimeMs < ignoreBefore ||
     !!find_(actionsToIgnore, { type, path });
 
   return {
     close: () => watcher.close(),
 
     onAdd: callback => {
-      watcher.on("add", async relativePath => {
+      watcher.on("add", async (relativePath, stats) => {
         const posixRelativePath = toPosixPath(relativePath);
-        if (!isIgnoredAction("write", posixRelativePath)) {
+        if (!isIgnoredAction("write", posixRelativePath, stats.mtimeMs)) {
           logger.debug(`reporting new file at [${posixRelativePath}]`);
           callback(
             sitePaths.fromLocalCode(posixRelativePath),
@@ -82,9 +87,9 @@ const watch = async givenPath => {
     },
 
     onChange: callback => {
-      watcher.on("change", async relativePath => {
+      watcher.on("change", async (relativePath, stats) => {
         const posixRelativePath = toPosixPath(relativePath);
-        if (!isIgnoredAction("write", posixRelativePath)) {
+        if (!isIgnoredAction("write", posixRelativePath, stats.mtimeMs)) {
           logger.debug(`reporting modified file at [${posixRelativePath}]`);
           callback(
             sitePaths.fromLocalCode(posixRelativePath),
@@ -98,7 +103,7 @@ const watch = async givenPath => {
     },
 
     onDelete: callback => {
-      watcher.on("unlink", relativePath => {
+      watcher.on("unlink", async relativePath => {
         const posixRelativePath = toPosixPath(relativePath);
         if (!isIgnoredAction("delete", posixRelativePath)) {
           logger.debug(`reporting deleted file at [${posixRelativePath}]`);
@@ -193,6 +198,14 @@ const watch = async givenPath => {
         removeFromIgnoredActions("write", relativeTargetPath);
         throw e;
       }
+    },
+
+    pause: () => {
+      ignoreAll = true;
+    },
+    resume: () => {
+      ignoreAll = false;
+      ignoreBefore = Date.now();
     }
   };
 };

@@ -56,6 +56,8 @@ const initSiteManager = async siteRootPath => {
 
   return {
     close: watcher.close,
+    pause: watcher.pause,
+    resume: watcher.resume,
 
     getSiteDocument: readWrite.getSiteDocument,
     updateSiteDocument: readWrite.updateSiteDocument,
