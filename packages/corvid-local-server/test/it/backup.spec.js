@@ -68,7 +68,7 @@ describe("Backup", () => {
     await expect(fs.exists(backupFolderPath)).resolves.toBe(false);
   });
 
-  it("should fail if backup folder", async () => {
+  it("should fail if backup folder exists", async () => {
     const backupFiles = localSiteBuilder.buildFull();
     const localSiteFiles = localSiteBuilder.buildFull();
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
