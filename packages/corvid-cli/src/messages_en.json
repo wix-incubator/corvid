@@ -21,5 +21,8 @@
     "Login_Command_Authenticating": "Authenticating on www.wix.com",
     "Login_Command_Authenticated": "Authenticated on www.wix.com",
     "Login_Command_Description": "login to www.wix.com",
-    "Login_Command_Login_Failed_Error": "Login failed"
+    "Login_Command_Login_Failed_Error": "Login failed",
+    "Logout_Command_Description": "logout from www.wix.com",
+    "Logout_Command_Clearing": "Clearing offline data",
+    "Logout_Command_Cleared": "Cleared offline data"
 }
