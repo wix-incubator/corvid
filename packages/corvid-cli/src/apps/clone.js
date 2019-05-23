@@ -3,6 +3,7 @@ require("isomorphic-fetch");
 const chalk = require("chalk");
 const normalize = require("normalize-url");
 const { URL } = require("url");
+const getMessage = require("../messages");
 
 const {
   writeCorvidConfig,
@@ -70,26 +71,28 @@ async function extractMetasiteIdAndName(url, cookie) {
 }
 
 async function clone(spinner, args, cookie) {
-  spinner.start(chalk.grey("Getting site information"));
+  spinner.start(chalk.grey(getMessage("Clone_Getting_Site_Data")));
   try {
     const { metasiteId } = await extractMetasiteIdAndName(args.url, cookie);
 
     if (metasiteId == null) {
-      throw new Error(`Could not get site information from ${args.url}`);
+      throw new Error(
+        getMessage("Clone_No_MetasiteId_Error", { url: args.url })
+      );
     }
     const msidUpdatePromise = sessionData.set({ msid: metasiteId });
 
     const dirName = args.dir;
 
     if (await doesConfigExist(dirName)) {
-      throw new Error(`Project already exists`);
+      throw new Error(getMessage("Clone_Project_Exists_Error"));
     }
 
     await writeCorvidConfig(dirName, {
       metasiteId,
       cliVersion: packageJson.version
     });
-    await spinner.start(chalk.grey(`Initialised workspace`));
+    await spinner.start(chalk.grey(getMessage("Clone_Workspace_Initialized")));
 
     await msidUpdatePromise;
     return dirName;

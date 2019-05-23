@@ -1,0 +1,6 @@
+{
+    "Clone_Getting_Site_Data": "Getting site information",
+    "Clone_No_MetasiteId_Error": "Could not get site information from <%= url %>",
+    "Clone_Project_Exists_Error": "Project already exists",
+    "Clone_Workspace_Initialized": "Initialised workspace"
+}
