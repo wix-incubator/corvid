@@ -29,5 +29,14 @@
     "OpenEditor_Command_Connecting": "Connecting to local server",
     "OpenEditor_Command_Waiting": "Waiting for editor to connect",
     "OpenEditor_Command_Connected": "Editor connected",
-    "OpenEditor_Command_Description": "launches the local editor to edit the local site"
+    "OpenEditor_Command_Description": "launches the local editor to edit the local site",
+    "Pull_Command_Connecting": "Connecting to local server",
+    "Pull_Command_Waiting": "Waiting for editor to connect",
+    "Pull_Command_Downloading": "Downloading project",
+    "Pull_Command_Downloaded": "Downloaded project",
+    "Pull_Command_Complete": "Pull complete, run 'corvid open-editor' to start editing the local copy",
+    "Pull_Command_Description": "pulls a local copy of the site",
+    "Pull_Command_Override_Description": "overwrite existing site files",
+    "Pull_Command_Move_Description": "move existing site files before pull",
+    "Pull_Command_Not_Empty_Error": "{red Project directory already includes site files}\n\nRun either:\n  - 'corvid pull --move' to create a snapshot of your current project and pull the\n    latest revision from the remote repository.\n  - 'corvid pull --override' to override the existing site files with the latest\n    revision from the remote repository."
 }
