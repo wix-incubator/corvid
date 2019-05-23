@@ -5,6 +5,7 @@ const logger = require("corvid-local-logger");
 const genEditorUrl = require("../utils/genEditorUrl");
 const clientMessages = require("../utils/console-messages");
 const clientMessageActions = require("../utils/clientMessageActions");
+const getMessage = require("../messages");
 
 const openEditorApp = ({ useSsl = true } = {}) => ({
   serverMode: "edit",
@@ -24,21 +25,19 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
 
       if (editorConnected) {
         reject(
-          new Error(
-            chalk.red(
-              `The local Corvid server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again.`
-            )
-          )
+          new Error(chalk.red(getMessage("OpenEditor_Already_Connected_Error")))
         );
       }
 
       if (mode !== "edit") {
-        reject(new Error(chalk.red("Local server is not in edit mode")));
+        reject(
+          new Error(chalk.red(getMessage("OpenEditor_Not_Edit_Mode_Error")))
+        );
       }
 
       if (!localServerEditorPort) {
         reject(
-          new Error(chalk.red("Local server did not return an editor port"))
+          new Error(chalk.red(getMessage("OpenEditor_No_Editor_Port_Error")))
         );
       }
 
@@ -55,12 +54,14 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         "console-message",
         clientMessageActions({
           [clientMessages.FATAL_ERROR_MESSAGE]: message => {
-            logger.error(`Fatal error! ${message}`);
+            logger.error(
+              getMessage("OpenEditor_Client_Console_Fatal_Error_Message", {
+                message
+              })
+            );
             reject(
               new Error(
-                chalk.red(
-                  "There was an error initializing your site. Please try again."
-                )
+                chalk.red(getMessage("OpenEditor_Client_Console_Fatal_Error"))
               )
             );
           }

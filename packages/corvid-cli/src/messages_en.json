@@ -2,5 +2,10 @@
     "Clone_Getting_Site_Data": "Getting site information",
     "Clone_No_MetasiteId_Error": "Could not get site information from <%= url %>",
     "Clone_Project_Exists_Error": "Project already exists",
-    "Clone_Workspace_Initialized": "Initialised workspace"
+    "Clone_Workspace_Initialized": "Initialised workspace",
+    "OpenEditor_Already_Connected_Error": "The local Corvid server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again.",
+    "OpenEditor_Not_Edit_Mode_Error": "Local server is not in edit mode",
+    "OpenEditor_No_Editor_Port_Error": "Local server did not return an editor port",
+    "OpenEditor_Client_Console_Fatal_Error_Message": "Fatal error! <%= message %>",
+    "OpenEditor_Client_Console_Fatal_Error": "There was an error initializing your site. Please try again."
 }
