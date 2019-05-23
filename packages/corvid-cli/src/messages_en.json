@@ -39,5 +39,6 @@
     "Pull_Command_Override_Description": "overwrite existing site files",
     "Pull_Command_Move_Description": "move existing site files before pull",
     "Pull_Command_Not_Empty_Error": "{red Project directory already includes site files}\n\nRun either:\n  - 'corvid pull --move' to create a snapshot of your current project and pull the\n    latest revision from the remote repository.\n  - 'corvid pull --override' to override the existing site files with the latest\n    revision from the remote repository.",
-    "BI_User_Agent": "Corvid CLI v<%= version %>"
+    "BI_User_Agent": "Corvid CLI v<%= version %>",
+    "CorvidConfig_No_Project_Error": "Project not found in <%= dir %>"
 }

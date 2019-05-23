@@ -1,6 +1,7 @@
 const fs = require("fs-extra");
 const path = require("path");
 const sessionData = require("./sessionData");
+const getMessage = require("../messages");
 
 const configFilePath = root => path.join(root, ".corvidrc.json");
 
@@ -9,7 +10,13 @@ async function readCorvidConfig(dir) {
     fs.readFile(configFilePath(dir), (exc, config) => {
       if (exc) {
         if (exc.code === "ENOENT") {
-          reject(new Error(`Project not found in ${path.resolve(dir)}`));
+          reject(
+            new Error(
+              getMessage("CorvidConfig_No_Project_Error", {
+                dir: path.resolve(dir)
+              })
+            )
+          );
         } else {
           reject(exc);
         }
