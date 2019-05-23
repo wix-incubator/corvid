@@ -14,6 +14,7 @@ const serverErrors = require("../utils/server-errors");
 const sessionData = require("../utils/sessionData");
 const { sendOpenEditorEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
+const getMessage = require("../messages");
 
 app &&
   app.on("ready", async () => {
@@ -38,11 +39,13 @@ async function openEditorHandler(args) {
   try {
     fs.readdirSync(directory);
   } catch (exc) {
-    throw new Error(`Directory ${directory} does not exist`);
+    throw new Error(
+      getMessage("OpenEditor_Command_No_Folder_Error", { directory })
+    );
   }
   await login(spinner);
 
-  spinner.start(chalk.grey("Connecting to local server"));
+  spinner.start(chalk.grey(getMessage("OpenEditor_Command_Connecting")));
 
   await new Promise((resolve, reject) => {
     process.on("exit", () => killAllChildProcesses());
@@ -62,7 +65,7 @@ async function openEditorHandler(args) {
       },
       {
         localServerConnected: () => {
-          spinner.start(chalk.grey("Waiting for editor to connect"));
+          spinner.start(chalk.grey(getMessage("OpenEditor_Command_Waiting")));
         },
         editorConnected: () => {
           sessionData.callWithKeys(
@@ -70,7 +73,9 @@ async function openEditorHandler(args) {
             "msid",
             "uuid"
           );
-          spinner.succeed(chalk.grey("Editor connected"));
+          spinner.succeed(
+            chalk.grey(getMessage("OpenEditor_Command_Connected"))
+          );
           resolve();
         },
         error: error => {
@@ -97,7 +102,7 @@ async function openEditorHandler(args) {
 
 module.exports = {
   command: "open-editor",
-  describe: "launches the local editor to edit the local site",
+  describe: getMessage("OpenEditor_Command_Description"),
   builder: {},
   handler: async args => {
     openEditorHandler(Object.assign({}, args, { dir: process.cwd() })).catch(

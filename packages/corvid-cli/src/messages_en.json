@@ -24,5 +24,10 @@
     "Login_Command_Login_Failed_Error": "Login failed",
     "Logout_Command_Description": "logout from www.wix.com",
     "Logout_Command_Clearing": "Clearing offline data",
-    "Logout_Command_Cleared": "Cleared offline data"
+    "Logout_Command_Cleared": "Cleared offline data",
+    "OpenEditor_Command_No_Folder_Error": "Directory <%= directory %> does not exist",
+    "OpenEditor_Command_Connecting": "Connecting to local server",
+    "OpenEditor_Command_Waiting": "Waiting for editor to connect",
+    "OpenEditor_Command_Connected": "Editor connected",
+    "OpenEditor_Command_Description": "launches the local editor to edit the local site"
 }
