@@ -7,5 +7,11 @@
     "OpenEditor_Not_Edit_Mode_Error": "Local server is not in edit mode",
     "OpenEditor_No_Editor_Port_Error": "Local server did not return an editor port",
     "OpenEditor_Client_Console_Fatal_Error_Message": "Fatal error! <%= message %>",
-    "OpenEditor_Client_Console_Fatal_Error": "There was an error initializing your site. Please try again."
+    "OpenEditor_Client_Console_Fatal_Error": "There was an error initializing your site. Please try again.",
+    "Pull_Already_Connected_Error": "The local Corvid server is already connected to a local editor. If you are in\nan editing session, please close it before trying to run this command again.",
+    "Pull_Not_Clone_Mode_Error": "Local server is not in clone mode",
+    "Pull_No_Editor_Port_Error": "Local server did not return an editor port",
+    "Pull_Client_Console_Fatal_Error_Message": "Fatal error! <%= message %>",
+    "Pull_Client_Console_Fatal_Error": "There was an error initializing your site. Please try again."
+
 }
