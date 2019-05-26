@@ -86,10 +86,6 @@ const version = (content = unique(`Encoded version site data`)) => ({
   content
 });
 
-const dataFromMasterPage = (
-  content = unique(`Encoded data from master page site data`)
-) => ({ content });
-
 const publicCode = (
   relativePath = uniqueCodeFileName("publicCode"),
   content = uniqueCode("public")
@@ -173,8 +169,7 @@ const documentCreators = mapValues_(
     menu,
     multilingualInfo,
     siteInfo,
-    version,
-    dataFromMasterPage
+    version
   },
   typedCreator
 );

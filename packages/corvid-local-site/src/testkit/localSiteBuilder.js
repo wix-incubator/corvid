@@ -54,7 +54,6 @@ const commonComponents = content => siteFile("commonComponents", content);
 const multilingualInfo = content => siteFile("multilingualInfo", content);
 const siteInfo = content => siteFile("siteInfo", content);
 const version = content => siteFile("version", content);
-const dataFromMasterPage = content => siteFile("dataFromMasterPage", content);
 
 const router = router =>
   wixFile(PATH_ROUTERS, router.prefix, omit_(router, "prefix"));
@@ -137,7 +136,6 @@ const itemToFile = item =>
     [sc.multilingualInfo]: multilingualInfo,
     [sc.siteInfo]: siteInfo,
     [sc.version]: version,
-    [sc.dataFromMasterPage]: dataFromMasterPage,
     [sc.publicCode]: publicCodeFile,
     [sc.backendCode]: backendCodeFile,
     [sc.collectionSchema]: collectionSchema,
