@@ -3,6 +3,7 @@ const logger = require("corvid-local-logger");
 const editorSocketApi = require("./editorSocketHandler");
 const adminSocketApi = require("./adminSocketHandler");
 const backup = require("../backup");
+const getMessage = require("../messages");
 
 const initServerApi = (
   localSite,
@@ -28,7 +29,7 @@ const initServerApi = (
     const result = await asyncCallback(...args);
     const cloneModeAfter = isCloneMode();
     if (cloneModeBefore && !cloneModeAfter) {
-      logger.verbose("clone complete");
+      logger.verbose(getMessage("Index_Clone_Complete_Log"));
       notifyAdmin("clone-complete");
     }
     return result;
@@ -42,7 +43,7 @@ const initServerApi = (
     Object.keys(editorServer.io.sockets.connected).length > 0;
 
   const getSiteDocument = () => {
-    logger.verbose("site document requested");
+    logger.verbose(getMessage("Index_Site_Document_Requested_Log"));
     return localSite.getSiteDocument();
   };
 
@@ -53,9 +54,9 @@ const initServerApi = (
 
   const updateSiteDocument = withCloneModeNotification(
     withBackup(async updatedDocument => {
-      logger.verbose("updating local site document");
+      logger.verbose(getMessage("Index_Update_Site_Document_Start_Log"));
       const result = await localSite.updateSiteDocument(updatedDocument);
-      logger.verbose("updating local site document done");
+      logger.verbose(getMessage("Index_Update_Site_Document_Complete_Log"));
       notifyAdmin("document-updated");
       wasSiteDocumentUpdated = true;
       return result;
@@ -63,9 +64,9 @@ const initServerApi = (
   );
 
   const updateCodeFiles = withCloneModeNotification(async codeFileUpdates => {
-    logger.verbose("updating local code files");
+    logger.verbose(getMessage("Index_Update_Code_Files_Start_Log"));
     const result = await localSite.updateCode(codeFileUpdates);
-    logger.verbose("updating local code files done");
+    logger.verbose(getMessage("Index_Update_Code_Files_Complete_Log"));
     notifyAdmin("code-updated");
     wereCodeFilesUpdated = true;
     return result;
@@ -91,18 +92,18 @@ const initServerApi = (
   const editorSocketHandler = editorSocketApi(serverApi);
 
   adminServer.io.on("connection", adminSocket => {
-    logger.verbose("admin connected");
+    logger.verbose(getMessage("Index_Admin_Connected_Log"));
     adminSocket.on("disconnect", () => {
-      logger.verbose("admin disconnected");
+      logger.verbose(getMessage("Index_Admin_Disconnected_Log"));
     });
     return adminSocketHandler(adminSocket);
   });
 
   editorServer.io.on("connection", editorSocket => {
-    logger.verbose("editor connected");
+    logger.verbose(getMessage("Index_Editor_Connected_Log"));
     notifyAdmin("editor-connected");
     editorSocket.on("disconnect", () => {
-      logger.verbose("editor disconnected");
+      logger.verbose(getMessage("Index_Editor_Disconnected_Log"));
       notifyAdmin("editor-disconnected");
     });
     return editorSocketHandler(editorSocket);
