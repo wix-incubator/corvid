@@ -54,7 +54,10 @@ async function pullCommand(spinner, args) {
           const errorMessage = getMessage(error);
           if (errorMessage) {
             if (error === "CAN_NOT_PULL_NON_EMPTY_SITE") {
-              console.log(chalk`${getMessage("Pull_Command_Not_Empty_Error")}`);
+              console.log(
+                chalk.red(getMessage("Pull_Command_Not_Empty_Red_Log"))
+              );
+              console.log(chalk(getMessage("Pull_Command_Not_Empty_Log")));
             } else {
               reject(new Error(errorMessage));
             }
