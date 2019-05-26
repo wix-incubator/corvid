@@ -2,6 +2,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const sessionData = require("./sessionData");
 const getMessage = require("../messages");
+const { UserError } = require("corvid-local-logger");
 
 const configFilePath = root => path.join(root, ".corvidrc.json");
 
@@ -11,7 +12,7 @@ async function readCorvidConfig(dir) {
       if (exc) {
         if (exc.code === "ENOENT") {
           reject(
-            new Error(
+            new UserError(
               getMessage("CorvidConfig_No_Project_Error", {
                 dir: path.resolve(dir)
               })

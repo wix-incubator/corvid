@@ -7,6 +7,7 @@ const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
 const { sendCloneEvent } = require("../utils/bi");
 const getMessage = require("../messages");
+const { exitWithSuccess, exitWithError } = require("../utils/exitProcess");
 
 async function cloneHandler(args) {
   const spinner = createSpinner();
@@ -31,7 +32,7 @@ async function cloneHandler(args) {
       }
     })
     .catch(async error => {
-      spinner.fail(error.message);
+      spinner.fail();
       await sessionData.callWithKeys(
         (msid, uuid) => sendCloneEvent(msid, uuid, "fail"),
         "msid",
@@ -49,23 +50,14 @@ module.exports = {
     args.positional("url", { describe: "Public site URL", type: "string" }),
   handler: args =>
     cloneHandler(Object.assign({}, args, { dir: process.cwd() })).then(
-      message => {
-        console.log(chalk.green(message));
-        process.exit(0);
-      },
+      message => exitWithSuccess(message),
       error => {
-        if (error) {
-          if (error.name === "FetchError") {
-            console.log(
-              chalk.red(getMessage("Clone_Command_Cannot_Fetch_Error"))
-            );
-          } else if (error.message) {
-            console.log(chalk.red(error.message));
-          } else {
-            console.log(error);
-          }
+        if (error && error.name === "FetchError") {
+          console.log(
+            chalk.red(getMessage("Clone_Command_Cannot_Fetch_Error"))
+          );
         }
-        process.exit(-1);
+        exitWithError(error);
       }
     ),
   clone: cloneHandler

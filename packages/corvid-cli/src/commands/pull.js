@@ -11,6 +11,8 @@ const sessionData = require("../utils/sessionData");
 const { sendPullEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const getMessage = require("../messages");
+const { exitWithError, exitWithSuccess } = require("../utils/exitProcess");
+const { UserError } = require("corvid-local-logger");
 
 app &&
   app.on("ready", async () => {
@@ -18,7 +20,7 @@ app &&
     try {
       await openWindow(pullApp({ override: args.override, move: args.move }));
     } catch (exc) {
-      process.exit(-1);
+      exitWithError(exc);
     }
   });
 
@@ -54,12 +56,15 @@ async function pullCommand(spinner, args) {
           const errorMessage = getMessage(error);
           if (errorMessage) {
             if (error === "CAN_NOT_PULL_NON_EMPTY_SITE") {
-              console.log(
-                chalk.red(getMessage("Pull_Command_Not_Empty_Red_Log"))
+              reject(
+                new UserError(`${chalk.red(
+                  getMessage("Pull_Command_Not_Empty_Red_Log")
+                )}
+
+                ${chalk(getMessage("Pull_Command_Not_Empty_Log"))}`)
               );
-              console.log(chalk(getMessage("Pull_Command_Not_Empty_Log")));
             } else {
-              reject(new Error(errorMessage));
+              reject(new UserError(errorMessage));
             }
           } else {
             reject(new Error(error));
@@ -96,7 +101,7 @@ async function pullHandler(args) {
       return getMessage("Pull_Command_Complete");
     })
     .catch(async error => {
-      if (spinner.isSpinning) spinner.fail(error.message);
+      spinner.fail();
       await sessionData.callWithKeys(
         (msid, uuid) =>
           sendPullEvent(msid, uuid, "fail", {
@@ -126,12 +131,10 @@ module.exports = {
   handler: async args =>
     pullHandler(Object.assign({}, args, { dir: process.cwd() })).then(
       message => {
-        if (message) console.log(chalk.green(message));
-        process.exit(0);
+        exitWithSuccess(message);
       },
       error => {
-        if (error && error.message) console.log(chalk.red(error.message));
-        process.exit(-1);
+        exitWithError(error);
       }
     ),
   pull: pullCommand,

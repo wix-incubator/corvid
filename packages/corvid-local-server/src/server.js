@@ -2,8 +2,9 @@ const fs = require("fs-extra");
 const path = require("path");
 const { initSiteManager: initLocalSiteManager } = require("corvid-local-site");
 const uuid = require("uuid/v4");
-const logger = require("corvid-local-logger");
 const projectPaths = require("./projectPaths");
+const { logger, UserError, logAsyncErrors } = require("corvid-local-logger");
+
 const startSocketServer = require("./server/startSocketServer");
 
 const initServerApi = require("./socket-api");
@@ -42,29 +43,29 @@ async function startServer(siteRootPath, options) {
   if (isEdit(options)) {
     if (!isWix) {
       logger.info(getMessage("Server_Edit_Project_Not_Found_Log"));
-      throw new Error("CAN_NOT_EDIT_NON_WIX_SITE");
+      throw new UserError("CAN_NOT_EDIT_NON_WIX_SITE");
     }
     if (isEmpty) {
       logger.info(getMessage("Server_Edit_Empty_Site_Log"));
-      throw new Error("CAN_NOT_EDIT_EMPTY_SITE");
+      throw new UserError("CAN_NOT_EDIT_EMPTY_SITE");
     }
   }
 
   if (isClone(options)) {
     if (!isWix) {
       logger.info(getMessage("Server_Clone_Project_Not_Found_Log"));
-      throw new Error("CAN_NOT_CLONE_NON_WIX_SITE");
+      throw new UserError("CAN_NOT_CLONE_NON_WIX_SITE");
     }
     if (!isEmpty) {
       logger.info(getMessage("Server_Clone_Project_Not_Empty_Site_Log"));
-      throw new Error("CAN_NOT_PULL_NON_EMPTY_SITE");
+      throw new UserError("CAN_NOT_PULL_NON_EMPTY_SITE");
     }
   }
 
   if (isPullForce(options)) {
     if (!isWix) {
       logger.info(getMessage("Server_PullForce_Project_Not_Found_Log"));
-      throw new Error("CAN_NOT_PULL_NON_WIX_SITE");
+      throw new UserError("CAN_NOT_PULL_NON_WIX_SITE");
     }
     await fs.emptyDir(siteSrcPath);
   }
@@ -72,7 +73,7 @@ async function startServer(siteRootPath, options) {
   if (isPullMove(options)) {
     if (!isWix) {
       logger.info(getMessage("Server_PullMove_Project_Not_Found_Log"));
-      throw new Error("CAN_NOT_PULL_NON_WIX_SITE");
+      throw new UserError("CAN_NOT_PULL_NON_WIX_SITE");
     }
     const snapshotFolder = path.join(
       siteRootPath,
@@ -127,7 +128,7 @@ const startInCloneMode = (
   options = { override: false, move: false }
 ) => {
   if (options.override && options.move) {
-    throw new Error(getMessage("Server_Override_And_Move_Error"));
+    throw new UserError(getMessage("Server_Override_And_Move_Error"));
   }
   let type = "CLONE";
   if (options.move) {
@@ -146,6 +147,6 @@ const startInEditMode = siteRootPath =>
   });
 
 module.exports = {
-  startInCloneMode,
-  startInEditMode
+  startInCloneMode: logAsyncErrors(startInCloneMode),
+  startInEditMode: logAsyncErrors(startInEditMode)
 };

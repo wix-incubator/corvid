@@ -14,6 +14,8 @@ const sessionData = require("../utils/sessionData");
 const { sendOpenEditorEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const getMessage = require("../messages");
+const { UserError } = require("corvid-local-logger");
+const { exitWithError } = require("../utils/exitProcess");
 
 app &&
   app.on("ready", async () => {
@@ -22,7 +24,7 @@ app &&
         show: true && !process.env.CORVID_FORCE_HEADLESS
       });
     } catch (exc) {
-      process.exit(-1);
+      exitWithError(exc);
     }
   });
 
@@ -38,7 +40,7 @@ async function openEditorHandler(args) {
   try {
     fs.readdirSync(directory);
   } catch (exc) {
-    throw new Error(
+    throw new UserError(
       getMessage("OpenEditor_Command_No_Folder_Error", { directory })
     );
   }
@@ -86,7 +88,7 @@ async function openEditorHandler(args) {
           );
           const errorMessage = getMessage(error);
           if (errorMessage) {
-            reject(new Error(errorMessage));
+            reject(new UserError(errorMessage));
           } else {
             reject(new Error(error));
           }
@@ -94,7 +96,10 @@ async function openEditorHandler(args) {
       }
     )
       .then(resolve, reject)
-      .catch(e => spinner.fail(e.message));
+      .catch(e => {
+        spinner.fail();
+        throw e;
+      });
   });
 
   spinner.stop();
@@ -106,10 +111,7 @@ module.exports = {
   builder: {},
   handler: async args => {
     openEditorHandler(Object.assign({}, args, { dir: process.cwd() })).catch(
-      error => {
-        console.log(chalk.red(error.message));
-        process.exit(-1);
-      }
+      error => exitWithError(error)
     );
   },
   openEditorHandler

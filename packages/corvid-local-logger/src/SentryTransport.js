@@ -8,8 +8,14 @@ class SentryTransport extends Transport {
   }
 
   log(info, callback) {
+    setImmediate(() => {
+      this.emit("logged", info);
+    });
+
     if (info instanceof Error) {
       this._sentry.captureException(info);
+    } else if (info.message instanceof Error) {
+      this._sentry.captureException(info.message);
     } else if (info.error instanceof Error) {
       this._sentry.captureException(info.error);
     } else if (info.level === "error") {
@@ -24,13 +30,11 @@ class SentryTransport extends Transport {
         message: info.message,
         category: info.level
       });
+      callback();
+      return;
     }
 
-    setImmediate(() => {
-      this.emit("logged", info);
-    });
-
-    callback();
+    this._sentry.flush().then(() => callback());
   }
 }
 

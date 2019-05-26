@@ -6,7 +6,7 @@ const { BrowserWindow } = require("electron");
 const client = require("socket.io-client");
 const electron = require("electron");
 
-const logger = require("corvid-local-logger");
+const { logger } = require("corvid-local-logger");
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const { sendRequest } = require("../utils/socketIoHelpers");
@@ -53,7 +53,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
         });
 
         cp.stderr.on("data", function(data) {
-          logger.silly(data.toString());
+          logger.debug(data.toString());
         });
       }
 
@@ -70,13 +70,12 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
     serverMode === "edit"
       ? startInEditMode(".", serverArgs)
       : startInCloneMode(".", serverArgs);
+
   const {
     adminPort: localServerPort,
     adminToken: token,
     close: closeLocalServer
-  } = await server.catch(exc => {
-    throw new Error(exc.message);
-  });
+  } = await server;
 
   win.on("close", () => {
     closeLocalServer();

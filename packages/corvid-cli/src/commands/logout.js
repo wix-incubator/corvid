@@ -4,6 +4,7 @@ const { app, BrowserWindow } = require("electron");
 const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const getMessage = require("../messages");
+const { exitWithError } = require("../utils/exitProcess");
 
 app &&
   app.on("ready", async () => {
@@ -23,8 +24,7 @@ app &&
 
       win.close();
     } catch (exc) {
-      console.log(exc);
-      process.exit(-1);
+      exitWithError(exc);
     }
   });
 

@@ -4,6 +4,7 @@ const chalk = require("chalk");
 const normalize = require("normalize-url");
 const { URL } = require("url");
 const getMessage = require("../messages");
+const { UserError } = require("corvid-local-logger");
 
 const {
   writeCorvidConfig,
@@ -85,7 +86,7 @@ async function clone(spinner, args, cookie) {
     const dirName = args.dir;
 
     if (await doesConfigExist(dirName)) {
-      throw new Error(getMessage("Clone_Project_Exists_Error"));
+      throw new UserError(getMessage("Clone_Project_Exists_Error"));
     }
 
     await writeCorvidConfig(dirName, {

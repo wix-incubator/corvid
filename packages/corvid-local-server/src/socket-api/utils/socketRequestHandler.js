@@ -1,3 +1,5 @@
+const logger = require("corvid-local-logger");
+
 const handleRequest = handler => (...args) => {
   // TODO: properly handle different arg possibilities
   const callback = args.pop() || (() => {});
@@ -5,6 +7,7 @@ const handleRequest = handler => (...args) => {
   return Promise.resolve(handler(payload))
     .then(result => callback(null, result))
     .catch(err => {
+      logger.error(err);
       callback({
         name: err.name,
         message: err.message,

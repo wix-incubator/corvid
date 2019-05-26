@@ -8,6 +8,8 @@ const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
 const getMessage = require("../messages");
+const { UserError } = require("corvid-local-logger");
+const { exitWithError, exitWithSuccess } = require("../utils/exitProcess");
 
 const mySitesUrl = "https://www.wix.com/account/sites";
 const signInHostname = "users.wix.com";
@@ -47,14 +49,13 @@ app &&
               );
             }
           );
-          win.webContents.on("did-finish-load", () => process.exit(0));
+          win.webContents.on("did-finish-load", () => exitWithSuccess());
         }
       });
 
       win.loadURL(mySitesUrl);
     } catch (exc) {
-      console.log(exc);
-      process.exit(-1);
+      exitWithError(exc);
     }
   });
 
@@ -101,11 +102,14 @@ module.exports = {
     return loginCommand(spinner)
       .then(cookie => {
         if (!cookie) {
-          throw new Error(getMessage("Login_Command_Login_Failed_Error"));
+          throw new UserError(getMessage("Login_Command_Login_Failed_Error"));
         }
         spinner.succeed();
       })
-      .catch(() => spinner.fail());
+      .catch(error => {
+        spinner.fail();
+        throw error;
+      });
   },
   login: loginCommand,
   parseSessionCookie
