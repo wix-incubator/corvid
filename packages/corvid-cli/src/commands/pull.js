@@ -7,7 +7,6 @@ const yargs = require("yargs");
 const { openWindow, launch } = require("../utils/electron");
 const pullApp = require("../apps/pull");
 const createSpinner = require("../utils/spinner");
-const serverErrors = require("../utils/server-errors");
 const sessionData = require("../utils/sessionData");
 const { sendPullEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
@@ -52,11 +51,12 @@ async function pullCommand(spinner, args) {
         },
         error: error => {
           spinner.fail();
-          if (error in serverErrors) {
+          const errorMessage = getMessage(error);
+          if (errorMessage) {
             if (error === "CAN_NOT_PULL_NON_EMPTY_SITE") {
               console.log(chalk`${getMessage("Pull_Command_Not_Empty_Error")}`);
             } else {
-              reject(new Error(serverErrors[error]));
+              reject(new Error(errorMessage));
             }
           } else {
             reject(new Error(error));

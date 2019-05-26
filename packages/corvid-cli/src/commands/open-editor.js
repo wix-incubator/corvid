@@ -10,7 +10,6 @@ const {
 } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const openEditorApp = require("../apps/open-editor");
-const serverErrors = require("../utils/server-errors");
 const sessionData = require("../utils/sessionData");
 const { sendOpenEditorEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
@@ -85,8 +84,9 @@ async function openEditorHandler(args) {
             "msid",
             "uuid"
           );
-          if (error in serverErrors) {
-            reject(new Error(serverErrors[error]));
+          const errorMessage = getMessage(error);
+          if (errorMessage) {
+            reject(new Error(errorMessage));
           } else {
             reject(new Error(error));
           }
