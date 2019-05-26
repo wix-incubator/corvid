@@ -1,13 +1,11 @@
 const chalk = require("chalk");
 const version = require("./version");
+const getMessage = require("./messages");
 
 // eslint-disable-next-line no-console
-console.log(chalk.yellow("Corvid Technical Preview"));
+console.log(chalk.yellow(getMessage("Cli_Description_Yellow")));
 // eslint-disable-next-line no-console
-console.log(`
-Find out more about Corvid at www.wix.com/corvid
-The Corvid CLI is used for working with local versions of your Wix sites. Using the CLI you can create new local projects, open a local editor, and pull project updates.
-`);
+console.log(getMessage("Cli_Description"));
 
 if (version.check()) {
   require("yargs")
@@ -19,6 +17,6 @@ if (version.check()) {
 } else {
   // eslint-disable-next-line no-console
   console.log(
-    chalk.red("Unsupported Node.js version, please use", version.required)
+    chalk.red(getMessage("Cli_Unsupported_Node_Version"), version.required)
   );
 }

@@ -1,4 +1,7 @@
 {
+    "Cli_Description_Yellow": "Corvid Technical Preview",
+    "Cli_Description": "Find out more about Corvid at www.wix.com/corvid\nThe Corvid CLI is used for working with local versions of your Wix sites. Using the CLI you can create new local projects, open a local editor, and pull project updates.",
+    "Cli_Unsupported_Node_Version": "Unsupported Node.js version, please use",
     "Clone_Getting_Site_Data": "Getting site information",
     "Clone_No_MetasiteId_Error": "Could not get site information from <%= url %>",
     "Clone_Project_Exists_Error": "Project already exists",
