@@ -1,4 +1,5 @@
 const logger = require("corvid-local-logger");
+const getMessage = require("./messages");
 
 const prettyStringify = content => JSON.stringify(content, null, 2);
 
@@ -7,7 +8,7 @@ const tryToPrettifyJsonString = jsonString => {
     const prettyJsonString = prettyStringify(JSON.parse(jsonString));
     return prettyJsonString;
   } catch (e) {
-    logger.info(`failed prettifying json file ${jsonString}`);
+    logger.info(getMessage("Prettify_Fail_Log", { jsonString }));
     return jsonString;
   }
 };

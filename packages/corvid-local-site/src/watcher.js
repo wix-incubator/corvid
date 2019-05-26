@@ -5,6 +5,7 @@ const find_ = require("lodash/find");
 const reject_ = require("lodash/reject");
 const logger = require("corvid-local-logger");
 const sitePaths = require("./sitePaths");
+const getMessage = require("./messages");
 
 const ensureWriteFile = async (path, content) => {
   await fs.ensureFile(path);
@@ -16,10 +17,10 @@ const toPosixPath = winPath => winPath.replace(/\\/g, "/");
 const watch = async givenPath => {
   let ignoreBefore = 0;
   let ignoreAll = false;
-  logger.verbose(`watching for file changes at [${givenPath}]`);
+  logger.verbose(getMessage("Watcher_Start_Log", { path: givenPath }));
   const rootPath = fs.realpathSync(givenPath);
   if (rootPath !== givenPath) {
-    logger.debug(`watched path resolved to [${rootPath}]`);
+    logger.debug(getMessage("Watcher_Path_Resolved_Log", { path: rootPath }));
   }
 
   const fullPath = relativePath => path.join(rootPath, relativePath);
@@ -32,7 +33,7 @@ const watch = async givenPath => {
 
   const assertUnderRoot = relativePath => {
     if (!isUnderRoot(relativePath)) {
-      throw new Error("tried to access file outside project");
+      throw new Error(getMessage("Watcher_Not_Under_Root_Error"));
     }
   };
 
@@ -74,13 +75,17 @@ const watch = async givenPath => {
       watcher.on("add", async (relativePath, stats) => {
         const posixRelativePath = toPosixPath(relativePath);
         if (!isIgnoredAction("write", posixRelativePath, stats.mtimeMs)) {
-          logger.debug(`reporting new file at [${posixRelativePath}]`);
+          logger.debug(
+            getMessage("Watcher_Add_Reporting_Log", { path: posixRelativePath })
+          );
           callback(
             sitePaths.fromLocalCode(posixRelativePath),
             await fs.readFile(fullPath(posixRelativePath), "utf8")
           );
         } else {
-          logger.debug(`ignoring new file at [${posixRelativePath}]`);
+          logger.debug(
+            getMessage("Watcher_Add_Ignoring_Log", { path: posixRelativePath })
+          );
           removeFromIgnoredActions("write", posixRelativePath);
         }
       });
@@ -90,13 +95,21 @@ const watch = async givenPath => {
       watcher.on("change", async (relativePath, stats) => {
         const posixRelativePath = toPosixPath(relativePath);
         if (!isIgnoredAction("write", posixRelativePath, stats.mtimeMs)) {
-          logger.debug(`reporting modified file at [${posixRelativePath}]`);
+          logger.debug(
+            getMessage("Watcher_Change_Reporting_Log", {
+              path: posixRelativePath
+            })
+          );
           callback(
             sitePaths.fromLocalCode(posixRelativePath),
             await fs.readFile(fullPath(posixRelativePath), "utf8")
           );
         } else {
-          logger.debug(`ignoring modified file at [${posixRelativePath}]`);
+          logger.debug(
+            getMessage("Watcher_Change_Ignoring_Log", {
+              path: posixRelativePath
+            })
+          );
           removeFromIgnoredActions("write", posixRelativePath);
         }
       });
@@ -106,24 +119,37 @@ const watch = async givenPath => {
       watcher.on("unlink", async relativePath => {
         const posixRelativePath = toPosixPath(relativePath);
         if (!isIgnoredAction("delete", posixRelativePath)) {
-          logger.debug(`reporting deleted file at [${posixRelativePath}]`);
+          logger.debug(
+            getMessage("Watcher_Delete_Reporting_Log", {
+              path: posixRelativePath
+            })
+          );
           callback(sitePaths.fromLocalCode(posixRelativePath));
         } else {
-          logger.debug(`ignoring deleted file at [${posixRelativePath}]`);
+          logger.debug(
+            getMessage("Watcher_Delete_Ignoring_Log", {
+              path: posixRelativePath
+            })
+          );
           removeFromIgnoredActions("delete", posixRelativePath);
         }
       });
     },
 
     ignoredWriteFile: async (relativePath, content) => {
-      logger.debug(`writing file ${relativePath}`);
+      logger.debug(
+        getMessage("Watcher_Ignored_Write_Log", { path: relativePath })
+      );
       try {
         ignoreAction("write", relativePath);
         assertUnderRoot(relativePath);
         await ensureWriteFile(fullPath(relativePath), content);
       } catch (e) {
         logger.error(
-          `writing file ${relativePath} failed with error "${e.message}"`
+          getMessage("Watcher_Ignored_Write_Fail_Log", {
+            path: relativePath,
+            message: e.message
+          })
         );
         removeFromIgnoredActions("write", relativePath);
         throw e;
@@ -131,7 +157,9 @@ const watch = async givenPath => {
     },
 
     ignoredEnsureFile: async relativePath => {
-      logger.debug(`ensure file ${relativePath}`);
+      logger.debug(
+        getMessage("Watcher_Ignored_Ensure_Log", { path: relativePath })
+      );
       const fullPathFile = fullPath(relativePath);
       if (await fs.exists(fullPathFile)) return;
       try {
@@ -140,7 +168,10 @@ const watch = async givenPath => {
         await fs.ensureFile(fullPathFile);
       } catch (e) {
         logger.error(
-          `writing file ${relativePath} failed with error "${e.message}"`
+          getMessage("Watcher_Ignored_Ensure_Fail_Log", {
+            path: relativePath,
+            message: e.message
+          })
         );
         removeFromIgnoredActions("write", relativePath);
         throw e;
@@ -148,14 +179,19 @@ const watch = async givenPath => {
     },
 
     ignoredDeleteFile: async relativePath => {
-      logger.debug(`deleting file ${relativePath}`);
+      logger.debug(
+        getMessage("Watcher_Ignored_Delete_Log", { path: relativePath })
+      );
       try {
         ignoreAction("delete", relativePath);
         assertUnderRoot(relativePath);
         await fs.unlink(fullPath(relativePath));
       } catch (e) {
         logger.error(
-          `deleting file ${relativePath} failed with error "${e.message}"`
+          getMessage("Watcher_Ignored_Delete_Fail_Log", {
+            path: relativePath,
+            message: e.message
+          })
         );
         removeFromIgnoredActions("delete", relativePath);
         throw e;
@@ -164,7 +200,10 @@ const watch = async givenPath => {
 
     ignoredCopyFile: async (relativeSourcePath, relativeTargetPath) => {
       logger.debug(
-        `copying file from ${relativeSourcePath} to ${relativeTargetPath}`
+        getMessage("Watcher_Ignored_Copy_Log", {
+          sourcePath: relativeSourcePath,
+          targetPath: relativeTargetPath
+        })
       );
       try {
         ignoreAction("write", relativeTargetPath);
@@ -176,7 +215,9 @@ const watch = async givenPath => {
           fullPath(relativeTargetPath)
         );
       } catch (e) {
-        logger.error(`copying file failed with error "${e.message}"`);
+        getMessage("Watcher_Ignored_Copy_Fail_Log", {
+          message: e.message
+        });
         removeFromIgnoredActions("write", relativeTargetPath);
         throw e;
       }
@@ -184,7 +225,10 @@ const watch = async givenPath => {
 
     ignoredMoveFile: async (relativeSourcePath, relativeTargetPath) => {
       logger.debug(
-        `moving file from ${relativeSourcePath} to ${relativeTargetPath}`
+        getMessage("Watcher_Ignored_Move_Log", {
+          sourcePath: relativeSourcePath,
+          targetPath: relativeTargetPath
+        })
       );
       try {
         ignoreAction("delete", relativeSourcePath);

@@ -11,6 +11,7 @@ const path = require("path");
 const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
 const logger = require("corvid-local-logger");
+const getMessage = require("./messages");
 const { prettyStringify, tryToPrettifyJsonString } = require("./prettify");
 
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
@@ -106,7 +107,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
         if (payloadConvertors.hasOwnProperty(paylodKey)) {
           return payloadConvertors[paylodKey](siteDocument[paylodKey]);
         } else {
-          const message = `Unknown document property ${paylodKey}`;
+          const message = getMessage("ReadWrite_Unknown_Proprrty_Log", {
+            property: paylodKey
+          });
           logger.warning(message);
           return [];
         }
