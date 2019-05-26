@@ -1,0 +1,22 @@
+{
+    "AdminToken_Error_Log": "admin server authentication error",
+    "AdminToken_Error": "authentication error",
+    "Backup_Start_log": "Backing up site",
+    "Backup_Complete_log": "Backing up site complete",
+    "Backup_Fail_log": "Backing up site is failed",
+    "Backup_Delete_Start_log": "Deleting backup",
+    "Backup_Delete_Complete_log": "Deleting backup complete",
+    "Backup_Restore_Start_log": "Restoring site from backup",
+    "Backup_Restore_Complete_log": "Restoring site from backup complete",
+    "Server_Start_Log": "server starting at <%= path %>",
+    "Server_Backup_Found_Log": "Backup folder found.",
+    "Server_Edit_Project_Not_Found_Log": "Project not found. Open the Editor in the project's root folder.",
+    "Server_Edit_Empty_Site_Log": "cannot edit an empty site directory",
+    "Server_Clone_Project_Not_Found_Log": "Project not found. Open the Editor in the project's root folder.",
+    "Server_Clone_Project_Not_Empty_Site_Log": "Project already includes site files.",
+    "Server_PullForce_Project_Not_Found_Log": "Project not found. Open the Editor in the project's root folder.",
+    "Server_PullMove_Project_Not_Found_Log": "Project not found. Open the Editor in the project's root folder.",
+    "Server_Listening_Log": "server listening at editor port [<%= editorPort %>], admin port [<%= adminPort %>]",
+    "Server_Close": "server closing",
+    "Server_Override_And_Move_Error": "Only one of 'override' and 'move' may be set"
+}

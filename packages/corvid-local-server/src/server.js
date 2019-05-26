@@ -8,6 +8,7 @@ const startSocketServer = require("./server/startSocketServer");
 
 const initServerApi = require("./socket-api");
 const adminTokenMiddleware = require("./adminTokenMiddleware");
+const getMessage = require("./messages");
 
 const adminToken = uuid();
 const DEFAULT_EDITOR_PORT = 5000;
@@ -24,7 +25,9 @@ const isEmptyDir = async path => {
 };
 
 async function startServer(siteRootPath, options) {
-  logger.info(`server starting at [${path.resolve(siteRootPath)}]`);
+  logger.info(
+    getMessage("Server_Start_Log", { path: path.resolve(siteRootPath) })
+  );
   const siteSrcPath = projectPaths.siteSrcPath(siteRootPath);
   await fs.ensureDir(siteSrcPath);
   const isEmpty = await isEmptyDir(siteSrcPath);
@@ -32,41 +35,35 @@ async function startServer(siteRootPath, options) {
   const hasBackup = await fs.exists(projectPaths.backupPath(siteRootPath));
 
   if (hasBackup) {
-    logger.info("Backup folder found.");
+    logger.info(getMessage("Server_Backup_Found_Log"));
     throw new Error("BACKUP_FOLDER_EXISTS");
   }
 
   if (isEdit(options)) {
     if (!isWix) {
-      logger.info(
-        "Project not found. Open the Editor in the project's root folder."
-      );
+      logger.info(getMessage("Server_Edit_Project_Not_Found_Log"));
       throw new Error("CAN_NOT_EDIT_NON_WIX_SITE");
     }
     if (isEmpty) {
-      logger.info("cannot edit an empty site directory");
+      logger.info(getMessage("Server_Edit_Empty_Site_Log"));
       throw new Error("CAN_NOT_EDIT_EMPTY_SITE");
     }
   }
 
   if (isClone(options)) {
     if (!isWix) {
-      logger.info(
-        "Project not found. Open the Editor in the project's root folder."
-      );
+      logger.info(getMessage("Server_Clone_Project_Not_Found_Log"));
       throw new Error("CAN_NOT_CLONE_NON_WIX_SITE");
     }
     if (!isEmpty) {
-      logger.info("Project already includes site files.");
+      logger.info(getMessage("Server_Clone_Project_Not_Empty_Site_Log"));
       throw new Error("CAN_NOT_PULL_NON_EMPTY_SITE");
     }
   }
 
   if (isPullForce(options)) {
     if (!isWix) {
-      logger.info(
-        "Project not found. Pull site files to the project's root folder."
-      );
+      logger.info(getMessage("Server_PullForce_Project_Not_Found_Log"));
       throw new Error("CAN_NOT_PULL_NON_WIX_SITE");
     }
     await fs.emptyDir(siteSrcPath);
@@ -74,9 +71,7 @@ async function startServer(siteRootPath, options) {
 
   if (isPullMove(options)) {
     if (!isWix) {
-      logger.info(
-        "Project not found. Pull site files to the project's root folder."
-      );
+      logger.info(getMessage("Server_PullMove_Project_Not_Found_Log"));
       throw new Error("CAN_NOT_PULL_NON_WIX_SITE");
     }
     const snapshotFolder = path.join(
@@ -109,16 +104,17 @@ async function startServer(siteRootPath, options) {
   );
 
   logger.info(
-    `server listening at editor port [${editorServer.port}], admin port [${
-      adminServer.port
-    }]`
+    getMessage("Server_Listening_Log", {
+      editorPort: editorServer.port,
+      adminPort: adminServer.port
+    })
   );
   return {
     port: editorServer.port,
     adminPort: adminServer.port,
     adminToken,
     close: () => {
-      logger.info("server closing");
+      logger.info(getMessage("Server_Close"));
       localSite.close();
       editorServer.close();
       adminServer.close();
@@ -131,7 +127,7 @@ const startInCloneMode = (
   options = { override: false, move: false }
 ) => {
   if (options.override && options.move) {
-    throw new Error("Only one of 'override' and 'move' may be set");
+    throw new Error(getMessage("Server_Override_And_Move_Error"));
   }
   let type = "CLONE";
   if (options.move) {
