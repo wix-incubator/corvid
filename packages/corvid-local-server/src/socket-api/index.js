@@ -1,4 +1,7 @@
-const { version: moduleVersion } = require("../../package.json");
+const {
+  version: serverVersion,
+  santaApiVersion
+} = require("../../package.json");
 const logger = require("corvid-local-logger");
 const editorSocketApi = require("./editorSocketHandler");
 const adminSocketApi = require("./adminSocketHandler");
@@ -18,7 +21,10 @@ const initServerApi = (
   let wasSiteDocumentUpdated = false;
   let wereCodeFilesUpdated = false;
 
-  const getServerVersion = () => moduleVersion;
+  const getServerVersion = () => ({
+    serverVersion,
+    santaApiVersion
+  });
 
   const wasSiteSaved = () => wasSiteDocumentUpdated && wereCodeFilesUpdated;
 

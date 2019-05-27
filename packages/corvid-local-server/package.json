@@ -63,5 +63,6 @@
     "*.js": [
       "eslint"
     ]
-  }
+  },
+  "santaApiVersion": 1
 }

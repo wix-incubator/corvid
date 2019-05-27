@@ -2,7 +2,10 @@ const { socketClient } = require("corvid-local-test-utils");
 const { localServer, closeAll } = require("../utils/autoClosing");
 const { initLocalSite } = require("../utils/localSiteDir");
 
-const { version: localServerModuleVersion } = require("../../package.json");
+const {
+  version: localServerModuleVersion,
+  santaApiVersion
+} = require("../../package.json");
 
 afterEach(closeAll);
 
@@ -34,7 +37,10 @@ describe("local server version", () => {
       "GET_SERVER_VERSION"
     );
 
-    expect(version).toEqual(localServerModuleVersion);
+    expect(version).toEqual({
+      serverVersion: localServerModuleVersion,
+      santaApiVersion
+    });
   });
 
   it("should allow an admin to get the local server module version", async () => {
@@ -49,6 +55,9 @@ describe("local server version", () => {
       "GET_SERVER_VERSION"
     );
 
-    expect(version).toEqual(localServerModuleVersion);
+    expect(version).toEqual({
+      serverVersion: localServerModuleVersion,
+      santaApiVersion
+    });
   });
 });
