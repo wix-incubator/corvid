@@ -7,10 +7,10 @@ const yargs = require("yargs");
 const { openWindow, launch } = require("../utils/electron");
 const pullApp = require("../apps/pull");
 const createSpinner = require("../utils/spinner");
-const serverErrors = require("../utils/server-errors");
 const sessionData = require("../utils/sessionData");
 const { sendPullEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
+const getMessage = require("../messages");
 
 app &&
   app.on("ready", async () => {
@@ -23,7 +23,7 @@ app &&
   });
 
 async function pullCommand(spinner, args) {
-  spinner.start(chalk.grey("Connecting to local server"));
+  spinner.start(chalk.grey(getMessage("Pull_Command_Connecting")));
   const pullArgs = [];
 
   if (args.override) pullArgs.push("--override");
@@ -40,28 +40,26 @@ async function pullCommand(spinner, args) {
       },
       {
         localServerConnected: () => {
-          spinner.start(chalk.grey("Waiting for editor to connect"));
+          spinner.start(chalk.grey(getMessage("Pull_Command_Waiting")));
         },
         editorConnected: () => {
-          spinner.start(chalk.grey("Downloading project"));
+          spinner.start(chalk.grey(getMessage("Pull_Command_Downloading")));
         },
         projectDownloaded: () => {
-          spinner.start(chalk.grey("Downloaded project"));
+          spinner.start(chalk.grey(getMessage("Pull_Command_Downloaded")));
           resolve();
         },
         error: error => {
           spinner.fail();
-          if (error in serverErrors) {
+          const errorMessage = getMessage(error);
+          if (errorMessage) {
             if (error === "CAN_NOT_PULL_NON_EMPTY_SITE") {
-              console.log(chalk`{red Project directory already includes site files}
-
-Run either:
-  - 'corvid pull --move' to create a snapshot of your current project and pull the
-    latest revision from the remote repository.
-  - 'corvid pull --override' to override the existing site files with the latest
-    revision from the remote repository.`);
+              console.log(
+                chalk.red(getMessage("Pull_Command_Not_Empty_Red_Log"))
+              );
+              console.log(chalk(getMessage("Pull_Command_Not_Empty_Log")));
             } else {
-              reject(new Error(serverErrors[error]));
+              reject(new Error(errorMessage));
             }
           } else {
             reject(new Error(error));
@@ -95,7 +93,7 @@ async function pullHandler(args) {
         "msid",
         "uuid"
       );
-      return `Pull complete, run 'corvid open-editor' to start editing the local copy`;
+      return getMessage("Pull_Command_Complete");
     })
     .catch(async error => {
       if (spinner.isSpinning) spinner.fail(error.message);
@@ -113,15 +111,15 @@ async function pullHandler(args) {
 
 module.exports = {
   command: "pull",
-  describe: "pulls a local copy of the site",
+  describe: getMessage("Pull_Command_Description"),
   builder: args =>
     args
       .option("override", {
-        describe: "overwrite existing site files",
+        describe: getMessage("Pull_Command_Override_Description"),
         type: "boolean"
       })
       .option("move", {
-        describe: "move existing site files before pull",
+        describe: getMessage("Pull_Command_Move_Description"),
         type: "boolean"
       })
       .conflicts("override", "move"),

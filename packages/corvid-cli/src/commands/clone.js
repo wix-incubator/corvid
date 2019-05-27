@@ -6,6 +6,7 @@ const { pull } = require("./pull");
 const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
 const { sendCloneEvent } = require("../utils/bi");
+const getMessage = require("../messages");
 
 async function cloneHandler(args) {
   const spinner = createSpinner();
@@ -24,9 +25,9 @@ async function cloneHandler(args) {
           "msid",
           "uuid"
         );
-        return `Clone complete, run 'corvid open-editor' to start editing the local copy`;
+        return getMessage("Clone_Command_Complete");
       } else {
-        throw new Error("Login failed");
+        throw new Error(getMessage("Clone_Command_Login_Failed_Error"));
       }
     })
     .catch(async error => {
@@ -43,7 +44,7 @@ async function cloneHandler(args) {
 
 module.exports = {
   command: "clone <url>",
-  describe: "clones a local Wix Site copy",
+  describe: getMessage("Clone_Command_Description"),
   builder: args =>
     args.positional("url", { describe: "Public site URL", type: "string" }),
   handler: args =>
@@ -55,7 +56,9 @@ module.exports = {
       error => {
         if (error) {
           if (error.name === "FetchError") {
-            console.log(chalk.red("Failed to retrieve site list"));
+            console.log(
+              chalk.red(getMessage("Clone_Command_Cannot_Fetch_Error"))
+            );
           } else if (error.message) {
             console.log(chalk.red(error.message));
           } else {

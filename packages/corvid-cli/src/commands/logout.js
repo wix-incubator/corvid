@@ -3,6 +3,7 @@ const chalk = require("chalk");
 const { app, BrowserWindow } = require("electron");
 const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
+const getMessage = require("../messages");
 
 app &&
   app.on("ready", async () => {
@@ -29,13 +30,13 @@ app &&
 
 module.exports = {
   command: "logout",
-  describe: "logout from www.wix.com",
+  describe: getMessage("Logout_Command_Description"),
   handler: () => {
     const spinner = createSpinner();
-    spinner.start(chalk.grey("Clearing offline data"));
+    spinner.start(chalk.grey(getMessage("Logout_Command_Clearing")));
 
     launch(__filename).then(() => {
-      spinner.succeed(chalk.grey("Cleared offline data"));
+      spinner.succeed(chalk.grey(getMessage("Logout_Command_Cleared")));
     });
   }
 };

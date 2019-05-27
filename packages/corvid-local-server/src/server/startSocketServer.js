@@ -3,6 +3,7 @@ const http = require("http");
 const socketIo = require("socket.io");
 const stoppable = require("stoppable");
 const listenOnFreePort = require("listen-on-free-port");
+const getMessage = require("../messages");
 
 const logger = require("corvid-local-logger");
 const singleSocketConnectionMiddleware = require("./singleSocketConnectionMiddleware");
@@ -21,7 +22,9 @@ const setupSocketServer = async (defaultPort, options = {}) => {
   const io = socketIo(server);
   io.use(
     singleSocketConnectionMiddleware(() => {
-      logger.warn(`blocking multiple connection on port [${port}]`);
+      logger.warn(
+        getMessage("StartSocketServer_Multiple_Connections_Log", { port })
+      );
     })
   );
   if (options.allowedDomains) {

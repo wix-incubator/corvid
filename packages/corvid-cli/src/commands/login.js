@@ -7,6 +7,7 @@ const _ = require("lodash");
 const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
+const getMessage = require("../messages");
 
 const mySitesUrl = "https://www.wix.com/account/sites";
 const signInHostname = "users.wix.com";
@@ -68,17 +69,17 @@ function parseSessionCookie(cookie) {
 }
 
 async function loginCommand(spinner) {
-  spinner.start(chalk.grey("Accessing www.wix.com"));
+  spinner.start(chalk.grey(getMessage("Login_Command_Accessing")));
 
   return launch(
     __filename,
     {},
     {
       authenticatingUser: () => {
-        spinner.start(chalk.grey("Authenticating on www.wix.com"));
+        spinner.start(chalk.grey(getMessage("Login_Command_Authenticating")));
       },
       userAuthenticated: () => {
-        spinner.start(chalk.grey("Authenticated on www.wix.com"));
+        spinner.start(chalk.grey(getMessage("Login_Command_Authenticated")));
       }
     }
   ).then(async messages => {
@@ -94,13 +95,13 @@ async function loginCommand(spinner) {
 
 module.exports = {
   command: "login",
-  describe: "login to www.wix.com",
+  describe: getMessage("Login_Command_Description"),
   handler: async () => {
     const spinner = createSpinner();
     return loginCommand(spinner)
       .then(cookie => {
         if (!cookie) {
-          throw new Error("Login failed");
+          throw new Error(getMessage("Login_Command_Login_Failed_Error"));
         }
         spinner.succeed();
       })
