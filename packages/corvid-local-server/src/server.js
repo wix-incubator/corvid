@@ -114,7 +114,7 @@ async function startServer(siteRootPath, options) {
     adminPort: adminServer.port,
     adminToken,
     close: () => {
-      logger.info(getMessage("Server_Close"));
+      logger.info(getMessage("Server_Close_Log"));
       localSite.close();
       editorServer.close();
       adminServer.close();
