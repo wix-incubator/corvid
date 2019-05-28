@@ -29,9 +29,9 @@ const crashConsoleTransport = () =>
     )
   });
 
-const sentryTransport = sessionId =>
+const sentryTransport = defaultMetadata =>
   new SentryTransport({
-    sentry: initSentry(sessionId),
+    sentry: initSentry(defaultMetadata),
     level: "debug"
   });
 
@@ -49,13 +49,13 @@ const debugConsoleTransport = () =>
     )
   });
 
-const initLogger = (sessionId, cwd) => {
+const initLogger = (cwd, defaultMetadata) => {
   const logger = winston.createLogger({
-    defaultMeta: { sessionId },
+    defaultMeta: defaultMetadata,
     transports: [
       logFileTransport(cwd),
       crashConsoleTransport(),
-      sentryTransport(sessionId)
+      sentryTransport(defaultMetadata)
     ]
   });
 
