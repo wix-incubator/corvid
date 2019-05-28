@@ -1,13 +1,16 @@
 const { socketClient } = require("corvid-local-test-utils");
 const { localServer, closeAll } = require("../utils/autoClosing");
 const { initLocalSite } = require("../utils/localSiteDir");
+const {
+  apiVersion,
+  supportedSiteDocumentVersion
+} = require("../../src/versions.json");
 
 const { version: localServerModuleVersion } = require("../../package.json");
 
 afterEach(closeAll);
 
 const getEditorEndpoint = server => `http://localhost:${server.port}`;
-const getAdminEndpoint = server => `http://localhost:${server.adminPort}`;
 
 const clientSocketOptions = {
   transportOptions: {
@@ -29,26 +32,15 @@ describe("local server version", () => {
       clientSocketOptions
     );
 
-    const version = await socketClient.sendRequest(
+    const handshakeData = await socketClient.sendRequest(
       editorSocket,
-      "GET_SERVER_VERSION"
+      "HANDSHAKE"
     );
 
-    expect(version).toEqual(localServerModuleVersion);
-  });
-
-  it("should allow an admin to get the local server module version", async () => {
-    const localSiteDir = await initLocalSite();
-    const server = await localServer.startInCloneMode(localSiteDir);
-
-    const adminSocket = await socketClient.connect(getAdminEndpoint(server), {
-      query: { token: server.adminToken }
+    expect(handshakeData).toEqual({
+      serverVersion: localServerModuleVersion,
+      apiVersion,
+      supportedSiteDocumentVersion
     });
-    const version = await socketClient.sendRequest(
-      adminSocket,
-      "GET_SERVER_VERSION"
-    );
-
-    expect(version).toEqual(localServerModuleVersion);
   });
 });

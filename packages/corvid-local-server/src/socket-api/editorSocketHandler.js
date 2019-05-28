@@ -6,7 +6,7 @@ const initEditorApi = editorApi => ({
   UPDATE_DOCUMENT: newDocument => editorApi.updateSiteDocument(newDocument),
   GET_CODE: () => editorApi.getCodeFiles(),
   UPDATE_CODE: codeUpdates => editorApi.updateCodeFiles(codeUpdates),
-  GET_SERVER_VERSION: () => editorApi.getServerVersion()
+  HANDSHAKE: () => editorApi.handshake()
 });
 
 const socketHandler = editorApi => {

@@ -52,11 +52,11 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
             logger.error(
               getMessage("Pull_Client_Console_Fatal_Error_Message", { message })
             );
-            reject(
-              new Error(
-                chalk.red(getMessage("Pull_Client_Console_Fatal_Error"))
-              )
-            );
+            // reject(
+            //   new Error(
+            //     chalk.red(getMessage("Pull_Client_Console_Fatal_Error"))
+            //   )
+            // );
           }
         })
       );

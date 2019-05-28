@@ -1,5 +1,6 @@
 const fs = require("fs-extra");
 const get_ = require("lodash/get");
+const set_ = require("lodash/set");
 const mapValues_ = require("lodash/mapValues");
 const merge_ = require("lodash/merge");
 const mapKeys_ = require("lodash/mapKeys");
@@ -13,6 +14,7 @@ const dirAsJson = require("corvid-dir-as-json");
 const logger = require("corvid-local-logger");
 const getMessage = require("./messages");
 const { prettyStringify, tryToPrettifyJsonString } = require("./prettify");
+const localFileSystemLayout = "1.0";
 
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
 
@@ -53,7 +55,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
         (content, path) => sitePaths.isDocumentFile(path)
       );
       documentPart = mapKeys_(
-        mapValues_(folder, JSON.parse),
+        mapValues_(folder, content => unwrap(JSON.parse(content))),
         getFilenameFromKey
       );
     }
@@ -66,6 +68,10 @@ const readWrite = (siteRootPath, filesWatcher) => {
   const getSite = partial_(getDocumentPartByKey, "site");
   const getRouters = partial_(getDocumentPartByKey, "routers");
   const getMenus = partial_(getDocumentPartByKey, "menus");
+  const getMetadata = async () => {
+    const content = await fs.readFile(fullPath(sitePaths.metadata()), "utf8");
+    return JSON.parse(content);
+  };
 
   const getSiteDocument = async () => {
     return {
@@ -73,48 +79,69 @@ const readWrite = (siteRootPath, filesWatcher) => {
       styles: await getStyles(),
       site: await getSite(),
       routers: await getRouters(),
-      menus: await getMenus()
+      menus: await getMenus(),
+      documentSchemaVersion: (await getMetadata()).documentSchemaVersion
     };
   };
 
-  const payloadToFile = pathGetter => payload =>
+  const payloadToFile = pathGetter => (payload, wrapper) =>
     Object.keys(payload).map(keyName => {
       return {
         path: pathGetter(keyName),
-        content: payload[keyName]
+        content: wrapper(payload[keyName])
       };
     });
 
+  const wrapWithVersion = (version, content) => ({ content, version });
+  const unwrap = wrapped => {
+    return wrapped.content;
+  };
+
   const payloadConvertors = {
-    pages: pagePayload => {
+    pages: (pagePayload, wrapper) => {
       return Object.values(pagePayload).map(page => {
         const isPopup = get_(page, "isPopup");
         return {
           path: isPopup ? sitePaths.lightboxes(page) : sitePaths.pages(page),
-          content: page
+          content: wrapper(page)
         };
       });
     },
     styles: payloadToFile(sitePaths.styles),
     site: payloadToFile(sitePaths.site),
     routers: payloadToFile(sitePaths.routers),
-    menus: payloadToFile(sitePaths.menus)
+    menus: payloadToFile(sitePaths.menus),
+    documentSchemaVersion: documentSchemaVersion => ({
+      path: sitePaths.metadata(),
+      content: {
+        documentSchemaVersion,
+        localFileSystemLayout
+      }
+    })
   };
 
-  const siteDocumentToFiles = siteDocument =>
-    flatten_(
+  const siteDocumentToFiles = siteDocument => {
+    if (!siteDocument.documentSchemaVersion) {
+      set_(siteDocument, "documentSchemaVersion", "1.0");
+    }
+    const documentSchemaVersion = siteDocument.documentSchemaVersion;
+    return flatten_(
       Object.keys(siteDocument).map(paylodKey => {
         if (payloadConvertors.hasOwnProperty(paylodKey)) {
-          return payloadConvertors[paylodKey](siteDocument[paylodKey]);
+          return payloadConvertors[paylodKey](
+            siteDocument[paylodKey],
+            partial_(wrapWithVersion, documentSchemaVersion)
+          );
         } else {
           const message = getMessage("ReadWrite_Unknown_PropertyLog", {
             property: paylodKey
           });
-          logger.warning(message);
+          logger.warn(message);
           return [];
         }
       })
     );
+  };
 
   const deleteFolder = async folderPath => {
     if (!(await fs.exists(fullPath(folderPath)))) {

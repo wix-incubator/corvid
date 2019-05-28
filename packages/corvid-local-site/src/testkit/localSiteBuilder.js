@@ -34,13 +34,19 @@ const PATH_ROUTERS = `${PATH_FRONTEND}/routers`;
 const PATH_MENUS = `${PATH_FRONTEND}/menus`;
 const PATH_PAGES = `${PATH_FRONTEND}/pages`;
 const PATH_LIGHTBOXES = `${PATH_FRONTEND}/lightboxes`;
+const documentSchemaVersion = "1.0";
+
+const wrapWithVersion = content => ({
+  content,
+  version: documentSchemaVersion
+});
 
 const wixFilePath = (filename, parentPath = "") =>
   `${parentPath}/${filename}.${wixFileExtension}`;
 
 const wixFile = (parentPath, name, content) => ({
   path: wixFilePath(name, parentPath),
-  content: prettyStringify(content)
+  content: prettyStringify(wrapWithVersion(content))
 });
 
 const stylesFile = (name, content) => wixFile(PATH_STYLES, name, content);
@@ -62,7 +68,7 @@ const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
 const page = page => ({
   path: `${PATH_PAGES}/${pageFileName(page)}`,
-  content: prettyStringify(page)
+  content: prettyStringify(wrapWithVersion(page))
 });
 
 const pageCode = (page, code) => ({
@@ -77,7 +83,7 @@ const pageWithCode = ({ page: pageData, code }) => [
 
 const lightbox = lightbox => ({
   path: `${PATH_LIGHTBOXES}/${lightboxFileName(lightbox)}`,
-  content: prettyStringify(lightbox)
+  content: prettyStringify(wrapWithVersion(lightbox))
 });
 
 const lighboxCode = (lightbox, code) => ({
@@ -118,6 +124,14 @@ const masterPageCode = ({ content }) =>
     content
   });
 
+const metadata = () => ({
+  path: ".metadata",
+  content: {
+    documentSchemaVersion: "1.0",
+    localFileSystemLayout: "1.0"
+  }
+});
+
 // builders
 
 const itemToFile = item =>
@@ -149,6 +163,8 @@ const buildPartial = (...siteItems) => {
     (site, file) => set_(site, file.path.split("/"), file.content),
     {}
   );
+  const file = metadata();
+  set_(localSite, file.path.split("/"), prettyStringify(file.content));
 
   return localSite;
 };

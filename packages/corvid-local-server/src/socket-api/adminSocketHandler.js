@@ -5,8 +5,7 @@ const initAdminApi = adminApi => ({
     editorPort: adminApi.getEditorPort(),
     editorConnected: adminApi.isEditorConnected(),
     mode: adminApi.isCloneMode() ? "clone" : "edit"
-  }),
-  GET_SERVER_VERSION: () => adminApi.getServerVersion()
+  })
 });
 
 const socketHandler = adminApi => socket => {

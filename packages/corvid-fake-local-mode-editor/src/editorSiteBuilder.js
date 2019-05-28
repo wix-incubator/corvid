@@ -2,6 +2,8 @@ const merge_ = require("lodash/merge");
 const set_ = require("lodash/set");
 const omit_ = require("lodash/omit");
 
+const documentSchemaVersion = "1.0";
+
 const { siteCreators: sc } = require("corvid-local-test-utils");
 
 const colors = colors => ({
@@ -162,7 +164,8 @@ const buildPartial = (...siteItems) =>
         [sc.collectionSchema]: collectionSchema,
         [sc.masterPageCode]: masterPageCode
       })
-    )
+    ),
+    { siteDocument: { documentSchemaVersion } }
   );
 
 const buildFull = (...siteItems) => {
