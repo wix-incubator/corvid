@@ -6,7 +6,8 @@ const initEditorApi = editorApi => ({
   UPDATE_DOCUMENT: newDocument => editorApi.updateSiteDocument(newDocument),
   GET_CODE: () => editorApi.getCodeFiles(),
   UPDATE_CODE: codeUpdates => editorApi.updateCodeFiles(codeUpdates),
-  HANDSHAKE: () => editorApi.handshake()
+  HANDSHAKE: () => editorApi.handshake(),
+  KILL: message => editorApi.kill(message)
 });
 
 const socketHandler = editorApi => {

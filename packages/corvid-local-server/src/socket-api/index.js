@@ -83,6 +83,8 @@ const initServerApi = (
   const onCodeChanged = callback => localSite.onCodeChanged(callback);
   const onDocumentChanged = callback => localSite.onDocumentChanged(callback);
 
+  const kill = message => notifyAdmin("kill", message);
+
   const serverApi = {
     getEditorPort,
     isEditorConnected,
@@ -93,7 +95,8 @@ const initServerApi = (
     getCodeFiles,
     updateCodeFiles,
     onCodeChanged,
-    onDocumentChanged
+    onDocumentChanged,
+    kill
   };
 
   const adminSocketHandler = adminSocketApi(serverApi);

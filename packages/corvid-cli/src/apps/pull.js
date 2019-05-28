@@ -18,6 +18,11 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
         resolve();
       });
 
+      client.on("kill", message => {
+        logger.error(getMessage("Pull_Kill_Log", { message }));
+        reject(new Error(chalk.red(getMessage("Pull_Kill_Error", message))));
+      });
+
       const {
         editorConnected,
         mode,

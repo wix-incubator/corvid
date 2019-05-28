@@ -17,6 +17,13 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         //resolve();
       });
 
+      client.on("kill", message => {
+        logger.error(getMessage("OpenEditor_Kill_Log", { message }));
+        reject(
+          new Error(chalk.red(getMessage("OpenEditor_Kill_Error", message)))
+        );
+      });
+
       const {
         editorConnected,
         mode,
