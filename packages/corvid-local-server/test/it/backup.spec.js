@@ -120,7 +120,7 @@ describe("Backup", () => {
     done();
   });
 
-  it("should continue watch file changes after failed save", async done => {
+  it.skip("should continue watch file changes after failed save", async done => {
     const onCodeChange = jest.fn();
     const onDocumentChange = jest.fn();
     const localSiteFiles = localSiteBuilder.buildFull();
