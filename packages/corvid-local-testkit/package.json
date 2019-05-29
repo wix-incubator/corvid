@@ -7,8 +7,7 @@
     "build": ":",
     "lint": "eslint .",
     "test": "yarn lint",
-    "precommit": "lint-staged",
-    "release": "wnpm-release"
+    "precommit": "lint-staged"
   },
   "author": "Álvaro Morais <alvarom@wix.com>",
   "license": "ISC",
@@ -24,8 +23,7 @@
     "eslint-plugin-import": "^2.16.0",
     "husky": "^1.3.1",
     "prettier": "^1.17.1",
-    "lint-staged": "^8.1.5",
-    "wnpm-ci": "^7.0.11"
+    "lint-staged": "^8.1.5"
   },
   "dependencies": {
     "corvid-local-server": "^0.1.30",

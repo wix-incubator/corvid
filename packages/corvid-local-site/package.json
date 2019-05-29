@@ -6,7 +6,6 @@
     "build": ":",
     "lint": "eslint .",
     "test": "yarn lint && jest",
-    "release": "wnpm-release",
     "precommit": "lint-staged"
   },
   "publishConfig": {
@@ -30,8 +29,7 @@
     "lint-staged": "^8.1.5",
     "prettier": "^1.17.1",
     "temp": "^0.9.0",
-    "wix-eventually": "^2.2.0",
-    "wnpm-ci": "^7.0.11"
+    "wix-eventually": "^2.2.0"
   },
   "dependencies": {
     "chokidar": "^2.1.2",

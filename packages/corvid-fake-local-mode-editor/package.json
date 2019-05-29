@@ -7,7 +7,6 @@
     "build": ":",
     "lint": "eslint .",
     "test": "yarn lint",
-    "release": "wnpm-release",
     "precommit": "lint-staged"
   },
   "publishConfig": {
@@ -29,7 +28,6 @@
     "stoppable": "^1.1.0"
   },
   "devDependencies": {
-    "wnpm-ci": "^7.0.11",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",
