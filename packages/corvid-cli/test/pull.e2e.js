@@ -26,7 +26,7 @@ describe("pull", () => {
     test("should report to stdout when the process is complete", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
-        ".corvidrc.json": '{ "metasiteId": "12345678" }'
+        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
       });
 
       fetchMock
@@ -67,7 +67,7 @@ describe("pull", () => {
     test("should report to BI a pull start event", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
-        ".corvidrc.json": '{ "metasiteId": "12345678" }'
+        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
       });
 
       fetchMock
@@ -114,7 +114,7 @@ describe("pull", () => {
     test("should report to BI a pull success event", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
-        ".corvidrc.json": '{ "metasiteId": "12345678" }'
+        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
       });
 
       fetchMock
@@ -163,7 +163,7 @@ describe("pull", () => {
     test("should report to BI a pull start event", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
-        ".corvidrc.json": '{ "metasiteId": "12345678" }',
+        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
         src: {
           backend: {},
           frontend: {},
@@ -216,7 +216,7 @@ describe("pull", () => {
     test("should report to BI a pull fail event", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
-        ".corvidrc.json": '{ "metasiteId": "12345678" }',
+        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
         src: {
           backend: {},
           frontend: {},
@@ -270,7 +270,7 @@ describe("pull", () => {
       test("should report to BI a pull start event", async () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
-          ".corvidrc.json": '{ "metasiteId": "12345678" }',
+          ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
           src: {
             backend: {},
             frontend: {},
@@ -324,7 +324,7 @@ describe("pull", () => {
       test("should report to BI a pull success event", async () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
-          ".corvidrc.json": '{ "metasiteId": "12345678" }',
+          ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
           src: {
             backend: {},
             frontend: {},
@@ -380,7 +380,7 @@ describe("pull", () => {
       test("should report to BI a pull start event", async () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
-          ".corvidrc.json": '{ "metasiteId": "12345678" }',
+          ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
           src: {
             backend: {},
             frontend: {},
@@ -434,7 +434,7 @@ describe("pull", () => {
       test("should report to BI a pull success event", async () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
-          ".corvidrc.json": '{ "metasiteId": "12345678" }',
+          ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
           src: {
             backend: {},
             frontend: {},

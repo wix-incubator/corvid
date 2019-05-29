@@ -8,7 +8,11 @@ var corvidLocalServerTestkit = require("corvid-local-server/src/testkit");
 
 function initSite(siteItems) {
   return initTempDir(siteItems).then(function(localSite) {
-    fs.writeFileSync(path.join(localSite, ".corvidrc.json"), "", "utf8");
+    fs.writeFileSync(
+      path.join(localSite, ".corvid", "corvidrc.json"),
+      "",
+      "utf8"
+    );
     return Promise.resolve(localSite);
   });
 }

@@ -29,10 +29,11 @@ const doesExist = async (rootPath, localPath) =>
 
 const initLocalSite = async (localSiteFiles, createdRoodDir) => {
   const rootDir = createdRoodDir || (await initTempDir());
-  await fs.writeFile(
-    path.join(rootDir, ".corvidrc.json"),
-    JSON.stringify({ metasiteId: 12345 })
-  );
+
+  const corvidRcPath = path.join(rootDir, ".corvid", "corvidrc.json");
+  await fs.ensureFile(corvidRcPath);
+  await fs.writeFile(corvidRcPath, JSON.stringify({ metasiteId: 12345 }));
+
   await dirAsJson.writeJsonToDir(siteSrcPath(rootDir), localSiteFiles);
   return rootDir;
 };
