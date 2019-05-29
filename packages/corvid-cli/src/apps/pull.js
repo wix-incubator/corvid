@@ -18,6 +18,11 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
         resolve();
       });
 
+      client.on("user-message", message => {
+        logger.error(getMessage("Pull_User_Message_Log", { message }));
+        console.log(message);
+      });
+
       const {
         editorConnected,
         mode,

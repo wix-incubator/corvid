@@ -17,6 +17,11 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         //resolve();
       });
 
+      client.on("user-message", message => {
+        logger.error(getMessage("OpenEditor_User_Message_Log", { message }));
+        console.log(message);
+      });
+
       const {
         editorConnected,
         mode,

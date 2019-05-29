@@ -1,9 +1,13 @@
-const { version: moduleVersion } = require("../../package.json");
+const { version: serverVersion } = require("../../package.json");
 const logger = require("corvid-local-logger");
 const editorSocketApi = require("./editorSocketHandler");
 const adminSocketApi = require("./adminSocketHandler");
 const backup = require("../backup");
 const getMessage = require("../messages");
+const { editorApiVersion } = require("../versions.json");
+const {
+  supportedSiteDocumentVersion
+} = require("corvid-local-site/src/versions.json");
 
 const initServerApi = (
   localSite,
@@ -18,7 +22,11 @@ const initServerApi = (
   let wasSiteDocumentUpdated = false;
   let wereCodeFilesUpdated = false;
 
-  const getServerVersion = () => moduleVersion;
+  const handshake = () => ({
+    editorApiVersion,
+    supportedSiteDocumentVersion,
+    serverVersion
+  });
 
   const wasSiteSaved = () => wasSiteDocumentUpdated && wereCodeFilesUpdated;
 
@@ -75,17 +83,20 @@ const initServerApi = (
   const onCodeChanged = callback => localSite.onCodeChanged(callback);
   const onDocumentChanged = callback => localSite.onDocumentChanged(callback);
 
+  const userMessage = message => notifyAdmin("user-message", message);
+
   const serverApi = {
     getEditorPort,
     isEditorConnected,
-    getServerVersion,
+    handshake,
     isCloneMode,
     getSiteDocument,
     updateSiteDocument,
     getCodeFiles,
     updateCodeFiles,
     onCodeChanged,
-    onDocumentChanged
+    onDocumentChanged,
+    userMessage
   };
 
   const adminSocketHandler = adminSocketApi(serverApi);

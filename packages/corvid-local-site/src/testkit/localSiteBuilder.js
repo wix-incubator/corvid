@@ -13,7 +13,7 @@ const prettyStringify = content => JSON.stringify(content, null, 2);
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
 const pageFileName = page =>
-  [sanitize(removeSpaces(page.title)), page.pageId, wixFileExtension].join(".");
+  [sanitize(removeSpaces(page.title)), page.pageId].join(".");
 
 const pageCodeFileName = page =>
   [sanitize(removeSpaces(page.title)), page.pageId, pageCodeExtention].join(
@@ -34,13 +34,19 @@ const PATH_ROUTERS = `${PATH_FRONTEND}/routers`;
 const PATH_MENUS = `${PATH_FRONTEND}/menus`;
 const PATH_PAGES = `${PATH_FRONTEND}/pages`;
 const PATH_LIGHTBOXES = `${PATH_FRONTEND}/lightboxes`;
+const documentSchemaVersion = "1.0";
+
+const wrapWithVersion = content => ({
+  content,
+  documentSchemaVersion
+});
 
 const wixFilePath = (filename, parentPath = "") =>
   `${parentPath}/${filename}.${wixFileExtension}`;
 
 const wixFile = (parentPath, name, content) => ({
   path: wixFilePath(name, parentPath),
-  content: prettyStringify(content)
+  content: prettyStringify(wrapWithVersion(content))
 });
 
 const stylesFile = (name, content) => wixFile(PATH_STYLES, name, content);
@@ -60,10 +66,7 @@ const router = router =>
 
 const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
-const page = page => ({
-  path: `${PATH_PAGES}/${pageFileName(page)}`,
-  content: prettyStringify(page)
-});
+const page = page => wixFile(PATH_PAGES, pageFileName(page), page);
 
 const pageCode = (page, code) => ({
   path: `${PATH_PAGES}/${pageCodeFileName(page)}`,
@@ -75,10 +78,8 @@ const pageWithCode = ({ page: pageData, code }) => [
   pageCode(pageData, code)
 ];
 
-const lightbox = lightbox => ({
-  path: `${PATH_LIGHTBOXES}/${lightboxFileName(lightbox)}`,
-  content: prettyStringify(lightbox)
-});
+const lightbox = lightbox =>
+  wixFile(PATH_LIGHTBOXES, lightboxFileName(lightbox), lightbox);
 
 const lighboxCode = (lightbox, code) => ({
   path: `${PATH_LIGHTBOXES}/${lightboxCodeFileName(lightbox)}`,
@@ -118,6 +119,14 @@ const masterPageCode = ({ content }) =>
     content
   });
 
+const metadata = () => ({
+  path: ".metadata.json",
+  content: prettyStringify({
+    documentSchemaVersion: "1.0",
+    localFileSystemLayout: "1.0"
+  })
+});
+
 // builders
 
 const itemToFile = item =>
@@ -149,6 +158,8 @@ const buildPartial = (...siteItems) => {
     (site, file) => set_(site, file.path.split("/"), file.content),
     {}
   );
+  const file = metadata();
+  set_(localSite, file.path.split("/"), file.content);
 
   return localSite;
 };
