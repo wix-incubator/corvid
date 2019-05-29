@@ -23,17 +23,17 @@ const pageCodeFileName = page =>
 const lightboxFileName = pageFileName;
 const lightboxCodeFileName = pageCodeFileName;
 
-const PATH_FRONTEND = "frontend";
+const PATH_ASSETS = "assets";
 const PATH_BACKEND = "backend";
 const PATH_PUBLIC = "public";
 const PATH_DATABASE = "database";
+const PATH_PAGES = "pages";
+const PATH_LIGHTBOXES = "lightboxes";
 
-const PATH_STYLES = `${PATH_FRONTEND}/styles`;
-const PATH_SITE = `${PATH_FRONTEND}/site`;
-const PATH_ROUTERS = `${PATH_FRONTEND}/routers`;
-const PATH_MENUS = `${PATH_FRONTEND}/menus`;
-const PATH_PAGES = `${PATH_FRONTEND}/pages`;
-const PATH_LIGHTBOXES = `${PATH_FRONTEND}/lightboxes`;
+const PATH_STYLES = `${PATH_ASSETS}/styles`;
+const PATH_SITE = `${PATH_ASSETS}/site`;
+const PATH_ROUTERS = `${PATH_ASSETS}/routers`;
+const PATH_MENUS = `${PATH_ASSETS}/menus`;
 const documentSchemaVersion = "1.0";
 
 const wrapWithVersion = content => ({
@@ -115,7 +115,7 @@ const collectionSchema = ({ collectionName, schema }) =>
 
 const masterPageCode = ({ content }) =>
   codeFile({
-    path: `${PATH_FRONTEND}/site.js`,
+    path: `${PATH_PAGES}/site.js`,
     content
   });
 

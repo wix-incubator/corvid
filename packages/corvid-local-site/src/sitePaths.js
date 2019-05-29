@@ -2,10 +2,11 @@ const path = require("path");
 const get_ = require("lodash/get");
 const sanitize = require("sanitize-filename");
 
-const frontendFolder = "frontend";
+const assetsFolder = "assets";
 const publicFolder = "public";
 const backendFolder = "backend";
 const databaseFolder = "database";
+const pagesFolder = "pages";
 const fileExtention = ".wix";
 const pageCodeExtention = ".js";
 const titleCharReplacement = "_";
@@ -15,10 +16,11 @@ const codeFolders = {
   database: databaseFolder
 };
 const siteFolders = [
-  frontendFolder,
+  assetsFolder,
   publicFolder,
   backendFolder,
-  databaseFolder
+  databaseFolder,
+  pagesFolder
 ];
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
@@ -39,9 +41,7 @@ const matchEditorPageCodePath = filePath => {
 };
 
 const matchLocalPageCodePath = filePath => {
-  const matches = filePath.match(
-    /^\/{0,1}frontend\/(pages|lightboxes)\/.*\.([^.]*)\.js/
-  );
+  const matches = filePath.match(/^(pages|lightboxes)\/.*\.([^.]*)\.js/);
   return matches ? { pageId: matches.slice(-1) } : null;
 };
 
@@ -49,18 +49,17 @@ const isEditorMasterPageCodePath = filePath =>
   !!filePath.match(/^\/{0,1}public\/pages\/masterPage.js/);
 
 const isLocalMasterPageCodePath = filePath =>
-  !!filePath.match(/^\/{0,1}frontend\/site.js/);
+  !!filePath.match(/^\/{0,1}pages\/site.js/);
 
 const isEditorDatabaseSchemaPath = isEditorDatabaseSchemaPath =>
   !!isEditorDatabaseSchemaPath.match(/^\/{0,1}\.schemas/);
 
-const masterPageCode = () => path.posix.join(frontendFolder, "site.js");
+const masterPageCode = () => path.posix.join(pagesFolder, "site.js");
 
 const metadata = () => ".metadata.json";
 
 const pages = (page = null, extention = fileExtention) =>
   path.posix.join(
-    frontendFolder,
     "pages",
     page
       ? getPageFileName(get_(page, "pageId"), get_(page, "title"), extention)
@@ -69,7 +68,6 @@ const pages = (page = null, extention = fileExtention) =>
 
 const lightboxes = (page = null, extention = fileExtention) =>
   path.posix.join(
-    frontendFolder,
     "lightboxes",
     page
       ? getPageFileName(get_(page, "pageId"), get_(page, "title"), extention)
@@ -78,28 +76,28 @@ const lightboxes = (page = null, extention = fileExtention) =>
 
 const styles = (fileName = "") =>
   path.posix.join(
-    frontendFolder,
+    assetsFolder,
     "styles",
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
 const routers = (fileName = "") =>
   path.posix.join(
-    frontendFolder,
+    assetsFolder,
     "routers",
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
 const menus = (fileName = "") =>
   path.posix.join(
-    frontendFolder,
+    assetsFolder,
     "menus",
     fileName ? `${fileName}${fileExtention}` : ""
   );
 
 const site = (fileName = "") =>
   path.posix.join(
-    frontendFolder,
+    assetsFolder,
     "site",
     fileName ? `${fileName}${fileExtention}` : ""
   );
@@ -180,6 +178,7 @@ module.exports = {
   pages,
   site,
   isEditorDatabaseSchemaPath,
+  isLocalMasterPageCodePath,
   matchLocalPageCodePath,
   masterPageCode,
   metadata

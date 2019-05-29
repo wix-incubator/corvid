@@ -166,7 +166,7 @@ describe("pull", () => {
         ".corvidrc.json": '{ "metasiteId": "12345678" }',
         src: {
           backend: {},
-          frontend: {},
+          assets: {},
           public: {},
           database: {}
         }
@@ -219,7 +219,7 @@ describe("pull", () => {
         ".corvidrc.json": '{ "metasiteId": "12345678" }',
         src: {
           backend: {},
-          frontend: {},
+          assets: {},
           public: {},
           database: {}
         }
@@ -273,7 +273,7 @@ describe("pull", () => {
           ".corvidrc.json": '{ "metasiteId": "12345678" }',
           src: {
             backend: {},
-            frontend: {},
+            assets: {},
             public: {},
             database: {}
           }
@@ -327,7 +327,7 @@ describe("pull", () => {
           ".corvidrc.json": '{ "metasiteId": "12345678" }',
           src: {
             backend: {},
-            frontend: {},
+            assets: {},
             public: {},
             database: {}
           }
@@ -383,7 +383,7 @@ describe("pull", () => {
           ".corvidrc.json": '{ "metasiteId": "12345678" }',
           src: {
             backend: {},
-            frontend: {},
+            assets: {},
             public: {},
             database: {}
           }
@@ -437,7 +437,7 @@ describe("pull", () => {
           ".corvidrc.json": '{ "metasiteId": "12345678" }',
           src: {
             backend: {},
-            frontend: {},
+            assets: {},
             public: {},
             database: {}
           }

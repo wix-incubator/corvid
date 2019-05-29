@@ -37,7 +37,7 @@ describe("edit", () => {
         ".corvidrc.json": '{ "metasiteId": "12345678" }',
         src: {
           backend: {},
-          frontend: {},
+          assets: {},
           public: {},
           database: {}
         }
@@ -56,7 +56,7 @@ describe("edit", () => {
         ".corvidrc.json": '{ "metasiteId": "12345678" }',
         src: {
           backend: {},
-          frontend: {},
+          assets: {},
           public: {},
           database: {}
         }
@@ -109,7 +109,7 @@ describe("edit", () => {
         ".corvidrc.json": '{ "metasiteId": "12345678" }',
         src: {
           backend: {},
-          frontend: {},
+          assets: {},
           public: {},
           database: {}
         }
