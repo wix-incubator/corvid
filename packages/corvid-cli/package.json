@@ -31,6 +31,7 @@
     "corvid-dir-as-json": "^0.1.0",
     "corvid-fake-local-mode-editor": "^0.1.0",
     "corvid-local-test-utils": "^0.1.0",
+    "corvid-local-site": "^0.1.0",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",

@@ -1,4 +1,5 @@
 const fetchMock = require("fetch-mock");
+const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { initTempDir } = require("corvid-local-test-utils");
 const {
   server: localFakeEditorServer
@@ -162,15 +163,15 @@ describe("pull", () => {
   describe("when run in a directory with a config file and site files", () => {
     test("should report to BI a pull start event", async () => {
       expect.assertions(1);
-      const tempDir = await initTempDir({
-        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
-        src: {
-          backend: {},
-          frontend: {},
-          public: {},
-          database: {}
-        }
-      });
+      const localSiteFiles = localSiteBuilder.buildFull();
+      const tempDir = await initTempDir(
+        Object.assign(
+          {
+            ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+          },
+          { src: localSiteFiles }
+        )
+      );
 
       fetchMock
         .mock(
@@ -215,15 +216,15 @@ describe("pull", () => {
 
     test("should report to BI a pull fail event", async () => {
       expect.assertions(1);
-      const tempDir = await initTempDir({
-        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
-        src: {
-          backend: {},
-          frontend: {},
-          public: {},
-          database: {}
-        }
-      });
+      const localSiteFiles = localSiteBuilder.buildFull();
+      const tempDir = await initTempDir(
+        Object.assign(
+          {
+            ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+          },
+          { src: localSiteFiles }
+        )
+      );
 
       fetchMock
         .mock(
@@ -269,15 +270,15 @@ describe("pull", () => {
     describe("and given the --override flag", () => {
       test("should report to BI a pull start event", async () => {
         expect.assertions(1);
-        const tempDir = await initTempDir({
-          ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
-          src: {
-            backend: {},
-            frontend: {},
-            public: {},
-            database: {}
-          }
-        });
+        const localSiteFiles = localSiteBuilder.buildFull();
+        const tempDir = await initTempDir(
+          Object.assign(
+            {
+              ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+            },
+            { src: localSiteFiles }
+          )
+        );
 
         fetchMock
           .mock(
@@ -323,15 +324,15 @@ describe("pull", () => {
 
       test("should report to BI a pull success event", async () => {
         expect.assertions(1);
-        const tempDir = await initTempDir({
-          ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
-          src: {
-            backend: {},
-            frontend: {},
-            public: {},
-            database: {}
-          }
-        });
+        const localSiteFiles = localSiteBuilder.buildFull();
+        const tempDir = await initTempDir(
+          Object.assign(
+            {
+              ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+            },
+            { src: localSiteFiles }
+          )
+        );
 
         fetchMock
           .mock(
@@ -379,15 +380,15 @@ describe("pull", () => {
     describe("and given the --move flag", () => {
       test("should report to BI a pull start event", async () => {
         expect.assertions(1);
-        const tempDir = await initTempDir({
-          ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
-          src: {
-            backend: {},
-            frontend: {},
-            public: {},
-            database: {}
-          }
-        });
+        const localSiteFiles = localSiteBuilder.buildFull();
+        const tempDir = await initTempDir(
+          Object.assign(
+            {
+              ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+            },
+            { src: localSiteFiles }
+          )
+        );
 
         fetchMock
           .mock(
@@ -433,15 +434,15 @@ describe("pull", () => {
 
       test("should report to BI a pull success event", async () => {
         expect.assertions(1);
-        const tempDir = await initTempDir({
-          ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
-          src: {
-            backend: {},
-            frontend: {},
-            public: {},
-            database: {}
-          }
-        });
+        const localSiteFiles = localSiteBuilder.buildFull();
+        const tempDir = await initTempDir(
+          Object.assign(
+            {
+              ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+            },
+            { src: localSiteFiles }
+          )
+        );
 
         fetchMock
           .mock(
