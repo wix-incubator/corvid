@@ -56,7 +56,7 @@ const isEditorDatabaseSchemaPath = isEditorDatabaseSchemaPath =>
 
 const masterPageCode = () => path.posix.join(frontendFolder, "site.js");
 
-const metadata = () => ".metadata";
+const metadata = () => ".metadata.json";
 
 const pages = (page = null, extention = fileExtention) =>
   path.posix.join(

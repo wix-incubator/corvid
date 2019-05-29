@@ -1,5 +1,6 @@
 const fs = require("fs-extra");
 const get_ = require("lodash/get");
+const set_ = require("lodash/set");
 const mapValues_ = require("lodash/mapValues");
 const merge_ = require("lodash/merge");
 const mapKeys_ = require("lodash/mapKeys");
@@ -124,6 +125,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
   const siteDocumentToFiles = siteDocument => {
     const documentSchemaVersion = siteDocument.documentSchemaVersion;
+    if (!siteDocument.documentSchemaVersion) {
+      set_(siteDocument, "documentSchemaVersion", "");
+    }
     return flatten_(
       Object.keys(siteDocument).map(paylodKey => {
         if (payloadConvertors.hasOwnProperty(paylodKey)) {

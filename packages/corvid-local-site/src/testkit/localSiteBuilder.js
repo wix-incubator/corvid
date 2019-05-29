@@ -120,7 +120,7 @@ const masterPageCode = ({ content }) =>
   });
 
 const metadata = () => ({
-  path: ".metadata",
+  path: ".metadata.json",
   content: prettyStringify({
     documentSchemaVersion: "1.0",
     localFileSystemLayout: "1.0"
