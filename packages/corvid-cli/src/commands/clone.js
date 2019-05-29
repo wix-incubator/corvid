@@ -17,7 +17,8 @@ async function cloneHandler(args) {
       if (cookie) {
         await clone(spinner, args, cookie);
         await pull(spinner, {
-          dir: args.dir
+          dir: args.dir,
+          ignoreCertificate: args.ignoreCertificate
         });
 
         spinner.stop();
@@ -47,7 +48,12 @@ module.exports = {
   command: "clone <url>",
   describe: getMessage("Clone_Command_Description"),
   builder: args =>
-    args.positional("url", { describe: "Public site URL", type: "string" }),
+    args
+      .positional("url", { describe: "Public site URL", type: "string" })
+      .option("ignore-certificate", {
+        describe: "ignore certificate errors",
+        type: "boolean"
+      }),
   handler: args =>
     cloneHandler(Object.assign({}, args, { dir: process.cwd() })).then(
       message => exitWithSuccess(message),
