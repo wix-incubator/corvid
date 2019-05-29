@@ -1,6 +1,6 @@
 {
     "Prettify_Fail_Log": "Failed prettifying JSON file <%= jsonString %>",
-    "ReadWrite_Unknown_Proprrty_Log": "Unknown document property <%= property =>",
+    "ReadWrite_Unknown_PropertyLog": "Unknown document property <%= property =>",
     "Watcher_Start_Log": "Watching for file changes at [<%= path %>]",
     "Watcher_Path_Resolved_Log": "Watched path resolved to [<%= path %>]",
     "Watcher_Not_Under_Root_Error": "Tried to access a file outside of the project",
