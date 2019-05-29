@@ -141,6 +141,7 @@ describe("Backup", () => {
     try {
       await editor.save();
     } catch (e) {
+      await new Promise(resolve => setTimeout(resolve, 2500));
       const code = sc.backendCode();
       let filePath = localSiteBuilder.getLocalFilePath(code);
       let fileContent = localSiteBuilder.getLocalFileContent(code);
