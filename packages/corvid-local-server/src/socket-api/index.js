@@ -6,8 +6,8 @@ const backup = require("../backup");
 const getMessage = require("../messages");
 const { editorApiVersion } = require("../versions.json");
 const {
-  supportedSiteDocumentVersion
-} = require("corvid-local-site/src/versions.json");
+  versions: { supportedSiteDocumentVersion }
+} = require("corvid-local-site");
 
 const initServerApi = (
   localSite,
