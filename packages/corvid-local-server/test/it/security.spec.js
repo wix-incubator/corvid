@@ -45,7 +45,7 @@ describe("Security", () => {
       },
       err => {
         expect(err).toMatchObject({
-          message: "tried to access file outside project"
+          message: "Tried to access a file outside of the project"
         });
         expect(fs.exists(tempFilePath)).resolves.toEqual(false);
         done();
@@ -75,7 +75,7 @@ describe("Security", () => {
       },
       err => {
         expect(err).toMatchObject({
-          message: "tried to access file outside project"
+          message: "Tried to access a file outside of the project"
         });
         expect(fs.exists(tempFilePath)).resolves.toEqual(true);
         done();
@@ -111,7 +111,7 @@ describe("Security", () => {
       },
       err => {
         expect(err).toMatchObject({
-          message: "tried to access file outside project"
+          message: "Tried to access a file outside of the project"
         });
         expect(fs.exists(tempFilePath)).resolves.toEqual(false);
         done();
@@ -145,7 +145,7 @@ describe("Security", () => {
       },
       err => {
         expect(err).toMatchObject({
-          message: "tried to access file outside project"
+          message: "Tried to access a file outside of the project"
         });
         expect(readLocalSite(localSiteDir)).resolves.toMatchObject({
           public: { "test.js": "console.log('malicious code')" }
@@ -160,7 +160,7 @@ describe("Security", () => {
     const server = await localServer.startInCloneMode(localSiteDir);
     await expect(
       socketClient.connect(getEditorEndpoint(server))
-    ).rejects.toThrow("origin not allowed");
+    ).rejects.toThrow("Origin not allowed");
   });
 
   it("should not permit editor connection with wrong origin", async () => {
@@ -176,7 +176,7 @@ describe("Security", () => {
           }
         }
       })
-    ).rejects.toThrow("origin not allowed");
+    ).rejects.toThrow("Origin not allowed");
   });
   it("should permit editor connection http origin", async () => {
     const localSiteDir = await initLocalSite();
@@ -215,7 +215,7 @@ describe("Security", () => {
 
     const server = await localServer.startInCloneMode(localSiteDir);
     await expect(connectCli(server.adminPort, "another_token")).rejects.toThrow(
-      "authentication error"
+      "Authentication error"
     );
   });
 
