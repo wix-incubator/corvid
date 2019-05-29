@@ -4,10 +4,10 @@ const editorSocketApi = require("./editorSocketHandler");
 const adminSocketApi = require("./adminSocketHandler");
 const backup = require("../backup");
 const getMessage = require("../messages");
+const { editorApiVersion } = require("../versions.json");
 const {
-  apiVersion,
   supportedSiteDocumentVersion
-} = require("../versions.json");
+} = require("corvid-local-site/src/versions.json");
 
 const initServerApi = (
   localSite,
@@ -23,7 +23,7 @@ const initServerApi = (
   let wereCodeFilesUpdated = false;
 
   const handshake = () => ({
-    apiVersion,
+    editorApiVersion,
     supportedSiteDocumentVersion,
     serverVersion
   });
@@ -83,7 +83,7 @@ const initServerApi = (
   const onCodeChanged = callback => localSite.onCodeChanged(callback);
   const onDocumentChanged = callback => localSite.onDocumentChanged(callback);
 
-  const kill = message => notifyAdmin("kill", message);
+  const userMessage = message => notifyAdmin("user-message", message);
 
   const serverApi = {
     getEditorPort,
@@ -96,7 +96,7 @@ const initServerApi = (
     updateCodeFiles,
     onCodeChanged,
     onDocumentChanged,
-    kill
+    userMessage
   };
 
   const adminSocketHandler = adminSocketApi(serverApi);

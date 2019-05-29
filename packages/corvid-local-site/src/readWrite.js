@@ -1,6 +1,5 @@
 const fs = require("fs-extra");
 const get_ = require("lodash/get");
-const set_ = require("lodash/set");
 const mapValues_ = require("lodash/mapValues");
 const merge_ = require("lodash/merge");
 const mapKeys_ = require("lodash/mapKeys");
@@ -14,7 +13,7 @@ const dirAsJson = require("corvid-dir-as-json");
 const logger = require("corvid-local-logger");
 const getMessage = require("./messages");
 const { prettyStringify, tryToPrettifyJsonString } = require("./prettify");
-const localFileSystemLayout = "1.0";
+const { localFileSystemLayout } = require("./versions.json");
 
 const removeFileExtension = filename => filename.replace(/\.[^/.]+$/, "");
 
@@ -92,7 +91,10 @@ const readWrite = (siteRootPath, filesWatcher) => {
       };
     });
 
-  const wrapWithVersion = (version, content) => ({ content, version });
+  const wrapWithVersion = (documentSchemaVersion, content) => ({
+    content,
+    documentSchemaVersion
+  });
   const unwrap = wrapped => {
     return wrapped.content;
   };
@@ -121,9 +123,6 @@ const readWrite = (siteRootPath, filesWatcher) => {
   };
 
   const siteDocumentToFiles = siteDocument => {
-    if (!siteDocument.documentSchemaVersion) {
-      set_(siteDocument, "documentSchemaVersion", "1.0");
-    }
     const documentSchemaVersion = siteDocument.documentSchemaVersion;
     return flatten_(
       Object.keys(siteDocument).map(paylodKey => {

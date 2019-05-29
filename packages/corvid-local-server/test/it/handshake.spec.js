@@ -1,10 +1,6 @@
 const { socketClient } = require("corvid-local-test-utils");
 const { localServer, closeAll } = require("../utils/autoClosing");
 const { initLocalSite } = require("../utils/localSiteDir");
-const {
-  apiVersion,
-  supportedSiteDocumentVersion
-} = require("../../src/versions.json");
 
 const { version: localServerModuleVersion } = require("../../package.json");
 
@@ -39,8 +35,8 @@ describe("local server version", () => {
 
     expect(handshakeData).toEqual({
       serverVersion: localServerModuleVersion,
-      apiVersion,
-      supportedSiteDocumentVersion
+      editorApiVersion: "1.0",
+      supportedSiteDocumentVersion: "1.0"
     });
   });
 });

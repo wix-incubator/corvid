@@ -1,4 +1,3 @@
 {
-    "apiVersion": "1.0",
-    "supportedSiteDocumentVersion": "1.0"
+    "editorApiVersion": "1.0"
 }

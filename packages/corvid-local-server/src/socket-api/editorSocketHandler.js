@@ -7,7 +7,7 @@ const initEditorApi = editorApi => ({
   GET_CODE: () => editorApi.getCodeFiles(),
   UPDATE_CODE: codeUpdates => editorApi.updateCodeFiles(codeUpdates),
   HANDSHAKE: () => editorApi.handshake(),
-  KILL: message => editorApi.kill(message)
+  USER_MESSAGE: message => editorApi.userMessage(message)
 });
 
 const socketHandler = editorApi => {

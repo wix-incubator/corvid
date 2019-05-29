@@ -13,7 +13,7 @@ const prettyStringify = content => JSON.stringify(content, null, 2);
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
 const pageFileName = page =>
-  [sanitize(removeSpaces(page.title)), page.pageId, wixFileExtension].join(".");
+  [sanitize(removeSpaces(page.title)), page.pageId].join(".");
 
 const pageCodeFileName = page =>
   [sanitize(removeSpaces(page.title)), page.pageId, pageCodeExtention].join(
@@ -38,7 +38,7 @@ const documentSchemaVersion = "1.0";
 
 const wrapWithVersion = content => ({
   content,
-  version: documentSchemaVersion
+  documentSchemaVersion
 });
 
 const wixFilePath = (filename, parentPath = "") =>
@@ -66,10 +66,7 @@ const router = router =>
 
 const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
-const page = page => ({
-  path: `${PATH_PAGES}/${pageFileName(page)}`,
-  content: prettyStringify(wrapWithVersion(page))
-});
+const page = page => wixFile(PATH_PAGES, pageFileName(page), page);
 
 const pageCode = (page, code) => ({
   path: `${PATH_PAGES}/${pageCodeFileName(page)}`,
@@ -81,10 +78,8 @@ const pageWithCode = ({ page: pageData, code }) => [
   pageCode(pageData, code)
 ];
 
-const lightbox = lightbox => ({
-  path: `${PATH_LIGHTBOXES}/${lightboxFileName(lightbox)}`,
-  content: prettyStringify(wrapWithVersion(lightbox))
-});
+const lightbox = lightbox =>
+  wixFile(PATH_LIGHTBOXES, lightboxFileName(lightbox), lightbox);
 
 const lighboxCode = (lightbox, code) => ({
   path: `${PATH_LIGHTBOXES}/${lightboxCodeFileName(lightbox)}`,
@@ -126,10 +121,10 @@ const masterPageCode = ({ content }) =>
 
 const metadata = () => ({
   path: ".metadata",
-  content: {
+  content: prettyStringify({
     documentSchemaVersion: "1.0",
     localFileSystemLayout: "1.0"
-  }
+  })
 });
 
 // builders
@@ -164,7 +159,7 @@ const buildPartial = (...siteItems) => {
     {}
   );
   const file = metadata();
-  set_(localSite, file.path.split("/"), prettyStringify(file.content));
+  set_(localSite, file.path.split("/"), file.content);
 
   return localSite;
 };

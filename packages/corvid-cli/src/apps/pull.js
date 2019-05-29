@@ -18,9 +18,9 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
         resolve();
       });
 
-      client.on("kill", message => {
-        logger.error(getMessage("Pull_Kill_Log", { message }));
-        reject(new Error(chalk.red(getMessage("Pull_Kill_Error", message))));
+      client.on("user-message", message => {
+        logger.error(getMessage("Pull_User_Message_Log", { message }));
+        console.log(message);
       });
 
       const {
