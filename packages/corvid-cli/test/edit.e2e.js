@@ -34,7 +34,7 @@ describe("edit", () => {
     test("should open the editor with the local server port", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
-        ".corvidrc.json": '{ "metasiteId": "12345678" }',
+        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
         src: {
           backend: {},
           assets: {},
@@ -53,7 +53,7 @@ describe("edit", () => {
     test("should report to BI an open-editor start event", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
-        ".corvidrc.json": '{ "metasiteId": "12345678" }',
+        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
         src: {
           backend: {},
           assets: {},
@@ -106,7 +106,7 @@ describe("edit", () => {
     test("should report to BI an open-editor success event", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
-        ".corvidrc.json": '{ "metasiteId": "12345678" }',
+        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
         src: {
           backend: {},
           assets: {},

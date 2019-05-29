@@ -26,7 +26,7 @@ describe("clone", () => {
     fetchMock.restore();
   });
 
-  describe("should create a .corvidrc.json", () => {
+  describe("should create a .corvid/corvidrc.json", () => {
     test("at the supplied directory", async () => {
       const tempDir = await initTempDir();
 
@@ -63,7 +63,7 @@ describe("clone", () => {
       });
 
       expect(() =>
-        fs.readFileSync(path.join(tempDir, ".corvidrc.json"), "utf8")
+        fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
       ).not.toThrow();
     });
 
@@ -102,11 +102,11 @@ describe("clone", () => {
         dir: tempDir
       });
 
-      const corvidrc = JSON.parse(
-        fs.readFileSync(path.join(tempDir, ".corvidrc.json"), "utf8")
+      const corvidMetadata = JSON.parse(
+        fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
       );
 
-      expect(corvidrc).toMatchObject({ metasiteId: "12345678" });
+      expect(corvidMetadata).toMatchObject({ metasiteId: "12345678" });
     });
 
     test("with the metasiteId of the site specified by an editor url", async () => {
@@ -136,11 +136,11 @@ describe("clone", () => {
         dir: tempDir
       });
 
-      const corvidrc = JSON.parse(
-        fs.readFileSync(path.join(tempDir, ".corvidrc.json"), "utf8")
+      const corvidMetadata = JSON.parse(
+        fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
       );
 
-      expect(corvidrc).toMatchObject({
+      expect(corvidMetadata).toMatchObject({
         metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb"
       });
     });
@@ -171,11 +171,11 @@ describe("clone", () => {
         dir: tempDir
       });
 
-      const corvidrc = JSON.parse(
-        fs.readFileSync(path.join(tempDir, ".corvidrc.json"), "utf8")
+      const corvidMetadata = JSON.parse(
+        fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
       );
 
-      expect(corvidrc).toMatchObject({
+      expect(corvidMetadata).toMatchObject({
         metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb"
       });
     });
@@ -215,11 +215,11 @@ describe("clone", () => {
         dir: tempDir
       });
 
-      const corvidrc = JSON.parse(
-        fs.readFileSync(path.join(tempDir, ".corvidrc.json"), "utf8")
+      const corvieMetadata = JSON.parse(
+        fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
       );
 
-      expect(corvidrc).toMatchObject({ cliVersion: cliModuleVersion });
+      expect(corvieMetadata).toMatchObject({ cliVersion: cliModuleVersion });
     });
 
     test("should report to BI a clone start event with the userGuid and metasiteId", async () => {

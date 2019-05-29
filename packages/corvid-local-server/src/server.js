@@ -32,7 +32,9 @@ async function startServer(siteRootPath, options) {
   const siteSrcPath = projectPaths.siteSrcPath(siteRootPath);
   await fs.ensureDir(siteSrcPath);
   const isEmpty = await isEmptyDir(siteSrcPath);
-  const isWix = await fs.exists(path.join(siteRootPath, ".corvidrc.json")); // TEMPORARY
+  const isWix = await fs.exists(
+    path.join(siteRootPath, ".corvid", "corvidrc.json")
+  ); // TEMPORARY
   const hasBackup = await fs.exists(projectPaths.backupPath(siteRootPath));
 
   if (hasBackup) {

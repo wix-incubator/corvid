@@ -4,7 +4,7 @@ const sessionData = require("./sessionData");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
 
-const configFilePath = root => path.join(root, ".corvidrc.json");
+const configFilePath = root => path.join(root, ".corvid", "corvidrc.json");
 
 async function readCorvidConfig(dir) {
   const json = await new Promise((resolve, reject) => {
@@ -37,11 +37,9 @@ async function doesConfigExist(dir) {
 }
 
 async function writeCorvidConfig(dir, config) {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(configFilePath(dir), JSON.stringify(config, null, 2), error =>
-      error == null ? resolve() : reject(error)
-    );
-  });
+  const filePath = configFilePath(dir);
+  await fs.ensureFile(filePath);
+  await fs.writeFile(filePath, JSON.stringify(config, null, 2));
 }
 
 module.exports = { readCorvidConfig, writeCorvidConfig, doesConfigExist };
