@@ -158,11 +158,14 @@ describe("Backup", () => {
         pageFileContent
       );
 
-      await eventually(async () => {
-        expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
-        expect(onCodeChange).toHaveBeenCalledTimes(1);
-        expect(onDocumentChange).toHaveBeenCalledTimes(1);
-      });
+      await eventually(
+        async () => {
+          expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
+          expect(onCodeChange).toHaveBeenCalledTimes(1);
+          expect(onDocumentChange).toHaveBeenCalledTimes(1);
+        },
+        { timeout: 4000 }
+      );
       unsubscribeFromCodeChange();
       unsubscribeFromDocumentChange();
       done();
