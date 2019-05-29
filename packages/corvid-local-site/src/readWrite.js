@@ -107,7 +107,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
         if (payloadConvertors.hasOwnProperty(paylodKey)) {
           return payloadConvertors[paylodKey](siteDocument[paylodKey]);
         } else {
-          const message = getMessage("ReadWrite_Unknown_Proprrty_Log", {
+          const message = getMessage("ReadWrite_Unknown_PropertyLog", {
             property: paylodKey
           });
           logger.warning(message);
