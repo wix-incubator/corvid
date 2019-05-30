@@ -71,9 +71,11 @@ const watch = async givenPath => {
       mtimeMs,
       isIgnoredByTS: mtimeMs < ignoreBefore
     });
-    ignoreAll ||
+    return (
+      ignoreAll ||
       mtimeMs < ignoreBefore ||
-      !!find_(actionsToIgnore, { type, path });
+      !!find_(actionsToIgnore, { type, path })
+    );
   };
 
   return {
