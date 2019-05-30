@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
@@ -18,6 +19,7 @@ const setupSocketServer = async (defaultPort, options = {}) => {
   );
 
   const port = server.address().port;
+  console.log("now listening on port", port);
 
   const io = socketIo(server);
   io.use(

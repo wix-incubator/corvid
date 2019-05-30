@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 const fs = require("fs-extra");
 const path = require("path");
 const { initSiteManager: initLocalSiteManager } = require("corvid-local-site");
@@ -26,6 +28,7 @@ const isEmptyDir = async path => {
 };
 
 async function startServer(siteRootPath, options) {
+  console.log("starting server");
   logger.info(
     getMessage("Server_Start_Log", { path: path.resolve(siteRootPath) })
   );
@@ -89,12 +92,17 @@ async function startServer(siteRootPath, options) {
   }
 
   const localSite = await initLocalSiteManager(siteSrcPath);
+  console.log("after init localSiteManager");
+  console.log("before start editor server");
   const editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
     allowedDomains: ["editor.wix.com"].concat(
       process.env.NODE_ENV === "test" ? ["localhost"] : []
     )
   });
+  console.log("after start editor server");
+  console.log("before start admin server");
   const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
+  console.log("after start admin server");
 
   adminServer.io.use(adminTokenMiddleware(adminToken));
 
