@@ -63,10 +63,18 @@ const watch = async givenPath => {
     actionsToIgnore = reject_(actionsToIgnore, { type, path });
   };
 
-  const isIgnoredAction = (type, path, mtimeMs = Date.now()) =>
+  const isIgnoredAction = (type, path, mtimeMs = Date.now()) => {
+    // eslint-disable-next-line no-console
+    console.log({
+      ignoreAll,
+      ignoreBefore,
+      mtimeMs,
+      isIgnoredByTS: mtimeMs < ignoreBefore
+    });
     ignoreAll ||
-    mtimeMs < ignoreBefore ||
-    !!find_(actionsToIgnore, { type, path });
+      mtimeMs < ignoreBefore ||
+      !!find_(actionsToIgnore, { type, path });
+  };
 
   return {
     close: () => watcher.close(),
@@ -250,6 +258,8 @@ const watch = async givenPath => {
     resume: () => {
       ignoreAll = false;
       ignoreBefore = Date.now();
+      // eslint-disable-next-line no-console
+      console.log(`ignoreBefore: ${ignoreBefore}`);
     }
   };
 };
