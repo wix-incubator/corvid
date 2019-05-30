@@ -32,7 +32,7 @@
     "wix-eventually": "^2.2.0"
   },
   "dependencies": {
-    "chokidar": "^2.1.2",
+    "chokidar": "^3.0.0",
     "corvid-dir-as-json": "^0.1.0",
     "corvid-local-logger": "^0.1.0",
     "fs-extra": "^7.0.1",
