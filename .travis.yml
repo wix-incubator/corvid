@@ -8,6 +8,9 @@ os:
 node_js:
   - 8
 
+cache:
+  yarn: true
+
 # needed for windows travis, which gets stuck after running tests
 # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
 env:
