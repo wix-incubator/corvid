@@ -9,6 +9,7 @@ jest.mock("../src/commands/login");
 const { pullHandler } = require("../src/commands/pull");
 
 describe("pull", () => {
+  jest.setTimeout(100000);
   process.env.CORVID_SESSION_ID = "testCorvidId";
   beforeEach(async () => {
     const localEditorServerPort = await localFakeEditorServer.start();

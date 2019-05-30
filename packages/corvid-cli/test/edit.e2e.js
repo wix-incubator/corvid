@@ -10,7 +10,7 @@ jest.mock("../src/commands/login");
 const { openEditorHandler } = require("../src/commands/open-editor");
 
 describe("edit", () => {
-  jest.setTimeout(10000);
+  jest.setTimeout(100000);
   process.env.CORVID_SESSION_ID = "testCorvidId";
   process.env.CORVID_FORCE_HEADLESS = 1;
 

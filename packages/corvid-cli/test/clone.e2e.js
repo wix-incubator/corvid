@@ -13,6 +13,7 @@ jest.mock("../src/commands/login");
 const { clone } = require("../src/commands/clone");
 
 describe("clone", () => {
+  jest.setTimeout(100000);
   process.env.CORVID_SESSION_ID = "testCorvidId";
   beforeEach(async () => {
     const localEditorServerPort = await localFakeEditorServer.start();
