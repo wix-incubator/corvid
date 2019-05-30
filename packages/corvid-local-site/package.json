@@ -5,7 +5,7 @@
   "scripts": {
     "build": ":",
     "lint": "eslint .",
-    "test": "yarn lint && jest",
+    "test": "jest",
     "precommit": "lint-staged"
   },
   "publishConfig": {
