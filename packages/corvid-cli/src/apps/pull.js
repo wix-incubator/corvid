@@ -49,6 +49,7 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
         true,
         "pull"
       );
+      console.log(`editor url: ${editorUrl}`);
 
       win.webContents.on(
         "console-message",

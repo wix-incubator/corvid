@@ -28,6 +28,8 @@ function launch(file, options = {}, callbacks = {}, args = []) {
       ...options
     }
   );
+  // TODO: do this only in debug mode
+  cp.stdout.pipe(process.stdout);
   runningProcesses.push(cp);
 
   return new Promise((resolve, reject) => {

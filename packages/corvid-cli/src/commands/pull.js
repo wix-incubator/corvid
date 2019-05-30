@@ -30,6 +30,7 @@ app &&
 
     const args = yargs.argv;
     try {
+      console.log("opening window");
       await openWindow(pullApp({ override: args.override, move: args.move }));
     } catch (exc) {
       exitWithError(exc);
