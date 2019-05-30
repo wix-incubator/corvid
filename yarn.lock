@@ -2470,31 +2470,6 @@ cors@^2.8.5:
     object-assign "^4"
     vary "^1"
 
-corvid-local-server@^0.1.30:
-  version "0.1.37"
-  resolved "https://registry.yarnpkg.com/corvid-local-server/-/corvid-local-server-0.1.37.tgz#50c85c245ac8888aef9b07b5f182085ca1333857"
-  integrity sha512-8exhEfaT05LwVWj3JjirAidb6rwuSzVrOVjEPoppLR2MaQk4gdZvCC+GAfqFQz0FVww4bj88kuutOQVXfKlZmQ==
-  dependencies:
-    cors "^2.8.5"
-    corvid-local-logger "~0.1.0"
-    corvid-local-site "~0.1.0"
-    express "^4.16.4"
-    fs-extra "^7.0.1"
-    listen-on-free-port "1.0.3"
-    socket.io "^2.2.0"
-    stoppable "^1.1.0"
-    uuid "^3.3.2"
-
-corvid-local-test-utils@^0.1.32:
-  version "0.1.38"
-  resolved "https://registry.yarnpkg.com/corvid-local-test-utils/-/corvid-local-test-utils-0.1.38.tgz#41105c3c8f6bf6e994742dd894666736c33a5298"
-  integrity sha512-LzzTlityPwRCOljCpovwvqxrR5g7FoMRWqG5xEnbeBLZkUOdw0wLH3g1+Z8f1X70p4jWSXd41RuBumg/Sugacw==
-  dependencies:
-    corvid-dir-as-json "~0.1.0"
-    lodash "^4.17.11"
-    socket.io-client "^2.2.0"
-    temp "^0.9.0"
-
 cosmiconfig@^5.0.7, cosmiconfig@^5.1.0, cosmiconfig@^5.2.0:
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/cosmiconfig/-/cosmiconfig-5.2.1.tgz#040f726809c591e77a17c0a3626ca45b4f168b1a"
