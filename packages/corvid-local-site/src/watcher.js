@@ -66,6 +66,8 @@ const watch = async givenPath => {
   const isIgnoredAction = (type, path, mtimeMs = Date.now()) => {
     // eslint-disable-next-line no-console
     console.log({
+      type,
+      path,
       ignoreAll,
       ignoreBefore,
       mtimeMs,
