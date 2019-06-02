@@ -93,6 +93,7 @@ async function openEditorHandler(args) {
           resolve();
         },
         error: error => {
+          console.log("ERROR", error); /* eslint-disable-line */
           spinner.fail();
           sessionData.callWithKeys(
             (msid, uuid) => sendOpenEditorEvent(msid, uuid, "fail"),
@@ -110,6 +111,7 @@ async function openEditorHandler(args) {
     )
       .then(resolve, reject)
       .catch(e => {
+        console.log("ERROR", e); /* eslint-disable-line */
         spinner.fail();
         throw e;
       });

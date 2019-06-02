@@ -98,6 +98,7 @@ async function clone(spinner, args, cookie) {
     await msidUpdatePromise;
     return dirName;
   } catch (exc) {
+    console.log("ERROR", exc); /* eslint-disable-line */
     spinner.fail();
     throw exc;
   }

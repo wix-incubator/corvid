@@ -65,6 +65,7 @@ async function pullCommand(spinner, args) {
           resolve();
         },
         error: error => {
+          console.log("ERROR", error); /* eslint-disable-line */
           spinner.fail();
           const errorMessage = getMessage(error);
           if (errorMessage) {
@@ -114,6 +115,7 @@ async function pullHandler(args) {
       return getMessage("Pull_Command_Complete");
     })
     .catch(async error => {
+      console.log("ERROR", error); /* eslint-disable-line */
       spinner.fail();
       await sessionData.callWithKeys(
         (msid, uuid) =>

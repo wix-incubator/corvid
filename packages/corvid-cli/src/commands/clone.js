@@ -33,6 +33,7 @@ async function cloneHandler(args) {
       }
     })
     .catch(async error => {
+      console.log("ERROR", error); /* eslint-disable-line */
       spinner.fail();
       await sessionData.callWithKeys(
         (msid, uuid) => sendCloneEvent(msid, uuid, "fail"),

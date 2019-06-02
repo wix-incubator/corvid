@@ -107,6 +107,7 @@ module.exports = {
         spinner.succeed();
       })
       .catch(error => {
+        console.log("ERROR", error); /* eslint-disable-line */
         spinner.fail();
         throw error;
       });
