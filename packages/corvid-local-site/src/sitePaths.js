@@ -7,6 +7,7 @@ const publicFolder = "public";
 const backendFolder = "backend";
 const databaseFolder = "database";
 const pagesFolder = "pages";
+const lightboxesFolder = "lightboxes";
 const fileExtention = ".wix";
 const pageCodeExtention = ".js";
 const titleCharReplacement = "_";
@@ -20,6 +21,7 @@ const siteFolders = [
   publicFolder,
   backendFolder,
   databaseFolder,
+  lightboxesFolder,
   pagesFolder
 ];
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
