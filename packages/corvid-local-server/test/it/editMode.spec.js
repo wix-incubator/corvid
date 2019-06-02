@@ -148,7 +148,7 @@ describe("edit mode", () => {
   });
 
   // todo:: split this test to 6 test, (modify pageCode & regular code), (delete pageCode & regular code), (copy pageCode & regular code)
-  it.skip("should update code files after editor changes and clicks save", async () => {
+  it("should update code files after editor changes and clicks save", async () => {
     const schemaItem = sc.collectionSchema("collection", {
       collectionName: "oldSchema",
       fields: {}
