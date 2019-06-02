@@ -7,6 +7,6 @@ module.exports = {
     // eslint-disable-next-line no-unused-vars
     const [major] = nodeVersion.split(".");
 
-    return major >= 8;
+    return major >= 10;
   }
 };

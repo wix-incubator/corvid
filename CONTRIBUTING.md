@@ -3,7 +3,7 @@
 
 ### Prerequisites
 1. Install [Git](https://git-scm.com/).
-1. Install [Node.JS](https://nodejs.org), version >= 8.0.0 (we recommend using [NVM](https://github.com/nvm-sh/nvm))
+1. Install [Node.JS](https://nodejs.org), version >= 10.0.0 (we recommend using [NVM](https://github.com/nvm-sh/nvm))
 2. Install [Yarn](https://yarnpkg.com/en/docs/install).
 
 ### Bootstrap
