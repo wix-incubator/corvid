@@ -32,7 +32,6 @@ install:
   - yarn add -W electron@latest
   - yarn which electron
   - yarn electron -v
-  - yarn electron ./packages/corvid-cli/src/commands/open-editor.js
 
 script:
   - yarn test
