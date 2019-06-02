@@ -1,4 +1,5 @@
 "use strict";
+/* eslint-disable */
 
 const ora = require("ora");
 
@@ -13,9 +14,9 @@ module.exports = msg => {
   };
 
   return {
-    start: spinner.start.bind(spinner),
-    succeed: spinner.succeed.bind(spinner),
-    stop: ifSpinning(spinner.stop.bind(spinner)),
-    fail: ifSpinning(spinner.fail.bind(spinner))
+    start: msg => console.log("[start]", msg), //spinner.start.bind(spinner),
+    succeed: msg => console.log("[succeed]", msg), //spinner.succeed.bind(spinner),
+    stop: msg => console.log("[stop]", msg), //ifSpinning(spinner.stop.bind(spinner)),
+    fail: msg => console.log("[fail]", msg) //ifSpinning(spinner.fail.bind(spinner))
   };
 };
