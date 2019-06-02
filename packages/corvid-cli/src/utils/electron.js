@@ -60,6 +60,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
       }
 
       cp.on("exit", code => {
+        console.log("electron process closed with code", code);
         runningProcesses.splice(runningProcesses.indexOf(cp), 1);
         code === 0 ? resolve(messages) : reject(code);
       });
