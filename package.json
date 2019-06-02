@@ -6,10 +6,10 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "lerna exec \"yarn lint\"",
-    "lint:fix": "lerna exec \"eslint --fix .\"",
-    "test": "lerna exec \"yarn test\"",
-    "precommit": "lerna exec \"yarn precommit\""
+    "lint": "lerna exec --scope corvid-cli \"yarn lint\"",
+    "lint:fix": "lerna exec --scope corvid-cli \"eslint --fix .\"",
+    "test": "lerna exec --scope corvid-cli \"yarn test\"",
+    "precommit": "lerna exec --scope corvid-cli \"yarn precommit\""
   },
   "devDependencies": {
     "eslint": "^5.16.0",
