@@ -8,10 +8,10 @@ matrix:
         - xvfb
 
     - os: osx
-
-    - os: windows
-      env:
-        - YARN_GPG=no # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
+    
+    # - os: windows
+    #   env:
+    #     - YARN_GPG=no # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
 
 node_js:
   - 10
