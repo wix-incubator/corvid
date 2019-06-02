@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* global fetch */
 require("isomorphic-fetch");
 const getMessage = require("../messages");
@@ -29,9 +30,10 @@ function sendBiEvent(evid) {
       .map(([key, value]) => `${key}=${value}`)
       .join("&");
 
-    return fetch(`http://frog.wix.com/code?${biUrlQueryString}`, {
-      headers: { "User-Agent": biUserAgent }
-    });
+    return true;
+    // return fetch(`http://frog.wix.com/code?${biUrlQueryString}`, {
+    //   headers: { "User-Agent": biUserAgent }
+    // });
   };
 }
 

@@ -29,33 +29,32 @@ describe("pull", () => {
         ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
       });
 
-      fetchMock
-        .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-          JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "aSite"
-              }
-            ],
-            null,
-            2
-          )
+      fetchMock.mock(
+        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        JSON.stringify(
+          [
+            {
+              metasiteId: "12345678",
+              publicUrl: "http://a-site.com",
+              siteName: "aSite"
+            }
+          ],
+          null,
+          2
         )
-        .mock(
-          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`,
-          JSON.stringify({})
-        )
-        .mock(
-          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status_text=success&type=regular`,
-          JSON.stringify({})
-        );
+      );
+      //   .mock(
+      //     `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+      //       process.env.CORVID_SESSION_ID
+      //     }&status_text=start&type=regular`,
+      //     JSON.stringify({})
+      //   )
+      //   .mock(
+      //     `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+      //       process.env.CORVID_SESSION_ID
+      //     }&status_text=success&type=regular`,
+      //     JSON.stringify({})
+      //   );
 
       return expect(
         pullHandler({
@@ -64,39 +63,38 @@ describe("pull", () => {
       ).resolves.toMatch(/Pull complete/);
     });
 
-    test("should report to BI a pull start event", async () => {
+    test.skip("should report to BI a pull start event", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
       });
 
-      fetchMock
-        .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-          JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "aSite"
-              }
-            ],
-            null,
-            2
-          )
+      fetchMock.mock(
+        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        JSON.stringify(
+          [
+            {
+              metasiteId: "12345678",
+              publicUrl: "http://a-site.com",
+              siteName: "aSite"
+            }
+          ],
+          null,
+          2
         )
-        .mock(
-          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`,
-          JSON.stringify({})
-        )
-        .mock(
-          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status_text=success&type=regular`,
-          JSON.stringify({})
-        );
+      );
+      // .mock(
+      //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+      //     process.env.CORVID_SESSION_ID
+      //   }&status_text=start&type=regular`,
+      //   JSON.stringify({})
+      // )
+      // .mock(
+      //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+      //     process.env.CORVID_SESSION_ID
+      //   }&status_text=success&type=regular`,
+      //   JSON.stringify({})
+      // );
 
       await pullHandler({
         dir: tempDir
@@ -111,39 +109,38 @@ describe("pull", () => {
       ).toBe(true);
     });
 
-    test("should report to BI a pull success event", async () => {
+    test.skip("should report to BI a pull success event", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
       });
 
-      fetchMock
-        .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-          JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "aSite"
-              }
-            ],
-            null,
-            2
-          )
+      fetchMock.mock(
+        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        JSON.stringify(
+          [
+            {
+              metasiteId: "12345678",
+              publicUrl: "http://a-site.com",
+              siteName: "aSite"
+            }
+          ],
+          null,
+          2
         )
-        .mock(
-          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`,
-          JSON.stringify({})
-        )
-        .mock(
-          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status_text=success&type=regular`,
-          JSON.stringify({})
-        );
+      );
+      // .mock(
+      //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+      //     process.env.CORVID_SESSION_ID
+      //   }&status_text=start&type=regular`,
+      //   JSON.stringify({})
+      // )
+      // .mock(
+      //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+      //     process.env.CORVID_SESSION_ID
+      //   }&status_text=success&type=regular`,
+      //   JSON.stringify({})
+      // );
 
       await pullHandler({
         dir: tempDir
@@ -160,7 +157,7 @@ describe("pull", () => {
   });
 
   describe("when run in a directory with a config file and site files", () => {
-    test("should report to BI a pull start event", async () => {
+    test.skip("should report to BI a pull start event", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
@@ -172,33 +169,32 @@ describe("pull", () => {
         }
       });
 
-      fetchMock
-        .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-          JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "aSite"
-              }
-            ],
-            null,
-            2
-          )
+      fetchMock.mock(
+        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        JSON.stringify(
+          [
+            {
+              metasiteId: "12345678",
+              publicUrl: "http://a-site.com",
+              siteName: "aSite"
+            }
+          ],
+          null,
+          2
         )
-        .mock(
-          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`,
-          JSON.stringify({})
-        )
-        .mock(
-          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status_text=fail&type=regular`,
-          JSON.stringify({})
-        );
+      );
+      // .mock(
+      //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+      //     process.env.CORVID_SESSION_ID
+      //   }&status_text=start&type=regular`,
+      //   JSON.stringify({})
+      // )
+      // .mock(
+      //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+      //     process.env.CORVID_SESSION_ID
+      //   }&status_text=fail&type=regular`,
+      //   JSON.stringify({})
+      // );
 
       await pullHandler({
         dir: tempDir
@@ -213,7 +209,7 @@ describe("pull", () => {
       ).toBe(true);
     });
 
-    test("should report to BI a pull fail event", async () => {
+    test.skip("should report to BI a pull fail event", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
@@ -225,33 +221,32 @@ describe("pull", () => {
         }
       });
 
-      fetchMock
-        .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-          JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "aSite"
-              }
-            ],
-            null,
-            2
-          )
+      fetchMock.mock(
+        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        JSON.stringify(
+          [
+            {
+              metasiteId: "12345678",
+              publicUrl: "http://a-site.com",
+              siteName: "aSite"
+            }
+          ],
+          null,
+          2
         )
-        .mock(
-          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`,
-          JSON.stringify({})
-        )
-        .mock(
-          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status_text=fail&type=regular`,
-          JSON.stringify({})
-        );
+      );
+      // .mock(
+      //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+      //     process.env.CORVID_SESSION_ID
+      //   }&status_text=start&type=regular`,
+      //   JSON.stringify({})
+      // )
+      // .mock(
+      //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+      //     process.env.CORVID_SESSION_ID
+      //   }&status_text=fail&type=regular`,
+      //   JSON.stringify({})
+      // );
 
       await pullHandler({
         dir: tempDir
@@ -267,7 +262,7 @@ describe("pull", () => {
     });
 
     describe("and given the --override flag", () => {
-      test("should report to BI a pull start event", async () => {
+      test.skip("should report to BI a pull start event", async () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
           ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
@@ -279,33 +274,32 @@ describe("pull", () => {
           }
         });
 
-        fetchMock
-          .mock(
-            "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-            JSON.stringify(
-              [
-                {
-                  metasiteId: "12345678",
-                  publicUrl: "http://a-site.com",
-                  siteName: "aSite"
-                }
-              ],
-              null,
-              2
-            )
+        fetchMock.mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
           )
-          .mock(
-            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-              process.env.CORVID_SESSION_ID
-            }&status_text=start&type=override`,
-            JSON.stringify({})
-          )
-          .mock(
-            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-              process.env.CORVID_SESSION_ID
-            }&status_text=success&type=override`,
-            JSON.stringify({})
-          );
+        );
+        // .mock(
+        //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+        //     process.env.CORVID_SESSION_ID
+        //   }&status_text=start&type=override`,
+        //   JSON.stringify({})
+        // )
+        // .mock(
+        //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+        //     process.env.CORVID_SESSION_ID
+        //   }&status_text=success&type=override`,
+        //   JSON.stringify({})
+        // );
 
         await pullHandler({
           dir: tempDir,
@@ -321,7 +315,7 @@ describe("pull", () => {
         ).toBe(true);
       });
 
-      test("should report to BI a pull success event", async () => {
+      test.skip("should report to BI a pull success event", async () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
           ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
@@ -333,33 +327,32 @@ describe("pull", () => {
           }
         });
 
-        fetchMock
-          .mock(
-            "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-            JSON.stringify(
-              [
-                {
-                  metasiteId: "12345678",
-                  publicUrl: "http://a-site.com",
-                  siteName: "aSite"
-                }
-              ],
-              null,
-              2
-            )
+        fetchMock.mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
           )
-          .mock(
-            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-              process.env.CORVID_SESSION_ID
-            }&status_text=start&type=override`,
-            JSON.stringify({})
-          )
-          .mock(
-            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-              process.env.CORVID_SESSION_ID
-            }&status_text=success&type=override`,
-            JSON.stringify({})
-          );
+        );
+        // .mock(
+        //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+        //     process.env.CORVID_SESSION_ID
+        //   }&status_text=start&type=override`,
+        //   JSON.stringify({})
+        // )
+        // .mock(
+        //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+        //     process.env.CORVID_SESSION_ID
+        //   }&status_text=success&type=override`,
+        //   JSON.stringify({})
+        // );
 
         await pullHandler({
           dir: tempDir,
@@ -377,7 +370,7 @@ describe("pull", () => {
     });
 
     describe("and given the --move flag", () => {
-      test("should report to BI a pull start event", async () => {
+      test.skip("should report to BI a pull start event", async () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
           ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
@@ -389,33 +382,32 @@ describe("pull", () => {
           }
         });
 
-        fetchMock
-          .mock(
-            "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-            JSON.stringify(
-              [
-                {
-                  metasiteId: "12345678",
-                  publicUrl: "http://a-site.com",
-                  siteName: "aSite"
-                }
-              ],
-              null,
-              2
-            )
+        fetchMock.mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
           )
-          .mock(
-            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-              process.env.CORVID_SESSION_ID
-            }&status_text=start&type=move`,
-            JSON.stringify({})
-          )
-          .mock(
-            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-              process.env.CORVID_SESSION_ID
-            }&status_text=success&type=move`,
-            JSON.stringify({})
-          );
+        );
+        // .mock(
+        //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+        //     process.env.CORVID_SESSION_ID
+        //   }&status_text=start&type=move`,
+        //   JSON.stringify({})
+        // )
+        // .mock(
+        //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+        //     process.env.CORVID_SESSION_ID
+        //   }&status_text=success&type=move`,
+        //   JSON.stringify({})
+        // );
 
         await pullHandler({
           dir: tempDir,
@@ -431,7 +423,7 @@ describe("pull", () => {
         ).toBe(true);
       });
 
-      test("should report to BI a pull success event", async () => {
+      test.skip("should report to BI a pull success event", async () => {
         expect.assertions(1);
         const tempDir = await initTempDir({
           ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
@@ -443,33 +435,32 @@ describe("pull", () => {
           }
         });
 
-        fetchMock
-          .mock(
-            "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-            JSON.stringify(
-              [
-                {
-                  metasiteId: "12345678",
-                  publicUrl: "http://a-site.com",
-                  siteName: "aSite"
-                }
-              ],
-              null,
-              2
-            )
+        fetchMock.mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
           )
-          .mock(
-            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-              process.env.CORVID_SESSION_ID
-            }&status_text=start&type=move`,
-            JSON.stringify({})
-          )
-          .mock(
-            `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
-              process.env.CORVID_SESSION_ID
-            }&status_text=success&type=move`,
-            JSON.stringify({})
-          );
+        );
+        // .mock(
+        //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+        //     process.env.CORVID_SESSION_ID
+        //   }&status_text=start&type=move`,
+        //   JSON.stringify({})
+        // )
+        // .mock(
+        //   `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+        //     process.env.CORVID_SESSION_ID
+        //   }&status_text=success&type=move`,
+        //   JSON.stringify({})
+        // );
 
         await pullHandler({
           dir: tempDir,
