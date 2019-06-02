@@ -59,9 +59,9 @@ const initLogger = (cwd, defaultMetadata) => {
     ]
   });
 
-  if (process.env.NODE_ENV === "development") {
-    logger.add(debugConsoleTransport());
-  }
+  // if (process.env.NODE_ENV === "development") {
+  logger.add(debugConsoleTransport());
+  // }
 
   const error = (info, ...args) => {
     if (info instanceof UserError) {
