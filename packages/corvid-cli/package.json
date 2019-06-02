@@ -47,6 +47,9 @@
     "testEnvironment": "node",
     "testMatch": [
       "**/test/**/*.+(e2e|spec|unit).js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setupJest.js"
     ]
   },
   "husky": {
