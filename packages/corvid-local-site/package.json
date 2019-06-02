@@ -12,7 +12,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "MIT",

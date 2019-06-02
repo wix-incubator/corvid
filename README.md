@@ -3,7 +3,7 @@
 ## Getting Started
 
 ### Prerequisites
-Before doing anything else, you need to make sure you have [Node.JS](https://nodejs.org)  version >= 8.0.0 installed and working.
+Before doing anything else, you need to make sure you have [Node.JS](https://nodejs.org)  version >= 10.0.0 installed and working.
 
 
 ### Getting ready to use corvid-cli
