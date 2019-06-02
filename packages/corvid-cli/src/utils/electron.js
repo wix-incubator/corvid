@@ -28,6 +28,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
       ...options
     }
   );
+  cp.stdout.pipe(process.stdout);
   runningProcesses.push(cp);
 
   return new Promise((resolve, reject) => {
