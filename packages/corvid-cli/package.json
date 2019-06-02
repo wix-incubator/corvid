@@ -59,7 +59,7 @@
     "chalk": "2.4.2",
     "corvid-local-logger": "^0.1.0",
     "corvid-local-server": "^0.1.0",
-    "electron": "4.0.8",
+    "electron": "^5.0.2",
     "fs-extra": "^7.0.1",
     "has-ansi": "^3.0.0",
     "isomorphic-fetch": "2.2.1",
