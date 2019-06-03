@@ -7,7 +7,7 @@ const omit_ = require("lodash/omit");
 const unique = prefix => uniqueId_(prefix + "-");
 const uniqueCodeFileName = name => unique(name) + ".js";
 const uniqueCode = name => `console.log('${unique(name)}');`;
-const uniqueJson = str => ({ [str]: str });
+const uniqueJson = str => ({ [str]: unique(str) });
 const uniqueCollectionSchema = collectionName => ({
   collectionName,
   fields: {}

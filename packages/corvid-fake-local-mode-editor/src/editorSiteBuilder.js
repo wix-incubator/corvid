@@ -142,8 +142,8 @@ const masterPageCode = ({ content }) =>
   });
 
 const corvidPackageJson = ({ content }) =>
-  codeFile({
-    path: "backend/wix-code-package.json",
+  backendCodeFile({
+    path: "wix-code-package.json",
     content: prettyStringify(content)
   });
 
