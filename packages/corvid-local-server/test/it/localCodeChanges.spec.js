@@ -93,12 +93,9 @@ describe("local changes", () => {
 
         await writeFile(localSitePath, filePath, fileContent);
 
-        await eventually(
-          async () => {
-            expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
-          },
-          { timeout: 4000 }
-        );
+        await eventually(async () => {
+          expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
+        });
         unsubscribeFromCodeChange();
       }
     );
