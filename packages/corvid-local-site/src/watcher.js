@@ -42,10 +42,12 @@ const watch = async givenPath => {
     persistent: true,
     ignoreInitial: true,
     cwd: rootPath,
+    useFsEvents: false,
     awaitWriteFinish: true,
     followSymlinks: false,
     disableGlobbing: true,
-    alwaysStat: true
+    alwaysStat: true,
+    atomic: true
   });
 
   await new Promise((resolve, reject) => {
@@ -63,10 +65,23 @@ const watch = async givenPath => {
     actionsToIgnore = reject_(actionsToIgnore, { type, path });
   };
 
-  const isIgnoredAction = (type, path, mtimeMs = Date.now()) =>
-    ignoreAll ||
-    mtimeMs < ignoreBefore ||
-    !!find_(actionsToIgnore, { type, path });
+  const isIgnoredAction = (type, path, mtimeMs = Date.now()) => {
+    // eslint-disable-next-line no-console
+    console.log({
+      type,
+      path,
+      ignoreAll,
+      mtimeMs,
+      ignoreBefore,
+      afterIgnore: mtimeMs - ignoreBefore,
+      ignoredByTS: mtimeMs < ignoreBefore
+    });
+    return (
+      ignoreAll ||
+      mtimeMs < ignoreBefore ||
+      !!find_(actionsToIgnore, { type, path })
+    );
+  };
 
   return {
     close: () => watcher.close(),
