@@ -5,6 +5,7 @@ const process = require("process");
 const { BrowserWindow } = require("electron");
 const client = require("socket.io-client");
 const electron = require("electron");
+const opn = require("opn");
 
 const { logger } = require("corvid-local-logger");
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
@@ -112,6 +113,11 @@ async function openWindow(app, windowOptions = {}) {
     icon: path.resolve(
       path.join(__dirname, "..", "..", "assets", "icon-1024x1024.png")
     )
+  });
+
+  win.webContents.on("new-window", (event, url) => {
+    event.preventDefault();
+    opn(url);
   });
 
   try {
