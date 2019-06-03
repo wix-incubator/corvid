@@ -1,3 +1,7 @@
+branches:
+  only:
+    - master
+
 language: node_js
 
 matrix:
@@ -8,7 +12,7 @@ matrix:
         - xvfb
 
     - os: osx
-    
+
     # - os: windows
     #   env:
     #     - YARN_GPG=no # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
