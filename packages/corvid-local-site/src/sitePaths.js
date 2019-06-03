@@ -8,6 +8,8 @@ const backendFolder = "backend";
 const databaseFolder = "database";
 const pagesFolder = "pages";
 const lightboxesFolder = "lightboxes";
+const corvidPackageJson = "corvid-package.json";
+
 const fileExtention = ".wix";
 const pageCodeExtention = ".js";
 const titleCharReplacement = "_";
@@ -16,7 +18,8 @@ const codeFolders = {
   backend: backendFolder,
   database: databaseFolder
 };
-const siteFolders = [
+const knownPaths = [
+  corvidPackageJson,
   assetsFolder,
   publicFolder,
   backendFolder,
@@ -31,7 +34,7 @@ const isSitePath = (rootPath, pathToCheck) => {
   if (pathRelativeToRoot === "") {
     return true;
   }
-  return siteFolders.includes(pathRelativeToRoot.split(path.sep)[0]);
+  return knownPaths.includes(pathRelativeToRoot.split(path.sep)[0]);
 };
 
 const getPageFileName = (id, title, extention = fileExtention) =>
@@ -50,13 +53,21 @@ const matchLocalPageCodePath = filePath => {
 const isEditorMasterPageCodePath = filePath =>
   !!filePath.match(/^\/{0,1}public\/pages\/masterPage.js/);
 
+const isEditorNpmPackageCodePath = filePath =>
+  !!filePath.match(/^\/{0,1}backend\/wix-code-package.json/);
+
 const isLocalMasterPageCodePath = filePath =>
   !!filePath.match(/^\/{0,1}pages\/site.js/);
+
+const isLocalNpmPackageCodePath = filePath =>
+  !!filePath.match(/^\/{0,1}corvid-package.json/);
 
 const isEditorDatabaseSchemaPath = isEditorDatabaseSchemaPath =>
   !!isEditorDatabaseSchemaPath.match(/^\/{0,1}\.schemas/);
 
 const masterPageCode = () => path.posix.join(pagesFolder, "site.js");
+
+const npmPackageCode = () => path.posix.join("corvid-package.json");
 
 const metadata = () => ".metadata.json";
 
@@ -108,6 +119,10 @@ const fromLocalCode = filePath => {
   if (isLocalMasterPageCodePath(filePath)) {
     return `${publicFolder}/pages/masterPage.js`;
   }
+
+  if (isLocalNpmPackageCodePath(filePath)) {
+    return `${backendFolder}/wix-code-package.json`;
+  }
   const localPageCodeMatches = matchLocalPageCodePath(filePath);
   if (localPageCodeMatches) {
     const pageId = localPageCodeMatches.pageId;
@@ -124,6 +139,10 @@ const fromLocalCode = filePath => {
 const toLocalCode = ({ path }, localPageFiles) => {
   if (isEditorMasterPageCodePath(path)) {
     return masterPageCode();
+  }
+
+  if (isEditorNpmPackageCodePath(path)) {
+    return npmPackageCode();
   }
 
   const editorPageCodeMatches = matchEditorPageCodePath(path);
@@ -164,7 +183,6 @@ const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
 
 module.exports = {
   isSitePath,
-  siteFolders,
   codeFolders,
   getDocumentFolderRegex,
   fromPageFileToCodeFile,

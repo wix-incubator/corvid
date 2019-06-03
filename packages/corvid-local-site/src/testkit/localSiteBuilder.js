@@ -119,6 +119,12 @@ const masterPageCode = ({ content }) =>
     content
   });
 
+const corvidPackageJson = ({ content }) =>
+  codeFile({
+    path: "corvid-package.json",
+    content: prettyStringify(content)
+  });
+
 const metadata = () => ({
   path: ".metadata.json",
   content: prettyStringify({
@@ -148,6 +154,7 @@ const itemToFile = item =>
     [sc.publicCode]: publicCodeFile,
     [sc.backendCode]: backendCodeFile,
     [sc.collectionSchema]: collectionSchema,
+    [sc.corvidPackageJson]: corvidPackageJson,
     [sc.masterPageCode]: masterPageCode
   });
 
