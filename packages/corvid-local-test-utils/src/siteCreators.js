@@ -7,6 +7,7 @@ const omit_ = require("lodash/omit");
 const unique = prefix => uniqueId_(prefix + "-");
 const uniqueCodeFileName = name => unique(name) + ".js";
 const uniqueCode = name => `console.log('${unique(name)}');`;
+const uniqueJson = str => ({ [str]: str });
 const uniqueCollectionSchema = collectionName => ({
   collectionName,
   fields: {}
@@ -86,6 +87,10 @@ const version = (content = unique(`Encoded version site data`)) => ({
   content
 });
 
+const corvidPackageJson = (content = uniqueJson("corvid-package-json")) => ({
+  content
+});
+
 const publicCode = (
   relativePath = uniqueCodeFileName("publicCode"),
   content = uniqueCode("public")
@@ -151,6 +156,7 @@ const codeCreators = mapValues_(
     publicCode,
     backendCode,
     collectionSchema,
+    corvidPackageJson,
     masterPageCode
   },
   typedCreator
