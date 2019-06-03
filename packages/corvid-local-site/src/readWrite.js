@@ -297,7 +297,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
     updateSiteDocument,
     getSiteDocument,
     getCodeFiles,
-    updateCode
+    updateCode,
+    deleteFile: filesWatcher.ignoredDeleteFile
   };
 };
 

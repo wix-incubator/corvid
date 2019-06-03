@@ -65,7 +65,8 @@ const initSiteManager = async siteRootPath => {
     getCodeFiles: readWrite.getCodeFiles,
     updateCode: readWrite.updateCode,
     onCodeChanged,
-    onDocumentChanged
+    onDocumentChanged,
+    deleteFile: readWrite.deleteFile
   };
 };
 

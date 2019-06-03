@@ -42,12 +42,10 @@ const watch = async givenPath => {
     persistent: true,
     ignoreInitial: true,
     cwd: rootPath,
-    useFsEvents: false,
     awaitWriteFinish: true,
     followSymlinks: false,
     disableGlobbing: true,
-    alwaysStat: true,
-    atomic: true
+    alwaysStat: true
   });
 
   await new Promise((resolve, reject) => {
