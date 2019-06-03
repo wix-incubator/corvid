@@ -235,7 +235,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       ...Object.values(sitePaths.codeFolders).map(codeFolderPath =>
         fs.ensureDir(fullPath(codeFolderPath))
       ),
-      filesWatcher.ignoredEnsureFile(sitePaths.masterPageCode())
+      filesWatcher.ignoredEnsureFile(sitePaths.localMasterPageCodePath())
     ]);
   };
 

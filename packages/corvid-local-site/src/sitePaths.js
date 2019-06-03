@@ -65,9 +65,9 @@ const isLocalNpmPackageCodePath = filePath =>
 const isEditorDatabaseSchemaPath = isEditorDatabaseSchemaPath =>
   !!isEditorDatabaseSchemaPath.match(/^\/{0,1}\.schemas/);
 
-const masterPageCode = () => path.posix.join(pagesFolder, "site.js");
+const localMasterPageCodePath = () => path.posix.join(pagesFolder, "site.js");
 
-const npmPackageCode = () => path.posix.join("corvid-package.json");
+const localCorvidPackageJsonPath = () => path.posix.join("corvid-package.json");
 
 const metadata = () => ".metadata.json";
 
@@ -138,11 +138,11 @@ const fromLocalCode = filePath => {
 
 const toLocalCode = ({ path }, localPageFiles) => {
   if (isEditorMasterPageCodePath(path)) {
-    return masterPageCode();
+    return localMasterPageCodePath();
   }
 
   if (isEditorNpmPackageCodePath(path)) {
-    return npmPackageCode();
+    return localCorvidPackageJsonPath();
   }
 
   const editorPageCodeMatches = matchEditorPageCodePath(path);
@@ -200,6 +200,6 @@ module.exports = {
   isEditorDatabaseSchemaPath,
   isLocalMasterPageCodePath,
   matchLocalPageCodePath,
-  masterPageCode,
+  localMasterPageCodePath,
   metadata
 };
