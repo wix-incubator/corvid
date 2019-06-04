@@ -1,8 +1,9 @@
-const execa = require("execa");
 const tempy = require("tempy");
 const puppeteer = require("puppeteer-core");
 const eventually = require("wix-eventually");
+const { findAvailablePort } = require("./drivers/utils");
 const localEditorDriverCreator = require("./drivers/localEditorDriver");
+const corvidCliDriverCreator = require("./drivers/cliDriver");
 
 const EXIT_CODE_SUCCESS = 0;
 const testSites = [
@@ -10,6 +11,21 @@ const testSites = [
     editorUrl:
       "https://editor.wix.com/html/editor/web/renderer/edit/1b5fdec1-6178-469f-84a6-e8c4968175a4?metaSiteId=47450a3c-636f-43a3-b048-86b10f330316&editorSessionId=e16e8384-5e0f-5af0-a479-d113307f0db3",
     description: "blank"
+  },
+  {
+    editorUrl:
+      "https://editor.wix.com/html/editor/web/renderer/edit/11b54ff1-037b-44b0-b2c2-e7e7b6b91256?metaSiteId=7392948d-960b-4b0d-b0ec-ba680a2cfc4d&editorSessionId=de12a468-3001-5a6b-acf0-80e8485de35a",
+    description: "wix-code"
+  },
+  /*{
+    editorUrl:
+      "https://editor.wix.com/html/editor/web/renderer/edit/4833b200-ce51-4595-b2ac-c7aa33aba5b8?metaSiteId=c29bbfdb-188a-4a08-a96d-4b5bb0e0627f&editorSessionId=c98ba04e-9f37-5b14-9a76-4a47cb07ad51",
+    description: "repeaters"
+  },*/
+  {
+    editorUrl:
+      "https://editor.wix.com/html/editor/web/renderer/edit/ddd6b869-cd21-4f5c-9a28-c1411419a991?metaSiteId=c0af76b7-6c79-47c2-9ca2-d7ba319ec0ed&editorSessionId=67ceda2a-c916-5dc7-a6b7-8a8e53c4d606",
+    description: "inputs"
   }
 ];
 
@@ -19,33 +35,37 @@ const initTempDirectory = () => {
   return () => process.chdir(cwd);
 };
 
-describe("sanity e2e", () => {
+describe("browser sanity", () => {
   let cleanup;
-  jest.setTimeout(20000);
 
   afterEach(() => cleanup());
 
   testSites.forEach(({ editorUrl, description }) =>
-    it(`should generate ${description} site and interact with it`, async () => {
-      cleanup = initTempDirectory();
-      const corvidCloneCmd = await execa.shellSync(
-        `npx corvid clone ${editorUrl}`
-      );
-      expect(corvidCloneCmd.code).toEqual(EXIT_CODE_SUCCESS);
-
-      execa.shell("npx corvid open-editor --remote-debugging-port=9595");
-      await eventually(async () => {
-        const browser = await puppeteer.connect({
-          browserURL: "http://127.0.0.1:9595",
-          defaultViewport: { width: 1280, height: 960 }
-        });
-        const [page] = await browser.pages();
-        const localEditorDriver = localEditorDriverCreator(page);
-        await localEditorDriver.waitForEditor();
-        await localEditorDriver.push();
+    describe(`should generate ${description} site and interact with it`, () => {
+      test("haha", async () => {
+        cleanup = initTempDirectory();
+        const cliDriver = corvidCliDriverCreator();
+        const corvidCloneCmd = await cliDriver.clone({ editorUrl });
+        expect(corvidCloneCmd.code).toEqual(EXIT_CODE_SUCCESS);
+        const remoteDebuggingPort = await findAvailablePort();
+        const pid = cliDriver.openEditor({ remoteDebuggingPort });
+        await eventually(
+          async () => {
+            const browser = await puppeteer.connect({
+              browserURL: `http://localhost:${remoteDebuggingPort}`,
+              defaultViewport: { width: 1280, height: 960 }
+            });
+            const [page] = await browser.pages();
+            const localEditorDriver = localEditorDriverCreator(page);
+            await localEditorDriver.waitForEditor();
+            await localEditorDriver.push();
+            await page.close();
+            process.kill(pid);
+            cleanup();
+          },
+          { timeout: 40000 }
+        );
       });
-
-      cleanup();
     })
   );
 });
