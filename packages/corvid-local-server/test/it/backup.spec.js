@@ -166,7 +166,7 @@ describe("Backup", () => {
         pageFilePath,
         pageFileContent
       );
-
+      console.log("before eventually");
       await eventually(
         async () => {
           expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
@@ -175,8 +175,10 @@ describe("Backup", () => {
         },
         { timeout: 15000 }
       );
+      console.log("after eventually");
       unsubscribeFromCodeChange();
       unsubscribeFromDocumentChange();
+      console.log("after unsubscribe");
       done();
     }
     console.log("it should never be printed!!!");
