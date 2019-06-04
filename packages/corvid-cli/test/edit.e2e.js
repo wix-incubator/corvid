@@ -1,6 +1,6 @@
 const fetchMock = require("fetch-mock");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
-const { siteCreators: sc, initTempDir } = require("corvid-local-test-utils");
+const { initTempDir } = require("corvid-local-test-utils");
 const {
   server: localFakeEditorServer
 } = require("corvid-fake-local-mode-editor");
@@ -33,9 +33,7 @@ describe("edit", () => {
 
     test("should open the editor with the local server port", async () => {
       expect.assertions(1);
-      const siteItems = sc.fullSiteItems();
-
-      const localSiteFiles = localSiteBuilder.buildPartial(...siteItems);
+      const localSiteFiles = localSiteBuilder.buildFull();
       const tempDir = await initTempDir(
         Object.assign(
           {
@@ -54,9 +52,7 @@ describe("edit", () => {
 
     test("should report to BI an open-editor start event", async () => {
       expect.assertions(1);
-      const siteItems = sc.fullSiteItems();
-
-      const localSiteFiles = localSiteBuilder.buildPartial(...siteItems);
+      const localSiteFiles = localSiteBuilder.buildFull();
       const tempDir = await initTempDir(
         Object.assign(
           {
@@ -109,9 +105,7 @@ describe("edit", () => {
 
     test("should report to BI an open-editor success event", async () => {
       expect.assertions(1);
-      const siteItems = sc.fullSiteItems();
-
-      const localSiteFiles = localSiteBuilder.buildPartial(...siteItems);
+      const localSiteFiles = localSiteBuilder.buildFull();
       const tempDir = await initTempDir(
         Object.assign(
           {
