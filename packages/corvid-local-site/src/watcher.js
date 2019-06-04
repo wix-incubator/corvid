@@ -78,7 +78,7 @@ const watch = async givenPath => {
     actionsToIgnore = reject_(actionsToIgnore, { type, path });
   };
 
-  const isIgnoredAction = (type, path, mtimeMs = Date.now()) => {
+  const isIgnoredAction = (type, path, mtimeMs = Date.now() - 500) => {
     console.log({
       type,
       path,
