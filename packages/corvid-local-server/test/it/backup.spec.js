@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const eventually = require("wix-eventually");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
@@ -142,10 +143,8 @@ describe("Backup", () => {
     );
     try {
       await new Promise(res => setTimeout(res, 2000));
-      // eslint-disable-next-line no-console
       console.log("Saving start");
       await editor.save();
-      // eslint-disable-next-line no-console
       console.log("Saving end");
     } catch (e) {
       await new Promise(res => setTimeout(res, 2000));
@@ -160,6 +159,7 @@ describe("Backup", () => {
       const page = sc.page();
       let pageFilePath = localSiteBuilder.getLocalFilePath(page);
       let pageFileContent = localSiteBuilder.getLocalFileContent(page);
+      console.log("adding page", pageFilePath);
       await localSiteDir.writeFile(
         localSitePath,
         pageFilePath,
