@@ -20,7 +20,7 @@ const createCodeChangePayload = (path, content) => ({
 });
 
 afterEach(closeAll);
-jest.setTimeout(20000);
+jest.setTimeout(30000);
 
 describe("Backup", () => {
   it("should restore from backup if updating site document is failed", async done => {
