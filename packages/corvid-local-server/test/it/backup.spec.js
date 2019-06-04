@@ -172,6 +172,7 @@ describe("Backup", () => {
           expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
           expect(onCodeChange).toHaveBeenCalledTimes(1);
           expect(onDocumentChange).toHaveBeenCalledTimes(1);
+          console.log("inside eventually");
         },
         { timeout: 15000 }
       );
