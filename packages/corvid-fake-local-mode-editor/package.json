@@ -14,7 +14,6 @@
   "engines": {
     "node": ">=10"
   },
-  "author": "Kobi Nemni <kobin@wix.com>",
   "license": "MIT",
   "dependencies": {
     "corvid-local-test-utils": "^0.1.0",

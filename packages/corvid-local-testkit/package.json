@@ -7,7 +7,6 @@
     "build": ":",
     "test": ":"
   },
-  "author": "Álvaro Morais <alvarom@wix.com>",
   "license": "ISC",
   "repository": {
     "type": "git",

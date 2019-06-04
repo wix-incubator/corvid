@@ -13,7 +13,6 @@
   "engines": {
     "node": ">=10"
   },
-  "author": "Kobi Nemni <kobin@wix.com>",
   "license": "MIT",
   "devDependencies": {
     "corvid-local-test-utils": "^0.1.0",

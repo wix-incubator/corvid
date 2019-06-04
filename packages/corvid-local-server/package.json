@@ -15,7 +15,6 @@
   "engines": {
     "node": ">=10"
   },
-  "author": "Kobi Nemni <kobin@wix.com>",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
