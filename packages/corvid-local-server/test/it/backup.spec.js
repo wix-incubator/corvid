@@ -175,7 +175,7 @@ describe("Backup", () => {
           expect(onDocumentChange).toHaveBeenCalledTimes(1);
           console.log("inside eventually end");
         },
-        { timeout: 15000 }
+        { timeout: 10000 }
       );
       console.log("after eventually");
       unsubscribeFromCodeChange();
