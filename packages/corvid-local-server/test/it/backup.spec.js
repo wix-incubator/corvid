@@ -147,6 +147,7 @@ describe("Backup", () => {
       await editor.save();
       console.log("Saving end");
     } catch (e) {
+      console.log("in catch");
       await new Promise(res => setTimeout(res, 2000));
       const code = sc.backendCode();
       let filePath = localSiteBuilder.getLocalFilePath(code);
@@ -178,6 +179,7 @@ describe("Backup", () => {
       unsubscribeFromDocumentChange();
       done();
     }
+    console.log("it should never be printed!!!");
   });
 
   it("should create backup folder on save", async () => {
