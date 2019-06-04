@@ -142,13 +142,9 @@ describe("Backup", () => {
       Object.assign(editorSite, illegalPayload).siteDocument
     );
     try {
-      // await new Promise(res => setTimeout(res, 2000));
-      console.log("Saving start");
       await editor.save();
-      console.log("Saving end");
     } catch (e) {
-      console.log("in catch");
-      await new Promise(res => setTimeout(res, 2000));
+      // await new Promise(res => setTimeout(res, 2000));
       const code = sc.backendCode();
       let filePath = localSiteBuilder.getLocalFilePath(code);
       let fileContent = localSiteBuilder.getLocalFileContent(code);
