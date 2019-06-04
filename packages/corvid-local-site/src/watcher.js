@@ -47,19 +47,19 @@ const watch = async givenPath => {
     followSymlinks: false,
     disableGlobbing: true,
     alwaysStat: true,
-    useFsEvents: false
+    usePolling: true
   });
 
   watcher
-    .on("raw", (event, path, details) => {
-      console.log("Raw event info:", event, path, details);
-    })
-    .on("addDir", (path, ...rest) =>
-      console.log(`Directory ${path} has been added`, rest)
-    )
-    .on("unlinkDir", (path, ...rest) =>
-      console.log(`Directory ${path} has been removed`, rest)
-    )
+    // .on("raw", (event, path, details) => {
+    //   console.log("Raw event info:", event, path, details);
+    // })
+    // .on("addDir", (path, ...rest) =>
+    //   console.log(`Directory ${path} has been added`, rest)
+    // )
+    // .on("unlinkDir", (path, ...rest) =>
+    //   console.log(`Directory ${path} has been removed`, rest)
+    // )
     .on("error", (error, ...rest) =>
       console.log(`Watcher error: ${error}`, rest)
     );

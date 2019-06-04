@@ -20,7 +20,7 @@ const createCodeChangePayload = (path, content) => ({
 });
 
 afterEach(closeAll);
-jest.setTimeout(30000);
+jest.setTimeout(10000);
 
 describe("Backup", () => {
   it("should restore from backup if updating site document is failed", async done => {
@@ -142,7 +142,7 @@ describe("Backup", () => {
       Object.assign(editorSite, illegalPayload).siteDocument
     );
     try {
-      await new Promise(res => setTimeout(res, 2000));
+      // await new Promise(res => setTimeout(res, 2000));
       console.log("Saving start");
       await editor.save();
       console.log("Saving end");
@@ -175,7 +175,7 @@ describe("Backup", () => {
           expect(onDocumentChange).toHaveBeenCalledTimes(1);
           console.log("inside eventually end");
         },
-        { timeout: 10000 }
+        { timeout: 5000 }
       );
       console.log("after eventually");
       unsubscribeFromCodeChange();
