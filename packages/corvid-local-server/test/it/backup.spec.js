@@ -143,6 +143,7 @@ describe("Backup", () => {
     try {
       await editor.save();
     } catch (e) {
+      await new Promise(res => setTimeout(res, 2000));
       const code = sc.backendCode();
       let filePath = localSiteBuilder.getLocalFilePath(code);
       let fileContent = localSiteBuilder.getLocalFileContent(code);
@@ -166,7 +167,7 @@ describe("Backup", () => {
           expect(onCodeChange).toHaveBeenCalledTimes(1);
           expect(onDocumentChange).toHaveBeenCalledTimes(1);
         },
-        { timeout: 19000 }
+        { timeout: 15000 }
       );
       unsubscribeFromCodeChange();
       unsubscribeFromDocumentChange();

@@ -2,8 +2,6 @@ const logger = require("corvid-local-logger");
 const fs = require("fs-extra");
 const projectPaths = require("./projectPaths");
 const getMessage = require("./messages");
-const dirAsJson = require("corvid-dir-as-json");
-const p = require("path");
 
 const backup = async (siteSrcPath, backupPath) => {
   logger.info(getMessage("Backup_Start_log"));
@@ -23,24 +21,9 @@ const deleteBackup = async backupPath => {
   logger.info(getMessage("Backup_Delete_Complete_log"));
 };
 
-const deleteSrc = async (siteSrcPath, deleteFile) => {
-  const siteDirJson = await dirAsJson.readDirToJson(siteSrcPath, {
-    delimiter: "/"
-  });
-  await Promise.all(
-    Object.keys(siteDirJson).map(async path => {
-      const stats = await fs.stat(p.join(siteSrcPath, path));
-      if (!stats.isDirectory()) {
-        await deleteFile(path);
-      }
-    })
-  );
-  await fs.emptyDir(siteSrcPath);
-};
-
-const restore = async (siteSrcPath, backupPath, deleteFile) => {
+const restore = async (siteSrcPath, backupPath) => {
   logger.info(getMessage("Backup_Restore_Start_log"));
-  await deleteSrc(siteSrcPath, deleteFile);
+  await fs.emptyDir(siteSrcPath);
   await fs.move(backupPath, siteSrcPath, { overwrite: true });
   logger.info(getMessage("Backup_Restore_Complete_log"));
 };
