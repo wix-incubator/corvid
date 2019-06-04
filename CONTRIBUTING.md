@@ -16,5 +16,8 @@ Remember to only use `yarn` when modifying dependencies.\
 Run ```yarn add/remove <package-name>``` inside the module you want to change.\
 (we rely on [Yarn Workspaces](https://yarnpkg.com/en/docs/workspaces) to keep links between local modules that depend on each other)
 
+### Commits
+We are using [conventional commits](https://conventionalcommits.org/), enforced by [@commitlint/config-conventional](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional).
+
 ### Pushing
 Make sure ```yarn test``` passes.
