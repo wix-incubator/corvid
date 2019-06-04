@@ -35,7 +35,8 @@ jobs:
     #   env:
     #     - YARN_GPG=no # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
 
-    - stage: deploy
+    - name: Publish to NPM
+      stage: deploy
       script: skip
       deploy:
         provider: script
