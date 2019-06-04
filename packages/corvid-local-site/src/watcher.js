@@ -45,7 +45,8 @@ const watch = async givenPath => {
     awaitWriteFinish: true,
     followSymlinks: false,
     disableGlobbing: true,
-    alwaysStat: true
+    alwaysStat: true,
+    usePolling: true
   });
 
   await new Promise((resolve, reject) => {

@@ -120,8 +120,7 @@ describe("Backup", () => {
     done();
   });
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip("should continue watch file changes after failed save", async done => {
+  it("should continue watch file changes after failed save", async done => {
     const onCodeChange = jest.fn();
     const onDocumentChange = jest.fn();
     const localSiteFiles = localSiteBuilder.buildFull();
@@ -142,6 +141,7 @@ describe("Backup", () => {
     try {
       await editor.save();
     } catch (e) {
+      await new Promise(res => setTimeout(res, 1000));
       const code = sc.backendCode();
       let filePath = localSiteBuilder.getLocalFilePath(code);
       let fileContent = localSiteBuilder.getLocalFileContent(code);
