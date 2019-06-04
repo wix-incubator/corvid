@@ -19,16 +19,19 @@ script:
 
 jobs:
   include:
-    - stage: test
+    - name: Mac tests
+      stage: test
       os: osx
     
-    - stage: test
+    - name: Linux tests
+      stage: test
       os: linux
       dist: xenial
       services:
         - xvfb
 
-    # - os: windows
+    # - name: Windows tests
+    #   os: windows
     #   env:
     #     - YARN_GPG=no # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
 
