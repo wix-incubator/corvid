@@ -182,7 +182,6 @@ describe("Backup", () => {
       console.log("after unsubscribe");
       done();
     }
-    console.log("it should never be printed!!!");
   });
 
   it("should create backup folder on save", async () => {

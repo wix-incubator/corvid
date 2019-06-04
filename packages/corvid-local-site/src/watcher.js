@@ -46,7 +46,8 @@ const watch = async givenPath => {
     awaitWriteFinish: true,
     followSymlinks: false,
     disableGlobbing: true,
-    alwaysStat: true
+    alwaysStat: true,
+    atomic: true
   });
 
   watcher
