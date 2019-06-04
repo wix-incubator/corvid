@@ -169,10 +169,11 @@ describe("Backup", () => {
       console.log("before eventually");
       await eventually(
         async () => {
+          console.log("inside eventually start");
           expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
           expect(onCodeChange).toHaveBeenCalledTimes(1);
           expect(onDocumentChange).toHaveBeenCalledTimes(1);
-          console.log("inside eventually");
+          console.log("inside eventually end");
         },
         { timeout: 15000 }
       );
