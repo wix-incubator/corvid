@@ -19,6 +19,7 @@ const createCodeChangePayload = (path, content) => ({
 });
 
 afterEach(closeAll);
+jest.setTimeout(20000);
 
 describe("Backup", () => {
   it("should restore from backup if updating site document is failed", async done => {
@@ -165,7 +166,7 @@ describe("Backup", () => {
           expect(onCodeChange).toHaveBeenCalledTimes(1);
           expect(onDocumentChange).toHaveBeenCalledTimes(1);
         },
-        { timeout: 4000 }
+        { timeout: 19000 }
       );
       unsubscribeFromCodeChange();
       unsubscribeFromDocumentChange();
