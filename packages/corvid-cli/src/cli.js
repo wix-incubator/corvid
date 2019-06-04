@@ -1,6 +1,10 @@
 const chalk = require("chalk");
+const updateNotifier = require("update-notifier");
 const version = require("./version");
 const getMessage = require("./messages");
+const packageJson = require("../package.json");
+
+updateNotifier({ pkg: packageJson }).notify();
 
 // eslint-disable-next-line no-console
 console.log(chalk.yellow(getMessage("Cli_Description_Yellow")));
