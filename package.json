@@ -1,5 +1,5 @@
 {
-  "name": "corvid-dev-experience",
+  "name": "corvid",
   "private": true,
   "repository": {
     "type": "git",
@@ -12,7 +12,9 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test": "lerna exec \"yarn test\""
+    "test": "lerna exec \"yarn test\"",
+    "release": "lerna version --exact --no-push",
+    "ci:publish": "lerna publish -y from-git"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
