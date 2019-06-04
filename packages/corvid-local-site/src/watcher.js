@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const path = require("path");
 const fs = require("fs-extra");
 const chokidar = require("chokidar");
@@ -48,6 +49,20 @@ const watch = async givenPath => {
     alwaysStat: true
   });
 
+  watcher
+    .on("raw", (event, path, details) => {
+      console.log("Raw event info:", event, path, details);
+    })
+    .on("addDir", (path, ...rest) =>
+      console.log(`Directory ${path} has been added`, rest)
+    )
+    .on("unlinkDir", (path, ...rest) =>
+      console.log(`Directory ${path} has been removed`, rest)
+    )
+    .on("error", (error, ...rest) =>
+      console.log(`Watcher error: ${error}`, rest)
+    );
+
   await new Promise((resolve, reject) => {
     watcher.on("ready", () => resolve());
     watcher.on("error", () => reject());
@@ -64,7 +79,6 @@ const watch = async givenPath => {
   };
 
   const isIgnoredAction = (type, path, mtimeMs = Date.now()) => {
-    // eslint-disable-next-line no-console
     console.log({
       type,
       path,
