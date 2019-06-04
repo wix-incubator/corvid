@@ -19,7 +19,7 @@ const initTempDirectory = () => {
   return () => process.chdir(cwd);
 };
 
-describe.skip("sanity e2e", () => {
+describe("sanity e2e", () => {
   let cleanup;
   jest.setTimeout(20000);
 

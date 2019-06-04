@@ -12,8 +12,12 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wix-incubator/corvid"
+  },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "author": "Kobi Nemni <kobin@wix.com>",
   "license": "MIT",

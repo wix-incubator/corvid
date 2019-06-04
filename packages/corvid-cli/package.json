@@ -14,8 +14,12 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wix-incubator/corvid"
+  },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "bin": {
     "corvid": "./src/index.js",
@@ -43,6 +47,9 @@
     "testEnvironment": "node",
     "testMatch": [
       "**/test/**/*.+(e2e|spec|unit).js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setupJest.js"
     ]
   },
   "husky": {
@@ -67,7 +74,7 @@
     "lodash": "^4.17.11",
     "node-fetch": "^2.3.0",
     "normalize-url": "^4.2.0",
-    "opn": "^5.4.0",
+    "opn": "^5.5.0",
     "ora": "3.4.0",
     "socket.io": "2.2.0",
     "socket.io-client": "^2.2.0",
