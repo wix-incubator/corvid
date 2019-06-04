@@ -20,7 +20,6 @@ const createCodeChangePayload = (path, content) => ({
 });
 
 afterEach(closeAll);
-jest.setTimeout(10000);
 
 describe("Backup", () => {
   it("should restore from backup if updating site document is failed", async done => {
@@ -162,14 +161,11 @@ describe("Backup", () => {
         pageFilePath,
         pageFileContent
       );
-      await eventually(
-        async () => {
-          expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
-          expect(onCodeChange).toHaveBeenCalledTimes(1);
-          expect(onDocumentChange).toHaveBeenCalledTimes(1);
-        },
-        { timeout: 5000 }
-      );
+      await eventually(async () => {
+        expect(onCodeChange).toHaveBeenCalledWith(watcherPayload);
+        expect(onCodeChange).toHaveBeenCalledTimes(1);
+        expect(onDocumentChange).toHaveBeenCalledTimes(1);
+      });
       unsubscribeFromCodeChange();
       unsubscribeFromDocumentChange();
       done();
