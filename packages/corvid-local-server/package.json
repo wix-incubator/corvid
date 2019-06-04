@@ -6,7 +6,7 @@
   "scripts": {
     "build": ":",
     "lint": "eslint .",
-    "test": "yarn lint && jest",
+    "test": "yarn lint && jest backup",
     "precommit": "lint-staged",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   },
