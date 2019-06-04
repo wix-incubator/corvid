@@ -141,7 +141,12 @@ describe("Backup", () => {
       Object.assign(editorSite, illegalPayload).siteDocument
     );
     try {
+      await new Promise(res => setTimeout(res, 2000));
+      // eslint-disable-next-line no-console
+      console.log("Saving start");
       await editor.save();
+      // eslint-disable-next-line no-console
+      console.log("Saving end");
     } catch (e) {
       await new Promise(res => setTimeout(res, 2000));
       const code = sc.backendCode();
