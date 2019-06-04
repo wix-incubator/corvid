@@ -1,5 +1,6 @@
 const fetchMock = require("fetch-mock");
-const { initTempDir } = require("corvid-local-test-utils");
+const { localSiteBuilder } = require("corvid-local-site/testkit");
+const { siteCreators: sc, initTempDir } = require("corvid-local-test-utils");
 const {
   server: localFakeEditorServer
 } = require("corvid-fake-local-mode-editor");
@@ -32,15 +33,17 @@ describe("edit", () => {
 
     test("should open the editor with the local server port", async () => {
       expect.assertions(1);
-      const tempDir = await initTempDir({
-        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
-        src: {
-          backend: {},
-          assets: {},
-          public: {},
-          database: {}
-        }
-      });
+      const siteItems = sc.fullSiteItems();
+
+      const localSiteFiles = localSiteBuilder.buildPartial(...siteItems);
+      const tempDir = await initTempDir(
+        Object.assign(
+          {
+            ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+          },
+          { src: localSiteFiles }
+        )
+      );
 
       return expect(
         openEditorHandler({
@@ -51,15 +54,17 @@ describe("edit", () => {
 
     test("should report to BI an open-editor start event", async () => {
       expect.assertions(1);
-      const tempDir = await initTempDir({
-        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
-        src: {
-          backend: {},
-          assets: {},
-          public: {},
-          database: {}
-        }
-      });
+      const siteItems = sc.fullSiteItems();
+
+      const localSiteFiles = localSiteBuilder.buildPartial(...siteItems);
+      const tempDir = await initTempDir(
+        Object.assign(
+          {
+            ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+          },
+          { src: localSiteFiles }
+        )
+      );
 
       fetchMock
         .mock(
@@ -104,15 +109,17 @@ describe("edit", () => {
 
     test("should report to BI an open-editor success event", async () => {
       expect.assertions(1);
-      const tempDir = await initTempDir({
-        ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' },
-        src: {
-          backend: {},
-          assets: {},
-          public: {},
-          database: {}
-        }
-      });
+      const siteItems = sc.fullSiteItems();
+
+      const localSiteFiles = localSiteBuilder.buildPartial(...siteItems);
+      const tempDir = await initTempDir(
+        Object.assign(
+          {
+            ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+          },
+          { src: localSiteFiles }
+        )
+      );
 
       fetchMock
         .mock(
