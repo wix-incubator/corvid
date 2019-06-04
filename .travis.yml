@@ -26,3 +26,11 @@ before_install:
 
 script:
   - yarn test
+
+deploy:
+  provider: script
+  script: yarn ci:publish
+  skip_cleanup: true
+  on:
+    tags: true
+    branch: master
