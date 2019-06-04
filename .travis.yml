@@ -4,19 +4,6 @@ branches:
 
 language: node_js
 
-matrix:
-  include:
-    - os: linux
-      dist: xenial
-      services:
-        - xvfb
-
-    - os: osx
-
-    # - os: windows
-    #   env:
-    #     - YARN_GPG=no # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
-
 node_js:
   - 10
 
@@ -24,13 +11,32 @@ before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s
   - export PATH=$HOME/.yarn/bin:$PATH
 
+install:
+  - yarn
+
 script:
   - yarn test
 
-deploy:
-  provider: script
-  script: yarn ci:publish
-  skip_cleanup: true
-  on:
-    tags: true
-    branch: master
+jobs:
+  include:
+    - stage: test
+      os: osx
+    
+    - stage: test
+      os: linux
+      dist: xenial
+      services:
+        - xvfb
+
+    # - os: windows
+    #   env:
+    #     - YARN_GPG=no # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
+
+    - stage: deploy
+      script: skip
+      deploy:
+        provider: script
+        script: yarn ci:publish
+        on:
+          tags: true
+          branch: master  
