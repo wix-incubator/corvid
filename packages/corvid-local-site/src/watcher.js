@@ -210,7 +210,7 @@ const watch = async givenPath => {
         assertUnderRoot(relativeSourcePath);
         assertUnderRoot(relativeTargetPath);
 
-        await fs.copyFile(
+        await fs.copy(
           fullPath(relativeSourcePath),
           fullPath(relativeTargetPath)
         );
