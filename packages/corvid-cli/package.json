@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": ":",
-    "test": "jest",
+    "test": "jest --detectOpenHandles",
     "watch": "jest --watch",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   },
