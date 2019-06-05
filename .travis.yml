@@ -22,7 +22,7 @@ jobs:
     - name: Mac tests
       stage: test
       os: osx
-    
+
     - name: Linux tests
       stage: test
       os: linux
@@ -30,10 +30,16 @@ jobs:
       services:
         - xvfb
 
-    # - name: Windows tests
-    #   os: windows
-    #   env:
-    #     - YARN_GPG=no # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
+    - name: Windows tests
+      os: windows
+      env:
+        - YARN_GPG=no # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
+      before_install:
+        - ./scripts/ci-windows-pre-install.sh
+      install:
+        - yarn --network-timeout 1000000
+      script:
+        - yarn test -- --forceExit # until we figure out why windows builds hang after tests pass
 
     - name: Publish to npm
       stage: deploy
@@ -43,4 +49,4 @@ jobs:
         script: yarn ci:publish
         on:
           tags: true
-          branch: master  
+          branch: master
