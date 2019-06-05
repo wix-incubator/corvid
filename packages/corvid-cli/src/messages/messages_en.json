@@ -53,5 +53,9 @@
     "CAN_NOT_CLONE_NON_WIX_SITE": "Project not found. Open the Editor in the project's root folder.",
     "CAN_NOT_PULL_NON_WIX_SITE": "Project not found. Pull site files to the project's root folder.",
     "CAN_NOT_EDIT_NON_WIX_SITE": "Project not found. Open the Editor in the project's root folder.",
-    "BACKUP_FOLDER_EXISTS": "Something went wrong during the last save. An old version of your site is stored in .corvid/backup. Consolidate your changes and remove the backup folder."
+    "BACKUP_FOLDER_EXISTS": "Something went wrong during the last save. An old version of your site is stored in .corvid/backup. Consolidate your changes and remove the backup folder.",
+    "Electron_Prompt_Title_Not_Saved": "Leave site?",
+    "Electron_Prompt_Message_Not_Saved": "Changes you made may not be saved",
+    "Electron_Prompt_Cancel_Not_Saved": "Cancel",
+    "Electron_Prompt_Leave_Not_Saved": "Leave"
 }

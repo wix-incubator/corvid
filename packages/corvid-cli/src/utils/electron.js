@@ -11,8 +11,19 @@ const { logger } = require("corvid-local-logger");
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const { sendRequest } = require("../utils/socketIoHelpers");
+const getMessage = require("../messages");
 const isHeadlessMode = !process.env.CORVID_CLI_DISABLE_HEADLESS;
 const isDevTools = !!process.env.CORVID_CLI_DEVTOOLS;
+
+const beforeCloseDialogParams = {
+  type: "question",
+  title: getMessage("Electron_Prompt_Title_Not_Saved"),
+  message: getMessage("Electron_Prompt_Message_Not_Saved"),
+  buttons: [
+    getMessage("Electron_Prompt_Leave_Not_Saved"),
+    getMessage("Electron_Prompt_Cancel_Not_Saved")
+  ]
+};
 
 const runningProcesses = [];
 
@@ -78,7 +89,35 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
     close: closeLocalServer
   } = await server;
 
-  win.on("close", () => {
+  let shouldClose = false;
+
+  win.on("close", async e => {
+    if (!shouldClose) {
+      e.preventDefault();
+      const shouldPromptBeforeClose = await win.webContents.executeJavaScript(
+        "window.onbeforeunload !== null"
+      );
+      if (shouldPromptBeforeClose) {
+        const index = await electron.dialog.showMessageBox(
+          beforeCloseDialogParams
+        );
+        const { buttons: actions } = beforeCloseDialogParams;
+
+        if (actions[index] === getMessage("Electron_Prompt_Leave_Not_Saved")) {
+          await win.webContents.executeJavaScript(
+            "window.onbeforeunload = null"
+          );
+          shouldClose = true;
+          win.close();
+        }
+      } else {
+        shouldClose = true;
+        win.close();
+      }
+    }
+  });
+
+  win.on("closed", () => {
     closeLocalServer();
   });
   const clnt = client.connect(`http://localhost:${localServerPort}`, {
