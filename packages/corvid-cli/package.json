@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": ":",
-    "test": "jest --runInBand",
-    "watch": "jest --runInBand --watch",
+    "test": "jest",
+    "watch": "jest --watch",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   },
   "repository": {
