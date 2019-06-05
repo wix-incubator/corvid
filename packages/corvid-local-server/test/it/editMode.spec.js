@@ -147,70 +147,95 @@ describe("edit mode", () => {
     expect(localSite).toMatchObject(expectedLocalSite);
   });
 
-  // todo:: split this test to 6 test, (modify pageCode & regular code), (delete pageCode & regular code), (copy pageCode & regular code)
-  it("should update code files after editor changes and clicks save", async () => {
-    const schemaItem = sc.collectionSchema("collection", {
-      collectionName: "oldSchema",
-      fields: {}
-    });
+  describe("code file updates when editor site is saved", () => {
+    it.each(Object.keys(sc.codeCreators))(
+      `should update a local [%s] file that was modified in the editor and saved`,
+      async itemKey => {
+        const originalCodeItem = sc[itemKey]();
 
-    const siteItems = [
-      sc.pageWithCode({ pageId: "page-1" }, "page code"),
-      sc.pageWithCode({ pageId: "page-2" }, "page-2 code file options"),
-      sc.publicCode("public-file.json", "public code"),
-      sc.publicCode("public-file1.json", "public code 1"),
-      sc.backendCode("sub-folder/backendFile.jsw", "backend code"),
-      schemaItem
-    ];
+        const localSiteFiles = localSiteBuilder.buildFull(originalCodeItem);
 
-    const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
+        const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+        const server = await localServer.startInEditMode(localSitePath);
+        const editor = await loadEditor(server.port);
 
-    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
-    const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
-    // TODO: use "editorBuilder.getEditorCodeFilePath" for all modified items
-    editor.modifyCodeFile(
-      "backend/authorization-config.json",
-      "console.log('authorization-config')"
+        const similarCodeItemWithDifferentContent = sc[itemKey]();
+        const newFileContent = localSiteBuilder.getLocalCodeFileContent(
+          similarCodeItemWithDifferentContent
+        );
+
+        editor.modifyCodeFile(
+          editorSiteBuilder.getEditorCodeFilePath(originalCodeItem),
+          newFileContent
+        );
+
+        await editor.save();
+
+        const localFileContent = await localSiteDir.readFile(
+          localSitePath,
+          localSiteBuilder.getLocalCodeFilePath(originalCodeItem)
+        );
+        expect(localFileContent).toEqual(newFileContent);
+      }
     );
 
-    editor.modifyPageCodeFile("page-1", "code file options8888");
-    editor.deletePageCodeFile("page-2");
-    editor.deleteCodeFile("public/public-file1.json");
-    editor.copyCodeFile(
-      "public/public-file.json",
-      "public/public-file-copied.json"
-    );
-    editor.modifyCodeFile(
-      editorSiteBuilder.getEditorCodeFilePath(schemaItem),
-      JSON.stringify({ collectionName: "updatedSchema", fields: {} })
-    );
+    it.each(Object.keys(sc.codeCreators))(
+      `should delete a local [%s] file that was deleted in the editor and saved`,
+      async itemKey => {
+        const originalCodeItem = sc[itemKey]();
 
-    await editor.save();
+        const localSiteFiles = localSiteBuilder.buildFull(originalCodeItem);
 
-    const expected = localSiteBuilder.buildPartial(
-      sc.pageWithCode({ pageId: "page-1" }, "code file options8888"),
-      sc.publicCode("public-file.json", "public code"),
-      sc.backendCode("sub-folder/backendFile.jsw", "backend code"),
-      sc.backendCode(
-        "authorization-config.json",
-        "console.log('authorization-config')"
-      ),
-      sc.collectionSchema("collection", {
-        collectionName: "updatedSchema",
-        fields: {}
-      })
+        const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+        const server = await localServer.startInEditMode(localSitePath);
+        const editor = await loadEditor(server.port);
+
+        editor.deleteCodeFile(
+          editorSiteBuilder.getEditorCodeFilePath(originalCodeItem)
+        );
+
+        await editor.save();
+
+        const localFileExists = await localSiteDir.doesExist(
+          localSitePath,
+          localSiteBuilder.getLocalCodeFilePath(originalCodeItem)
+        );
+        expect(localFileExists).toBe(false);
+      }
     );
 
-    const serverFiles = await localSiteDir.readLocalSite(localSitePath);
+    it.each(["publicCode", "backendCode", "collectionSchema"])(
+      `should copy a local [%s] file that was copied in the editor and saved`,
+      async itemKey => {
+        const originalCodeItem = sc[itemKey]();
 
-    expect(serverFiles).toMatchObject(expected);
-    expect(serverFiles).not.toMatchObject(
-      sc.publicCode("public/public-file1.json", "public code 1")
-    );
-    //todo:: check test
-    expect(serverFiles).not.toMatchObject(
-      sc.pageWithCode({ pageId: "page-2" }, "page-2 code file options")
+        const localSiteFiles = localSiteBuilder.buildFull(originalCodeItem);
+
+        const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+        const server = await localServer.startInEditMode(localSitePath);
+        const editor = await loadEditor(server.port);
+
+        const similarCodeItemWithDifferentPath = sc[itemKey]();
+
+        editor.copyCodeFile(
+          editorSiteBuilder.getEditorCodeFilePath(originalCodeItem),
+          editorSiteBuilder.getEditorCodeFilePath(
+            similarCodeItemWithDifferentPath
+          )
+        );
+
+        await editor.save();
+
+        const localFileContent = await localSiteDir.readFile(
+          localSitePath,
+          localSiteBuilder.getLocalCodeFilePath(
+            similarCodeItemWithDifferentPath
+          )
+        );
+        expect(localFileContent).toEqual(
+          localSiteBuilder.getLocalCodeFileContent(originalCodeItem)
+        );
+      }
     );
   });
 });

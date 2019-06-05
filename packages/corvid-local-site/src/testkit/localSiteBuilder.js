@@ -1,6 +1,7 @@
 const flatten_ = require("lodash/flatten");
 const set_ = require("lodash/set");
 const omit_ = require("lodash/omit");
+const isObject_ = require("lodash/isObject");
 const sanitize = require("sanitize-filename");
 
 const { siteCreators: sc } = require("corvid-local-test-utils");
@@ -201,9 +202,21 @@ const getLocalFileContent = siteItem => {
   });
 };
 
+const getLocalCodeFilePath = siteItem => {
+  const localFilePath = getLocalFilePath(siteItem);
+  return isObject_(localFilePath) ? localFilePath.code : localFilePath;
+};
+
+const getLocalCodeFileContent = siteItem => {
+  const localFileContent = getLocalFileContent(siteItem);
+  return isObject_(localFileContent) ? localFileContent.code : localFileContent;
+};
+
 module.exports = {
   buildFull,
   buildPartial,
   getLocalFilePath,
-  getLocalFileContent
+  getLocalFileContent,
+  getLocalCodeFilePath,
+  getLocalCodeFileContent
 };
