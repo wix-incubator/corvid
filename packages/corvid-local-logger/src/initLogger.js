@@ -8,6 +8,14 @@ const LOG_FILE_PATH = path.join(".corvid", "session.log");
 
 const ALREADY_LOGGED = Symbol("already-logged");
 
+const ignoreException = fn => (...args) => {
+  try {
+    return fn(...args);
+  } catch (e) {
+    console.error(e); /* eslint-disable-line no-console */
+  }
+};
+
 const logFileTransport = rootPath =>
   new winston.transports.File({
     level: process.env.LOG_LEVEL || "verbose",
@@ -78,17 +86,19 @@ const initLogger = (cwd, defaultMetadata) => {
   };
 
   return {
-    error,
-    warn: logger.warn.bind(logger),
-    info: logger.info.bind(logger),
-    verbose: logger.verbose.bind(logger),
-    debug: logger.debug.bind(logger),
-    silly: logger.silly.bind(logger),
+    error: ignoreException(error),
+    warn: ignoreException(logger.warn.bind(logger)),
+    info: ignoreException(logger.info.bind(logger)),
+    verbose: ignoreException(logger.verbose.bind(logger)),
+    debug: ignoreException(logger.debug.bind(logger)),
+    silly: ignoreException(logger.silly.bind(logger)),
 
     close: () =>
       new Promise(resolve => {
-        logger.on("finish", resolve);
-        logger.end();
+        logger.on("finish", () => {
+          logger.end();
+          resolve();
+        });
       })
   };
 };
