@@ -34,7 +34,9 @@ jobs:
       os: windows
       env:
         - YARN_GPG=no # https://travis-ci.community/t/build-doesnt-finish-after-completing-tests/288/9
+      filter_secrets: false # https://travis-ci.community/t/windows-instances-hanging-before-install/250/15
       before_install:
+        - unset NPM_TOKEN # https://travis-ci.community/t/windows-instances-hanging-before-install/250/15
         - ./scripts/ci-windows-pre-install.sh
       install:
         - yarn --network-timeout 1000000
@@ -44,9 +46,12 @@ jobs:
     - name: Publish to npm
       stage: deploy
       script: skip
+      before_deploy:
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
       deploy:
         provider: script
         script: yarn ci:publish
+        skip_cleanup: true
         on:
           tags: true
           branch: master
