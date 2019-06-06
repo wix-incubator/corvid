@@ -1,6 +1,6 @@
 {
   "name": "corvid-local-logger",
-  "version": "0.1.72",
+  "version": "0.1.73",
   "description": "",
   "main": "src/index.js",
   "scripts": {

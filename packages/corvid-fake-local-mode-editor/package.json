@@ -1,6 +1,6 @@
 {
   "name": "corvid-fake-local-mode-editor",
-  "version": "0.1.72",
+  "version": "0.1.73",
   "description": "",
   "main": "src/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "browserify": "^16.2.3",
-    "corvid-local-test-utils": "0.1.72",
+    "corvid-local-test-utils": "0.1.73",
     "express": "^4.16.4",
     "flat": "^4.1.0",
     "listen-on-free-port": "^1.0.3",
