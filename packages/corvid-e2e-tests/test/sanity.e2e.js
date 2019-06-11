@@ -41,27 +41,25 @@ describe("browser sanity", () => {
   afterEach(() => cleanup());
 
   testSites.forEach(({ editorUrl, description }) =>
-    describe(`should generate ${description} site and interact with it`, () => {
-      test("haha", async () => {
-        cleanup = initTempDirectory();
-        const cliDriver = corvidCliDriverCreator();
-        const corvidCloneCmd = await cliDriver.clone({ editorUrl });
-        expect(corvidCloneCmd.code).toEqual(EXIT_CODE_SUCCESS);
-        const remoteDebuggingPort = await findAvailablePort();
-        const pid = cliDriver.openEditor({ remoteDebuggingPort });
-        await eventually(async () => {
-          const browser = await puppeteer.connect({
-            browserURL: `http://localhost:${remoteDebuggingPort}`,
-            defaultViewport: { width: 1280, height: 960 }
-          });
-          const [page] = await browser.pages();
-          const localEditorDriver = localEditorDriverCreator(page);
-          await localEditorDriver.waitForEditor();
-          await localEditorDriver.push();
-          await page.close();
-          process.kill(pid);
-          cleanup();
+    test(`should clone ${description} site, open it and push without making actual changes`, async () => {
+      cleanup = initTempDirectory();
+      const cliDriver = corvidCliDriverCreator();
+      const corvidCloneCmd = await cliDriver.clone({ editorUrl });
+      expect(corvidCloneCmd.code).toEqual(EXIT_CODE_SUCCESS);
+      const remoteDebuggingPort = await findAvailablePort();
+      const pid = cliDriver.openEditor({ remoteDebuggingPort });
+      await eventually(async () => {
+        const browser = await puppeteer.connect({
+          browserURL: `http://localhost:${remoteDebuggingPort}`,
+          defaultViewport: { width: 1280, height: 960 }
         });
+        const [page] = await browser.pages();
+        const localEditorDriver = localEditorDriverCreator(page);
+        await localEditorDriver.waitForEditor();
+        await localEditorDriver.push();
+        await page.close();
+        process.kill(pid);
+        cleanup();
       });
     })
   );
