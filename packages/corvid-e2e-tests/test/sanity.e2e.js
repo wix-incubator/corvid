@@ -49,22 +49,19 @@ describe("browser sanity", () => {
         expect(corvidCloneCmd.code).toEqual(EXIT_CODE_SUCCESS);
         const remoteDebuggingPort = await findAvailablePort();
         const pid = cliDriver.openEditor({ remoteDebuggingPort });
-        await eventually(
-          async () => {
-            const browser = await puppeteer.connect({
-              browserURL: `http://localhost:${remoteDebuggingPort}`,
-              defaultViewport: { width: 1280, height: 960 }
-            });
-            const [page] = await browser.pages();
-            const localEditorDriver = localEditorDriverCreator(page);
-            await localEditorDriver.waitForEditor();
-            await localEditorDriver.push();
-            await page.close();
-            process.kill(pid);
-            cleanup();
-          },
-          { timeout: 40000 }
-        );
+        await eventually(async () => {
+          const browser = await puppeteer.connect({
+            browserURL: `http://localhost:${remoteDebuggingPort}`,
+            defaultViewport: { width: 1280, height: 960 }
+          });
+          const [page] = await browser.pages();
+          const localEditorDriver = localEditorDriverCreator(page);
+          await localEditorDriver.waitForEditor();
+          await localEditorDriver.push();
+          await page.close();
+          process.kill(pid);
+          cleanup();
+        });
       });
     })
   );
