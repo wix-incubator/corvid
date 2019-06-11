@@ -69,7 +69,7 @@ describe("browser sanity", () => {
         process.kill(pid);
         cleanup();
         console.log('bye') //eslint-disable-line  
-      });
+      }, { timeout: 30000 });
     })
   );
 });
