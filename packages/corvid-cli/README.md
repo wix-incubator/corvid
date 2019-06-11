@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="200" src="packages/corvid-cli/assets/icon.png">
+  <img width="200" src="https://raw.githubusercontent.com/wix-incubator/corvid/master/packages/corvid-cli/assets/icon.png">
 </p>
 <h2 align="center">Corvid Local Development</h2>
 <p align="center">

@@ -1,15 +1,10 @@
 {
   "name": "corvid-local-site",
-  "version": "0.1.54",
+  "version": "0.1.73",
   "description": "",
   "scripts": {
     "build": ":",
-    "lint": "eslint .",
-    "test": "yarn lint && jest",
-    "precommit": "lint-staged"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -18,40 +13,20 @@
   "engines": {
     "node": ">=10"
   },
-  "author": "Kobi Nemni <kobin@wix.com>",
   "license": "MIT",
   "devDependencies": {
-    "corvid-local-test-utils": "^0.1.0",
-    "eslint": "^5.16.0",
-    "eslint-config-prettier": "^4.1.0",
-    "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-jest": "^22.3.2",
-    "eslint-plugin-prettier": "^3.0.1",
-    "husky": "^1.3.1",
+    "corvid-local-test-utils": "0.1.73",
     "jest": "^24.7.1",
-    "jest-teamcity-reporter": "^0.9.0",
-    "lint-staged": "^8.1.5",
-    "prettier": "^1.17.1",
     "temp": "^0.9.0",
     "wix-eventually": "^2.2.0"
   },
   "dependencies": {
     "chokidar": "^2.1.2",
-    "corvid-dir-as-json": "^0.1.0",
-    "corvid-local-logger": "^0.1.0",
+    "corvid-dir-as-json": "0.1.73",
+    "corvid-local-logger": "0.1.73",
     "fs-extra": "^7.0.1",
     "lodash": "^4.17.11",
     "rimraf": "^2.6.3",
     "sanitize-filename": "^1.6.1"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint"
-    ]
   }
 }

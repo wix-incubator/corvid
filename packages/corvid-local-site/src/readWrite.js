@@ -176,8 +176,10 @@ const readWrite = (siteRootPath, filesWatcher) => {
     const existingPageRelatedFiles = await getLocalPageFiles();
 
     const exitingPageCodeFilesByPageId = mapKeys_(
-      existingPageRelatedFiles.filter(filePath =>
-        sitePaths.isCodeFile(filePath)
+      existingPageRelatedFiles.filter(
+        filePath =>
+          sitePaths.isCodeFile(filePath) &&
+          !sitePaths.isLocalMasterPageCodePath(filePath)
       ),
       filePath => sitePaths.matchLocalPageCodePath(filePath).pageId
     );
@@ -212,7 +214,6 @@ const readWrite = (siteRootPath, filesWatcher) => {
       exitingPageCodeFilesByPageId,
       (_, pageId) => !requiredPageCodeFilesByPageId[pageId]
     ).map(fileToDelete => filesWatcher.ignoredDeleteFile(fileToDelete));
-
     await Promise.all([...modifications, ...deletions]);
   };
 
@@ -234,7 +235,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
       ...Object.values(sitePaths.codeFolders).map(codeFolderPath =>
         fs.ensureDir(fullPath(codeFolderPath))
       ),
-      filesWatcher.ignoredEnsureFile(sitePaths.masterPageCode())
+      filesWatcher.ignoredEnsureFile(sitePaths.localMasterPageCodePath())
     ]);
   };
 

@@ -5,7 +5,7 @@ const omit_ = require("lodash/omit");
 const documentSchemaVersion = "1.0";
 
 const { siteCreators: sc } = require("corvid-local-test-utils");
-
+const prettyStringify = content => JSON.stringify(content, null, 2);
 const colors = colors => ({
   siteDocument: {
     styles: {
@@ -141,6 +141,12 @@ const masterPageCode = ({ content }) =>
     content
   });
 
+const corvidPackageJson = ({ content }) =>
+  backendCodeFile({
+    path: "wix-code-package.json",
+    content: prettyStringify(content)
+  });
+
 const buildPartial = (...siteItems) =>
   merge_(
     ...siteItems.map(item =>
@@ -162,6 +168,7 @@ const buildPartial = (...siteItems) =>
         [sc.publicCode]: publicCodeFile,
         [sc.backendCode]: backendCodeFile,
         [sc.collectionSchema]: collectionSchema,
+        [sc.corvidPackageJson]: corvidPackageJson,
         [sc.masterPageCode]: masterPageCode
       })
     ),
@@ -182,6 +189,7 @@ const getEditorCodeFilePath = item =>
     [sc.publicCode]: ({ path }) => `public/${path}`,
     [sc.masterPageCode]: () => `public/pages/masterPage.js`,
     [sc.backendCode]: ({ path }) => `backend/${path}`,
+    [sc.corvidPackageJson]: () => "backend/wix-code-package.json",
     [sc.collectionSchema]: ({ collectionName }) =>
       `.schemas/${collectionName}.json`
   });
