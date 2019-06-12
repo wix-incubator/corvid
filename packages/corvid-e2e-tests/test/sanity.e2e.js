@@ -40,21 +40,21 @@ const initTempDirectory = () => {
 describe("browser sanity", () => {
   let cleanup;
 
+  beforeEach(() => cleanup = initTempDirectory())
   afterEach(() => cleanup());
 
   testSites.forEach(({ editorUrl, description }) =>
     test(`should clone ${description} site, open it and push without making actual changes`, async () => {
       console.log('test started') //eslint-disable-line
       expect(true).toBe(true);
-      // cleanup = initTempDirectory();
-      // const cliDriver = corvidCliDriverCreator();
-      // console.log('before clone') //eslint-disable-line      
-      // const corvidCloneCmd = await cliDriver.clone({ editorUrl });
-      // expect(corvidCloneCmd.code).toEqual(EXIT_CODE_SUCCESS);
-      // console.log('after clone') //eslint-disable-line      
-      // const remoteDebuggingPort = await findAvailablePort();
-      // const pid = cliDriver.openEditor({ remoteDebuggingPort });
-      // console.log('opening editor') //eslint-disable-line      
+      const cliDriver = corvidCliDriverCreator();
+      console.log('before clone') //eslint-disable-line      
+      const corvidCloneCmd = await cliDriver.clone({ editorUrl });
+      expect(corvidCloneCmd.code).toEqual(EXIT_CODE_SUCCESS);
+      console.log('after clone') //eslint-disable-line      
+      const remoteDebuggingPort = await findAvailablePort();
+      const pid = cliDriver.openEditor({ remoteDebuggingPort });
+      console.log('opening editor') //eslint-disable-line      
       // await eventually(async () => {
       //   const browser = await puppeteer.connect({
       //     browserURL: `http://localhost:${remoteDebuggingPort}`,
