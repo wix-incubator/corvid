@@ -54,23 +54,23 @@ describe("browser sanity", () => {
       console.log('after clone') //eslint-disable-line      
       const remoteDebuggingPort = await findAvailablePort();
       const pid = cliDriver.openEditor({ remoteDebuggingPort });
-      console.log('opening editor') //eslint-disable-line      
-      // await eventually(async () => {
-      //   const browser = await puppeteer.connect({
-      //     browserURL: `http://localhost:${remoteDebuggingPort}`,
-      //     defaultViewport: { width: 1280, height: 960 }
-      //   });
-      //   const [page] = await browser.pages();
-      //   console.log('opened editor') //eslint-disable-line      
-      //   const localEditorDriver = localEditorDriverCreator(page);
-      //   await localEditorDriver.waitForEditor();
-      //   console.log('done waiting') //eslint-disable-line      
-      //   await localEditorDriver.push();
-      //   await page.close();
-      //   process.kill(pid);
-      //   cleanup();
-      //   console.log('bye') //eslint-disable-line  
-      // }, { timeout: 30000 });
+      console.log('opening editor') //eslint-disable-line
+      await eventually(async () => {
+        const browser = await puppeteer.connect({
+          browserURL: `http://localhost:${remoteDebuggingPort}`,
+          defaultViewport: { width: 1280, height: 960 }
+        });
+        const [page] = await browser.pages();
+        console.log('opened editor') //eslint-disable-line      
+        const localEditorDriver = localEditorDriverCreator(page);
+        await localEditorDriver.waitForEditor();
+        console.log('done waiting') //eslint-disable-line      
+        await localEditorDriver.push();
+        await page.close();
+        process.kill(pid);
+        cleanup();
+        console.log('bye') //eslint-disable-line  
+      }, { timeout: 30000 });
     })
   );
 });
