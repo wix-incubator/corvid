@@ -66,6 +66,7 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
         })
       );
 
+      logger.info(`pulling [${editorUrl}]`);
       win.loadURL(editorUrl, { httpReferrer: editorUrl });
     });
   }

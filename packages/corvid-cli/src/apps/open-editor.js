@@ -73,6 +73,7 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         })
       );
 
+      logger.info(`opening editor for [${editorUrl}]`);
       win.loadURL(editorUrl, { httpReferrer: editorUrl });
     });
   }
