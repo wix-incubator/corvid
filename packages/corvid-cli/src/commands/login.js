@@ -10,6 +10,7 @@ const sessionData = require("../utils/sessionData");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
 const { exitWithError, exitWithSuccess } = require("../utils/exitProcess");
+const { getBiContextHeader } = require("../utils/bi");
 
 const mySitesUrl = "https://www.wix.com/account/sites";
 const signInHostname = "users.wix.com";
@@ -52,8 +53,8 @@ app &&
           win.webContents.on("did-finish-load", () => exitWithSuccess());
         }
       });
-
-      win.loadURL(mySitesUrl);
+      const extraHeaders = getBiContextHeader(win.isVisible());
+      win.loadURL(mySitesUrl, { extraHeaders });
     } catch (exc) {
       exitWithError(exc);
     }
