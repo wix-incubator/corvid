@@ -11,19 +11,11 @@ console.log(chalk.yellow(getMessage("Cli_Description_Yellow")));
 // eslint-disable-next-line no-console
 console.log(getMessage("Cli_Description"));
 
-const commandWithLog = commandObject =>
-  Object.assign({}, commandObject, {
-    handler: (...args) => {
-      logger.info(
-        `executing command [${commandObject.command}] with args [${args}]`
-      );
-      return commandObject.handler(...args);
-    }
-  });
+logger.info(`running [${process.argv.slice(2).join(" ")}]`);
 
 require("yargs")
   .usage("Usage: $0 <command> [options]")
-  .commandDir("commands", { visit: commandWithLog })
+  .commandDir("commands")
   .help("help")
   .strict()
   .demandCommand().argv;
