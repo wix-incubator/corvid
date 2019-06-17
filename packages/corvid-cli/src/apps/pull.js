@@ -6,6 +6,7 @@ const logger = require("corvid-local-logger");
 const clientMessages = require("../utils/console-messages");
 const clientMessageActions = require("../utils/clientMessageActions");
 const getMessage = require("../messages");
+const { getBiContextHeader } = require("../utils/bi");
 
 const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
   serverMode: "clone",
@@ -67,7 +68,8 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
       );
 
       logger.info(`pulling [${editorUrl}]`);
-      win.loadURL(editorUrl, { httpReferrer: editorUrl });
+      const extraHeaders = getBiContextHeader(win.isVisible());
+      win.loadURL(editorUrl, { httpReferrer: editorUrl, extraHeaders });
     });
   }
 });

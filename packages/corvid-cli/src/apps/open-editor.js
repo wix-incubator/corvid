@@ -6,6 +6,7 @@ const genEditorUrl = require("../utils/genEditorUrl");
 const clientMessages = require("../utils/console-messages");
 const clientMessageActions = require("../utils/clientMessageActions");
 const getMessage = require("../messages");
+const { getBiContextHeader } = require("../utils/bi");
 
 const openEditorApp = ({ useSsl = true } = {}) => ({
   serverMode: "edit",
@@ -74,7 +75,8 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
       );
 
       logger.info(`opening editor for [${editorUrl}]`);
-      win.loadURL(editorUrl, { httpReferrer: editorUrl });
+      const extraHeaders = getBiContextHeader(win.isVisible());
+      win.loadURL(editorUrl, { httpReferrer: editorUrl, extraHeaders });
     });
   }
 });
