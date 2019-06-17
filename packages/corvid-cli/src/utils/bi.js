@@ -37,8 +37,8 @@ function sendBiEvent(evid) {
 
 function getBiContextHeader(isVisible) {
   const data = { builderEnv: "local", isHeadless: !isVisible };
-  const encoded = new Buffer(JSON.stringify(data)).toString("base64");
-  return `x-wix-bi-context: ${encoded}\n`;
+  const encoded = Buffer.from(JSON.stringify(data)).toString("base64");
+  return `x-wix-bi-context: ${encoded}`;
 }
 
 module.exports = {
