@@ -48,13 +48,13 @@ describe("pull", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`,
+          }&status=start&type=regular`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success&type=regular`,
+          }&status=success&type=regular`,
           JSON.stringify({})
         );
 
@@ -89,13 +89,13 @@ describe("pull", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`,
+          }&status=start&type=regular`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success&type=regular`,
+          }&status=success&type=regular`,
           JSON.stringify({})
         );
 
@@ -107,7 +107,7 @@ describe("pull", () => {
         fetchMock.called(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`
+          }&status=start&type=regular`
         )
       ).toBe(true);
     });
@@ -136,13 +136,13 @@ describe("pull", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`,
+          }&status=start&type=regular`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success&type=regular`,
+          }&status=success&type=regular`,
           JSON.stringify({})
         );
 
@@ -154,7 +154,7 @@ describe("pull", () => {
         fetchMock.called(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success&type=regular`
+          }&status=success&type=regular`
         )
       ).toBe(true);
     });
@@ -191,13 +191,13 @@ describe("pull", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`,
+          }&status=start&type=regular`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=fail&type=regular`,
+          }&status=fail&type=regular`,
           JSON.stringify({})
         );
 
@@ -209,7 +209,7 @@ describe("pull", () => {
         fetchMock.called(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`
+          }&status=start&type=regular`
         )
       ).toBe(true);
     });
@@ -244,13 +244,13 @@ describe("pull", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start&type=regular`,
+          }&status=start&type=regular`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=fail&type=regular`,
+          }&status=fail&type=regular`,
           JSON.stringify({})
         );
 
@@ -262,7 +262,7 @@ describe("pull", () => {
         fetchMock.called(
           `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=fail&type=regular`
+          }&status=fail&type=regular`
         )
       ).toBe(true);
     });
@@ -298,13 +298,13 @@ describe("pull", () => {
           .mock(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=start&type=override`,
+            }&status=start&type=override`,
             JSON.stringify({})
           )
           .mock(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=success&type=override`,
+            }&status=success&type=override`,
             JSON.stringify({})
           );
 
@@ -317,7 +317,7 @@ describe("pull", () => {
           fetchMock.called(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=start&type=override`
+            }&status=start&type=override`
           )
         ).toBe(true);
       });
@@ -352,13 +352,13 @@ describe("pull", () => {
           .mock(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=start&type=override`,
+            }&status=start&type=override`,
             JSON.stringify({})
           )
           .mock(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=success&type=override`,
+            }&status=success&type=override`,
             JSON.stringify({})
           );
 
@@ -371,7 +371,7 @@ describe("pull", () => {
           fetchMock.called(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=success&type=override`
+            }&status=success&type=override`
           )
         ).toBe(true);
       });
@@ -408,13 +408,13 @@ describe("pull", () => {
           .mock(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=start&type=move`,
+            }&status=start&type=move`,
             JSON.stringify({})
           )
           .mock(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=success&type=move`,
+            }&status=success&type=move`,
             JSON.stringify({})
           );
 
@@ -427,7 +427,7 @@ describe("pull", () => {
           fetchMock.called(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=start&type=move`
+            }&status=start&type=move`
           )
         ).toBe(true);
       });
@@ -462,13 +462,13 @@ describe("pull", () => {
           .mock(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=start&type=move`,
+            }&status=start&type=move`,
             JSON.stringify({})
           )
           .mock(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=success&type=move`,
+            }&status=success&type=move`,
             JSON.stringify({})
           );
 
@@ -481,7 +481,7 @@ describe("pull", () => {
           fetchMock.called(
             `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
               process.env.CORVID_SESSION_ID
-            }&status_text=success&type=move`
+            }&status=success&type=move`
           )
         ).toBe(true);
       });

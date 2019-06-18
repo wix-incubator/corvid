@@ -80,13 +80,13 @@ describe("edit", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`,
+          }&status=start`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`,
+          }&status=success`,
           JSON.stringify({})
         );
 
@@ -98,7 +98,7 @@ describe("edit", () => {
         fetchMock.called(
           `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`
+          }&status=start`
         )
       ).toBe(true);
     });
@@ -133,13 +133,13 @@ describe("edit", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`,
+          }&status=start`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`,
+          }&status=success`,
           JSON.stringify({})
         );
 
@@ -151,7 +151,7 @@ describe("edit", () => {
         fetchMock.called(
           `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`
+          }&status=success`
         )
       ).toBe(true);
     });
