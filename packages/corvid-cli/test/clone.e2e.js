@@ -47,13 +47,13 @@ describe("clone", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`,
+          }&status=start`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`,
+          }&status=success`,
           JSON.stringify({})
         );
 
@@ -87,13 +87,13 @@ describe("clone", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`,
+          }&status=start`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`,
+          }&status=success`,
           JSON.stringify({})
         );
 
@@ -120,13 +120,13 @@ describe("clone", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`,
+          }&status=start`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`,
+          }&status=success`,
           JSON.stringify({})
         );
 
@@ -156,13 +156,13 @@ describe("clone", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`,
+          }&status=start`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`,
+          }&status=success`,
           JSON.stringify({})
         );
 
@@ -200,13 +200,13 @@ describe("clone", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`,
+          }&status=start`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`,
+          }&status=success`,
           JSON.stringify({})
         );
 
@@ -244,13 +244,13 @@ describe("clone", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=87654321&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`,
+          }&status=start`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=87654321&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`,
+          }&status=success`,
           JSON.stringify({})
         );
 
@@ -263,7 +263,7 @@ describe("clone", () => {
         fetchMock.called(
           `http://frog.wix.com/code?src=39&evid=200&msid=87654321&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`
+          }&status=start`
         )
       ).toBe(true);
     });
@@ -290,13 +290,13 @@ describe("clone", () => {
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=87654321&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=start`,
+          }&status=start`,
           JSON.stringify({})
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=87654321&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`,
+          }&status=success`,
           JSON.stringify({})
         );
 
@@ -309,7 +309,7 @@ describe("clone", () => {
         fetchMock.called(
           `http://frog.wix.com/code?src=39&evid=200&msid=87654321&uuid=testGuid&csi=${
             process.env.CORVID_SESSION_ID
-          }&status_text=success`
+          }&status=success`
         )
       ).toBe(true);
     });

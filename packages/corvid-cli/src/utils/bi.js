@@ -21,7 +21,7 @@ function sendBiEvent(evid) {
         msid,
         uuid,
         csi: process.env.CORVID_SESSION_ID,
-        status_text: status
+        status
       },
       additionalParams
     );
