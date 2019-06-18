@@ -26,8 +26,11 @@ const readWrite = (siteRootPath, filesWatcher) => {
       delimiter: "/"
     });
 
-    const codeFilesByPath = pickBy_(siteDirJson, (_, localFilePath) =>
-      sitePaths.isCodeFile(localFilePath)
+    const codeFilesByPath = pickBy_(
+      siteDirJson,
+      (_, localFilePath) =>
+        sitePaths.isCodeFile(localFilePath) &&
+        !sitePaths.isIgnoredFile(localFilePath)
     );
 
     return Object.keys(codeFilesByPath).map(localFilePath => ({
