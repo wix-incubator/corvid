@@ -33,9 +33,9 @@ const testApp = {
 };
 
 app.on("ready", async () => {
-  const localEditorServerPort = await localFakeEditorServer.start();
-  process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${localEditorServerPort}`;
-  console.log("local editor served on: ", localEditorServerPort);
+  const editorServer = await localFakeEditorServer.start();
+  process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${editorServer.port}`;
+  console.log("local editor served on: ", editorServer.port);
 
   await openWindow(testApp, { show: false });
 });

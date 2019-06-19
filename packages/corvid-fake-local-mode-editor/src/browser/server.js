@@ -11,6 +11,9 @@ const runningServers = [];
 
 function start() {
   const app = express();
+
+  const editorRequestListeners = [];
+
   return new Promise((resolve, reject) => {
     bundle.bundle((err, code) => {
       if (err) reject(err);
@@ -26,6 +29,7 @@ function start() {
         });
 
         app.get("/editor/:metasiteId", function(req, res) {
+          editorRequestListeners.forEach(listener => listener(req));
           res.sendFile(path.resolve(path.join(__dirname, "browser.html")));
         });
 
@@ -33,7 +37,10 @@ function start() {
       })
         .then(server => {
           runningServers.push(server);
-          resolve(server.address().port);
+          resolve({
+            port: server.address().port,
+            onEditorRequest: listener => editorRequestListeners.push(listener)
+          });
         })
         .catch(reject);
     });

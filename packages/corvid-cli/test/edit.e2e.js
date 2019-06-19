@@ -9,6 +9,7 @@ const { killAllChildProcesses } = require("../src/utils/electron");
 
 jest.mock("../src/commands/login");
 const { openEditorHandler } = require("../src/commands/open-editor");
+const base64 = require("./utils/base64");
 
 describe("edit", () => {
   process.env.CORVID_SESSION_ID = "testCorvidId";
@@ -21,15 +22,58 @@ describe("edit", () => {
   });
 
   describe("when run in a directory with a local version of the site", () => {
+    let editorServer;
     beforeEach(async () => {
-      const localEditorServerPort = await localFakeEditorServer.start();
-      process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${localEditorServerPort}`;
+      editorServer = await localFakeEditorServer.start();
+      process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${editorServer.port}`;
       process.env.DISABLE_SSL = true;
     });
 
     afterEach(() => {
       localFakeEditorServer.killAllRunningServers();
     });
+
+    const setupSuccessfullOpenEditor = async () => {
+      const localSiteFiles = localSiteBuilder.buildFull();
+      const tempDir = await initTempDir(
+        Object.assign(
+          {
+            ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+          },
+          { src: localSiteFiles }
+        )
+      );
+
+      fetchMock
+        .mock(
+          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          JSON.stringify(
+            [
+              {
+                metasiteId: "12345678",
+                publicUrl: "http://a-site.com",
+                siteName: "aSite"
+              }
+            ],
+            null,
+            2
+          )
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status=start`,
+          JSON.stringify({})
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status=success`,
+          JSON.stringify({})
+        );
+
+      return tempDir;
+    };
 
     test("should open the editor with the local server port", async () => {
       expect.assertions(1);
@@ -154,6 +198,53 @@ describe("edit", () => {
           }&status=success`
         )
       ).toBe(true);
+    });
+
+    describe("bi context", () => {
+      const expectedOpenEditorBiContext = JSON.stringify({
+        builderEnv: "local",
+        isHeadless: false
+      });
+
+      test("should open the editor with the correct bi context query parameter", async () => {
+        const tempDir = await setupSuccessfullOpenEditor();
+
+        const biContextQueryPromise = new Promise(resolve => {
+          editorServer.onEditorRequest(req => {
+            resolve(req.query["x-wix-bi-context"]);
+          });
+        });
+
+        await openEditorHandler({
+          dir: tempDir
+        });
+
+        const biContextQueryValue = await biContextQueryPromise;
+
+        expect(base64.decode(biContextQueryValue)).toEqual(
+          expectedOpenEditorBiContext
+        );
+      });
+
+      test("should open the editor with the correct bi context header ", async () => {
+        const tempDir = await setupSuccessfullOpenEditor();
+
+        const biContextHeaderPromise = new Promise(resolve => {
+          editorServer.onEditorRequest(req => {
+            resolve(req.get("x-wix-bi-context"));
+          });
+        });
+
+        await openEditorHandler({
+          dir: tempDir
+        });
+
+        const biContextHeaderValue = await biContextHeaderPromise;
+
+        expect(base64.decode(biContextHeaderValue)).toEqual(
+          expectedOpenEditorBiContext
+        );
+      });
     });
   });
 

@@ -8,12 +8,14 @@ const sessionData = require("../src/utils/sessionData");
 
 jest.mock("../src/commands/login");
 const { pullHandler } = require("../src/commands/pull");
+const base64 = require("./utils/base64");
 
 describe("pull", () => {
   process.env.CORVID_SESSION_ID = "testCorvidId";
+  let editorServer;
   beforeEach(async () => {
-    const localEditorServerPort = await localFakeEditorServer.start();
-    process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${localEditorServerPort}`;
+    editorServer = await localFakeEditorServer.start();
+    process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${editorServer.port}`;
     process.env.DISABLE_SSL = true;
   });
 
@@ -22,6 +24,42 @@ describe("pull", () => {
     localFakeEditorServer.killAllRunningServers();
     fetchMock.restore();
   });
+
+  const setupSuccessfullPull = async () => {
+    const tempDir = await initTempDir({
+      ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+    });
+
+    fetchMock
+      .mock(
+        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        JSON.stringify(
+          [
+            {
+              metasiteId: "12345678",
+              publicUrl: "http://a-site.com",
+              siteName: "aSite"
+            }
+          ],
+          null,
+          2
+        )
+      )
+      .mock(
+        `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+          process.env.CORVID_SESSION_ID
+        }&status=start&type=regular`,
+        JSON.stringify({})
+      )
+      .mock(
+        `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+          process.env.CORVID_SESSION_ID
+        }&status=success&type=regular`,
+        JSON.stringify({})
+      );
+
+    return tempDir;
+  };
 
   describe("when run in a directory with a config file and no site files", () => {
     test("should report to stdout when the process is complete", async () => {
@@ -498,6 +536,51 @@ describe("pull", () => {
           dir: tempDir
         })
       ).rejects.toThrow(/Project not found in/);
+    });
+  });
+
+  describe("bi context", () => {
+    const expectedPullBiContext = JSON.stringify({
+      builderEnv: "local",
+      isHeadless: true
+    });
+
+    test("should open the editor with the correct bi context query parameter", async () => {
+      const tempDir = await setupSuccessfullPull();
+
+      const biContextQueryPromise = new Promise(resolve => {
+        editorServer.onEditorRequest(req => {
+          resolve(req.query["x-wix-bi-context"]);
+        });
+      });
+
+      await pullHandler({
+        dir: tempDir
+      });
+
+      const biContextQueryValue = await biContextQueryPromise;
+
+      expect(base64.decode(biContextQueryValue)).toEqual(expectedPullBiContext);
+    });
+
+    test("should open the editor with the correct bi context header ", async () => {
+      const tempDir = await setupSuccessfullPull();
+
+      const biContextHeaderPromise = new Promise(resolve => {
+        editorServer.onEditorRequest(req => {
+          resolve(req.get("x-wix-bi-context"));
+        });
+      });
+
+      await pullHandler({
+        dir: tempDir
+      });
+
+      const biContextHeaderValue = await biContextHeaderPromise;
+
+      expect(base64.decode(biContextHeaderValue)).toEqual(
+        expectedPullBiContext
+      );
     });
   });
 });
