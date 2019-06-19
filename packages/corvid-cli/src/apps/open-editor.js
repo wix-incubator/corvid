@@ -11,6 +11,8 @@ const { getBiContextHeader } = require("../utils/bi");
 const openEditorApp = ({ useSsl = true } = {}) => ({
   serverMode: "edit",
   handler: async (corvidConfig, win, client, localServerStatus) => {
+    const isHeadless = false;
+
     await new Promise(async (resolve, reject) => {
       client.on("editor-connected", () => {
         // TODO uncomment the following once the open-editor command can exit while the editor is
@@ -49,11 +51,9 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
 
       const editorUrl = genEditorUrl(
         process.env.DISABLE_SSL ? false : useSsl,
-        process.env.CORVID_CLI_WIX_DOMAIN || "www.wix.com",
         corvidConfig.metasiteId,
         localServerEditorPort,
-        false,
-        "local"
+        isHeadless
       );
 
       win.webContents.on(
@@ -75,7 +75,7 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
       );
 
       logger.info(`opening editor for [${editorUrl}]`);
-      const extraHeaders = getBiContextHeader(win.isVisible());
+      const extraHeaders = getBiContextHeader(isHeadless);
       win.loadURL(editorUrl, { httpReferrer: editorUrl, extraHeaders });
     });
   }

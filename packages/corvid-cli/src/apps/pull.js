@@ -12,6 +12,7 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
   serverMode: "clone",
   serverArgs: { override, move },
   handler: async (corvidConfig, win, client, localServerStatus) => {
+    const isHeadless = true;
     await new Promise(async (resolve, reject) => {
       // this event is not fired by the server yet
       client.on("clone-complete", () => {
@@ -44,11 +45,9 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
 
       const editorUrl = genEditorUrl(
         process.env.DISABLE_SSL ? false : useSsl,
-        process.env.CORVID_CLI_WIX_DOMAIN || "www.wix.com",
         corvidConfig.metasiteId,
         localServerEditorPort,
-        true,
-        "pull"
+        isHeadless
       );
 
       win.webContents.on(
@@ -68,7 +67,7 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
       );
 
       logger.info(`pulling [${editorUrl}]`);
-      const extraHeaders = getBiContextHeader(win.isVisible());
+      const extraHeaders = getBiContextHeader(isHeadless);
       win.loadURL(editorUrl, { httpReferrer: editorUrl, extraHeaders });
     });
   }

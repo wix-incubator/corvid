@@ -35,15 +35,18 @@ function sendBiEvent(evid) {
   };
 }
 
-function getBiContextHeader(isVisible) {
-  const data = { builderEnv: "local", isHeadless: !isVisible };
-  const encoded = Buffer.from(JSON.stringify(data)).toString("base64");
-  return `x-wix-bi-context: ${encoded}`;
-}
+const getBiContext = isHeadless =>
+  Buffer.from(JSON.stringify({ builderEnv: "local", isHeadless })).toString(
+    "base64"
+  );
+
+const getBiContextHeader = isHeadless =>
+  `x-wix-bi-context: ${getBiContext(isHeadless)}`;
 
 module.exports = {
   sendCloneEvent: sendBiEvent(200),
   sendOpenEditorEvent: sendBiEvent(201),
   sendPullEvent: sendBiEvent(202),
+  getBiContext,
   getBiContextHeader
 };
