@@ -71,6 +71,8 @@ const localCorvidPackageJsonPath = () => path.posix.join("corvid-package.json");
 
 const metadata = () => ".metadata.json";
 
+const ignoredPaths = [metadata()];
+
 const pages = (page = null, extention = fileExtention) =>
   path.posix.join(
     "pages",
@@ -180,6 +182,7 @@ const fromPageFileToCodeFile = path =>
 const isCodeFile = relativePath => !relativePath.endsWith(fileExtention);
 const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
 const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
+const isIgnoredFile = relativePath => ignoredPaths.includes(relativePath);
 
 module.exports = {
   isSitePath,
@@ -191,6 +194,7 @@ module.exports = {
   fileExtention,
   isCodeFile,
   isDocumentFile,
+  isIgnoredFile,
   routers,
   menus,
   lightboxes,

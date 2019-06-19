@@ -237,5 +237,23 @@ describe("edit mode", () => {
         );
       }
     );
+
+    it("should not send .metadata.json to the editor on load (WCD-8697)", async () => {
+      const siteItems = [
+        sc.publicCode(),
+        sc.backendCode(),
+        sc.collectionSchema()
+      ];
+
+      const localSiteFiles = localSiteBuilder.buildFull(...siteItems);
+
+      const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+      const server = await localServer.startInEditMode(localSitePath);
+      const editor = await loadEditor(server.port);
+      const editorSite = await editor.getSite();
+      expect(editorSite).not.toMatchObject({
+        siteCode: { ".metadata.json": expect.any(String) }
+      });
+    });
   });
 });
