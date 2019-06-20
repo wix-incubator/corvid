@@ -1,6 +1,6 @@
 {
   "name": "corvid-fake-local-mode-editor",
-  "version": "0.1.73",
+  "version": "0.1.75",
   "description": "",
   "main": "src/index.js",
   "scripts": {
