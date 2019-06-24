@@ -1,5 +1,7 @@
 const path = require("path");
 const http = require("http");
+const fs = require("fs-extra");
+const template_ = require("lodash/template");
 const stoppable = require("stoppable");
 const express = require("express");
 const browserify = require("browserify");
@@ -9,7 +11,7 @@ const bundle = browserify(path.resolve(path.join(__dirname, "browser.js")));
 
 const runningServers = [];
 
-function start() {
+function start(extraArgs = "") {
   const app = express();
 
   const editorRequestListeners = [];
@@ -28,9 +30,17 @@ function start() {
           res.send(code);
         });
 
-        app.get("/editor/:metasiteId", function(req, res) {
+        app.get("/editor/:metasiteId", async function(req, res) {
           editorRequestListeners.forEach(listener => listener(req));
-          res.sendFile(path.resolve(path.join(__dirname, "browser.html")));
+          const template = await fs.readFile(
+            path.resolve(path.join(__dirname, "browser.html"))
+          );
+          const fileContent = template_(template)({ extraArgs });
+          res.set({
+            "Content-Type": "text/html",
+            "Content-Length": fileContent.length
+          });
+          res.send(Buffer.from(fileContent));
         });
 
         return stoppable(http.createServer(app), 0);

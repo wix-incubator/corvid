@@ -1,4 +1,6 @@
 /* eslint-disable no-console */
+const fs = require("fs-extra");
+const path = require("path");
 const chalk = require("chalk");
 const clone = require("../apps/clone");
 const { login } = require("./login");
@@ -8,6 +10,25 @@ const sessionData = require("../utils/sessionData");
 const { sendCloneEvent } = require("../utils/bi");
 const getMessage = require("../messages");
 const { exitWithSuccess, exitWithError } = require("../utils/exitProcess");
+const difference_ = require("lodash/difference");
+
+function withCleanUp(asyncCallback) {
+  return async args => {
+    const rootPath = args.dir;
+    const dirContentsBefore = await fs.readdir(rootPath);
+    try {
+      return await asyncCallback(args);
+    } catch (error) {
+      const dirContents = await fs.readdir(rootPath);
+      await Promise.all(
+        difference_(dirContents, dirContentsBefore).map(pathPart =>
+          fs.remove(path.join(rootPath, pathPart))
+        )
+      );
+      throw error;
+    }
+  };
+}
 
 async function cloneHandler(args) {
   const spinner = createSpinner();
@@ -66,5 +87,5 @@ module.exports = {
         exitWithError(error);
       }
     ),
-  clone: cloneHandler
+  clone: withCleanUp(cloneHandler)
 };

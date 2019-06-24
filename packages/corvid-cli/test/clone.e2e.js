@@ -1,13 +1,15 @@
 const path = require("path");
-const fs = require("fs");
+const fs = require("fs-extra");
 const process = require("process");
 const fetchMock = require("fetch-mock");
+const eventually = require("wix-eventually");
 const { version: cliModuleVersion } = require("../package.json");
 const { initTempDir } = require("corvid-local-test-utils");
 const {
   server: localFakeEditorServer
 } = require("corvid-fake-local-mode-editor");
 const sessionData = require("../src/utils/sessionData");
+const getMessage = require("../src/messages");
 
 jest.mock("../src/commands/login");
 const { clone } = require("../src/commands/clone");
@@ -16,11 +18,6 @@ const base64 = require("./utils/base64");
 describe("clone", () => {
   process.env.CORVID_SESSION_ID = "testCorvidId";
   let editorServer;
-  beforeEach(async () => {
-    editorServer = await localFakeEditorServer.start();
-    process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${editorServer.port}`;
-    process.env.DISABLE_SSL = true;
-  });
 
   afterEach(() => {
     sessionData.reset();
@@ -28,8 +25,15 @@ describe("clone", () => {
     fetchMock.restore();
   });
 
-  const setupSuccessfullClone = async () => {
-    const tempDir = await initTempDir();
+  const prepareServer = async extraData => {
+    editorServer = await localFakeEditorServer.start(extraData);
+    process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${editorServer.port}`;
+    process.env.DISABLE_SSL = true;
+  };
+
+  const setupSuccessfullClone = async (dirContent, extraData) => {
+    await prepareServer(extraData);
+    const tempDir = await initTempDir(dirContent);
     const siteUrl = "http://a-site.com";
 
     fetchMock
@@ -62,7 +66,18 @@ describe("clone", () => {
     return { tempDir, siteUrl };
   };
 
+  const setupFailingClone = async dirContent => {
+    fetchMock.mock(
+      `http://frog.wix.com/code?src=39&evid=200&msid=12345678&uuid=testGuid&csi=${
+        process.env.CORVID_SESSION_ID
+      }&status=fail`,
+      JSON.stringify({})
+    );
+    return setupSuccessfullClone(dirContent, "failOnClone=true");
+  };
+
   describe("should create a .corvid/corvidrc.json", () => {
+    beforeEach(async () => await prepareServer());
     test("at the supplied directory", async () => {
       const tempDir = await initTempDir();
 
@@ -251,11 +266,11 @@ describe("clone", () => {
         dir: tempDir
       });
 
-      const corvieMetadata = JSON.parse(
+      const corvidMetadata = JSON.parse(
         fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
       );
 
-      expect(corvieMetadata).toMatchObject({ cliVersion: cliModuleVersion });
+      expect(corvidMetadata).toMatchObject({ cliVersion: cliModuleVersion });
     });
 
     test("should report to BI a clone start event with the userGuid and metasiteId", async () => {
@@ -399,6 +414,48 @@ describe("clone", () => {
       expect(base64.decode(biContextHeaderValue)).toEqual(
         expectedCloneBiContext
       );
+    });
+  });
+
+  describe("Failed clone", () => {
+    it("should clean files", async () => {
+      const { tempDir, siteUrl } = await setupFailingClone();
+      const promise = clone({
+        url: siteUrl,
+        dir: tempDir
+      });
+      await expect(promise).rejects.toThrow(
+        getMessage("Pull_Client_Console_Fatal_Error")
+      );
+      await eventually(
+        async () => await expect(fs.readdir(tempDir)).resolves.toEqual([])
+      );
+    });
+
+    it("should not touch aldeady existing files", async () => {
+      const pathsToNotExist = ["src"];
+      const pathsToExist = [".corvid"];
+      const { tempDir, siteUrl } = await setupFailingClone({
+        ".corvid": { "corvidrc.json": '{ "metasiteId": "987654321" }' }
+      });
+      const promise = clone({
+        url: siteUrl,
+        dir: tempDir
+      });
+      await expect(promise).rejects.toThrow(
+        getMessage("Clone_Project_Exists_Error")
+      );
+      await expect(
+        Promise.all(
+          [...pathsToNotExist, ...pathsToExist].map(relativePath => {
+            const fullPath = path.join(tempDir, relativePath);
+            return fs.exists(fullPath);
+          })
+        )
+      ).resolves.toEqual([
+        ...pathsToNotExist.map(() => false),
+        ...pathsToExist.map(() => true)
+      ]);
     });
   });
 });
