@@ -1,6 +1,6 @@
 {
   "name": "corvid-cli",
-  "version": "0.1.75",
+  "version": "0.1.76",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -23,8 +23,8 @@
   "license": "MIT",
   "devDependencies": {
     "corvid-dir-as-json": "0.1.73",
-    "corvid-fake-local-mode-editor": "0.1.75",
-    "corvid-local-site": "0.1.75",
+    "corvid-fake-local-mode-editor": "0.1.76",
+    "corvid-local-site": "0.1.76",
     "corvid-local-test-utils": "0.1.73",
     "fetch-mock": "7.3.1",
     "jest": "^24.7.1"
@@ -41,7 +41,7 @@
   "dependencies": {
     "chalk": "2.4.2",
     "corvid-local-logger": "0.1.73",
-    "corvid-local-server": "0.1.75",
+    "corvid-local-server": "0.1.76",
     "electron": "^5.0.2",
     "fs-extra": "^7.0.1",
     "has-ansi": "^3.0.0",
