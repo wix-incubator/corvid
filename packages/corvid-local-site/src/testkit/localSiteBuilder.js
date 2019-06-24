@@ -2,6 +2,7 @@ const flatten_ = require("lodash/flatten");
 const set_ = require("lodash/set");
 const omit_ = require("lodash/omit");
 const isObject_ = require("lodash/isObject");
+const defaultsDeep_ = require("lodash/defaultsDeep");
 const sanitize = require("sanitize-filename");
 
 const { siteCreators: sc } = require("corvid-local-test-utils");
@@ -36,6 +37,15 @@ const PATH_SITE = `${PATH_ASSETS}/site`;
 const PATH_ROUTERS = `${PATH_ASSETS}/routers`;
 const PATH_MENUS = `${PATH_ASSETS}/menus`;
 const documentSchemaVersion = "1.0";
+
+const LOCAL_SITE_SKELETON = {
+  [PATH_ASSETS]: {},
+  [PATH_BACKEND]: {},
+  [PATH_PUBLIC]: {},
+  [PATH_DATABASE]: {},
+  [PATH_PAGES]: {},
+  [PATH_LIGHTBOXES]: {}
+};
 
 const wrapWithVersion = content => ({
   content,
@@ -169,7 +179,7 @@ const buildPartial = (...siteItems) => {
   const file = metadata();
   set_(localSite, file.path.split("/"), file.content);
 
-  return localSite;
+  return defaultsDeep_(localSite, LOCAL_SITE_SKELETON);
 };
 
 const buildFull = (...siteItems) => {

@@ -8,6 +8,7 @@ const filter_ = require("lodash/filter");
 const pickBy_ = require("lodash/pickBy");
 const flatten_ = require("lodash/flatten");
 const partial_ = require("lodash/partial");
+const isObject_ = require("lodash/isObject");
 const path = require("path");
 const sitePaths = require("./sitePaths");
 const dirAsJson = require("corvid-dir-as-json");
@@ -28,7 +29,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
     const codeFilesByPath = pickBy_(
       siteDirJson,
-      (_, localFilePath) =>
+      (content, localFilePath) =>
+        !isObject_(content) &&
         sitePaths.isCodeFile(localFilePath) &&
         !sitePaths.isIgnoredFile(localFilePath)
     );

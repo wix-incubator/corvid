@@ -9,6 +9,7 @@ const set_ = require("lodash/set");
 const head_ = require("lodash/head");
 const reduce_ = require("lodash/reduce");
 const noop_ = require("lodash/noop");
+const expect = require("expect");
 
 const flatten = data => flat(data, { delimiter: "/", safe: true });
 const unflatten = data => flat.unflatten(data, { delimiter: "/", safe: true });
@@ -107,7 +108,15 @@ const getCurrentCodeFiles = codeFiles => {
   return unflatten(withoutDeleted);
 };
 
-const getCodeFilesFromServer = async socket => sendRequest(socket, "GET_CODE");
+const getCodeFilesFromServer = async socket => {
+  const codeFiles = await sendRequest(socket, "GET_CODE");
+  expect(codeFiles).toEqual(expect.any(Array));
+  codeFiles.forEach(file => {
+    expect(file.path).toEqual(expect.any(String));
+    expect(file.content).toEqual(expect.any(String));
+  });
+  return codeFiles;
+};
 
 const getSiteDocumentFromServer = async socket =>
   sendRequest(socket, "GET_DOCUMENT");

@@ -31,6 +31,25 @@ describe("edit mode", () => {
     await expect(server).rejects.toThrow("CAN_NOT_EDIT_EMPTY_SITE");
   });
 
+  it("should load in edit mode when there are no code files", async () => {
+    const siteItemsWithoutCode = Object.values(sc.documentCreators).map(
+      documentCreator => documentCreator()
+    );
+
+    const localSiteFiles = localSiteBuilder.buildPartial(
+      ...siteItemsWithoutCode
+    );
+
+    const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+    const server = await localServer.startInEditMode(localSitePath);
+
+    const editor = await loadEditor(server.port);
+    const editorSite = await editor.getSite();
+    expect(editorSite).toMatchObject(
+      editorSiteBuilder.buildPartial(...siteItemsWithoutCode)
+    );
+  });
+
   it("should send code files to the editor on load", async () => {
     const siteItems = [
       sc.publicCode(),
