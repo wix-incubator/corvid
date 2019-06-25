@@ -12,7 +12,7 @@ const { exitWithSuccess, exitWithError } = require("../utils/exitProcess");
 async function cloneHandler(args) {
   const spinner = createSpinner();
   sessionData.on(["msid", "uuid"], (msid, uuid) => sendCloneEvent(msid, uuid));
-  return login(spinner)
+  return login(spinner, args)
     .then(async cookie => {
       if (cookie) {
         await clone(spinner, args, cookie);

@@ -68,7 +68,11 @@ function parseSessionCookie(cookie) {
   }
 }
 
-async function loginCommand(spinner) {
+async function loginCommand(spinner, args = {}) {
+  const loginArgs = [];
+  if (args.remoteDebuggingPort) {
+    loginArgs.push(`--remote-debugging-port=${args.remoteDebuggingPort}`);
+  }
   spinner.start(chalk.grey(getMessage("Login_Command_Accessing")));
 
   return launch(
@@ -81,7 +85,8 @@ async function loginCommand(spinner) {
       userAuthenticated: () => {
         spinner.start(chalk.grey(getMessage("Login_Command_Authenticated")));
       }
-    }
+    },
+    loginArgs
   ).then(async messages => {
     const cookieMessages = messages
       ? messages.filter(({ msg }) => msg === "authCookie")
@@ -96,9 +101,9 @@ async function loginCommand(spinner) {
 module.exports = {
   command: "login",
   describe: getMessage("Login_Command_Description"),
-  handler: async () => {
+  handler: async args => {
     const spinner = createSpinner();
-    return loginCommand(spinner)
+    return loginCommand(spinner, args)
       .then(cookie => {
         if (!cookie) {
           throw new UserError(getMessage("Login_Command_Login_Failed_Error"));
