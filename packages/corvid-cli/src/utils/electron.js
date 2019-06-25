@@ -33,6 +33,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
     ...options.env,
     FORCE_COLOR: "yes"
   };
+
   const cp = childProcess.spawn(
     electron,
     [path.resolve(path.join(file)), ...args],

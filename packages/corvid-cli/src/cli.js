@@ -13,9 +13,19 @@ console.log(getMessage("Cli_Description"));
 
 logger.info(`running [${process.argv.slice(2).join(" ")}]`);
 
+const withRemoteDebugging = command =>
+  Object.assign({}, command, {
+    builder: args =>
+      args.option("remote-debugging-port", {
+        describe: "port for remote debugging",
+        type: "number",
+        hidden: true
+      })
+  });
+
 require("yargs")
   .usage("Usage: $0 <command> [options]")
-  .commandDir("commands")
+  .commandDir("commands", { visit: withRemoteDebugging })
   .help("help")
   .strict()
   .demandCommand().argv;

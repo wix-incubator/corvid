@@ -41,6 +41,9 @@ app &&
   });
 
 async function openEditorHandler(args) {
+  const openEditorArgs = [];
+  if (args.remoteDebuggingPort)
+    openEditorArgs.push(`--remote-debugging-port=${args.remoteDebuggingPort}`);
   const { login } = require("./login");
   const spinner = createSpinner();
   const directory = args.dir;
@@ -106,7 +109,8 @@ async function openEditorHandler(args) {
             reject(new Error(error));
           }
         }
-      }
+      },
+      openEditorArgs
     )
       .then(resolve, reject)
       .catch(e => {
@@ -124,7 +128,8 @@ module.exports = {
   builder: args =>
     args.option("ignore-certificate", {
       describe: "ignore certificate errors",
-      type: "boolean"
+      type: "boolean",
+      hidden: true
     }),
   handler: async args => {
     openEditorHandler(Object.assign({}, args, { dir: process.cwd() })).catch(
