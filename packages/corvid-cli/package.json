@@ -22,7 +22,6 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "corvid-dir-as-json": "0.1.73",
     "corvid-fake-local-mode-editor": "0.1.76",
     "corvid-local-site": "0.1.76",
     "corvid-local-test-utils": "0.1.73",

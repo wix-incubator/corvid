@@ -17,7 +17,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "cors": "^2.8.5",
     "corvid-local-logger": "0.1.73",
     "corvid-local-site": "0.1.76",
     "express": "^4.16.4",
