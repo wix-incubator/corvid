@@ -20,6 +20,12 @@ script:
 
 jobs:
   include:
+    - name: Commit lint
+      stage: test
+      os: linux
+      script:
+        - yarn commitlint-travis
+
     - name: Mac tests
       stage: test
       os: osx
