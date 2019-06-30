@@ -1,7 +1,7 @@
 {
   "name": "corvid-cli",
   "version": "0.1.76",
-  "description": "",
+  "description": "Download your Wix site, code in a local IDE, collaborate, use git, and more!",
   "main": "index.js",
   "scripts": {
     "build": ":",
