@@ -73,7 +73,7 @@ describe("clone", () => {
       }&status=fail`,
       JSON.stringify({})
     );
-    return setupSuccessfullClone(dirContent, "failOnClone=true");
+    return setupSuccessfullClone(dirContent, { failOnClone: true });
   };
 
   describe("should create a .corvid/corvidrc.json", () => {

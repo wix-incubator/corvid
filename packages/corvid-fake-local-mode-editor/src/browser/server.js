@@ -11,7 +11,7 @@ const bundle = browserify(path.resolve(path.join(__dirname, "browser.js")));
 
 const runningServers = [];
 
-function start(extraArgs = "") {
+function start(extraArgs = {}) {
   const app = express();
 
   const editorRequestListeners = [];
@@ -33,9 +33,11 @@ function start(extraArgs = "") {
         app.get("/editor/:metasiteId", async function(req, res) {
           editorRequestListeners.forEach(listener => listener(req));
           const template = await fs.readFile(
-            path.resolve(path.join(__dirname, "browser.html"))
+            path.resolve(path.join(__dirname, "browser.tpl"))
           );
-          const fileContent = template_(template)({ extraArgs });
+          const fileContent = template_(template)({
+            extraArgs: JSON.stringify(extraArgs)
+          });
           res.set({
             "Content-Type": "text/html",
             "Content-Length": fileContent.length

@@ -4,7 +4,7 @@
 <body>
   <script type='text/javascript' src='/editor.js'></script>
   <script type='text/javascript'>
-    loadEditor("<%= extraArgs %>")
+    loadEditor(<%= extraArgs %>)
   </script>
   <div>Local fake editor</div>
 </body>
