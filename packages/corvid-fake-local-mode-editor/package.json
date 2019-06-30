@@ -21,6 +21,7 @@
     "expect": "^24.8.0",
     "express": "^4.16.4",
     "flat": "^4.1.0",
+    "fs-extra": "^8.0.1",
     "listen-on-free-port": "^1.0.3",
     "lodash": "^4.17.11",
     "socket.io-client": "^2.2.0",

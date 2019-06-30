@@ -124,7 +124,7 @@ const getSiteDocumentFromServer = async socket =>
 const loadEditor = async (
   port,
   { siteDocument: initialSiteDocument, siteCode: initialSiteCode } = {},
-  { cloneOnLoad = true } = {}
+  { cloneOnLoad = true, failOnClone = false } = {}
 ) => {
   const codeChangesLocallyHandler = payload => {
     payload.modifiedFiles.forEach(file => {
@@ -159,6 +159,10 @@ const loadEditor = async (
 
   const saveLocal = async () => {
     await saveSiteDocument(socket, editorState.siteDocument);
+    if (failOnClone) {
+      // eslint-disable-next-line no-console
+      console.log("[CORVID] failOnClone is set");
+    }
     await saveCodeFiles(socket, editorState.codeFiles);
   };
 
