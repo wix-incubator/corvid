@@ -9,11 +9,16 @@
 ### Bootstrap
 
 1. Clone the repo.
-2. Run `yarn` at the root.
+2. Execute `yarn` at the root.
+
+### Running with the local CLI
+
+1. Execute `yarn link` at the root.
+2. Execute the globally installed binaries `dev-corvid` or `dev-corvid-debug` "anywhere" to use the local CLI.
 
 ### Modifying dependencies
 Remember to only use `yarn` when modifying dependencies.\
-Run ```yarn add/remove <package-name>``` inside the module you want to change.\
+Execute ```yarn add/remove <package-name>``` inside the module you want to change.\
 (we rely on [Yarn Workspaces](https://yarnpkg.com/en/docs/workspaces) to keep links between local modules that depend on each other)
 
 ### Commits

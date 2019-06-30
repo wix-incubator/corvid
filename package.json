@@ -45,5 +45,9 @@
     "*.js": [
       "eslint"
     ]
+  },
+  "bin": {
+    "dev-corvid": "./bin/dev-corvid.js",
+    "dev-corvid-debug": "./bin/dev-corvid-debug.js"
   }
 }
