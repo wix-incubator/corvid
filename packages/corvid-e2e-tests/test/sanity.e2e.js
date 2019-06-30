@@ -61,6 +61,10 @@ describe("browser sanity", () => {
     await cliDriver.logout();
   });
 
+  afterAll(async () => {
+    await cliDriver.logout();
+  });
+
   testSites.forEach(({ editorUrl, description }) =>
     test(`should clone ${description} site, open it and push without making actual changes`, async () => {
       const cloneDebugPort = await findFreePort();
