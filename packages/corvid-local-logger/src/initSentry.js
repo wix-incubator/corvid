@@ -7,7 +7,8 @@ const initSentry = (defaultMetadata = {}) => {
     dsn: "https://421920d4abe64d87bea03ac821e25ed6@sentry.io/1427669",
     defaultIntegrations: [],
     release: defaultMetadata.release,
-    enabled: process.env.NODE_ENV === "production"
+    environment: process.env.NODE_ENV,
+    enabled: !["test", "development"].includes(process.env.NODE_ENV)
   });
 
   Sentry.configureScope(scope => {
