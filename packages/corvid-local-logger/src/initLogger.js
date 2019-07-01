@@ -1,5 +1,6 @@
 const path = require("path");
 const winston = require("winston");
+const defaults_ = require("lodash/defaults");
 const initSentry = require("./initSentry");
 const SentryTransport = require("./SentryTransport");
 const UserError = require("./UserError");
@@ -29,9 +30,9 @@ const crashConsoleTransport = () =>
     )
   });
 
-const sentryTransport = defaultMetadata =>
+const sentryTransport = (defaultMetadata, getSessionData) =>
   new SentryTransport({
-    sentry: initSentry(defaultMetadata),
+    sentry: initSentry(defaultMetadata, getSessionData),
     level: "debug"
   });
 
@@ -50,12 +51,14 @@ const debugConsoleTransport = () =>
   });
 
 const initLogger = (cwd, defaultMetadata) => {
+  const getSessionData = () =>
+    JSON.parse(process.env.CORVID_LOCAL_LOGGER_SESSION_DATA || "{}");
   const logger = winston.createLogger({
     defaultMeta: defaultMetadata,
     transports: [
       logFileTransport(cwd),
       crashConsoleTransport(),
-      sentryTransport(defaultMetadata)
+      sentryTransport(defaultMetadata, getSessionData)
     ]
   });
 
@@ -84,6 +87,24 @@ const initLogger = (cwd, defaultMetadata) => {
     verbose: logger.verbose.bind(logger),
     debug: logger.debug.bind(logger),
     silly: logger.silly.bind(logger),
+    addSessionData: ({
+      userId,
+      metasiteId,
+      command,
+      editorVersion,
+      santaVersion
+    }) => {
+      const sessionData = {
+        userId,
+        metasiteId,
+        command,
+        editorVersion,
+        santaVersion
+      };
+      process.env.CORVID_LOCAL_LOGGER_SESSION_DATA = JSON.stringify(
+        defaults_(sessionData, getSessionData())
+      );
+    },
 
     close: () =>
       new Promise(resolve => {
