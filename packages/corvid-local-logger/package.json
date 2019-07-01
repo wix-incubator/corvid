@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "@sentry/node": "^5.0.3",
+    "corvid-cli": "^0.1.76",
     "es6-error": "^4.1.1",
     "read-pkg-up": "^6.0.0",
     "uuid": "^3.3.2",

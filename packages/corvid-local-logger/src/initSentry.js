@@ -1,4 +1,5 @@
 const os = require("os");
+const sessionData = require("corvid-cli/src/utils/sessionData");
 
 const initSentry = (defaultMetadata = {}) => {
   const Sentry = require("@sentry/node");
@@ -8,7 +9,11 @@ const initSentry = (defaultMetadata = {}) => {
     defaultIntegrations: [],
     release: defaultMetadata.release,
     environment: process.env.NODE_ENV,
-    enabled: !["test", "development"].includes(process.env.NODE_ENV)
+    enabled: !["test", "development"].includes(process.env.NODE_ENV),
+    beforeSend: event =>
+      Object.assign({}, event, {
+        tags: { userGuid: sessionData.getKey("uuid") }
+      })
   });
 
   Sentry.configureScope(scope => {
