@@ -55,14 +55,16 @@ describe("browser sanity", () => {
 
   let cliDriver;
 
-  beforeEach(async () => {
+  beforeEach(async done => {
     const cwd = initTempDirectory();
     cliDriver = corvidCliDriverCreator({ cwd });
     await cliDriver.logout();
+    done();
   });
 
-  afterAll(async () => {
+  afterAll(async done => {
     await cliDriver.logout();
+    done();
   });
 
   testSites.forEach(({ editorUrl, description }) =>
