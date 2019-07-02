@@ -94,3 +94,8 @@ const initLogger = (cwd, defaultMetadata) => {
 };
 
 module.exports = initLogger;
+module.exports.sentry = {
+  setExtraData: initSentry.setExtraData,
+  setTag: initSentry.setTag,
+  setUserId: initSentry.setUserId
+};

@@ -8,7 +8,7 @@ const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
 const getMessage = require("../messages");
-const { UserError } = require("corvid-local-logger");
+const { UserError, sentry } = require("corvid-local-logger");
 const { exitWithError, exitWithSuccess } = require("../utils/exitProcess");
 
 const mySitesUrl = "https://www.wix.com/account/sites";
@@ -92,7 +92,9 @@ async function loginCommand(spinner, args = {}) {
       ? messages.filter(({ msg }) => msg === "authCookie")
       : [];
     const authCookie = _.get(cookieMessages, [0, "cookie"]);
-    await sessionData.set({ uuid: parseSessionCookie(authCookie).userGuid });
+    const userGuid = parseSessionCookie(authCookie).userGuid;
+    sentry.setUserId(userGuid);
+    await sessionData.set({ uuid: userGuid });
 
     return authCookie;
   });

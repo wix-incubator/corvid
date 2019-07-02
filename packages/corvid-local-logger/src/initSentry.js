@@ -1,5 +1,7 @@
 const os = require("os");
-const sessionData = require("corvid-cli/src/utils/sessionData");
+const merge_ = require("lodash/merge");
+const set_ = require("lodash/set");
+let sessionData = {};
 
 const initSentry = (defaultMetadata = {}) => {
   const Sentry = require("@sentry/node");
@@ -10,10 +12,7 @@ const initSentry = (defaultMetadata = {}) => {
     release: defaultMetadata.release,
     environment: process.env.NODE_ENV,
     enabled: !["test", "development"].includes(process.env.NODE_ENV),
-    beforeSend: event =>
-      Object.assign({}, event, {
-        tags: { userGuid: sessionData.getKey("uuid") }
-      })
+    beforeSend: event => merge_(sessionData, event)
   });
 
   Sentry.configureScope(scope => {
@@ -27,4 +26,13 @@ const initSentry = (defaultMetadata = {}) => {
   return Sentry;
 };
 
+const updateSessionData = (path, value) => set_(sessionData, path, value);
+
+const setExtraData = (key, value) => updateSessionData(["extra", key], value);
+const setTag = (tag, value) => updateSessionData(["tags", tag], value);
+const setUserId = userGuid => updateSessionData("user", { id: userGuid });
+
 module.exports = initSentry;
+module.exports.setExtraData = setExtraData;
+module.exports.setTag = setTag;
+module.exports.setUserId = setUserId;
