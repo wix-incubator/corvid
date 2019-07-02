@@ -24,4 +24,3 @@ module.exports = logger;
 module.exports.logger = logger;
 module.exports.UserError = UserError;
 module.exports.logAsyncErrors = logAsyncErrors;
-module.exports.sentry = initLogger.sentry;

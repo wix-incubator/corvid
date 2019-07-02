@@ -1,5 +1,6 @@
 const path = require("path");
 const winston = require("winston");
+const set_ = require("lodash/set");
 const initSentry = require("./initSentry");
 const SentryTransport = require("./SentryTransport");
 const UserError = require("./UserError");
@@ -29,9 +30,9 @@ const crashConsoleTransport = () =>
     )
   });
 
-const sentryTransport = defaultMetadata =>
+const sentryTransport = (defaultMetadata, getSessionData) =>
   new SentryTransport({
-    sentry: initSentry(defaultMetadata),
+    sentry: initSentry(defaultMetadata, getSessionData),
     level: "debug"
   });
 
@@ -50,12 +51,14 @@ const debugConsoleTransport = () =>
   });
 
 const initLogger = (cwd, defaultMetadata) => {
+  let sessionData = {};
+  const getSessionData = () => sessionData;
   const logger = winston.createLogger({
     defaultMeta: defaultMetadata,
     transports: [
       logFileTransport(cwd),
       crashConsoleTransport(),
-      sentryTransport(defaultMetadata)
+      sentryTransport(defaultMetadata, getSessionData)
     ]
   });
 
@@ -77,6 +80,8 @@ const initLogger = (cwd, defaultMetadata) => {
     return logger.error(info, ...args);
   };
 
+  const updateSessionData = (path, value) => set_(sessionData, path, value);
+
   return {
     error,
     warn: logger.warn.bind(logger),
@@ -84,6 +89,9 @@ const initLogger = (cwd, defaultMetadata) => {
     verbose: logger.verbose.bind(logger),
     debug: logger.debug.bind(logger),
     silly: logger.silly.bind(logger),
+    setExtraData: (key, value) => updateSessionData(["extra", key], value),
+    setTag: (tag, value) => updateSessionData(["tags", tag], value),
+    setUserId: userGuid => updateSessionData("user", { id: userGuid }),
 
     close: () =>
       new Promise(resolve => {
@@ -94,8 +102,3 @@ const initLogger = (cwd, defaultMetadata) => {
 };
 
 module.exports = initLogger;
-module.exports.sentry = {
-  setExtraData: initSentry.setExtraData,
-  setTag: initSentry.setTag,
-  setUserId: initSentry.setUserId
-};

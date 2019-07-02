@@ -8,7 +8,7 @@ const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
 const getMessage = require("../messages");
-const { UserError, sentry } = require("corvid-local-logger");
+const logger = require("corvid-local-logger");
 const { exitWithError, exitWithSuccess } = require("../utils/exitProcess");
 
 const mySitesUrl = "https://www.wix.com/account/sites";
@@ -93,7 +93,7 @@ async function loginCommand(spinner, args = {}) {
       : [];
     const authCookie = _.get(cookieMessages, [0, "cookie"]);
     const userGuid = parseSessionCookie(authCookie).userGuid;
-    sentry.setUserId(userGuid);
+    logger.setUserId(userGuid);
     await sessionData.set({ uuid: userGuid });
 
     return authCookie;
@@ -108,7 +108,9 @@ module.exports = {
     return loginCommand(spinner, args)
       .then(cookie => {
         if (!cookie) {
-          throw new UserError(getMessage("Login_Command_Login_Failed_Error"));
+          throw new logger.UserError(
+            getMessage("Login_Command_Login_Failed_Error")
+          );
         }
         spinner.succeed();
       })

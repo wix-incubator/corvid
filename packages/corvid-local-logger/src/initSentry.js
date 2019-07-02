@@ -1,9 +1,7 @@
 const os = require("os");
 const merge_ = require("lodash/merge");
-const set_ = require("lodash/set");
-let sessionData = {};
 
-const initSentry = (defaultMetadata = {}) => {
+const initSentry = (defaultMetadata = {}, getSessionData) => {
   const Sentry = require("@sentry/node");
 
   Sentry.init({
@@ -12,7 +10,7 @@ const initSentry = (defaultMetadata = {}) => {
     release: defaultMetadata.release,
     environment: process.env.NODE_ENV,
     enabled: !["test", "development"].includes(process.env.NODE_ENV),
-    beforeSend: event => merge_(sessionData, event)
+    beforeSend: event => merge_(getSessionData(), event)
   });
 
   Sentry.configureScope(scope => {
@@ -26,13 +24,4 @@ const initSentry = (defaultMetadata = {}) => {
   return Sentry;
 };
 
-const updateSessionData = (path, value) => set_(sessionData, path, value);
-
-const setExtraData = (key, value) => updateSessionData(["extra", key], value);
-const setTag = (tag, value) => updateSessionData(["tags", tag], value);
-const setUserId = userGuid => updateSessionData("user", { id: userGuid });
-
 module.exports = initSentry;
-module.exports.setExtraData = setExtraData;
-module.exports.setTag = setTag;
-module.exports.setUserId = setUserId;
