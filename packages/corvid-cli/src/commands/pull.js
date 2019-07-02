@@ -90,7 +90,6 @@ async function pullCommand(spinner, args) {
 }
 
 async function pullHandler(args) {
-  logger.setTag("command", "pull");
   const { login } = require("./login");
   const spinner = createSpinner();
   const targetDirectory = path.resolve(args.dir);
@@ -146,15 +145,17 @@ module.exports = {
         type: "boolean"
       })
       .conflicts("override", "move"),
-  handler: async args =>
-    pullHandler(Object.assign({}, args, { dir: process.cwd() })).then(
+  handler: async args => {
+    logger.setTag("command", "pull");
+    return pullHandler(Object.assign({}, args, { dir: process.cwd() })).then(
       message => {
         exitWithSuccess(message);
       },
       error => {
         exitWithError(error);
       }
-    ),
+    );
+  },
   pull: pullCommand,
   pullHandler
 };

@@ -32,7 +32,6 @@ function withCleanUp(asyncCallback) {
 }
 
 async function cloneHandler(args) {
-  logger.setTag("command", "clone");
   const spinner = createSpinner();
   sessionData.on(["msid", "uuid"], (msid, uuid) => sendCloneEvent(msid, uuid));
   return login(spinner, args)
@@ -77,8 +76,9 @@ module.exports = {
         describe: "ignore certificate errors",
         type: "boolean"
       }),
-  handler: args =>
-    cloneHandler(Object.assign({}, args, { dir: process.cwd() })).then(
+  handler: args => {
+    logger.setTag("command", "clone");
+    return cloneHandler(Object.assign({}, args, { dir: process.cwd() })).then(
       message => exitWithSuccess(message),
       error => {
         if (error && error.name === "FetchError") {
@@ -88,6 +88,7 @@ module.exports = {
         }
         exitWithError(error);
       }
-    ),
+    );
+  },
   clone: withCleanUp(cloneHandler)
 };

@@ -132,9 +132,9 @@ module.exports = {
     }),
   handler: async args => {
     logger.setTag("command", "open-editor");
-    openEditorHandler(Object.assign({}, args, { dir: process.cwd() })).catch(
-      error => exitWithError(error)
-    );
+    return openEditorHandler(
+      Object.assign({}, args, { dir: process.cwd() })
+    ).catch(error => exitWithError(error));
   },
   openEditorHandler
 };

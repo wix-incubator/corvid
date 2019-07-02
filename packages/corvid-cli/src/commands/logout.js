@@ -37,7 +37,7 @@ module.exports = {
     const spinner = createSpinner();
     spinner.start(chalk.grey(getMessage("Logout_Command_Clearing")));
 
-    launch(__filename).then(() => {
+    return launch(__filename).then(() => {
       spinner.succeed(chalk.grey(getMessage("Logout_Command_Cleared")));
     });
   }
