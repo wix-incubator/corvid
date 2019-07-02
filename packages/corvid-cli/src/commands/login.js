@@ -104,6 +104,7 @@ module.exports = {
   command: "login",
   describe: getMessage("Login_Command_Description"),
   handler: async args => {
+    logger.setTag("command", "login");
     const spinner = createSpinner();
     return loginCommand(spinner, args)
       .then(cookie => {

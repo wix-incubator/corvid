@@ -5,6 +5,7 @@ const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const getMessage = require("../messages");
 const { exitWithError } = require("../utils/exitProcess");
+const logger = require("corvid-local-logger");
 
 app &&
   app.on("ready", async () => {
@@ -32,6 +33,7 @@ module.exports = {
   command: "logout",
   describe: getMessage("Logout_Command_Description"),
   handler: () => {
+    logger.setTag("command", "logout");
     const spinner = createSpinner();
     spinner.start(chalk.grey(getMessage("Logout_Command_Clearing")));
 

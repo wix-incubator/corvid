@@ -14,7 +14,7 @@ const sessionData = require("../utils/sessionData");
 const { sendOpenEditorEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const getMessage = require("../messages");
-const { UserError } = require("corvid-local-logger");
+const logger = require("corvid-local-logger");
 const { exitWithError } = require("../utils/exitProcess");
 
 app &&
@@ -51,11 +51,10 @@ async function openEditorHandler(args) {
   sessionData.on(["msid", "uuid"], (msid, uuid) =>
     sendOpenEditorEvent(msid, uuid)
   );
-
   try {
     fs.readdirSync(directory);
   } catch (exc) {
-    throw new UserError(
+    throw new logger.UserError(
       getMessage("OpenEditor_Command_No_Folder_Error", { directory })
     );
   }
@@ -104,7 +103,7 @@ async function openEditorHandler(args) {
           );
           const errorMessage = getMessage(error);
           if (errorMessage) {
-            reject(new UserError(errorMessage));
+            reject(new logger.UserError(errorMessage));
           } else {
             reject(new Error(error));
           }
@@ -132,6 +131,7 @@ module.exports = {
       hidden: true
     }),
   handler: async args => {
+    logger.setTag("command", "open-editor");
     openEditorHandler(Object.assign({}, args, { dir: process.cwd() })).catch(
       error => exitWithError(error)
     );

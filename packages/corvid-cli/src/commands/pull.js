@@ -12,7 +12,7 @@ const { sendPullEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const getMessage = require("../messages");
 const { exitWithError, exitWithSuccess } = require("../utils/exitProcess");
-const { UserError } = require("corvid-local-logger");
+const logger = require("corvid-local-logger");
 
 app &&
   app.on("ready", async () => {
@@ -70,14 +70,14 @@ async function pullCommand(spinner, args) {
           if (errorMessage) {
             if (error === "CAN_NOT_PULL_NON_EMPTY_SITE") {
               reject(
-                new UserError(`${chalk.red(
+                new logger.UserError(`${chalk.red(
                   getMessage("Pull_Command_Not_Empty_Red_Log")
                 )}
 
                 ${chalk(getMessage("Pull_Command_Not_Empty_Log"))}`)
               );
             } else {
-              reject(new UserError(errorMessage));
+              reject(new logger.UserError(errorMessage));
             }
           } else {
             reject(new Error(error));
@@ -90,6 +90,7 @@ async function pullCommand(spinner, args) {
 }
 
 async function pullHandler(args) {
+  logger.setTag("command", "pull");
   const { login } = require("./login");
   const spinner = createSpinner();
   const targetDirectory = path.resolve(args.dir);

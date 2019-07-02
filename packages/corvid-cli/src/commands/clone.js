@@ -11,6 +11,7 @@ const { sendCloneEvent } = require("../utils/bi");
 const getMessage = require("../messages");
 const { exitWithSuccess, exitWithError } = require("../utils/exitProcess");
 const difference_ = require("lodash/difference");
+const logger = require("corvid-local-logger");
 
 function withCleanUp(asyncCallback) {
   return async args => {
@@ -31,6 +32,7 @@ function withCleanUp(asyncCallback) {
 }
 
 async function cloneHandler(args) {
+  logger.setTag("command", "clone");
   const spinner = createSpinner();
   sessionData.on(["msid", "uuid"], (msid, uuid) => sendCloneEvent(msid, uuid));
   return login(spinner, args)
