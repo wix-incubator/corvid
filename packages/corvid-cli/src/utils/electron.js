@@ -90,31 +90,14 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
     close: closeLocalServer
   } = await server;
 
-  let shouldClose = false;
-
-  win.on("close", async e => {
-    if (!shouldClose) {
-      e.preventDefault();
-      const shouldPromptBeforeClose = await win.webContents.executeJavaScript(
-        "window.onbeforeunload !== null"
-      );
-      if (shouldPromptBeforeClose) {
-        const index = await electron.dialog.showMessageBox(
-          beforeCloseDialogParams
-        );
-        const { buttons: actions } = beforeCloseDialogParams;
-
-        if (actions[index] === getMessage("Electron_Prompt_Leave_Not_Saved")) {
-          await win.webContents.executeJavaScript(
-            "window.onbeforeunload = null"
-          );
-          shouldClose = true;
-          win.close();
-        }
-      } else {
-        shouldClose = true;
-        win.close();
-      }
+  win.webContents.on("will-prevent-unload", async event => {
+    const choice = await electron.dialog.showMessageBox(
+      win,
+      beforeCloseDialogParams
+    );
+    const leave = choice === 0;
+    if (leave) {
+      event.preventDefault();
     }
   });
 
