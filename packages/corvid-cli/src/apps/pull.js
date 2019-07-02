@@ -12,6 +12,7 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
   serverMode: "clone",
   serverArgs: { override, move },
   handler: async (corvidConfig, win, client, localServerStatus) => {
+    logger.setExtraData("metasiteId", corvidConfig.metasiteId);
     const isHeadless = true;
     await new Promise(async (resolve, reject) => {
       // this event is not fired by the server yet

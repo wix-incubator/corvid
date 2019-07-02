@@ -4,7 +4,7 @@ const chalk = require("chalk");
 const normalize = require("normalize-url");
 const { URL } = require("url");
 const getMessage = require("../messages");
-const { UserError } = require("corvid-local-logger");
+const logger = require("corvid-local-logger");
 
 const {
   writeCorvidConfig,
@@ -81,12 +81,13 @@ async function clone(spinner, args, cookie) {
         getMessage("Clone_No_MetasiteId_Error", { url: args.url })
       );
     }
+    logger.setExtraData("metasiteId", metasiteId);
     const msidUpdatePromise = sessionData.set({ msid: metasiteId });
 
     const dirName = args.dir;
 
     if (await doesConfigExist(dirName)) {
-      throw new UserError(getMessage("Clone_Project_Exists_Error"));
+      throw new logger.UserError(getMessage("Clone_Project_Exists_Error"));
     }
 
     await writeCorvidConfig(dirName, {

@@ -11,6 +11,7 @@ const { getBiContextHeader } = require("../utils/bi");
 const openEditorApp = ({ useSsl = true } = {}) => ({
   serverMode: "edit",
   handler: async (corvidConfig, win, client, localServerStatus) => {
+    logger.setExtraData("metasiteId", corvidConfig.metasiteId);
     const isHeadless = false;
 
     await new Promise(async (resolve, reject) => {
