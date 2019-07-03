@@ -6,6 +6,7 @@ const { BrowserWindow } = require("electron");
 const client = require("socket.io-client");
 const electron = require("electron");
 const opn = require("opn");
+const get_ = require("lodash/get");
 
 const { logger } = require("corvid-local-logger");
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
@@ -152,14 +153,29 @@ async function openWindow(app, windowOptions = {}) {
       setTimeout(resolve, isDevTools ? 1000 : 0);
     }).then(async () => {
       const corvidConfig = await readCorvidConfig(".");
-
+      win.webContents
+        .executeJavaScript(
+          "(() => ({santaBase: window.santaBase, editorBase: window.editorBase}))()"
+        )
+        .then((result = {}) => {
+          const getVersion = (base = "") => {
+            const parts = base.split("/");
+            return parts.length > 0 ? parts[parts.length - 1] : "";
+          };
+          const santaVersion = getVersion(get_(result, "santaBase"));
+          const editorVersion = getVersion(get_(result, "editorBase"));
+          logger.setExtraData("santa", santaVersion);
+          logger.setExtraData("editor", editorVersion);
+        })
+        .catch(e =>
+          logger.warn(`error executing js script in electron: ${e.message}`)
+        );
       if (app.serverMode) {
         const { client: clnt, localServerStatus } = await connectToLocalServer(
           app.serverMode,
           app.serverArgs,
           win
         );
-
         return app.handler(corvidConfig, win, clnt, localServerStatus);
       } else {
         return app.handler(corvidConfig, win);
