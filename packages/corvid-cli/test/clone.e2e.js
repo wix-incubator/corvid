@@ -457,5 +457,31 @@ describe("clone", () => {
         ...pathsToExist.map(() => true)
       ]);
     });
+
+    it("should not touch log file", async () => {
+      const pathsToNotExist = ["src"];
+      const pathsToExist = [".corvid/session.log"];
+      const { tempDir, siteUrl } = await setupFailingClone({
+        ".corvid": { "session.log": "some logs" }
+      });
+      const promise = clone({
+        url: siteUrl,
+        dir: tempDir
+      });
+      await expect(promise).rejects.toThrow(
+        getMessage("Pull_Client_Console_Fatal_Error")
+      );
+      await expect(
+        Promise.all(
+          [...pathsToNotExist, ...pathsToExist].map(relativePath => {
+            const fullPath = path.join(tempDir, relativePath);
+            return fs.exists(fullPath);
+          })
+        )
+      ).resolves.toEqual([
+        ...pathsToNotExist.map(() => false),
+        ...pathsToExist.map(() => true)
+      ]);
+    });
   });
 });
