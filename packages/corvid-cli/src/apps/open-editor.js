@@ -7,6 +7,7 @@ const clientMessages = require("../utils/console-messages");
 const clientMessageActions = require("../utils/clientMessageActions");
 const getMessage = require("../messages");
 const { getBiContextHeader } = require("../utils/bi");
+const EditorError = require("../utils/EditorError");
 
 const openEditorApp = ({ useSsl = true } = {}) => ({
   serverMode: "edit",
@@ -21,7 +22,7 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
       });
 
       client.on("user-message", message => {
-        logger.error(getMessage("OpenEditor_User_Message_Log", { message }));
+        logger.info(getMessage("OpenEditor_User_Message_Log", { message }));
         console.log(message);
       });
 
@@ -60,11 +61,7 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         "console-message",
         clientMessageActions({
           [clientMessages.FATAL_ERROR_MESSAGE]: message => {
-            logger.error(
-              getMessage("OpenEditor_Client_Console_Fatal_Error_Message", {
-                message
-              })
-            );
+            logger.error(new EditorError(message));
             reject(
               new Error(
                 chalk.red(getMessage("OpenEditor_Client_Console_Fatal_Error"))

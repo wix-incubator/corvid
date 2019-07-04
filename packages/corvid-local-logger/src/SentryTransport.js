@@ -1,10 +1,36 @@
 const Sentry = require("@sentry/node");
 const Transport = require("winston-transport");
 
+const WINSTON_TO_SENTRY_LEVEL = {
+  error: "error",
+  warn: "warning",
+  info: "info",
+  verbose: "info",
+  debug: "debug",
+  silly: "debug"
+};
+
 class SentryTransport extends Transport {
   constructor(opts) {
     super(opts);
     this._sentry = opts.sentry;
+    this._sillyLogs = [];
+  }
+
+  _captureException(error) {
+    this._sentry.withScope(scope => {
+      scope.setExtra("sillyLogs", this._sillyLogs);
+      this._sentry.captureException(error);
+    });
+    this._sillyLogs = [];
+  }
+
+  _captureEvent(event) {
+    this._sentry.withScope(scope => {
+      scope.setExtra("sillyLogs", this._sillyLogs);
+      this._sentry.captureEvent(event);
+    });
+    this._sillyLogs = [];
   }
 
   log(info, callback) {
@@ -13,22 +39,26 @@ class SentryTransport extends Transport {
     });
 
     if (info instanceof Error) {
-      this._sentry.captureException(info);
+      this._captureException(info);
     } else if (info.message instanceof Error) {
-      this._sentry.captureException(info.message);
+      this._captureException(info.message);
     } else if (info.error instanceof Error) {
-      this._sentry.captureException(info.error);
+      this._captureException(info.error);
     } else if (info.level === "error") {
       const { message, ...metadata } = info;
-      this._sentry.captureEvent({
+      this._captureEvent({
         message,
         level: Sentry.Severity.Error,
         extra: { metadata }
       });
+    } else if (info.level === "silly") {
+      this._sillyLogs.push({ timestamp: Date.now(), ...info });
     } else {
+      const { message, level, ...metadata } = info;
       this._sentry.addBreadcrumb({
-        message: info.message,
-        category: info.level
+        message,
+        level: WINSTON_TO_SENTRY_LEVEL[level],
+        data: metadata
       });
       callback();
       return;

@@ -1,14 +1,15 @@
 const uuid = require("uuid");
 const initLogger = require("./initLogger");
 const UserError = require("./UserError");
-const getCalledPackageId = require("./getCallerPackageId");
+const getCallerPackageId = require("./getCallerPackageId");
 
 process.env.CORVID_SESSION_ID = process.env.CORVID_SESSION_ID || uuid.v4();
 process.env.CORVID_CWD = process.env.CORVID_CWD || process.cwd();
 
-const logger = initLogger(process.env.CORVID_CWD, {
+const logger = initLogger(process.env.CORVID_CWD);
+logger.addSessionData({
   sessionId: process.env.CORVID_SESSION_ID,
-  release: getCalledPackageId(module)
+  release: getCallerPackageId(module)
 });
 
 const logAsyncErrors = asyncCallback => async (...args) =>

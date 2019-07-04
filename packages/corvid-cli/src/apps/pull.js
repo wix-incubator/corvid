@@ -7,6 +7,7 @@ const clientMessages = require("../utils/console-messages");
 const clientMessageActions = require("../utils/clientMessageActions");
 const getMessage = require("../messages");
 const { getBiContextHeader } = require("../utils/bi");
+const EditorError = require("../utils/EditorError");
 
 const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
   serverMode: "clone",
@@ -21,7 +22,7 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
       });
 
       client.on("user-message", message => {
-        logger.error(getMessage("Pull_User_Message_Log", { message }));
+        logger.info(getMessage("Pull_User_Message_Log", { message }));
         console.log(message);
       });
 
@@ -32,15 +33,15 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
       } = localServerStatus;
 
       if (editorConnected) {
-        reject(chalk.red(getMessage("Pull_Already_Connected_Error")));
+        reject(new Error(getMessage("Pull_Already_Connected_Error")));
       }
 
       if (mode !== "clone") {
-        reject(chalk.red(getMessage("Pull_Not_Clone_Mode_Error")));
+        reject(new Error(getMessage("Pull_Not_Clone_Mode_Error")));
       }
 
       if (!localServerEditorPort) {
-        reject(chalk.red(getMessage("Pull_No_Editor_Port_Error")));
+        reject(new Error(getMessage("Pull_No_Editor_Port_Error")));
       }
 
       const editorUrl = genEditorUrl(
@@ -54,9 +55,7 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
         "console-message",
         clientMessageActions({
           [clientMessages.FATAL_ERROR_MESSAGE]: message => {
-            logger.error(
-              getMessage("Pull_Client_Console_Fatal_Error_Message", { message })
-            );
+            logger.error(new EditorError(message));
             reject(
               new Error(
                 chalk.red(getMessage("Pull_Client_Console_Fatal_Error"))

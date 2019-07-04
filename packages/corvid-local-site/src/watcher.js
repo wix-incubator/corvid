@@ -137,27 +137,22 @@ const watch = async givenPath => {
     },
 
     ignoredWriteFile: async (relativePath, content) => {
-      logger.debug(
+      logger.silly(
         getMessage("Watcher_Ignored_Write_Log", { path: relativePath })
       );
       try {
         ignoreAction("write", relativePath);
         assertUnderRoot(relativePath);
         await ensureWriteFile(fullPath(relativePath), content);
-      } catch (e) {
-        logger.error(
-          getMessage("Watcher_Ignored_Write_Fail_Log", {
-            path: relativePath,
-            message: e.message
-          })
-        );
+      } catch (err) {
+        logger.error(err);
         removeFromIgnoredActions("write", relativePath);
-        throw e;
+        throw err;
       }
     },
 
     ignoredEnsureFile: async relativePath => {
-      logger.debug(
+      logger.silly(
         getMessage("Watcher_Ignored_Ensure_Log", { path: relativePath })
       );
       const fullPathFile = fullPath(relativePath);
@@ -166,40 +161,30 @@ const watch = async givenPath => {
         ignoreAction("write", relativePath);
         assertUnderRoot(relativePath);
         await fs.ensureFile(fullPathFile);
-      } catch (e) {
-        logger.error(
-          getMessage("Watcher_Ignored_Ensure_Fail_Log", {
-            path: relativePath,
-            message: e.message
-          })
-        );
+      } catch (err) {
+        logger.error(err);
         removeFromIgnoredActions("write", relativePath);
-        throw e;
+        throw err;
       }
     },
 
     ignoredDeleteFile: async relativePath => {
-      logger.debug(
+      logger.silly(
         getMessage("Watcher_Ignored_Delete_Log", { path: relativePath })
       );
       try {
         ignoreAction("delete", relativePath);
         assertUnderRoot(relativePath);
         await fs.unlink(fullPath(relativePath));
-      } catch (e) {
-        logger.error(
-          getMessage("Watcher_Ignored_Delete_Fail_Log", {
-            path: relativePath,
-            message: e.message
-          })
-        );
+      } catch (err) {
+        logger.error(err);
         removeFromIgnoredActions("delete", relativePath);
-        throw e;
+        throw err;
       }
     },
 
     ignoredCopyFile: async (relativeSourcePath, relativeTargetPath) => {
-      logger.debug(
+      logger.silly(
         getMessage("Watcher_Ignored_Copy_Log", {
           sourcePath: relativeSourcePath,
           targetPath: relativeTargetPath
@@ -214,17 +199,15 @@ const watch = async givenPath => {
           fullPath(relativeSourcePath),
           fullPath(relativeTargetPath)
         );
-      } catch (e) {
-        getMessage("Watcher_Ignored_Copy_Fail_Log", {
-          message: e.message
-        });
+      } catch (err) {
+        logger.error(err);
         removeFromIgnoredActions("write", relativeTargetPath);
-        throw e;
+        throw err;
       }
     },
 
     ignoredMoveFile: async (relativeSourcePath, relativeTargetPath) => {
-      logger.debug(
+      logger.silly(
         getMessage("Watcher_Ignored_Move_Log", {
           sourcePath: relativeSourcePath,
           targetPath: relativeTargetPath
@@ -237,10 +220,11 @@ const watch = async givenPath => {
           fullPath(relativeSourcePath),
           fullPath(relativeTargetPath)
         );
-      } catch (e) {
+      } catch (err) {
+        logger.error(err);
         removeFromIgnoredActions("delete", relativeSourcePath);
         removeFromIgnoredActions("write", relativeTargetPath);
-        throw e;
+        throw err;
       }
     },
 

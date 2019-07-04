@@ -37,7 +37,7 @@ const withBackupInit = (rootPath, localSite) => {
       await deleteBackup(backupPath);
       return result;
     } catch (error) {
-      logger.error(error.message);
+      logger.error(error);
       localSite.pause();
       await restore(siteSrcPath, backupPath);
       localSite.resume();
