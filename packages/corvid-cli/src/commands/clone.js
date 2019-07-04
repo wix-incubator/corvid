@@ -11,15 +11,30 @@ const { sendCloneEvent } = require("../utils/bi");
 const getMessage = require("../messages");
 const { exitWithSuccess, exitWithError } = require("../utils/exitProcess");
 const difference_ = require("lodash/difference");
+const reject_ = require("lodash/reject");
 
 function withCleanUp(asyncCallback) {
+  const dirContent = async rootPath => {
+    const corvidDir = ".corvid";
+    const corvidLog = "session.log";
+    let corvidDirItems = [];
+    const dirItems = await fs.readdir(rootPath);
+    if (dirItems.includes(corvidDir)) {
+      corvidDirItems = reject_(
+        await fs.readdir(path.join(rootPath, corvidDir)),
+        corvidLog
+      ).map(item => path.join(corvidDir, item));
+    }
+    return [...dirItems, ...corvidDirItems];
+  };
+
   return async args => {
     const rootPath = args.dir;
-    const dirContentsBefore = await fs.readdir(rootPath);
+    const dirContentsBefore = await dirContent(rootPath);
     try {
       return await asyncCallback(args);
     } catch (error) {
-      const dirContents = await fs.readdir(rootPath);
+      const dirContents = await dirContent(rootPath);
       await Promise.all(
         difference_(dirContents, dirContentsBefore).map(pathPart =>
           fs.remove(path.join(rootPath, pathPart))
@@ -76,7 +91,9 @@ module.exports = {
         type: "boolean"
       }),
   handler: args =>
-    cloneHandler(Object.assign({}, args, { dir: process.cwd() })).then(
+    withCleanUp(cloneHandler)(
+      Object.assign({}, args, { dir: process.cwd() })
+    ).then(
       message => exitWithSuccess(message),
       error => {
         if (error && error.name === "FetchError") {
