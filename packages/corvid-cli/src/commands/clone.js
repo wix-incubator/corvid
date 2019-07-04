@@ -12,18 +12,17 @@ const getMessage = require("../messages");
 const { exitWithSuccess, exitWithError } = require("../utils/exitProcess");
 const difference_ = require("lodash/difference");
 const reject_ = require("lodash/reject");
+const paths = require("../utils/paths");
 
 function withCleanUp(asyncCallback) {
   const dirContent = async rootPath => {
-    const corvidDir = ".corvid";
-    const corvidLog = "session.log";
     let corvidDirItems = [];
     const dirItems = await fs.readdir(rootPath);
-    if (dirItems.includes(corvidDir)) {
+    if (dirItems.includes(paths.corvidDir)) {
       corvidDirItems = reject_(
-        await fs.readdir(path.join(rootPath, corvidDir)),
-        corvidLog
-      ).map(item => path.join(corvidDir, item));
+        await fs.readdir(path.join(rootPath, paths.corvidDir)),
+        paths.logFileName
+      ).map(item => path.join(paths.corvidDir, item));
     }
     return [...dirItems, ...corvidDirItems];
   };
