@@ -4,7 +4,7 @@ const chalk = require("chalk");
 const normalize = require("normalize-url");
 const { URL } = require("url");
 const getMessage = require("../messages");
-const { UserError } = require("corvid-local-logger");
+const { logger, UserError } = require("corvid-local-logger");
 
 const {
   writeCorvidConfig,
@@ -42,6 +42,7 @@ async function extractMetasiteIdAndName(url, cookie) {
   const publicSiteOrEditorUrl = normalize(url, { forceHttps: true });
   const parsedUrl = new URL(publicSiteOrEditorUrl);
   const siteList = await getUserSiteList(cookie);
+  logger.addExtraData({ userSiteList: siteList });
 
   if (parsedUrl.hostname === editorDomain) {
     const metasiteId = extractDataFromEditorUrl(parsedUrl);

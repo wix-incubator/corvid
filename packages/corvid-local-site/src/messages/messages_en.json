@@ -11,12 +11,9 @@
     "Watcher_Delete_Reporting_Log": "Reporting deleted file at [<%= path %>]",
     "Watcher_Delete_Ignoring_Log": "Ignoring deleted file at [<%= path %>]",
     "Watcher_Ignored_Write_Log": "Writing file <%= path %>",
-    "Watcher_Ignored_Write_Fail_Log": "Writing file <%= path %> failed with error '<%= message %>'",
     "Watcher_Ignored_Ensure_Log": "Ensuring file <%= path %>",
-    "Watcher_Ignored_Ensure_Fail_Log": "Ensuring file <%= path %> failed with error '<%= message %>'",
     "Watcher_Ignored_Delete_Log": "Deleting file <%= path %>",
-    "Watcher_Ignored_Delete_Fail_Log": "Deleting file <%= path %> failed with error '<%= message %>'",
     "Watcher_Ignored_Copy_Log": "Copying file from <%= sourcePath %> to <%= targetPath %>",
-    "Watcher_Ignored_Copy_Fail_Log": "Copying file failed with error '<%= message %>'",
-    "Watcher_Ignored_Move_Log": "Moving file from <%= sourcePath %> to <%= targetPath %>"
+    "Watcher_Ignored_Move_Log": "Moving file from <%= sourcePath %> to <%= targetPath %>",
+    "Watcher_Ignored_Move_Fail_Log": "Moving file from <%= sourcePath %> to <%= targetPath %> failed with error '<%= message %>'"
 }

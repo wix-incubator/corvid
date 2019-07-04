@@ -9,6 +9,8 @@ const LOG_FILE_PATH = path.join(".corvid", "session.log");
 
 const ALREADY_LOGGED = Symbol("already-logged");
 
+const IS_DEV_ENVIRONMENT = process.env.NODE_ENV === "development";
+
 const logFileTransport = rootPath =>
   new winston.transports.File({
     level: process.env.LOG_LEVEL || "verbose",
@@ -30,10 +32,10 @@ const crashConsoleTransport = () =>
     )
   });
 
-const sentryTransport = (defaultMetadata, getSessionData) =>
+const sentryTransport = sentry =>
   new SentryTransport({
-    sentry: initSentry(defaultMetadata, getSessionData),
-    level: "debug"
+    sentry,
+    level: "silly"
   });
 
 const debugConsoleTransport = () =>
@@ -50,22 +52,46 @@ const debugConsoleTransport = () =>
     )
   });
 
-const initLogger = (cwd, defaultMetadata) => {
-  const getSessionData = () =>
-    JSON.parse(process.env.CORVID_LOCAL_LOGGER_SESSION_DATA || "{}");
+const addSessionData = ({
+  userId,
+  metasiteId,
+  command,
+  editorVersion,
+  santaVersion,
+  release,
+  sessionId
+}) => {
+  const sessionData = {
+    userId,
+    metasiteId,
+    command,
+    editorVersion,
+    santaVersion,
+    release,
+    sessionId
+  };
+  process.env.CORVID_LOCAL_LOGGER_SESSION_DATA = JSON.stringify(
+    defaults_(sessionData, getSessionData())
+  );
+};
+
+const getSessionData = () =>
+  JSON.parse(process.env.CORVID_LOCAL_LOGGER_SESSION_DATA || "{}");
+
+const initLogger = cwd => {
+  const sentry = initSentry(getSessionData);
+
   const logger = winston.createLogger({
-    defaultMeta: defaultMetadata,
     transports: [
       logFileTransport(cwd),
       crashConsoleTransport(),
-      sentryTransport(defaultMetadata, getSessionData)
+      sentryTransport(sentry)
     ]
   });
 
-  if (process.env.NODE_ENV === "development") {
+  if (IS_DEV_ENVIRONMENT) {
     logger.add(debugConsoleTransport());
   }
-
   const error = (info, ...args) => {
     if (info instanceof UserError) {
       return logger.info(info, ...args);
@@ -80,6 +106,12 @@ const initLogger = (cwd, defaultMetadata) => {
     return logger.error(info, ...args);
   };
 
+  logger.on("error", err => {
+    if (IS_DEV_ENVIRONMENT) {
+      console.log("Logger error", err); // eslint-disable-line no-console
+    }
+  });
+
   return {
     error,
     warn: logger.warn.bind(logger),
@@ -87,23 +119,12 @@ const initLogger = (cwd, defaultMetadata) => {
     verbose: logger.verbose.bind(logger),
     debug: logger.debug.bind(logger),
     silly: logger.silly.bind(logger),
-    addSessionData: ({
-      userId,
-      metasiteId,
-      command,
-      editorVersion,
-      santaVersion
-    }) => {
-      const sessionData = {
-        userId,
-        metasiteId,
-        command,
-        editorVersion,
-        santaVersion
-      };
-      process.env.CORVID_LOCAL_LOGGER_SESSION_DATA = JSON.stringify(
-        defaults_(sessionData, getSessionData())
-      );
+
+    addSessionData,
+    addExtraData: extraData => {
+      sentry.configureScope(scope => {
+        scope.setExtras(extraData);
+      });
     },
 
     close: () =>
