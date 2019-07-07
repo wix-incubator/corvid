@@ -10,6 +10,11 @@
 [![npm version](https://img.shields.io/npm/v/corvid-cli.svg?style=flat)](https://www.npmjs.com/package/corvid-cli)
 [![Status](http://img.shields.io/travis/wix-incubator/corvid/master.svg?style=flat)](https://travis-ci.com/wix-incubator/corvid)  
 
+
+
+> **Important:**
+Features relating to the Local Editor are currently in the stage of alpha release and are still being developed. Future functionality may not be backward compatible. When using these features, you assume the risks associated with the use of such an alpha version.
+
 `corvid-cli` allows you to download your [Wix](https://www.wix.com) site and work on it locally. With this tool you can use your favorite development tools (e.g IDE, version control) to manage the code of your site, use the Wix Editor to edit the view, and collaborate with others in building your site. Read more about how to use the corvid-cli [here](https://support.wix.com/en/article/working-with-the-corvid-cli).
 
 ## Getting Started
