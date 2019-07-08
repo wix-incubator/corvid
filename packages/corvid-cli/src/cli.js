@@ -14,7 +14,9 @@ console.log(getMessage("Cli_Description"));
 
 logger.info(`running [${process.argv.slice(2).join(" ")}]`);
 logger.addSessionData({ command: process.argv[2] });
-sessionData.on(["msid"], metasiteId => logger.addSessionData({ metasiteId }));
+sessionData.on(["msid", "uuid"], (metasiteId, userId) =>
+  logger.addSessionData({ metasiteId, userId })
+);
 
 const withRemoteDebugging = command =>
   Object.assign({}, command, {
