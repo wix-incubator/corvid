@@ -3,8 +3,10 @@ const path = require("path");
 const sessionData = require("./sessionData");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
+const paths = require("../utils/paths");
 
-const configFilePath = root => path.join(root, ".corvid", "corvidrc.json");
+const configFilePath = root =>
+  path.join(root, paths.corvidDir, paths.configFileName);
 
 async function readCorvidConfig(dir) {
   const json = await new Promise((resolve, reject) => {
