@@ -7,7 +7,7 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const localSiteDir = require("../utils/localSiteDir");
+const localSiteDir = require("corvid-local-testkit");
 
 afterEach(closeAll);
 

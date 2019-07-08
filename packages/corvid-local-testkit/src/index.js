@@ -1,10 +1,11 @@
 "use strict";
 
-var fs = require("fs");
-var path = require("path");
+const fs = require("fs");
+const path = require("path");
 
-var { initTempDir } = require("corvid-local-test-utils");
-var corvidLocalServerTestkit = require("corvid-local-server/src/testkit");
+const { initTempDir } = require("corvid-local-test-utils");
+const corvidLocalServerTestkit = require("corvid-local-server/src/testkit");
+const localSiteDir = require("./utils/localSiteDir");
 
 function initSite(siteItems) {
   return initTempDir(siteItems).then(function(localSite) {
@@ -17,7 +18,7 @@ function initSite(siteItems) {
   });
 }
 
-var server = {
+const server = {
   startInEditMode: function(siteItems) {
     return corvidLocalServerTestkit.startInEditMode(siteItems);
   },
@@ -26,9 +27,10 @@ var server = {
   }
 };
 
-var localTestkit = {
+const localTestkit = {
   initSite,
-  server
+  server,
+  localSiteDir
 };
 
 module.exports = localTestkit;

@@ -1,6 +1,8 @@
 const { socketClient, initTempDir } = require("corvid-local-test-utils");
 const { localServer, closeAll } = require("../utils/autoClosing");
-const { initLocalSite, readLocalSite } = require("../utils/localSiteDir");
+const {
+  localSiteDir: { initLocalSite, readLocalSite }
+} = require("corvid-local-testkit");
 
 const fs = require("fs-extra");
 const path = require("path");

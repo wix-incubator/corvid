@@ -7,7 +7,11 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const { initLocalSite, readLocalSite } = require("../utils/localSiteDir");
+
+const {
+  localSiteDir: { initLocalSite, readLocalSite }
+} = require("corvid-local-testkit");
+
 const { readDirToJson } = require("corvid-dir-as-json");
 
 const now = Date.now();

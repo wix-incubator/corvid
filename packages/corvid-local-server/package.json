@@ -19,6 +19,7 @@
   "dependencies": {
     "corvid-local-logger": "0.1.73",
     "corvid-local-site": "0.1.76",
+    "corvid-local-testkit": "^0.1.76",
     "express": "^4.16.4",
     "fs-extra": "^7.0.1",
     "listen-on-free-port": "1.0.3",
