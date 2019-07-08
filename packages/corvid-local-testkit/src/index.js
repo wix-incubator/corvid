@@ -6,6 +6,8 @@ var path = require("path");
 var { initTempDir } = require("corvid-local-test-utils");
 var corvidLocalServerTestkit = require("corvid-local-server/src/testkit");
 
+var localSiteDir = require("./localSiteDir");
+
 function initSite(siteItems) {
   return initTempDir(siteItems).then(function(localSite) {
     fs.writeFileSync(
@@ -27,6 +29,7 @@ var server = {
 };
 
 var localTestkit = {
+  localSiteDir,
   initSite,
   server
 };

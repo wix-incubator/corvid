@@ -16,6 +16,8 @@
     "node": ">=10"
   },
   "dependencies": {
+    "fs-extra": "^7.0.1",
+    "corvid-dir-as-json": "0.1.73",
     "corvid-local-server": "0.1.76",
     "corvid-local-test-utils": "0.1.73"
   }
