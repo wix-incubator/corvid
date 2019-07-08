@@ -13,6 +13,7 @@ const { exitWithSuccess, exitWithError } = require("../utils/exitProcess");
 const difference_ = require("lodash/difference");
 const reject_ = require("lodash/reject");
 const paths = require("../utils/paths");
+const { killAllChildProcesses } = require("../utils/electron");
 
 function withCleanUp(asyncCallback) {
   const dirContent = async rootPath => {
@@ -33,6 +34,7 @@ function withCleanUp(asyncCallback) {
     try {
       return await asyncCallback(args);
     } catch (error) {
+      await killAllChildProcesses();
       const dirContents = await dirContent(rootPath);
       await Promise.all(
         difference_(dirContents, dirContentsBefore).map(pathPart =>
