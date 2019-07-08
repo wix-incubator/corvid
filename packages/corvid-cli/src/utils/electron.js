@@ -192,7 +192,14 @@ async function openWindow(app, windowOptions = {}) {
 module.exports = {
   openWindow,
   launch,
-  killAllChildProcesses: () => {
-    runningProcesses.splice(0).map(cp => cp.kill());
-  }
+  killAllChildProcesses: () =>
+    Promise.all(
+      runningProcesses.splice(0).map(
+        cp =>
+          new Promise(resolve => {
+            cp.on("exit", () => resolve());
+            cp.kill();
+          })
+      )
+    )
 };
