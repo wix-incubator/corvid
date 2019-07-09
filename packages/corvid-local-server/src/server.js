@@ -39,7 +39,7 @@ async function startServer(siteRootPath, options) {
 
   if (hasBackup) {
     logger.info(getMessage("Server_Backup_Found_Log"));
-    throw new Error("BACKUP_FOLDER_EXISTS");
+    throw new UserError("BACKUP_FOLDER_EXISTS");
   }
 
   if (isEdit(options)) {
