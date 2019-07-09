@@ -1,6 +1,6 @@
 {
   "name": "corvid-local-site",
-  "version": "0.1.76",
+  "version": "0.1.77",
   "description": "",
   "scripts": {
     "build": ":",
@@ -15,14 +15,14 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "corvid-local-test-utils": "0.1.73",
+    "corvid-local-test-utils": "0.1.77",
     "jest": "^24.7.1",
     "wix-eventually": "^2.2.0"
   },
   "dependencies": {
     "chokidar": "^2.1.2",
-    "corvid-dir-as-json": "0.1.73",
-    "corvid-local-logger": "0.1.73",
+    "corvid-dir-as-json": "0.1.77",
+    "corvid-local-logger": "0.1.77",
     "fs-extra": "^7.0.1",
     "lodash": "^4.17.11",
     "sanitize-filename": "^1.6.1"
