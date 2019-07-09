@@ -7,10 +7,8 @@ const {
   closeAll
 } = require("../utils/autoClosing");
 const {
-  initLocalSite,
-  readLocalSite,
-  doesExist: doesLocalFileExist
-} = require("../utils/localSiteDir");
+  localSiteDir: { initLocalSite, readLocalSite, doesExist: doesLocalFileExist }
+} = require("corvid-local-test-utils");
 
 afterEach(closeAll);
 

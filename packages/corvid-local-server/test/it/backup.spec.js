@@ -7,7 +7,7 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const localSiteDir = require("../utils/localSiteDir");
+const { localSiteDir } = require("corvid-local-test-utils");
 const merge_ = require("lodash/merge");
 const fs = require("fs-extra");
 const path = require("path");

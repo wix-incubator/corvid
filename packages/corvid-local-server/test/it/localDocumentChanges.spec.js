@@ -8,10 +8,8 @@ const {
   closeAll
 } = require("../utils/autoClosing");
 const {
-  initLocalSite,
-  writeFile,
-  deleteFile
-} = require("../utils/localSiteDir");
+  localSiteDir: { initLocalSite, writeFile, deleteFile }
+} = require("corvid-local-test-utils");
 
 const documentCreatorsTypes = Object.keys(sc.documentCreators);
 
