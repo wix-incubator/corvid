@@ -7,8 +7,6 @@ const UserError = require("./UserError");
 
 const LOG_FILE_PATH = path.join(".corvid", "session.log");
 
-const ALREADY_LOGGED = Symbol("already-logged");
-
 const IS_DEV_ENVIRONMENT = process.env.NODE_ENV === "development";
 
 const logFileTransport = rootPath =>
@@ -92,18 +90,15 @@ const initLogger = cwd => {
   if (IS_DEV_ENVIRONMENT) {
     logger.add(debugConsoleTransport());
   }
-  const error = (info, ...args) => {
+
+  const handleErrors = winstonLoggerCallback => (info, ...args) => {
     if (info instanceof UserError) {
       return logger.info(info, ...args);
+    } else if (info instanceof Error) {
+      return winstonLoggerCallback(info, { _error: info }, ...args); // keep the original error object since winston destorys it
+    } else {
+      return winstonLoggerCallback(info, ...args);
     }
-    if (info instanceof Error) {
-      if (info[ALREADY_LOGGED]) {
-        return;
-      }
-      info[ALREADY_LOGGED] = true;
-      return logger.error(info, { error: info }, ...args); // keep the original error object since winston destorys it
-    }
-    return logger.error(info, ...args);
   };
 
   logger.on("error", err => {
@@ -113,12 +108,12 @@ const initLogger = cwd => {
   });
 
   return {
-    error,
-    warn: logger.warn.bind(logger),
-    info: logger.info.bind(logger),
-    verbose: logger.verbose.bind(logger),
-    debug: logger.debug.bind(logger),
-    silly: logger.silly.bind(logger),
+    error: handleErrors(logger.error.bind(logger)),
+    warn: handleErrors(logger.warn.bind(logger)),
+    info: handleErrors(logger.info.bind(logger)),
+    verbose: handleErrors(logger.verbose.bind(logger)),
+    debug: handleErrors(logger.debug.bind(logger)),
+    silly: handleErrors(logger.silly.bind(logger)),
 
     addSessionData,
     addExtraData: extraData => {
