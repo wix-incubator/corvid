@@ -61,10 +61,10 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         "console-message",
         clientMessageActions({
           [clientMessages.FATAL_ERROR_MESSAGE]: message => {
-            logger.error(new EditorError(message));
             reject(
-              new Error(
-                chalk.red(getMessage("OpenEditor_Client_Console_Fatal_Error"))
+              new EditorError(
+                message,
+                getMessage("OpenEditor_Client_Console_Fatal_Error")
               )
             );
           }

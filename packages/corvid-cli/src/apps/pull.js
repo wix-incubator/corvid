@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 const process = require("process");
-const chalk = require("chalk");
 const genEditorUrl = require("../utils/genEditorUrl");
 const logger = require("corvid-local-logger");
 const clientMessages = require("../utils/console-messages");
@@ -55,10 +54,10 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
         "console-message",
         clientMessageActions({
           [clientMessages.FATAL_ERROR_MESSAGE]: message => {
-            logger.error(new EditorError(message));
             reject(
-              new Error(
-                chalk.red(getMessage("Pull_Client_Console_Fatal_Error"))
+              new EditorError(
+                message,
+                getMessage("Pull_Client_Console_Fatal_Error")
               )
             );
           }

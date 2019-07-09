@@ -9,7 +9,6 @@ const {
   server: localFakeEditorServer
 } = require("corvid-fake-local-mode-editor");
 const sessionData = require("../src/utils/sessionData");
-const getMessage = require("../src/messages");
 
 jest.mock("../src/commands/login");
 const { clone } = require("../src/commands/clone");
@@ -424,9 +423,7 @@ describe("clone", () => {
         url: siteUrl,
         dir: tempDir
       });
-      await expect(promise).rejects.toThrow(
-        getMessage("Pull_Client_Console_Fatal_Error")
-      );
+      await expect(promise).rejects.toThrow();
       await eventually(
         async () => await expect(fs.readdir(tempDir)).resolves.toEqual([])
       );
@@ -442,9 +439,7 @@ describe("clone", () => {
         url: siteUrl,
         dir: tempDir
       });
-      await expect(promise).rejects.toThrow(
-        getMessage("Clone_Project_Exists_Error")
-      );
+      await expect(promise).rejects.toThrow();
       await expect(
         Promise.all(
           [...pathsToNotExist, ...pathsToExist].map(relativePath => {
@@ -468,9 +463,7 @@ describe("clone", () => {
         url: siteUrl,
         dir: tempDir
       });
-      await expect(promise).rejects.toThrow(
-        getMessage("Pull_Client_Console_Fatal_Error")
-      );
+      await expect(promise).rejects.toThrow();
       await expect(
         Promise.all(
           [...pathsToNotExist, ...pathsToExist].map(relativePath => {
