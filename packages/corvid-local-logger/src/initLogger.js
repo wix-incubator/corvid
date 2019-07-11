@@ -1,8 +1,8 @@
 const path = require("path");
 const winston = require("winston");
 const defaults_ = require("lodash/defaults");
-const initSentry = require("./initSentry");
-const SentryTransport = require("./SentryTransport");
+const initSentry = require("./sentry/initSentry");
+const SentryTransport = require("./sentry/SentryTransport");
 const UserError = require("./UserError");
 
 const LOG_FILE_PATH = path.join(".corvid", "session.log");
@@ -24,9 +24,10 @@ const logFileTransport = rootPath =>
 const crashConsoleTransport = () =>
   new winston.transports.Console({
     level: "error",
-    format: winston.format.printf(
-      () =>
-        `\n[corvid] an error has occured. see [${LOG_FILE_PATH}] for details.`
+    format: winston.format.printf(info =>
+      info.message instanceof UserError
+        ? ""
+        : `\n[corvid] an error has occured. see [${LOG_FILE_PATH}] for details.`
     )
   });
 
@@ -91,13 +92,16 @@ const initLogger = cwd => {
     logger.add(debugConsoleTransport());
   }
 
-  const handleErrors = winstonLoggerCallback => (info, ...args) => {
-    if (info instanceof UserError) {
-      return logger.info(info, ...args);
-    } else if (info instanceof Error) {
-      return winstonLoggerCallback(info, { _error: info }, ...args); // keep the original error object since winston destorys it
+  const handleErrors = winstonLoggerCallback => (
+    infoOrError,
+    errorMetadata
+  ) => {
+    if (infoOrError instanceof Error) {
+      return winstonLoggerCallback(
+        Object.assign({}, errorMetadata, { message: infoOrError })
+      );
     } else {
-      return winstonLoggerCallback(info, ...args);
+      return winstonLoggerCallback(infoOrError);
     }
   };
 

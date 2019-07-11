@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "build": ":",
-    "test": ":"
+    "test": "jest",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   },
   "repository": {
     "type": "git",
@@ -23,5 +24,10 @@
     "uuid": "^3.3.2",
     "winston": "^3.2.1",
     "winston-transport": "^4.3.0"
+  },
+  "devDependencies": {
+    "jest": "^24.8.0",
+    "nock": "^10.0.6",
+    "wix-eventually": "^2.2.0"
   }
 }

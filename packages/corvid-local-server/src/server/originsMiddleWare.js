@@ -11,7 +11,7 @@ function originsMiddleware(allowedDomains = []) {
       logger.warn(getMessage("AdminToken_Error_Log", { origin }));
       return next(new Error(getMessage("Origin_Error")));
     }
-    logger.warn(getMessage("Origin_Accepted_Log", { origin }));
+    logger.verbose(getMessage("Origin_Accepted_Log", { origin }));
     next();
   };
 }
