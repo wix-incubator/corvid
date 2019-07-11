@@ -8,7 +8,7 @@ const tryToPrettifyJsonString = jsonString => {
     const prettyJsonString = prettyStringify(JSON.parse(jsonString));
     return prettyJsonString;
   } catch (e) {
-    logger.warning(getMessage("Prettify_Fail_Log", { jsonString }));
+    logger.warn(getMessage("Prettify_Fail_Log", { jsonString }));
     return jsonString;
   }
 };
