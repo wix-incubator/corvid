@@ -133,10 +133,7 @@ async function openWindow(app, windowOptions = {}) {
     height: 960,
     show: !isHeadlessMode,
     ...windowOptions,
-    webPreferences: { nodeIntegration: false },
-    icon: path.resolve(
-      path.join(__dirname, "..", "..", "assets", "icon-1024x1024.png")
-    )
+    webPreferences: { nodeIntegration: false }
   });
 
   win.webContents.on("new-window", (event, url) => {
