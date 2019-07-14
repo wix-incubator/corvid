@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="200" src="assets/icon.png">
+  <img width="200" src="https://static.wixstatic.com/media/85a3c2_d1356dc7622b48cab7017b24d9fa922c~mv2.png">
 </p>
 <h2 align="center">Corvid Local Development</h2>
 <p align="center">
