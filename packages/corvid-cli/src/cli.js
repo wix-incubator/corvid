@@ -18,19 +18,9 @@ sessionData.on(["msid", "uuid"], (metasiteId, userId) =>
   logger.addSessionData({ metasiteId, userId })
 );
 
-const withRemoteDebugging = command =>
-  Object.assign({}, command, {
-    builder: args =>
-      args.option("remote-debugging-port", {
-        describe: "port for remote debugging",
-        type: "number",
-        hidden: true
-      })
-  });
-
 require("yargs")
   .usage("Usage: $0 <command> [options]")
-  .commandDir("commands", { visit: withRemoteDebugging })
+  .commandDir("commands")
   .help("help")
   .strict()
   .demandCommand().argv;
