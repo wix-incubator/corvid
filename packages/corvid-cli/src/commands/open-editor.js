@@ -126,11 +126,17 @@ module.exports = {
   command: "open-editor",
   describe: getMessage("OpenEditor_Command_Description"),
   builder: args =>
-    args.option("ignore-certificate", {
-      describe: "ignore certificate errors",
-      type: "boolean",
-      hidden: true
-    }),
+    args
+      .option("ignore-certificate", {
+        describe: "ignore certificate errors",
+        type: "boolean",
+        hidden: true
+      })
+      .option("remote-debugging-port", {
+        describe: "port for remote debugging",
+        type: "number",
+        hidden: true
+      }),
   handler: async args => {
     openEditorHandler(Object.assign({}, args, { dir: process.cwd() })).catch(
       error => exitWithError(error)

@@ -144,6 +144,11 @@ module.exports = {
         describe: "ignore certificate errors",
         type: "boolean"
       })
+      .option("remote-debugging-port", {
+        describe: "port for remote debugging",
+        type: "number",
+        hidden: true
+      })
       .conflicts("override", "move"),
   handler: async args =>
     pullHandler(Object.assign({}, args, { dir: process.cwd() })).then(

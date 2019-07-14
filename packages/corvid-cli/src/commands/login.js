@@ -101,6 +101,12 @@ async function loginCommand(spinner, args = {}) {
 module.exports = {
   command: "login",
   describe: getMessage("Login_Command_Description"),
+  builder: args =>
+    args.option("remote-debugging-port", {
+      describe: "port for remote debugging",
+      type: "number",
+      hidden: true
+    }),
   handler: async args => {
     const spinner = createSpinner();
     return loginCommand(spinner, args)

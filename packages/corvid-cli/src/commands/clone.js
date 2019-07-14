@@ -90,6 +90,11 @@ module.exports = {
       .option("ignore-certificate", {
         describe: "ignore certificate errors",
         type: "boolean"
+      })
+      .option("remote-debugging-port", {
+        describe: "port for remote debugging",
+        type: "number",
+        hidden: true
       }),
   handler: args =>
     withCleanUp(cloneHandler)(
