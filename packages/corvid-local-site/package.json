@@ -1,6 +1,6 @@
 {
   "name": "corvid-local-site",
-  "version": "0.1.77",
+  "version": "0.1.78",
   "description": "",
   "scripts": {
     "build": ":",
@@ -22,7 +22,7 @@
   "dependencies": {
     "chokidar": "^2.1.2",
     "corvid-dir-as-json": "0.1.77",
-    "corvid-local-logger": "0.1.77",
+    "corvid-local-logger": "0.1.78",
     "fs-extra": "^7.0.1",
     "lodash": "^4.17.11",
     "sanitize-filename": "^1.6.1"
