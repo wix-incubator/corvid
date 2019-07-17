@@ -1,13 +1,9 @@
-const {
-  create: createSentryTestkit
-} = require("../sentry-testkit/sentryTestkit");
 const nock = require("nock");
+const testUtils = require("corvid-local-test-utils");
 const eventually = require("wix-eventually").with({ timeout: 2000 });
 const packageJson = require("../../package.json");
 
-const SENTRY_DSN = "https://421920d4abe64d87bea03ac821e25ed6@sentry.io/1427669";
-
-const sentryTestkit = createSentryTestkit(nock, { dsn: SENTRY_DSN });
+const sentryTestkit = testUtils.sentryTestkit.create(nock);
 
 jest.mock("uuid");
 const uuid = require("uuid");

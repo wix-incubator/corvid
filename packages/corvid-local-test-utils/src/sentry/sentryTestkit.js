@@ -1,14 +1,15 @@
 "use strict";
 
+const SENTRY_DSN = require("./sentryDSN");
 const { parseDsn, createErrorReport } = require("./sentryParser");
 
-const create = (nock, { dsn }) => {
+const create = nock => {
   let reports = [];
 
-  const { host, protocol, project } = parseDsn(dsn);
+  const { host, protocol, project } = parseDsn(SENTRY_DSN);
+
   const interceptor = nock(`${protocol}://${host}`)
     .persist()
-    .filteringRequestBody(/.*/, "*")
     .post(uri => uri.indexOf(`/api/${project}/store/`) === 0)
     .reply(200, (_, requestBody) => {
       const report = createErrorReport(requestBody);
