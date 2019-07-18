@@ -1,6 +1,7 @@
 const path = require("path");
 const winston = require("winston");
 const defaults_ = require("lodash/defaults");
+const isError_ = require("lodash/isError");
 const initSentry = require("./sentry/initSentry");
 const SentryTransport = require("./sentry/SentryTransport");
 const UserError = require("./UserError");
@@ -96,7 +97,7 @@ const initLogger = cwd => {
     infoOrError,
     errorMetadata
   ) => {
-    if (infoOrError instanceof Error) {
+    if (isError_(infoOrError)) {
       return winstonLoggerCallback(
         Object.assign({}, errorMetadata, { message: infoOrError })
       );
