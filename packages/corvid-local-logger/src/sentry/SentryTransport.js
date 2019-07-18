@@ -1,5 +1,6 @@
 const Sentry = require("@sentry/node");
 const Transport = require("winston-transport");
+const isError_ = require("lodash/isError");
 const UserError = require("../UserError");
 
 const WINSTON_TO_SENTRY_LEVEL = {
@@ -51,7 +52,7 @@ class SentryTransport extends Transport {
     const { message, level, ...extra } = info;
 
     if (level === "error" || level === "warn") {
-      if (message instanceof Error) {
+      if (isError_(message)) {
         if (message instanceof UserError) {
           this._addBreadcrumb({
             message: message.message,
