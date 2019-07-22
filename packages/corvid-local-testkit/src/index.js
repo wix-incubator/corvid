@@ -30,9 +30,7 @@ const localSite = {
   }
 };
 
-const localTestkit = {
+module.exports = {
   localSite,
   server
 };
-
-module.exports = localTestkit;
