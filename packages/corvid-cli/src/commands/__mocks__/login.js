@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const sessionData = require("../../utils/sessionData");
-const { parseSessionCookie } = jest.requireActual("../login");
+const actualLogin = jest.requireActual("../login");
 
-module.exports = {
+module.exports = Object.assign({}, actualLogin, {
   login: async () => {
     const authCookie = {
       name: "name",
@@ -10,7 +10,9 @@ module.exports = {
         "JWT." +
         jwt.sign({ data: JSON.stringify({ userGuid: "testGuid" }) }, "secret")
     };
-    await sessionData.set({ uuid: parseSessionCookie(authCookie).userGuid });
+    await sessionData.set({
+      uuid: actualLogin.parseSessionCookie(authCookie).userGuid
+    });
     return authCookie;
   }
-};
+});

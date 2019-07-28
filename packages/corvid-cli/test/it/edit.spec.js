@@ -1,38 +1,46 @@
 const fetchMock = require("fetch-mock");
+const eventually = require("wix-eventually");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { initTempDir } = require("corvid-local-test-utils");
 const {
   server: localFakeEditorServer
 } = require("corvid-fake-local-mode-editor");
-const sessionData = require("../src/utils/sessionData");
-const { killAllChildProcesses } = require("../src/utils/electron");
+const sessionData = require("../../src/utils/sessionData");
+const { killAllChildProcesses } = require("../../src/utils/electron");
 
-jest.mock("../src/commands/login");
-const { openEditorHandler } = require("../src/commands/open-editor");
-const base64 = require("./utils/base64");
+jest.mock("../../src/commands/login");
+const { openEditor } = require("./cliDriver");
+const base64 = require("../utils/base64");
 
 describe("edit", () => {
   process.env.CORVID_SESSION_ID = "testCorvidId";
   process.env.CORVID_FORCE_HEADLESS = 1;
 
-  afterEach(() => {
-    sessionData.reset();
-    fetchMock.restore();
-    killAllChildProcesses();
+  let editorServer;
+  beforeEach(async () => {
+    editorServer = await localFakeEditorServer.start();
+    process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${editorServer.port}`;
+    process.env.DISABLE_SSL = true;
   });
 
+  afterEach(async () => {
+    sessionData.reset();
+    fetchMock.restore();
+    await localFakeEditorServer.killAllRunningServers();
+    await killAllChildProcesses();
+  });
+
+  const openEditorAndWaitTillItLoads = tempDir => {
+    const editorLoadedPromise = new Promise(resolve => {
+      editorServer.onEditorLoaded(resolve);
+    });
+
+    openEditor(tempDir);
+
+    return editorLoadedPromise;
+  };
+
   describe("when run in a directory with a local version of the site", () => {
-    let editorServer;
-    beforeEach(async () => {
-      editorServer = await localFakeEditorServer.start();
-      process.env.CORVID_CLI_WIX_DOMAIN = `localhost:${editorServer.port}`;
-      process.env.DISABLE_SSL = true;
-    });
-
-    afterEach(() => {
-      localFakeEditorServer.killAllRunningServers();
-    });
-
     const setupSuccessfullOpenEditor = async () => {
       const localSiteFiles = localSiteBuilder.buildFull();
       const tempDir = await initTempDir(
@@ -76,7 +84,6 @@ describe("edit", () => {
     };
 
     test("should open the editor with the local server port", async () => {
-      expect.assertions(1);
       const localSiteFiles = localSiteBuilder.buildFull();
       const tempDir = await initTempDir(
         Object.assign(
@@ -87,15 +94,10 @@ describe("edit", () => {
         )
       );
 
-      return expect(
-        openEditorHandler({
-          dir: tempDir
-        })
-      ).resolves.toBeUndefined();
+      await openEditorAndWaitTillItLoads(tempDir);
     });
 
     test("should report to BI an open-editor start event", async () => {
-      expect.assertions(1);
       const localSiteFiles = localSiteBuilder.buildFull();
       const tempDir = await initTempDir(
         Object.assign(
@@ -134,21 +136,20 @@ describe("edit", () => {
           JSON.stringify({})
         );
 
-      await openEditorHandler({
-        dir: tempDir
-      });
+      await openEditorAndWaitTillItLoads(tempDir);
 
-      expect(
-        fetchMock.called(
-          `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status=start`
-        )
-      ).toBe(true);
+      await eventually(() => {
+        expect(
+          fetchMock.called(
+            `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status=start`
+          )
+        ).toBe(true);
+      });
     });
 
     test("should report to BI an open-editor success event", async () => {
-      expect.assertions(1);
       const localSiteFiles = localSiteBuilder.buildFull();
       const tempDir = await initTempDir(
         Object.assign(
@@ -187,17 +188,17 @@ describe("edit", () => {
           JSON.stringify({})
         );
 
-      await openEditorHandler({
-        dir: tempDir
-      });
+      await openEditorAndWaitTillItLoads(tempDir);
 
-      expect(
-        fetchMock.called(
-          `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
-            process.env.CORVID_SESSION_ID
-          }&status=success`
-        )
-      ).toBe(true);
+      await eventually(() => {
+        expect(
+          fetchMock.called(
+            `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+              process.env.CORVID_SESSION_ID
+            }&status=success`
+          )
+        ).toBe(true);
+      });
     });
 
     describe("bi context", () => {
@@ -215,9 +216,7 @@ describe("edit", () => {
           });
         });
 
-        await openEditorHandler({
-          dir: tempDir
-        });
+        await openEditorAndWaitTillItLoads(tempDir);
 
         const biContextQueryValue = await biContextQueryPromise;
 
@@ -235,9 +234,7 @@ describe("edit", () => {
           });
         });
 
-        await openEditorHandler({
-          dir: tempDir
-        });
+        await openEditorAndWaitTillItLoads(tempDir);
 
         const biContextHeaderValue = await biContextHeaderPromise;
 
@@ -253,11 +250,9 @@ describe("edit", () => {
       expect.assertions(1);
       const tempDir = await initTempDir({});
 
-      return expect(
-        openEditorHandler({
-          dir: tempDir
-        })
-      ).rejects.toThrow(/Project not found in/);
+      return expect(openEditor(tempDir)).rejects.toThrow(
+        /Project not found in/
+      );
     });
   });
 });

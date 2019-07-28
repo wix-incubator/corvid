@@ -15,7 +15,7 @@ const { sendOpenEditorEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
-const { exitWithError } = require("../utils/exitProcess");
+const commandWithDefaults = require("../utils/commandWithDefaults");
 
 app &&
   app.on("ready", async () => {
@@ -31,13 +31,9 @@ app &&
       );
     }
 
-    try {
-      await openWindow(openEditorApp(), {
-        show: true && !process.env.CORVID_FORCE_HEADLESS
-      });
-    } catch (exc) {
-      exitWithError(exc);
-    }
+    await openWindow(openEditorApp(), {
+      show: true && !process.env.CORVID_FORCE_HEADLESS
+    });
   });
 
 async function openEditorHandler(args) {
@@ -93,7 +89,6 @@ async function openEditorHandler(args) {
           spinner.succeed(
             chalk.grey(getMessage("OpenEditor_Command_Connected"))
           );
-          resolve();
         },
         error: error => {
           spinner.fail();
@@ -111,36 +106,18 @@ async function openEditorHandler(args) {
         }
       },
       openEditorArgs
-    )
-      .then(resolve, reject)
-      .catch(e => {
-        spinner.fail();
-        throw e;
-      });
+    ).then(resolve, reject);
+  }).catch(err => {
+    spinner.fail();
+    throw err;
   });
 
   spinner.stop();
 }
 
-module.exports = {
+module.exports = commandWithDefaults({
   command: "open-editor",
   describe: getMessage("OpenEditor_Command_Description"),
-  builder: args =>
-    args
-      .option("ignore-certificate", {
-        describe: "ignore certificate errors",
-        type: "boolean",
-        hidden: true
-      })
-      .option("remote-debugging-port", {
-        describe: "port for remote debugging",
-        type: "number",
-        hidden: true
-      }),
-  handler: async args => {
-    openEditorHandler(Object.assign({}, args, { dir: process.cwd() })).catch(
-      error => exitWithError(error)
-    );
-  },
-  openEditorHandler
-};
+  handler: async args =>
+    openEditorHandler(Object.assign({ dir: process.cwd() }, args))
+});

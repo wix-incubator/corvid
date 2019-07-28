@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 const fs = require("fs-extra");
 const path = require("path");
-const chalk = require("chalk");
 const clone = require("../apps/clone");
 const { login } = require("./login");
 const { pull } = require("./pull");
@@ -9,11 +8,11 @@ const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
 const { sendCloneEvent } = require("../utils/bi");
 const getMessage = require("../messages");
-const { exitWithSuccess, exitWithError } = require("../utils/exitProcess");
 const difference_ = require("lodash/difference");
 const reject_ = require("lodash/reject");
 const paths = require("../utils/paths");
 const { killAllChildProcesses } = require("../utils/electron");
+const commandWithDefaults = require("../utils/commandWithDefaults");
 
 function withCleanUp(asyncCallback) {
   const dirContent = async rootPath => {
@@ -81,34 +80,11 @@ async function cloneHandler(args) {
     });
 }
 
-module.exports = {
+module.exports = commandWithDefaults({
   command: "clone <url>",
   describe: getMessage("Clone_Command_Description"),
   builder: args =>
-    args
-      .positional("url", { describe: "Public site URL", type: "string" })
-      .option("ignore-certificate", {
-        describe: "ignore certificate errors",
-        type: "boolean"
-      })
-      .option("remote-debugging-port", {
-        describe: "port for remote debugging",
-        type: "number",
-        hidden: true
-      }),
+    args.positional("url", { describe: "Public site URL", type: "string" }),
   handler: args =>
-    withCleanUp(cloneHandler)(
-      Object.assign({}, args, { dir: process.cwd() })
-    ).then(
-      message => exitWithSuccess(message),
-      error => {
-        if (error && error.name === "FetchError") {
-          console.log(
-            chalk.red(getMessage("Clone_Command_Cannot_Fetch_Error"))
-          );
-        }
-        exitWithError(error);
-      }
-    ),
-  clone: withCleanUp(cloneHandler)
-};
+    withCleanUp(cloneHandler)(Object.assign({ dir: process.cwd() }, args))
+});

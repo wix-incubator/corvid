@@ -9,53 +9,45 @@ const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
-const { exitWithError, exitWithSuccess } = require("../utils/exitProcess");
+const commandWithDefaults = require("../utils/commandWithDefaults");
 
 const mySitesUrl = "https://www.wix.com/account/sites";
 const signInHostname = "users.wix.com";
 
 app &&
   app.on("ready", async () => {
-    try {
-      const win = new BrowserWindow({
-        width: 1280,
-        height: 960,
-        show: false,
-        webPreferences: { nodeIntegration: false }
-      });
+    const win = new BrowserWindow({
+      width: 1280,
+      height: 960,
+      show: false,
+      webPreferences: { nodeIntegration: false }
+    });
 
-      win.webContents.on("did-navigate", (event, url) => {
-        const parsed = new URL(url);
-        if (parsed.hostname === signInHostname) {
-          console.log(JSON.stringify({ event: "authenticatingUser" }));
-          win.show();
-        } else if (url === mySitesUrl) {
-          console.log(JSON.stringify({ event: "userAuthenticated" }));
-          win.hide();
+    win.webContents.on("did-navigate", (event, url) => {
+      const parsed = new URL(url);
+      if (parsed.hostname === signInHostname) {
+        console.log(JSON.stringify({ event: "authenticatingUser" }));
+        win.show();
+      } else if (url === mySitesUrl) {
+        console.log(JSON.stringify({ event: "userAuthenticated" }));
+        win.hide();
 
-          win.webContents.session.cookies.get(
-            { url: "http://wix.com", name: "wixSession2" },
-            (error, cookies) => {
-              if (error) {
-                throw error;
-              }
-
-              console.log(
-                JSON.stringify(
-                  { msg: "authCookie", cookie: cookies[0] },
-                  null,
-                  2
-                )
-              );
+        win.webContents.session.cookies.get(
+          { url: "http://wix.com", name: "wixSession2" },
+          (error, cookies) => {
+            if (error) {
+              throw error;
             }
-          );
-          win.webContents.on("did-finish-load", () => exitWithSuccess());
-        }
-      });
-      win.loadURL(mySitesUrl);
-    } catch (exc) {
-      exitWithError(exc);
-    }
+
+            console.log(
+              JSON.stringify({ msg: "authCookie", cookie: cookies[0] }, null, 2)
+            );
+          }
+        );
+        win.webContents.on("did-finish-load", () => app.quit());
+      }
+    });
+    win.loadURL(mySitesUrl);
   });
 
 function parseSessionCookie(cookie) {
@@ -98,15 +90,9 @@ async function loginCommand(spinner, args = {}) {
   });
 }
 
-module.exports = {
+module.exports = commandWithDefaults({
   command: "login",
   describe: getMessage("Login_Command_Description"),
-  builder: args =>
-    args.option("remote-debugging-port", {
-      describe: "port for remote debugging",
-      type: "number",
-      hidden: true
-    }),
   handler: async args => {
     const spinner = createSpinner();
     return loginCommand(spinner, args)
@@ -123,4 +109,4 @@ module.exports = {
   },
   login: loginCommand,
   parseSessionCookie
-};
+});

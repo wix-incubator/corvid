@@ -15,12 +15,6 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
     const isHeadless = false;
 
     await new Promise(async (resolve, reject) => {
-      client.on("editor-connected", () => {
-        // TODO uncomment the following once the open-editor command can exit while the editor is
-        // open
-        //resolve();
-      });
-
       client.on("user-message", message => {
         logger.info(getMessage("OpenEditor_User_Message_Log", { message }));
         console.log(message);
