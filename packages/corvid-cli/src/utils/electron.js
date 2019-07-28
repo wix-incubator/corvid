@@ -59,6 +59,8 @@ function launch(file, options = {}, callbacks = {}, args = []) {
               messages.push(msg);
               if (msg.event && typeof callbacks[msg.event] === "function") {
                 callbacks[msg.event](msg.payload);
+              } else if (msg.event === "error") {
+                reject(new Error(msg.payload));
               }
             }
           } catch (_) {
@@ -71,9 +73,11 @@ function launch(file, options = {}, callbacks = {}, args = []) {
         });
       }
 
-      cp.on("exit", code => {
+      cp.on("exit", (code, signal) => {
         runningProcesses.splice(runningProcesses.indexOf(cp), 1);
-        code === 0 ? resolve(messages) : reject(code);
+        code === 0 || (code === null && signal === "SIGTERM")
+          ? resolve(messages)
+          : reject(code);
       });
     }
   });

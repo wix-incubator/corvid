@@ -4,11 +4,12 @@ const { initTempDir } = require("corvid-local-test-utils");
 const {
   server: localFakeEditorServer
 } = require("corvid-fake-local-mode-editor");
-const sessionData = require("../src/utils/sessionData");
+const sessionData = require("../../src/utils/sessionData");
+const { killAllChildProcesses } = require("../../src/utils/electron");
 
-jest.mock("../src/commands/login");
-const { pullHandler } = require("../src/commands/pull");
-const base64 = require("./utils/base64");
+jest.mock("../../src/commands/login");
+const { pull } = require("./cliDriver");
+const base64 = require("../utils/base64");
 
 describe("pull", () => {
   process.env.CORVID_SESSION_ID = "testCorvidId";
@@ -19,10 +20,11 @@ describe("pull", () => {
     process.env.DISABLE_SSL = true;
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     sessionData.reset();
-    localFakeEditorServer.killAllRunningServers();
     fetchMock.restore();
+    await localFakeEditorServer.killAllRunningServers();
+    await killAllChildProcesses();
   });
 
   const setupSuccessfullPull = async () => {
@@ -96,11 +98,7 @@ describe("pull", () => {
           JSON.stringify({})
         );
 
-      return expect(
-        pullHandler({
-          dir: tempDir
-        })
-      ).resolves.toMatch(/Pull complete/);
+      return expect(pull(tempDir)).resolves.toMatch(/Pull complete/);
     });
 
     test("should report to BI a pull start event", async () => {
@@ -137,9 +135,7 @@ describe("pull", () => {
           JSON.stringify({})
         );
 
-      await pullHandler({
-        dir: tempDir
-      });
+      await pull(tempDir);
 
       expect(
         fetchMock.called(
@@ -184,9 +180,7 @@ describe("pull", () => {
           JSON.stringify({})
         );
 
-      await pullHandler({
-        dir: tempDir
-      });
+      await pull(tempDir);
 
       expect(
         fetchMock.called(
@@ -239,9 +233,7 @@ describe("pull", () => {
           JSON.stringify({})
         );
 
-      await pullHandler({
-        dir: tempDir
-      }).catch(() => {});
+      await pull(tempDir).catch(() => {});
 
       expect(
         fetchMock.called(
@@ -292,9 +284,7 @@ describe("pull", () => {
           JSON.stringify({})
         );
 
-      await pullHandler({
-        dir: tempDir
-      }).catch(() => {});
+      await pull(tempDir).catch(() => {});
 
       expect(
         fetchMock.called(
@@ -346,10 +336,7 @@ describe("pull", () => {
             JSON.stringify({})
           );
 
-        await pullHandler({
-          dir: tempDir,
-          override: true
-        }).catch(() => {});
+        await pull(tempDir, "--override").catch(() => {});
 
         expect(
           fetchMock.called(
@@ -400,10 +387,7 @@ describe("pull", () => {
             JSON.stringify({})
           );
 
-        await pullHandler({
-          dir: tempDir,
-          override: true
-        }).catch(() => {});
+        await pull(tempDir, "--override").catch(() => {});
 
         expect(
           fetchMock.called(
@@ -456,10 +440,7 @@ describe("pull", () => {
             JSON.stringify({})
           );
 
-        await pullHandler({
-          dir: tempDir,
-          move: true
-        }).catch(() => {});
+        await pull(tempDir, "--move").catch(() => {});
 
         expect(
           fetchMock.called(
@@ -510,10 +491,7 @@ describe("pull", () => {
             JSON.stringify({})
           );
 
-        await pullHandler({
-          dir: tempDir,
-          move: true
-        }).catch(() => {});
+        await pull(tempDir, "--move").catch(() => {});
 
         expect(
           fetchMock.called(
@@ -531,11 +509,7 @@ describe("pull", () => {
       expect.assertions(1);
       const tempDir = await initTempDir({});
 
-      return expect(
-        pullHandler({
-          dir: tempDir
-        })
-      ).rejects.toThrow(/Project not found in/);
+      return expect(pull(tempDir)).rejects.toThrow(/Project not found in/);
     });
   });
 
@@ -554,9 +528,7 @@ describe("pull", () => {
         });
       });
 
-      await pullHandler({
-        dir: tempDir
-      });
+      await pull(tempDir);
 
       const biContextQueryValue = await biContextQueryPromise;
 
@@ -572,9 +544,7 @@ describe("pull", () => {
         });
       });
 
-      await pullHandler({
-        dir: tempDir
-      });
+      await pull(tempDir);
 
       const biContextHeaderValue = await biContextHeaderPromise;
 

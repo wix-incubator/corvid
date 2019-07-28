@@ -3,25 +3,27 @@ const fs = require("fs-extra");
 const process = require("process");
 const fetchMock = require("fetch-mock");
 const eventually = require("wix-eventually");
-const { version: cliModuleVersion } = require("../package.json");
+const { version: cliModuleVersion } = require("../../package.json");
 const { initTempDir } = require("corvid-local-test-utils");
 const {
   server: localFakeEditorServer
 } = require("corvid-fake-local-mode-editor");
-const sessionData = require("../src/utils/sessionData");
+const sessionData = require("../../src/utils/sessionData");
+const { killAllChildProcesses } = require("../../src/utils/electron");
 
-jest.mock("../src/commands/login");
-const { clone } = require("../src/commands/clone");
-const base64 = require("./utils/base64");
+jest.mock("../../src/commands/login");
+const { clone } = require("./cliDriver");
+const base64 = require("../utils/base64");
 
 describe("clone", () => {
   process.env.CORVID_SESSION_ID = "testCorvidId";
   let editorServer;
 
-  afterEach(() => {
+  afterEach(async () => {
     sessionData.reset();
-    localFakeEditorServer.killAllRunningServers();
     fetchMock.restore();
+    await localFakeEditorServer.killAllRunningServers();
+    await killAllChildProcesses();
   });
 
   const prepareServer = async extraData => {
@@ -107,10 +109,7 @@ describe("clone", () => {
           JSON.stringify({})
         );
 
-      await clone({
-        url: "a-site.com",
-        dir: tempDir
-      });
+      await clone(tempDir, "a-site.com");
 
       expect(() =>
         fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
@@ -147,10 +146,7 @@ describe("clone", () => {
           JSON.stringify({})
         );
 
-      await clone({
-        url: "a-site.com",
-        dir: tempDir
-      });
+      await clone(tempDir, "a-site.com");
 
       const corvidMetadata = JSON.parse(
         fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
@@ -180,11 +176,10 @@ describe("clone", () => {
           JSON.stringify({})
         );
 
-      await clone({
-        url:
-          "https://editor.wix.com/html/editor/web/renderer/edit/1633ae83-c9ff-41e2-bd1b-d5eb5a93790c?metaSiteId=96d0802a-b76d-411c-aaf4-6b8c2f474acb&editorSessionId=d3a513bd-32a0-5e3b-964e-3b69f916f17e",
-        dir: tempDir
-      });
+      await clone(
+        tempDir,
+        "https://editor.wix.com/html/editor/web/renderer/edit/1633ae83-c9ff-41e2-bd1b-d5eb5a93790c?metaSiteId=96d0802a-b76d-411c-aaf4-6b8c2f474acb&editorSessionId=d3a513bd-32a0-5e3b-964e-3b69f916f17e"
+      );
 
       const corvidMetadata = JSON.parse(
         fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
@@ -216,10 +211,10 @@ describe("clone", () => {
           JSON.stringify({})
         );
 
-      await clone({
-        url: "https://www.wix.com/editor/96d0802a-b76d-411c-aaf4-6b8c2f474acb",
-        dir: tempDir
-      });
+      await clone(
+        tempDir,
+        "https://www.wix.com/editor/96d0802a-b76d-411c-aaf4-6b8c2f474acb"
+      );
 
       const corvidMetadata = JSON.parse(
         fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
@@ -260,10 +255,7 @@ describe("clone", () => {
           JSON.stringify({})
         );
 
-      await clone({
-        url: "a-site.com",
-        dir: tempDir
-      });
+      await clone(tempDir, "a-site.com");
 
       const corvidMetadata = JSON.parse(
         fs.readFileSync(path.join(tempDir, ".corvid", "corvidrc.json"), "utf8")
@@ -304,10 +296,7 @@ describe("clone", () => {
           JSON.stringify({})
         );
 
-      await clone({
-        url: "a-site.com",
-        dir: tempDir
-      });
+      await clone(tempDir, "a-site.com");
 
       expect(
         fetchMock.called(
@@ -350,10 +339,7 @@ describe("clone", () => {
           JSON.stringify({})
         );
 
-      await clone({
-        url: "a-site.com",
-        dir: tempDir
-      });
+      await clone(tempDir, "a-site.com");
 
       expect(
         fetchMock.called(
@@ -382,10 +368,7 @@ describe("clone", () => {
         });
       });
 
-      await clone({
-        url: siteUrl,
-        dir: tempDir
-      });
+      await clone(tempDir, siteUrl);
 
       const biContextQueryValue = await biContextQueryPromise;
 
@@ -403,10 +386,7 @@ describe("clone", () => {
         });
       });
 
-      await clone({
-        url: siteUrl,
-        dir: tempDir
-      });
+      await clone(tempDir, siteUrl);
 
       const biContextHeaderValue = await biContextHeaderPromise;
 
@@ -419,10 +399,7 @@ describe("clone", () => {
   describe("Failed clone", () => {
     it("should clean files", async () => {
       const { tempDir, siteUrl } = await setupFailingClone();
-      const promise = clone({
-        url: siteUrl,
-        dir: tempDir
-      });
+      const promise = clone(tempDir, siteUrl);
       await expect(promise).rejects.toThrow();
       await eventually(
         async () => await expect(fs.readdir(tempDir)).resolves.toEqual([])
@@ -435,10 +412,7 @@ describe("clone", () => {
       const { tempDir, siteUrl } = await setupFailingClone({
         ".corvid": { "corvidrc.json": '{ "metasiteId": "987654321" }' }
       });
-      const promise = clone({
-        url: siteUrl,
-        dir: tempDir
-      });
+      const promise = clone(tempDir, siteUrl);
       await expect(promise).rejects.toThrow();
       await expect(
         Promise.all(
@@ -459,10 +433,7 @@ describe("clone", () => {
       const { tempDir, siteUrl } = await setupFailingClone({
         ".corvid": { "session.log": "some logs" }
       });
-      const promise = clone({
-        url: siteUrl,
-        dir: tempDir
-      });
+      const promise = clone(tempDir, siteUrl);
       await expect(promise).rejects.toThrow();
       await expect(
         Promise.all(

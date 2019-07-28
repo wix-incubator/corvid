@@ -11,8 +11,8 @@ const sessionData = require("../utils/sessionData");
 const { sendPullEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const getMessage = require("../messages");
-const { exitWithError, exitWithSuccess } = require("../utils/exitProcess");
 const { UserError } = require("corvid-local-logger");
+const commandWithDefaults = require("../utils/commandWithDefaults");
 
 app &&
   app.on("ready", async () => {
@@ -29,11 +29,7 @@ app &&
     }
 
     const args = yargs.argv;
-    try {
-      await openWindow(pullApp({ override: args.override, move: args.move }));
-    } catch (exc) {
-      exitWithError(exc);
-    }
+    await openWindow(pullApp({ override: args.override, move: args.move }));
   });
 
 async function pullCommand(spinner, args) {
@@ -127,7 +123,7 @@ async function pullHandler(args) {
     });
 }
 
-module.exports = {
+module.exports = commandWithDefaults({
   command: "pull",
   describe: getMessage("Pull_Command_Description"),
   builder: args =>
@@ -140,25 +136,8 @@ module.exports = {
         describe: getMessage("Pull_Command_Move_Description"),
         type: "boolean"
       })
-      .option("ignore-certificate", {
-        describe: "ignore certificate errors",
-        type: "boolean"
-      })
-      .option("remote-debugging-port", {
-        describe: "port for remote debugging",
-        type: "number",
-        hidden: true
-      })
       .conflicts("override", "move"),
   handler: async args =>
-    pullHandler(Object.assign({}, args, { dir: process.cwd() })).then(
-      message => {
-        exitWithSuccess(message);
-      },
-      error => {
-        exitWithError(error);
-      }
-    ),
-  pull: pullCommand,
-  pullHandler
-};
+    pullHandler(Object.assign({ dir: process.cwd() }, args)),
+  pull: pullCommand
+});

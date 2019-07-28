@@ -15,6 +15,7 @@ function start(extraArgs = {}) {
   const app = express();
 
   const editorRequestListeners = [];
+  const editorLoadedListeners = [];
 
   return new Promise((resolve, reject) => {
     bundle.bundle((err, code) => {
@@ -45,13 +46,21 @@ function start(extraArgs = {}) {
           res.send(Buffer.from(fileContent));
         });
 
+        app.get("/editor-loaded", async function(req, res) {
+          await Promise.all(
+            editorLoadedListeners.map(listener => Promise.resolve(listener()))
+          );
+          res.sendStatus(200);
+        });
+
         return stoppable(http.createServer(app), 0);
       })
         .then(server => {
           runningServers.push(server);
           resolve({
             port: server.address().port,
-            onEditorRequest: listener => editorRequestListeners.push(listener)
+            onEditorRequest: listener => editorRequestListeners.push(listener),
+            onEditorLoaded: listener => editorLoadedListeners.push(listener)
           });
         })
         .catch(reject);
@@ -64,7 +73,7 @@ module.exports = {
   killAllRunningServers: () => {
     return Promise.all(
       runningServers.splice(0).map(server => {
-        return new Promise(resolve => server.close(resolve));
+        return new Promise(resolve => server.stop(resolve));
       })
     );
   }

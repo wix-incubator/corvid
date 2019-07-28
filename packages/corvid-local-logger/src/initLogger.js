@@ -82,6 +82,7 @@ const initLogger = cwd => {
   const sentry = initSentry(getSessionData);
 
   const logger = winston.createLogger({
+    exitOnError: false,
     transports: [
       logFileTransport(cwd),
       crashConsoleTransport(),
@@ -129,8 +130,12 @@ const initLogger = cwd => {
 
     close: () =>
       new Promise(resolve => {
-        logger.on("finish", resolve);
-        logger.end();
+        if (process.env.NODE_ENV === "test") {
+          resolve();
+        } else {
+          logger.on("finish", resolve);
+          logger.end();
+        }
       })
   };
 };
