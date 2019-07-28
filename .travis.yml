@@ -47,8 +47,6 @@ jobs:
         - ./scripts/ci-windows-pre-install.sh
       install:
         - yarn --network-timeout 1000000
-      script:
-        - yarn test -- --forceExit # until we figure out why windows builds hang after tests pass
 
     - name: Publish to npm
       stage: deploy
