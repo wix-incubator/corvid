@@ -3,9 +3,7 @@
   "version": "0.1.78",
   "description": "",
   "scripts": {
-    "test": "run-script-os",
-    "test:windows": ":",
-    "test:default": "jest"
+    "test": "jest"
   },
   "devDependencies": {
     "execa": "^1.0.0",
@@ -13,7 +11,6 @@
     "jest": "^24.7.0",
     "npm-which": "^3.0.1",
     "puppeteer-core": "1.15.0",
-    "run-script-os": "^1.0.7",
     "tempy": "^0.3.0",
     "wix-eventually": "^2.2.0"
   },

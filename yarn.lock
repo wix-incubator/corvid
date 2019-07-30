@@ -7093,10 +7093,6 @@ run-queue@^1.0.0, run-queue@^1.0.3:
   dependencies:
     aproba "^1.1.1"
 
-run-script-os@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/run-script-os/-/run-script-os-1.0.7.tgz#7cd51144a19c6ca364fe668433f55b47babf4749"
-
 rxjs@^6.3.3, rxjs@^6.4.0:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.5.2.tgz#2e35ce815cd46d84d02a209fb4e5921e051dbec7"
