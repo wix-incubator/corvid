@@ -12,7 +12,7 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const { initLocalSite } = require("../utils/localSiteDir");
+
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 
@@ -32,7 +32,7 @@ describe("santy tests for error reporting", () => {
   });
 
   it("should report clone errors to sentry", async () => {
-    const localSitePath = await initLocalSite();
+    const localSitePath = await testUtils.localSiteDir.initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull();
@@ -50,7 +50,7 @@ describe("santy tests for error reporting", () => {
   });
 
   it("should report save errors to sentry", async () => {
-    const localSitePath = await initLocalSite();
+    const localSitePath = await testUtils.localSiteDir.initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull();
@@ -73,7 +73,9 @@ describe("santy tests for error reporting", () => {
   if (!isWindows) {
     it("should report errors loading in edit mode", async () => {
       const localSite = localSiteBuilder.buildFull();
-      const localSitePath = await initLocalSite(localSite);
+      const localSitePath = await testUtils.localSiteDir.initLocalSite(
+        localSite
+      );
 
       await fs.chmod(localSitePath, fs.constants.S_IWUSR); // owner can only write
       await localServer.startInEditMode(localSitePath).catch(() => {});
