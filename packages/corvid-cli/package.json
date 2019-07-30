@@ -27,6 +27,7 @@
     "corvid-local-test-utils": "0.1.77",
     "fetch-mock": "7.3.1",
     "jest": "^24.7.1",
+    "nock": "^10.0.6",
     "wix-eventually": "^2.2.0"
   },
   "jest": {
