@@ -1,13 +1,11 @@
-let originalNodeEnv = process.env.NODE_ENV;
-process.env.NODE_ENV = "monitoring-test";
-afterAll(() => {
-  process.env.NODE_ENV = originalNodeEnv;
-});
+const testUtils = require("corvid-local-test-utils");
+
+const revertSentryEnvOverride = testUtils.overrideEnv({ ENABLE_SENTRY: true });
+afterAll(() => revertSentryEnvOverride());
 
 const os = require("os");
 const nock = require("nock");
 const fs = require("fs-extra");
-const testUtils = require("corvid-local-test-utils");
 const eventually = require("wix-eventually").with({ timeout: 3000 });
 const {
   editor: loadEditor,
