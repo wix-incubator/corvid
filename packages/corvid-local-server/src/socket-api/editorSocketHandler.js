@@ -12,11 +12,15 @@ const initEditorApi = editorApi => ({
 
 const socketHandler = editorApi => {
   let currentSocket;
-  editorApi.onCodeChanged(localCodePayload =>
-    currentSocket.emit("LOCAL_CODE_UPDATED", localCodePayload)
-  );
+  editorApi.onCodeChanged(localCodePayload => {
+    if (editorApi.isEditorConnected()) {
+      currentSocket.emit("LOCAL_CODE_UPDATED", localCodePayload);
+    }
+  });
   editorApi.onDocumentChanged(() => {
-    currentSocket.emit("LOCAL_DOCUMENT_UPDATED");
+    if (editorApi.isEditorConnected()) {
+      currentSocket.emit("LOCAL_DOCUMENT_UPDATED");
+    }
   });
   return socket => {
     currentSocket = socket;
