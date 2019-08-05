@@ -4,6 +4,7 @@ const eventually = require("wix-eventually");
 const { findFreePort } = require("./drivers/utils");
 const corvidCliDriverCreator = require("./drivers/cliDriver");
 const localEditorDriverCreator = require("./drivers/localEditorDriver");
+const parseArgs = require("minimist");
 
 const testSites = [
   {
@@ -48,6 +49,8 @@ const connectToLocalEditor = async port => {
   return localEditorDriver;
 };
 
+const { rc } = parseArgs(process.argv.slice(2));
+
 describe("browser sanity", () => {
   const initTempDirectory = () => {
     return tempy.directory();
@@ -57,7 +60,7 @@ describe("browser sanity", () => {
 
   beforeEach(async done => {
     const cwd = initTempDirectory();
-    cliDriver = corvidCliDriverCreator({ cwd });
+    cliDriver = corvidCliDriverCreator({ cwd, rc });
     await cliDriver.logout();
     done();
   });

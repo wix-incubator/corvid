@@ -30,6 +30,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "corvid-cli": "0.1.79"
+    "corvid-cli": "0.1.79",
+    "minimist": "^1.2.0"
   }
 }
