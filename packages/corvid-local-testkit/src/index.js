@@ -1,14 +1,20 @@
 "use strict";
+const tmp = require("tmp");
 const { localSiteDir } = require("corvid-local-test-utils");
+
+const tempDir = tmp.dirSync();
+process.env.CORVID_CWD = tempDir.name;
+process.env.ENABLE_SENTRY = false;
+
 const corvidLocalServerTestkit = require("corvid-local-server/src/testkit");
 
 const LOCAL_SITE_PATH = Symbol.for("local-site-path");
 
 const server = {
-  startInEditMode: function(localSite) {
+  startInEditMode: localSite => {
     return corvidLocalServerTestkit.startInEditMode(localSite[LOCAL_SITE_PATH]);
   },
-  startInCloneMode: function(localSite) {
+  startInCloneMode: localSite => {
     return corvidLocalServerTestkit.startInCloneMode(
       localSite[LOCAL_SITE_PATH]
     );

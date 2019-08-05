@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "corvid-local-server": "0.1.79",
-    "corvid-local-test-utils": "0.1.79"
+    "corvid-local-test-utils": "0.1.79",
+    "tmp": "^0.1.0"
   }
 }
