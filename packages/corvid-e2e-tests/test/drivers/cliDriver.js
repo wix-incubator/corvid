@@ -16,6 +16,7 @@ module.exports = ({ cwd }) => {
 
   const clone = ({ editorUrl, remoteDebuggingPort } = {}) => {
     const query = parseCommandArgs({ remoteDebuggingPort });
+
     return execa.shell(`${CORVID_BIN_PATH} clone ${query} "${editorUrl}"`, {
       cwd
     });
