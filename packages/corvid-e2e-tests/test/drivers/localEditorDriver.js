@@ -8,10 +8,9 @@ const THEMED_TEXTS_SELECTOR =
 
 module.exports = page => {
   const waitForEditor = async () =>
-    await page.waitForSelector(PUSH_BUTTON_SELECTOR, { timeout: 30000 });
+    page.waitForSelector(PUSH_BUTTON_SELECTOR, { timeout: 30000 });
 
-  const waitForLoginForm = async () =>
-    await page.waitForSelector(".log-in-title");
+  const waitForLoginForm = async () => page.waitForSelector(".log-in-title");
 
   const close = async () => await page.close();
 
@@ -36,11 +35,17 @@ module.exports = page => {
   };
 
   return {
-    waitForEditor,
-    waitForLoginForm,
-    push,
-    addTextElement,
-    login,
-    close
+    close,
+    waitForLogin: async () => {
+      await waitForLoginForm();
+      return { login };
+    },
+    waitForEditor: async () => {
+      await waitForEditor();
+      return {
+        addTextElement,
+        push
+      };
+    }
   };
 };
