@@ -1,9 +1,7 @@
 const tempy = require("tempy");
-const puppeteer = require("puppeteer-core");
-const eventually = require("wix-eventually");
-const { findFreePort } = require("./drivers/utils");
+const { findFreePort, getCorvidTestUser } = require("./drivers/utils");
 const corvidCliDriverCreator = require("./drivers/cliDriver");
-const localEditorDriverCreator = require("./drivers/localEditorDriver");
+const connectToLocalEditor = require("./drivers/connectToLocalEditor");
 
 const testSites = [
   {
@@ -28,49 +26,25 @@ const testSites = [
   // }
 ];
 
-const connectToLocalEditor = async port => {
-  const browser = await eventually(
-    async () =>
-      await puppeteer.connect({
-        browserURL: `http://localhost:${port}`,
-        defaultViewport: { width: 1280, height: 960 }
-      }),
-    { timeout: 20000 }
-  );
-  const localEditorDriver = eventually(
-    async () => {
-      const [page] = await browser.pages();
-      expect(page).toBeDefined();
-      return localEditorDriverCreator(page);
-    },
-    { timeout: 20000 }
-  );
-  return localEditorDriver;
-};
-
 describe("browser sanity", () => {
-  const initTempDirectory = () => {
-    return tempy.directory();
-  };
-
   let cliDriver;
 
   beforeEach(async done => {
-    const cwd = initTempDirectory();
+    const cwd = tempy.directory();
     cliDriver = corvidCliDriverCreator({ cwd });
-    await cliDriver.logout();
+    await cliDriver.performLogout();
     done();
   });
 
   afterAll(async done => {
-    await cliDriver.logout();
+    await cliDriver.performLogout();
     done();
   });
 
   testSites.forEach(({ editorUrl, description }) =>
     test(`should clone ${description} site, open it and push without making actual changes`, async () => {
       const cloneDebugPort = await findFreePort();
-      const cloneCommand = cliDriver.clone({
+      const cloneCommand = cliDriver.commands.clone({
         editorUrl,
         remoteDebuggingPort: cloneDebugPort
       });
@@ -80,19 +54,17 @@ describe("browser sanity", () => {
 
       await cloneEditorDriver.waitForLoginForm();
 
-      await cloneEditorDriver.login({
-        username: "corvidtest@gmail.com",
-        password: "1q2w3e4r"
-      });
+      await cloneEditorDriver.login(getCorvidTestUser());
 
       await cloneCommand;
 
       const openEditorDebugPort = await findFreePort();
-      const openEditorCommand = cliDriver.openEditor({
+      const openEditorCommand = cliDriver.commands.openEditor({
         remoteDebuggingPort: openEditorDebugPort
       });
 
       const openEditorDriver = await connectToLocalEditor(openEditorDebugPort);
+      console.log("edit connected"); //eslint-disable-line
       await openEditorDriver.waitForEditor();
 
       await openEditorDriver.push();
