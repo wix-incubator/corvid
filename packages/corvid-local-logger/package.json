@@ -20,7 +20,7 @@
     "@sentry/node": "^5.5.0",
     "corvid-local-test-utils": "0.1.79",
     "es6-error": "^4.1.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "read-pkg-up": "^6.0.0",
     "uuid": "^3.3.2",
     "winston": "^3.2.1",
