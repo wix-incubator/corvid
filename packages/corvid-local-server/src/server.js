@@ -88,41 +88,53 @@ async function startServer(siteRootPath, options) {
     await fs.emptyDir(siteSrcPath);
   }
 
-  const localSite = await initLocalSiteManager(siteSrcPath);
-  const editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
-    allowedDomains: ["editor.wix.com"].concat(
-      process.env.NODE_ENV === "test" ? ["localhost"] : []
-    )
-  });
-  const adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
+  let localSite, editorServer, adminServer;
 
-  adminServer.io.use(adminTokenMiddleware(adminToken));
+  try {
+    localSite = await initLocalSiteManager(siteSrcPath);
+    editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
+      allowedDomains: ["editor.wix.com"].concat(
+        process.env.NODE_ENV === "test" ? ["localhost"] : []
+      )
+    });
+    adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
-  initServerApi(
-    localSite,
-    adminServer,
-    editorServer,
-    !isEdit(options),
-    siteRootPath
-  );
+    adminServer.io.use(adminTokenMiddleware(adminToken));
 
-  logger.info(
-    getMessage("Server_Listening_Log", {
-      editorPort: editorServer.port,
-      adminPort: adminServer.port
-    })
-  );
-  return {
-    port: editorServer.port,
-    adminPort: adminServer.port,
-    adminToken,
-    close: () => {
-      logger.info(getMessage("Server_Close_Log"));
-      localSite.close();
-      editorServer.close();
-      adminServer.close();
-    }
-  };
+    initServerApi(
+      localSite,
+      adminServer,
+      editorServer,
+      !isEdit(options),
+      siteRootPath
+    );
+
+    logger.info(
+      getMessage("Server_Listening_Log", {
+        editorPort: editorServer.port,
+        adminPort: adminServer.port
+      })
+    );
+    return {
+      port: editorServer.port,
+      adminPort: adminServer.port,
+      adminToken,
+      close: async () => {
+        logger.info(getMessage("Server_Close_Log"));
+        await Promise.all([
+          localSite.close(),
+          editorServer.close(),
+          adminServer.close()
+        ]);
+      }
+    };
+  } catch (error) {
+    await Promise.all([
+      Promise.resolve(localSite && localSite.close()),
+      Promise.resolve(editorServer.close()),
+      Promise.resolve(adminServer.close())
+    ]);
+  }
 }
 
 const startInCloneMode = (

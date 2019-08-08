@@ -192,6 +192,6 @@ describe("Backup", () => {
     const watcher = fs.watch(corvidPath, watchHandler);
     await editor.save();
     expect(watchHandler).toHaveBeenCalledWith("rename", "backup");
-    watcher.close();
+    await watcher.close();
   });
 });

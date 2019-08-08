@@ -168,33 +168,38 @@ const loadEditor = async (
 
   const socket = await connectToLocalServer(port);
   if (socket.connected) {
-    const isInCloneMode = await isCloneMode(socket);
-    if (isInCloneMode) {
-      if (cloneOnLoad) {
-        await saveLocal();
+    try {
+      const isInCloneMode = await isCloneMode(socket);
+      if (isInCloneMode) {
+        if (cloneOnLoad) {
+          await saveLocal();
+        }
+      } else {
+        editorState.codeFiles.current = unflatten(
+          reduce_(
+            await getCodeFilesFromServer(socket),
+            (result, value) =>
+              Object.assign(result, {
+                [value.path]: isSchemaPath(value.path)
+                  ? ensureSchemaStructure(value.content)
+                  : value.content
+              }),
+            {}
+          )
+        );
+        editorState.siteDocument = await getSiteDocumentFromServer(socket);
       }
-    } else {
-      editorState.codeFiles.current = unflatten(
-        reduce_(
-          await getCodeFilesFromServer(socket),
-          (result, value) =>
-            Object.assign(result, {
-              [value.path]: isSchemaPath(value.path)
-                ? ensureSchemaStructure(value.content)
-                : value.content
-            }),
-          {}
-        )
-      );
-      editorState.siteDocument = await getSiteDocumentFromServer(socket);
-    }
-    socket.on("LOCAL_CODE_UPDATED", payload => {
-      editorState.codeChangesLocally.forEach(cb => cb(payload));
-    });
+      socket.on("LOCAL_CODE_UPDATED", payload => {
+        editorState.codeChangesLocally.forEach(cb => cb(payload));
+      });
 
-    socket.on("LOCAL_DOCUMENT_UPDATED", () => {
-      editorState.documentChangesLocally.forEach(cb => cb());
-    });
+      socket.on("LOCAL_DOCUMENT_UPDATED", () => {
+        editorState.documentChangesLocally.forEach(cb => cb());
+      });
+    } catch (error) {
+      socket.disconnect();
+      throw error;
+    }
   }
 
   const modifyCodeFile = (filePath, content) => {
