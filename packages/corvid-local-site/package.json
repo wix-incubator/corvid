@@ -24,7 +24,7 @@
     "corvid-dir-as-json": "0.1.77",
     "corvid-local-logger": "0.1.79",
     "fs-extra": "^7.0.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "sanitize-filename": "^1.6.1"
   }
 }
