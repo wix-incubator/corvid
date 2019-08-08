@@ -42,7 +42,9 @@ const watch = async givenPath => {
     persistent: true,
     ignoreInitial: true,
     cwd: rootPath,
-    awaitWriteFinish: true,
+    awaitWriteFinish: {
+      stabilityThreshold: 500
+    },
     followSymlinks: false,
     disableGlobbing: true,
     alwaysStat: true
