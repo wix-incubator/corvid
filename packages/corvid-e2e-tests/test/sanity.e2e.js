@@ -48,7 +48,7 @@ describe("browser sanity", () => {
         editorUrl
       });
       const editorCloneDriver = await connectToLocalEditor(
-        cliCloneCommandResult.remoteDebuggingPort
+        cliCloneCommandResult.editorDebugPort
       );
       console.log("clone connected"); //eslint-disable-line
 
@@ -61,7 +61,7 @@ describe("browser sanity", () => {
 
       const openEditorCliCommand = await cliDriver.openEditor();
       const editorEditDriver = await connectToLocalEditor(
-        openEditorCliCommand.remoteDebuggingPort
+        openEditorCliCommand.editorDebugPort
       );
       console.log("edit connected"); //eslint-disable-line
 

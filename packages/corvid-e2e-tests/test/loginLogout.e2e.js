@@ -26,7 +26,7 @@ describe("login / logout", () => {
       //login
       const cliLoginCommandResult = await cliDriver.login();
       const editorDriver = await connectToLocalEditor(
-        cliLoginCommandResult.remoteDebuggingPort
+        cliLoginCommandResult.editorDebugPort
       );
       const loginDriver = await editorDriver.waitForLogin();
       await loginDriver.login(getCorvidTestUser());
@@ -38,7 +38,7 @@ describe("login / logout", () => {
         editorUrl: BLANK_EDITOR_URL
       });
       const editorCloneDriver = await connectToLocalEditor(
-        cliCloneCommandResult.remoteDebuggingPort
+        cliCloneCommandResult.editorDebugPort
       );
       await expect(editorCloneDriver.waitForLogin()).rejects.toBeDefined();
       await cliCloneCommandResult.waitForCommandToEnd();
@@ -50,7 +50,7 @@ describe("login / logout", () => {
       //login
       const cliLoginCommandResult = await cliDriver.login();
       const editorDriver = await connectToLocalEditor(
-        cliLoginCommandResult.remoteDebuggingPort
+        cliLoginCommandResult.editorDebugPort
       );
 
       const loginDriver = await editorDriver.waitForLogin();
@@ -67,7 +67,7 @@ describe("login / logout", () => {
         editorUrl: BLANK_EDITOR_URL
       });
       const editorCloneDriver = await connectToLocalEditor(
-        cliCloneCommandResult.remoteDebuggingPort
+        cliCloneCommandResult.editorDebugPort
       );
       await expect(editorCloneDriver.waitForLogin()).resolves.toBeDefined();
 
