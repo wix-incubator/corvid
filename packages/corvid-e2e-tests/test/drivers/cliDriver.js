@@ -2,9 +2,11 @@ const execa = require("execa");
 const which = require("npm-which")(__dirname);
 const { findFreePort } = require("./utils");
 const CORVID_BIN_PATH = which.sync("corvid");
+const parseArgs = require("minimist");
+const { extraParams } = parseArgs(process.argv.slice(2));
 
 module.exports = ({ cwd }) => {
-  const parseCommandArgs = ({ remoteDebuggingPort } = {}) =>
+  const parseCommandArgs = ({ remoteDebuggingPort }) =>
     remoteDebuggingPort ? `--remote-debugging-port=${remoteDebuggingPort}` : "";
 
   const withCommand = async (
@@ -12,10 +14,11 @@ module.exports = ({ cwd }) => {
     { editorUrl, remoteDebuggingPort }
   ) => {
     const port = remoteDebuggingPort || (await findFreePort());
-    const query = parseCommandArgs({ remoteDebuggingPort: port });
+    const commandArgsQuery = parseCommandArgs({ remoteDebuggingPort: port });
+    const extraParamsQuery = extraParams ? `QUERY="${extraParams}"` : "";
     const url = editorUrl ? editorUrl : "";
     const command = execa.shell(
-      `${CORVID_BIN_PATH} ${commandName} ${query} ${url}`,
+      `${extraParamsQuery} ${CORVID_BIN_PATH} ${commandName} ${commandArgsQuery} ${url}`,
       {
         cwd
       }

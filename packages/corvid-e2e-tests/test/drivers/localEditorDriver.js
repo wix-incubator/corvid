@@ -7,10 +7,10 @@ const THEMED_TEXTS_SELECTOR =
   '[data-section-title="Themed Text"] .live-text span';
 
 module.exports = page => {
-  const waitForEditor = async () =>
+  const waitForEditor = () =>
     page.waitForSelector(PUSH_BUTTON_SELECTOR, { timeout: 30000 });
 
-  const waitForLoginForm = async () => page.waitForSelector(".log-in-title");
+  const waitForLoginForm = () => page.waitForSelector(".log-in-title");
 
   const close = async () => await page.close();
 
