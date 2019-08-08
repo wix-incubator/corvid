@@ -1,30 +1,63 @@
 const execa = require("execa");
 const which = require("npm-which")(__dirname);
-const connectToLocalEditor = require("./connectToLocalEditor");
-const { findFreePort, getCorvidTestUser } = require("./utils");
+const { findFreePort } = require("./utils");
 const CORVID_BIN_PATH = which.sync("corvid");
 
-const createCommandsDrvier = ({ cwd }) => {
+module.exports = ({ cwd }) => {
   const parseCommandArgs = ({ remoteDebuggingPort } = {}) =>
     remoteDebuggingPort ? `--remote-debugging-port=${remoteDebuggingPort}` : "";
 
-  const login = ({ remoteDebuggingPort } = {}) => {
-    const query = parseCommandArgs({ remoteDebuggingPort });
-    return execa.shell(`${CORVID_BIN_PATH} login ${query}`, { cwd });
-  };
-
-  const logout = () => execa.shell(`${CORVID_BIN_PATH} logout`, { cwd });
-
-  const clone = ({ editorUrl, remoteDebuggingPort } = {}) => {
-    const query = parseCommandArgs({ remoteDebuggingPort });
-    return execa.shell(`${CORVID_BIN_PATH} clone ${query} "${editorUrl}"`, {
+  const login = async ({ remoteDebuggingPort } = {}) => {
+    const port = remoteDebuggingPort || (await findFreePort());
+    const query = parseCommandArgs({ remoteDebuggingPort: port });
+    const command = execa.shell(`${CORVID_BIN_PATH} login ${query}`, {
       cwd
     });
+    return {
+      remoteDebuggingPort: port,
+      waitForCommandToEnd: () => command,
+      kill: async () => await command.kill()
+    };
   };
 
-  const openEditor = ({ remoteDebuggingPort } = {}) => {
-    const query = parseCommandArgs({ remoteDebuggingPort });
-    return execa.shell(`${CORVID_BIN_PATH} open-editor ${query}`, { cwd });
+  const logout = async ({ remoteDebuggingPort } = {}) => {
+    const port = remoteDebuggingPort || (await findFreePort());
+    const query = parseCommandArgs({ remoteDebuggingPort: port });
+    const command = execa.shell(`${CORVID_BIN_PATH} logout ${query}`, { cwd });
+    return {
+      remoteDebuggingPort: port,
+      waitForCommandToEnd: () => command,
+      kill: async () => await command.kill()
+    };
+  };
+
+  const clone = async ({ editorUrl, remoteDebuggingPort } = {}) => {
+    const port = remoteDebuggingPort || (await findFreePort());
+    const query = parseCommandArgs({ remoteDebuggingPort: port });
+    const command = execa.shell(
+      `${CORVID_BIN_PATH} clone ${query} "${editorUrl}"`,
+      {
+        cwd
+      }
+    );
+    return {
+      remoteDebuggingPort: port,
+      waitForCommandToEnd: () => command,
+      kill: async () => await command.kill()
+    };
+  };
+
+  const openEditor = async ({ remoteDebuggingPort } = {}) => {
+    const port = remoteDebuggingPort || (await findFreePort());
+    const query = parseCommandArgs({ remoteDebuggingPort: port });
+    const command = execa.shell(`${CORVID_BIN_PATH} open-editor ${query}`, {
+      cwd
+    });
+    return {
+      remoteDebuggingPort: port,
+      waitForCommandToEnd: () => command,
+      kill: async () => await command.kill()
+    };
   };
 
   return {
@@ -32,50 +65,5 @@ const createCommandsDrvier = ({ cwd }) => {
     logout,
     clone,
     openEditor
-  };
-};
-
-module.exports = (...args) => {
-  const commands = createCommandsDrvier(args);
-
-  const isLoggedIn = async () => {
-    const loginDebugPort = await findFreePort();
-    const loginCommand = commands.login({
-      remoteDebuggingPort: loginDebugPort
-    });
-    const loginEditorDriver = await connectToLocalEditor(loginDebugPort);
-    console.log("login connected"); //eslint-disable-line
-
-    try {
-      await loginEditorDriver.waitForLoginForm();
-      await loginEditorDriver.close();
-      return false;
-    } catch (e) {
-      await loginCommand;
-      return true;
-    }
-  };
-
-  const performLogout = async () => await commands.logout();
-
-  const performLogin = async () => {
-    const loginDebugPort = await findFreePort();
-    const loginCommand = commands.login({
-      remoteDebuggingPort: loginDebugPort
-    });
-
-    const loginEditorDriver = await connectToLocalEditor(loginDebugPort);
-    console.log("login connected"); //eslint-disable-line
-
-    await loginEditorDriver.waitForLoginForm();
-    await loginEditorDriver.login(getCorvidTestUser());
-    await loginCommand;
-  };
-
-  return {
-    commands,
-    performLogout,
-    performLogin,
-    isLoggedIn
   };
 };

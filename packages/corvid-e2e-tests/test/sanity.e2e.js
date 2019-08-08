@@ -1,5 +1,5 @@
 const tempy = require("tempy");
-const { findFreePort, getCorvidTestUser } = require("./drivers/utils");
+const { getCorvidTestUser } = require("./drivers/utils");
 const corvidCliDriverCreator = require("./drivers/cliDriver");
 const connectToLocalEditor = require("./drivers/connectToLocalEditor");
 
@@ -32,45 +32,43 @@ describe("browser sanity", () => {
   beforeEach(async done => {
     const cwd = tempy.directory();
     cliDriver = corvidCliDriverCreator({ cwd });
-    await cliDriver.performLogout();
+    await (await cliDriver.logout()).waitForCommandToEnd();
     done();
   });
 
   afterAll(async done => {
-    await cliDriver.performLogout();
+    await (await cliDriver.logout()).waitForCommandToEnd();
     done();
   });
 
   testSites.forEach(({ editorUrl, description }) =>
     test(`should clone ${description} site, open it and push without making actual changes`, async () => {
-      const cloneDebugPort = await findFreePort();
-      const cloneCommand = cliDriver.commands.clone({
-        editorUrl,
-        remoteDebuggingPort: cloneDebugPort
+      // clone
+      const cliCloneCommandResult = await cliDriver.clone({
+        editorUrl
       });
-
-      const cloneEditorDriver = await connectToLocalEditor(cloneDebugPort);
+      const editorCloneDriver = await connectToLocalEditor(
+        cliCloneCommandResult.remoteDebuggingPort
+      );
       console.log("clone connected"); //eslint-disable-line
 
-      await cloneEditorDriver.waitForLoginForm();
+      const loginDriver = await editorCloneDriver.waitForLogin();
+      await loginDriver.login(getCorvidTestUser());
+      console.log("after login"); //eslint-disable-line
 
-      await cloneEditorDriver.login(getCorvidTestUser());
+      await cliCloneCommandResult.waitForCommandToEnd();
+      console.log("after clone"); //eslint-disable-line
 
-      await cloneCommand;
-
-      const openEditorDebugPort = await findFreePort();
-      const openEditorCommand = cliDriver.commands.openEditor({
-        remoteDebuggingPort: openEditorDebugPort
-      });
-
-      const openEditorDriver = await connectToLocalEditor(openEditorDebugPort);
+      const openEditorCliCommand = await cliDriver.openEditor();
+      const editorEditDriver = await connectToLocalEditor(
+        openEditorCliCommand.remoteDebuggingPort
+      );
       console.log("edit connected"); //eslint-disable-line
-      await openEditorDriver.waitForEditor();
 
-      await openEditorDriver.push();
-
-      await openEditorDriver.close();
-      await openEditorCommand;
+      const editDriver = await editorEditDriver.waitForEditor();
+      await editDriver.push();
+      await editorEditDriver.close();
+      await openEditorCliCommand.waitForCommandToEnd();
     })
   );
 });
