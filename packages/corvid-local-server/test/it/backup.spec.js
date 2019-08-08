@@ -191,7 +191,11 @@ describe("Backup", () => {
     const watchHandler = jest.fn();
     const watcher = fs.watch(corvidPath, watchHandler);
     await editor.save();
-    expect(watchHandler).toHaveBeenCalledWith("rename", "backup");
+
+    await eventually(() => {
+      expect(watchHandler).toHaveBeenCalledWith("rename", "backup");
+    });
+
     await watcher.close();
   });
 });
