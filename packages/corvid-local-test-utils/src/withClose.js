@@ -1,13 +1,15 @@
-const toClose = [];
+let toClose = [];
 
-const closeAll = () => {
-  toClose.splice(0).forEach(closeIt => closeIt());
+const closeAll = async () => {
+  await Promise.all(
+    toClose.filter(closeIt => !!closeIt).map(closeIt => closeIt())
+  );
+  toClose = [];
 };
 
 const add = (fn, closeFuncName = "close") => async (...args) => {
   const closable = await fn(...args);
-  const closeIt = () => closable[closeFuncName]();
-  toClose.push(closeIt);
+  toClose.push(closable[closeFuncName]);
   return closable;
 };
 
