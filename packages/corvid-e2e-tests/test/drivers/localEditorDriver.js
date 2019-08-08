@@ -36,28 +36,16 @@ module.exports = page => {
 
   return {
     close,
-
     waitForLogin: async () => {
-      try {
-        await waitForLoginForm();
-      } catch (e) {
-        return Promise.reject(e);
-      }
-      return Promise.resolve({
-        login
-      });
+      await waitForLoginForm();
+      return { login };
     },
-
     waitForEditor: async () => {
-      try {
-        await waitForEditor();
-      } catch (e) {
-        return Promise.reject(e);
-      }
-      return Promise.resolve({
+      await waitForEditor();
+      return {
         addTextElement,
         push
-      });
+      };
     }
   };
 };
