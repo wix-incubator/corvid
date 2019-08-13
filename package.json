@@ -49,5 +49,13 @@
   "bin": {
     "dev-corvid": "./bin/dev-corvid.js",
     "dev-corvid-debug": "./bin/dev-corvid-debug.js"
+  },
+  "dependencies": {
+    "@babel/core": "7.5.5"
+  },
+  "resolutions": {
+    "**/lodash": "4.17.15",
+    "**/mixin-deep": "1.3.2",
+    "**/union-value": "1.0.1"
   }
 }
