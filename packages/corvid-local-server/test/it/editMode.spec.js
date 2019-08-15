@@ -274,5 +274,26 @@ describe("edit mode", () => {
         siteCode: { ".metadata.json": expect.any(String) }
       });
     });
+
+    it("should send full siteDocument schema even for sections which have no local files", async () => {
+      const page = sc.page();
+
+      const localSitePath = await localSiteDir.initLocalSite(
+        localSiteBuilder.buildPartial(page)
+      );
+      const server = await localServer.startInEditMode(localSitePath);
+
+      const editor = await loadEditor(server.port);
+
+      const editorSiteDocument = editor.getSite().siteDocument;
+      expect(editorSiteDocument).toMatchObject({
+        pages: expect.any(Object),
+        routers: {},
+        site: {},
+        menus: {},
+        styles: {},
+        documentSchemaVersion: expect.any(String)
+      });
+    });
   });
 });

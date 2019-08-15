@@ -1,209 +1,131 @@
-const path = require("path");
-const get_ = require("lodash/get");
+/* eslint-disable no-useless-escape */
+
+const path = require("path").posix;
+const values_ = require("lodash/values");
 const sanitize = require("sanitize-filename");
 
-const assetsFolder = "assets";
-const publicFolder = "public";
-const backendFolder = "backend";
-const databaseFolder = "database";
-const pagesFolder = "pages";
-const lightboxesFolder = "lightboxes";
-const corvidPackageJson = "corvid-package.json";
+const { isUnderPath } = require("./utils/fileUtils");
 
-const fileExtention = ".wix";
-const pageCodeExtention = ".js";
-const titleCharReplacement = "_";
-const codeFolders = {
-  public: publicFolder,
-  backend: backendFolder,
-  database: databaseFolder
-};
-const knownPaths = [
-  corvidPackageJson,
-  assetsFolder,
-  publicFolder,
-  backendFolder,
-  databaseFolder,
-  lightboxesFolder,
-  pagesFolder
-];
-const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
+const ROOT_PATHS = {
+  BACKEND: "backend",
+  PUBLIC: "public",
+  DATABASE: "database",
 
-const isSitePath = (rootPath, pathToCheck) => {
-  const pathRelativeToRoot = path.relative(rootPath, pathToCheck);
-  if (pathRelativeToRoot === "") {
-    return true;
-  }
-  return knownPaths.includes(pathRelativeToRoot.split(path.sep)[0]);
+  PAGES: "pages",
+  LIGHTBOXES: "lightboxes",
+  STYLES: `assets/styles`,
+  SITE: `assets/site`,
+  ROUTERS: `assets/routers`,
+  MENUS: `assets/menus`,
+
+  METADATA_FILE: ".metadata.json",
+  SITE_CODE_FILE: "pages/site.js",
+  PACKAGE_JSON_FILE: "corvid-package.json"
 };
 
-const getPageFileName = (id, title, extention = fileExtention) =>
-  `${sanitize(removeSpaces(title), titleCharReplacement)}.${id}${extention}`;
-
-const matchEditorPageCodePath = filePath => {
-  const matches = filePath.match(/^\/{0,1}public\/pages\/([^.]*)\.js/);
-  return matches ? { pageId: matches.slice(-1) } : null;
-};
-
-const matchLocalPageCodePath = filePath => {
-  const matches = filePath.match(/^(pages|lightboxes)\/.*\.([^.]*)\.js/);
-  return matches ? { pageId: matches.slice(-1) } : null;
-};
-
-const isEditorMasterPageCodePath = filePath =>
-  !!filePath.match(/^\/{0,1}public\/pages\/masterPage.js/);
-
-const isEditorNpmPackageCodePath = filePath =>
-  !!filePath.match(/^\/{0,1}backend\/wix-code-package.json/);
-
-const isLocalMasterPageCodePath = filePath =>
-  !!filePath.match(/^\/{0,1}pages\/site.js/);
-
-const isLocalNpmPackageCodePath = filePath =>
-  !!filePath.match(/^\/{0,1}corvid-package.json/);
-
-const isEditorDatabaseSchemaPath = isEditorDatabaseSchemaPath =>
-  !!isEditorDatabaseSchemaPath.match(/^\/{0,1}\.schemas/);
-
-const localMasterPageCodePath = () => path.posix.join(pagesFolder, "site.js");
-
-const localCorvidPackageJsonPath = () => path.posix.join("corvid-package.json");
-
-const metadata = () => ".metadata.json";
-
-const ignoredPaths = [metadata()];
-
-const pages = (page = null, extention = fileExtention) =>
-  path.posix.join(
-    "pages",
-    page
-      ? getPageFileName(get_(page, "pageId"), get_(page, "title"), extention)
-      : ""
-  );
-
-const lightboxes = (page = null, extention = fileExtention) =>
-  path.posix.join(
-    "lightboxes",
-    page
-      ? getPageFileName(get_(page, "pageId"), get_(page, "title"), extention)
-      : ""
-  );
-
-const styles = (fileName = "") =>
-  path.posix.join(
-    assetsFolder,
-    "styles",
-    fileName ? `${fileName}${fileExtention}` : ""
-  );
-
-const routers = (fileName = "") =>
-  path.posix.join(
-    assetsFolder,
-    "routers",
-    fileName ? `${fileName}${fileExtention}` : ""
-  );
-
-const menus = (fileName = "") =>
-  path.posix.join(
-    assetsFolder,
-    "menus",
-    fileName ? `${fileName}${fileExtention}` : ""
-  );
-
-const site = (fileName = "") =>
-  path.posix.join(
-    assetsFolder,
-    "site",
-    fileName ? `${fileName}${fileExtention}` : ""
-  );
-
-const fromLocalCode = filePath => {
-  if (isLocalMasterPageCodePath(filePath)) {
-    return `${publicFolder}/pages/masterPage.js`;
-  }
-
-  if (isLocalNpmPackageCodePath(filePath)) {
-    return `${backendFolder}/wix-code-package.json`;
-  }
-  const localPageCodeMatches = matchLocalPageCodePath(filePath);
-  if (localPageCodeMatches) {
-    const pageId = localPageCodeMatches.pageId;
-    return `${publicFolder}/pages/${pageId}${pageCodeExtention}`;
-  }
-  const matchesSchema = filePath.match(/^\/{0,1}database\//);
-  if (matchesSchema) {
-    return filePath.replace(/^\/{0,1}database\//, ".schemas/");
-  }
-
-  return filePath;
-};
-
-const toLocalCode = ({ path }, localPageFiles) => {
-  if (isEditorMasterPageCodePath(path)) {
-    return localMasterPageCodePath();
-  }
-
-  if (isEditorNpmPackageCodePath(path)) {
-    return localCorvidPackageJsonPath();
-  }
-
-  const editorPageCodeMatches = matchEditorPageCodePath(path);
-  if (editorPageCodeMatches) {
-    const pageId = editorPageCodeMatches.pageId;
-
-    const existingPageCodeFile = localPageFiles.find(filePath =>
-      filePath.endsWith(pageId + pageCodeExtention)
+const isPathRelatedToSite = (rootSitePath, fullPathToCheck) =>
+  values_(ROOT_PATHS).some(siteSubFolder => {
+    const fullSiteSubFolder = path.join(rootSitePath, siteSubFolder);
+    return (
+      isUnderPath(fullSiteSubFolder, fullPathToCheck) ||
+      isUnderPath(fullPathToCheck, fullSiteSubFolder)
     );
-    if (existingPageCodeFile) {
-      return existingPageCodeFile;
-    }
-    const existingPageStructureFile = localPageFiles.find(filePath =>
-      filePath.endsWith(pageId + fileExtention)
-    );
+  });
 
-    if (existingPageStructureFile) {
-      return fromPageFileToCodeFile(existingPageStructureFile);
-    }
-
-    return pages({ pageId, title: "Unknown" }, pageCodeExtention);
-  }
-
-  if (isEditorDatabaseSchemaPath(path)) {
-    return path.replace(/^\/{0,1}.schemas\//, "database/");
-  }
-
-  return path;
+const matchLocalPageFile = extension => filePath => {
+  const matches = filePath.match(
+    new RegExp(
+      `^(?<root>${ROOT_PATHS.PAGES}|${
+        ROOT_PATHS.LIGHTBOXES
+      })\/(?<title>[^\/]*)\\.(?<pageId>[^.\/]*).${extension}`
+    )
+  );
+  return matches
+    ? {
+        pageId: matches.groups.pageId,
+        title: matches.groups.title,
+        isPopup: matches.groups.root === ROOT_PATHS.LIGHTBOXES
+      }
+    : null;
 };
 
-const fromPageFileToCodeFile = path =>
-  path.replace(fileExtention, pageCodeExtention);
+const matchLocalPageCodePath = matchLocalPageFile("js");
+const matchLocalPageDocumentPath = matchLocalPageFile("wix");
 
-//todo:: isCodeFiles should ignore files that starts with a .
-const isCodeFile = relativePath => !relativePath.endsWith(fileExtention);
-const isDocumentFile = relativePath => relativePath.endsWith(fileExtention);
-const getDocumentFolderRegex = fullPath => `${fullPath}/**/*${fileExtention}`;
-const isIgnoredFile = relativePath => ignoredPaths.includes(relativePath);
+const isPathOfPageCode = (localFilePath, pageId = null) => {
+  const match = matchLocalPageCodePath(localFilePath);
+  return pageId ? match && match.pageId === pageId : !!match;
+};
+
+const isPathOfPageStructure = (localFilePath, pageId = null) => {
+  const match = matchLocalPageDocumentPath(localFilePath);
+  return pageId ? match && match.pageId === pageId : !!match;
+};
+
+const isPathOfPageFile = (localFilePath, pageId = null) =>
+  isPathOfPageCode(localFilePath, pageId) ||
+  isPathOfPageStructure(localFilePath, pageId);
+
+const isPathOfWixFile = relativePath => path.extname(relativePath) === ".wix";
+
+const isMetadataFilePath = filePath => filePath === ROOT_PATHS.METADATA_FILE;
+
+const isPathOfDocumentFile = relativePath =>
+  isPathOfWixFile(relativePath) || isMetadataFilePath(relativePath);
+
+const isPathOfCodeFile = relativePath =>
+  isUnderPath(ROOT_PATHS.BACKEND, relativePath) ||
+  isUnderPath(ROOT_PATHS.PUBLIC, relativePath) ||
+  isUnderPath(ROOT_PATHS.DATABASE, relativePath) ||
+  relativePath === ROOT_PATHS.SITE_CODE_FILE ||
+  relativePath === ROOT_PATHS.PACKAGE_JSON_FILE ||
+  isPathOfPageCode(relativePath);
+
+const stylesFilePath = name => path.join(ROOT_PATHS.STYLES, `${name}.wix`);
+
+const sitePartFilePath = name => path.join(ROOT_PATHS.SITE, `${name}.wix`);
+
+const routerFilePath = prefix => path.join(ROOT_PATHS.ROUTERS, `${prefix}.wix`);
+
+const menuFilePath = menuId => path.join(ROOT_PATHS.MENUS, `${menuId}.wix`);
+
+const removeSpaces = string => string.replace(/\s/g, "_");
+
+const sanitizePageTitle = pageTitle => sanitize(removeSpaces(pageTitle));
+
+const pageFilePath = ({ pageId, title, isPopup, extension }) => {
+  const pageOrLightboxRoot = isPopup ? ROOT_PATHS.LIGHTBOXES : ROOT_PATHS.PAGES;
+  const sanitizedTitle = sanitizePageTitle(title);
+  return path.join(
+    pageOrLightboxRoot,
+    `${sanitizedTitle}.${pageId}.${extension}`
+  );
+};
+
+const pageStructureFilePath = ({ pageId, title, isPopup }) =>
+  pageFilePath({ pageId, title, isPopup, extension: "wix" });
+
+const pageCodeFilePath = ({ pageId, title, isPopup }) =>
+  pageFilePath({ pageId, title, isPopup, extension: "js" });
 
 module.exports = {
-  isSitePath,
-  codeFolders,
-  getDocumentFolderRegex,
-  fromPageFileToCodeFile,
-  fromLocalCode,
-  toLocalCode,
-  fileExtention,
-  isCodeFile,
-  isDocumentFile,
-  isIgnoredFile,
-  routers,
-  menus,
-  lightboxes,
-  styles,
-  pages,
-  site,
-  isEditorDatabaseSchemaPath,
-  isLocalMasterPageCodePath,
-  matchLocalPageCodePath,
-  localMasterPageCodePath,
-  metadata
+  ROOT_PATHS,
+
+  stylesFilePath,
+  sitePartFilePath,
+  menuFilePath,
+  routerFilePath,
+  pageStructureFilePath,
+  pageCodeFilePath,
+
+  isPathRelatedToSite,
+  isPathOfCodeFile,
+  isPathOfDocumentFile,
+  isPathOfWixFile,
+  isPathOfPageFile,
+  isPathOfPageCode,
+  isPathOfPageStructure,
+
+  matchLocalPageDocumentPath,
+  matchLocalPageCodePath
 };

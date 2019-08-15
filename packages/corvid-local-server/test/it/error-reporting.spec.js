@@ -37,7 +37,7 @@ describe("santy tests for error reporting", () => {
 
     const editorSite = editorSiteBuilder.buildFull();
     const brokenEditorSite = Object.assign(editorSite, {
-      siteDocument: { pages: null }
+      siteDocument: null
     });
     await loadEditor(server.port, brokenEditorSite).catch(() => {});
 
@@ -56,10 +56,7 @@ describe("santy tests for error reporting", () => {
     const editorSite = editorSiteBuilder.buildFull();
     const editor = await loadEditor(server.port, editorSite);
 
-    const illegalDocument = Object.assign({}, editorSite.siteDocument, {
-      pages: null
-    });
-    editor.modifyDocument(illegalDocument);
+    editor.modifyDocument(null);
     await editor.save().catch(() => {});
 
     await eventually(() => {

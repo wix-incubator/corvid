@@ -27,12 +27,8 @@ describe("Backup", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
-    const editorSite = await editor.getSite();
-    const illegalPayload = { siteDocument: { pages: null } };
     // it should fail save
-    editor.modifyDocument(
-      Object.assign(editorSite, illegalPayload).siteDocument
-    );
+    editor.modifyDocument(null);
     const prevLocalSite = await localSiteDir.readLocalSite(localSitePath);
     try {
       await editor.save();
