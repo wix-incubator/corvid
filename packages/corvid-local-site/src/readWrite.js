@@ -5,6 +5,8 @@ const map_ = require("lodash/map");
 
 const { readDirToJson } = require("corvid-dir-as-json");
 
+const { deleteEmptySubFolders } = require("./utils/fileUtils");
+
 const {
   isPathOfCodeFile,
   isPathOfDocumentFile,
@@ -99,6 +101,9 @@ const readWrite = (siteRootPath, filesWatcher) => {
     await map_(newSiteDocumentPages, page =>
       filesWatcher.ignoredEnsureFile(pageCodeFilePath(page))
     );
+
+    await deleteEmptySubFolders(path.join(siteRootPath, ROOT_PATHS.PAGES));
+    await deleteEmptySubFolders(path.join(siteRootPath, ROOT_PATHS.LIGHTBOXES));
   };
 
   const updateSiteDocument = async newEditorDocument => {

@@ -1,3 +1,4 @@
+const path = require("path");
 const cloneDeep_ = require("lodash/cloneDeep");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
@@ -11,6 +12,7 @@ const {
   localSiteDir: {
     initLocalSite,
     readFile: readSiteFile,
+    writeFile: writeSiteFile,
     doesExist: doesSiteFileExist
   }
 } = require("corvid-local-test-utils");
@@ -19,7 +21,7 @@ afterEach(closeAll);
 
 describe("pageFiles", () => {
   describe("clone mode", () => {
-    it("should create an empty local page code filepage with no code is sent on load", async () => {
+    it("should create an empty local page code file if page with no code is sent on load", async () => {
       const page = sc.page();
 
       const expectedPageCodePath = localSiteBuilder.getLocalFilePath(
@@ -181,15 +183,16 @@ describe("pageFiles", () => {
     );
 
     it.each(["page", "lightbox"])(
-      "should remove an orphan code file when its related %s is removed",
+      "should remove a folder when its related %s is removed",
       async pageOrLightbox => {
         const itemWithCode =
           pageOrLightbox === "page"
             ? sc.pageWithCode({ pageId: "testPageId" })
             : sc.lightboxWithCode({ pageId: "testPageId" });
 
-        const localCodePath = localSiteBuilder.getLocalFilePath(itemWithCode)
-          .code;
+        const localPageSubFolder = localSiteBuilder.getLocalPageRootPath(
+          itemWithCode
+        );
 
         const editorSiteWithItemAndCode = editorSiteBuilder.buildFull(
           itemWithCode
@@ -202,9 +205,52 @@ describe("pageFiles", () => {
         editor.deletePage("testPageId");
         await editor.save();
 
-        expect(await doesSiteFileExist(localSitePath, localCodePath)).toBe(
+        expect(await doesSiteFileExist(localSitePath, localPageSubFolder)).toBe(
           false
         );
+      }
+    );
+
+    it.each(["page", "lightbox"])(
+      "should not remove a folder when its related %s is removed if it contains unrecognized user files",
+      async pageOrLightbox => {
+        const itemWithCode =
+          pageOrLightbox === "page"
+            ? sc.pageWithCode({ pageId: "testPageId" })
+            : sc.lightboxWithCode({ pageId: "testPageId" });
+
+        const localPageSubFolder = localSiteBuilder.getLocalPageRootPath(
+          itemWithCode
+        );
+
+        const editorSiteWithItemAndCode = editorSiteBuilder.buildFull(
+          itemWithCode
+        );
+
+        const localSitePath = await initLocalSite();
+        const server = await localServer.startInCloneMode(localSitePath);
+
+        const pathForUnrecognizedUserFileInsidePageSubFolder = path.join(
+          localPageSubFolder,
+          "some-user-file.js"
+        );
+
+        await writeSiteFile(
+          localSitePath,
+          pathForUnrecognizedUserFileInsidePageSubFolder,
+          "user content"
+        );
+
+        const editor = await loadEditor(server.port, editorSiteWithItemAndCode);
+        editor.deletePage("testPageId");
+        await editor.save();
+
+        expect(
+          await readSiteFile(
+            localSitePath,
+            pathForUnrecognizedUserFileInsidePageSubFolder
+          )
+        ).toBe("user content");
       }
     );
   });
