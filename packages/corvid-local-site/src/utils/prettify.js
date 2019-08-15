@@ -1,5 +1,5 @@
 const logger = require("corvid-local-logger");
-const getMessage = require("./messages");
+const getMessage = require("../messages");
 
 const prettyStringify = content => JSON.stringify(content, null, 2);
 

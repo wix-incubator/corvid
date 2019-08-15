@@ -21,7 +21,7 @@ const readFile = async (rootPath, filePath) => {
 
 const deleteFile = async (rootPath, filePath) => {
   const fullPath = path.join(siteSrcPath(rootPath), filePath);
-  await fs.unlink(fullPath);
+  await fs.remove(fullPath);
 };
 
 const doesExist = async (rootPath, localPath) =>
