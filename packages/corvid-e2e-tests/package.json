@@ -1,6 +1,6 @@
 {
   "name": "corvid-e2e-tests",
-  "version": "0.1.79",
+  "version": "0.1.81",
   "description": "",
   "scripts": {
     "test": "run-script-os",
@@ -31,6 +31,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "corvid-cli": "0.1.79"
+    "corvid-cli": "0.1.81"
   }
 }

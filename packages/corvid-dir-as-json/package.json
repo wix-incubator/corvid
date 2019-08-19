@@ -1,6 +1,6 @@
 {
   "name": "corvid-dir-as-json",
-  "version": "0.1.77",
+  "version": "0.1.81",
   "description": "",
   "main": "src/index.js",
   "scripts": {
