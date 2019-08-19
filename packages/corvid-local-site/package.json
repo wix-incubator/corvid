@@ -20,6 +20,8 @@
     "wix-eventually": "^2.2.0"
   },
   "dependencies": {
+    "atob": "^2.1.2",
+    "btoa": "^1.2.1",
     "chokidar": "^2.1.6",
     "corvid-dir-as-json": "0.1.77",
     "corvid-local-logger": "0.1.79",
