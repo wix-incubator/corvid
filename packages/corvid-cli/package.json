@@ -18,7 +18,8 @@
   },
   "bin": {
     "corvid": "./src/index.js",
-    "corvid-debug": "./src/index.debug.js"
+    "corvid-debug": "./src/index.debug.js",
+    "corvid-xpert": "./src/index.xpert.js"
   },
   "license": "MIT",
   "devDependencies": {
