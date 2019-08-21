@@ -7,10 +7,8 @@ const {
   closeAll
 } = require("../utils/autoClosing");
 const {
-  initLocalSite,
-  readLocalSite,
-  doesExist: doesLocalFileExist
-} = require("../utils/localSiteDir");
+  localSiteDir: { initLocalSite, readLocalSite, doesExist: doesLocalFileExist }
+} = require("corvid-local-test-utils");
 
 afterEach(closeAll);
 
@@ -128,23 +126,33 @@ describe("clone mode", () => {
     expect(serverFiles).toMatchObject(expectedLocalSite);
   });
 
-  it.each(["backend", "public", "database"])(
+  it.each([
+    "backend",
+    "public",
+    "database",
+    "pages",
+    "lightboxes",
+    "assets/styles",
+    "assets/site",
+    "assets/routers",
+    "assets/menus"
+  ])(
     "should create empty [%s] folder locally even if the site has no files for it",
     async localFolderName => {
-      const pageWithCode = sc.pageWithCode();
+      const page = sc.page();
 
       const localSitePath = await initLocalSite();
       const server = await localServer.startInCloneMode(localSitePath);
 
-      const editorSite = editorSiteBuilder.buildPartial(pageWithCode);
+      const editorSite = editorSiteBuilder.buildPartial(page);
 
       await loadEditor(server.port, editorSite);
 
-      const isBackendFolderExsist = await doesLocalFileExist(
+      const doesRootFolderExist = await doesLocalFileExist(
         localSitePath,
         localFolderName
       );
-      expect(isBackendFolderExsist).toBe(true);
+      expect(doesRootFolderExist).toBe(true);
     }
   );
 });

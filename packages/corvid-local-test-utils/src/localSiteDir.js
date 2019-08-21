@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs-extra");
 const dirAsJson = require("corvid-dir-as-json");
-const { initTempDir } = require("corvid-local-test-utils");
+const initTempDir = require("./initTempDir");
 
 const siteSrcPath = rootPath => path.join(rootPath, "src");
 
@@ -21,7 +21,7 @@ const readFile = async (rootPath, filePath) => {
 
 const deleteFile = async (rootPath, filePath) => {
   const fullPath = path.join(siteSrcPath(rootPath), filePath);
-  await fs.unlink(fullPath);
+  await fs.remove(fullPath);
 };
 
 const doesExist = async (rootPath, localPath) =>
@@ -38,6 +38,8 @@ const initLocalSite = async (localSiteFiles, createdRoodDir) => {
   return rootDir;
 };
 
+const cleanLocalSite = async rootPath => fs.remove(rootPath);
+
 const initBackup = (rootPath, localSiteFiles) =>
   dirAsJson.writeJsonToDir(
     path.join(rootPath, ".corvid", "backup"),
@@ -46,6 +48,7 @@ const initBackup = (rootPath, localSiteFiles) =>
 
 module.exports = {
   doesExist,
+  cleanLocalSite,
   initLocalSite,
   readLocalSite,
   writeFile,

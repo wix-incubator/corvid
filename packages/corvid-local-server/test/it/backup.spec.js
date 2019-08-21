@@ -7,7 +7,7 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const localSiteDir = require("../utils/localSiteDir");
+const { localSiteDir } = require("corvid-local-test-utils");
 const merge_ = require("lodash/merge");
 const fs = require("fs-extra");
 const path = require("path");
@@ -27,12 +27,8 @@ describe("Backup", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
     const editor = await loadEditor(server.port);
-    const editorSite = await editor.getSite();
-    const illegalPayload = { siteDocument: { pages: null } };
     // it should fail save
-    editor.modifyDocument(
-      Object.assign(editorSite, illegalPayload).siteDocument
-    );
+    editor.modifyDocument(null);
     const prevLocalSite = await localSiteDir.readLocalSite(localSitePath);
     try {
       await editor.save();
@@ -191,7 +187,11 @@ describe("Backup", () => {
     const watchHandler = jest.fn();
     const watcher = fs.watch(corvidPath, watchHandler);
     await editor.save();
-    expect(watchHandler).toHaveBeenCalledWith("rename", "backup");
-    watcher.close();
+
+    await eventually(() => {
+      expect(watchHandler).toHaveBeenCalledWith("rename", "backup");
+    });
+
+    await watcher.close();
   });
 });

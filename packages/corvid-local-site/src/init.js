@@ -1,7 +1,8 @@
 const reject_ = require("lodash/reject");
 const initWatcher = require("./watcher");
 const initReadWrite = require("./readWrite");
-const sitePaths = require("./sitePaths");
+const { isPathOfCodeFile, isPathOfDocumentFile } = require("./sitePaths");
+const { localCodePathToEditorCodePath } = require("./siteConverter");
 
 const initSiteManager = async siteRootPath => {
   const watcher = await initWatcher(siteRootPath);
@@ -10,32 +11,38 @@ const initSiteManager = async siteRootPath => {
   let documentChangedCallbacks = [];
 
   watcher.onAdd((filePath, content) => {
-    if (sitePaths.isCodeFile(filePath)) {
-      const modifiedFiles = [{ path: filePath, content }];
+    if (isPathOfCodeFile(filePath)) {
+      const modifiedFiles = [
+        { path: localCodePathToEditorCodePath(filePath), content }
+      ];
       codeChangedCallbacks.forEach(cb =>
         cb({ modifiedFiles, deletedFiles: [] })
       );
-    } else {
+    } else if (isPathOfDocumentFile(filePath)) {
       documentChangedCallbacks.forEach(cb => cb());
     }
   });
+
   watcher.onChange((filePath, content) => {
-    if (sitePaths.isCodeFile(filePath)) {
-      const modifiedFiles = [{ path: filePath, content }];
+    if (isPathOfCodeFile(filePath)) {
+      const modifiedFiles = [
+        { path: localCodePathToEditorCodePath(filePath), content }
+      ];
       codeChangedCallbacks.forEach(cb =>
         cb({ modifiedFiles, deletedFiles: [] })
       );
-    } else {
+    } else if (isPathOfDocumentFile(filePath)) {
       documentChangedCallbacks.forEach(cb => cb());
     }
   });
+
   watcher.onDelete(filePath => {
-    if (sitePaths.isCodeFile(filePath)) {
-      const deletedFiles = [{ path: filePath }];
+    if (isPathOfCodeFile(filePath)) {
+      const deletedFiles = [{ path: localCodePathToEditorCodePath(filePath) }];
       codeChangedCallbacks.forEach(cb =>
         cb({ modifiedFiles: [], deletedFiles })
       );
-    } else {
+    } else if (isPathOfDocumentFile(filePath)) {
       documentChangedCallbacks.forEach(cb => cb());
     }
   });
@@ -64,6 +71,7 @@ const initSiteManager = async siteRootPath => {
 
     getCodeFiles: readWrite.getCodeFiles,
     updateCode: readWrite.updateCode,
+
     onCodeChanged,
     onDocumentChanged
   };

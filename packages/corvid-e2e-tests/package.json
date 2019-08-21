@@ -1,6 +1,6 @@
 {
   "name": "corvid-e2e-tests",
-  "version": "0.1.78",
+  "version": "0.1.79",
   "description": "",
   "scripts": {
     "test": "run-script-os",
@@ -10,7 +10,8 @@
   "devDependencies": {
     "execa": "^1.0.0",
     "get-port": "^5.0.0",
-    "jest": "^24.7.0",
+    "jest": "^24.8.0",
+    "minimist": "^1.2.0",
     "npm-which": "^3.0.1",
     "puppeteer-core": "1.15.0",
     "run-script-os": "^1.0.7",
@@ -30,6 +31,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "corvid-cli": "0.1.78"
+    "corvid-cli": "0.1.79"
   }
 }

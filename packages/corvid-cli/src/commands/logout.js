@@ -14,7 +14,6 @@ app &&
       show: false,
       webPreferences: { nodeIntegration: false }
     });
-
     await new Promise(resolve => {
       win.webContents.session.clearStorageData(() => {
         resolve();
@@ -31,7 +30,7 @@ module.exports = commandWithDefaults({
     const spinner = createSpinner();
     spinner.start(chalk.grey(getMessage("Logout_Command_Clearing")));
 
-    launch(__filename).then(() => {
+    return launch(__filename).then(() => {
       spinner.succeed(chalk.grey(getMessage("Logout_Command_Cleared")));
     });
   }

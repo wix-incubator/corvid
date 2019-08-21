@@ -7,7 +7,7 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const localSiteDir = require("../utils/localSiteDir");
+const { localSiteDir } = require("corvid-local-test-utils");
 
 afterEach(closeAll);
 
@@ -272,6 +272,27 @@ describe("edit mode", () => {
       const editorSite = await editor.getSite();
       expect(editorSite).not.toMatchObject({
         siteCode: { ".metadata.json": expect.any(String) }
+      });
+    });
+
+    it("should send full siteDocument schema even for sections which have no local files", async () => {
+      const page = sc.page();
+
+      const localSitePath = await localSiteDir.initLocalSite(
+        localSiteBuilder.buildPartial(page)
+      );
+      const server = await localServer.startInEditMode(localSitePath);
+
+      const editor = await loadEditor(server.port);
+
+      const editorSiteDocument = editor.getSite().siteDocument;
+      expect(editorSiteDocument).toMatchObject({
+        pages: expect.any(Object),
+        routers: {},
+        site: {},
+        menus: {},
+        styles: {},
+        documentSchemaVersion: expect.any(String)
       });
     });
   });

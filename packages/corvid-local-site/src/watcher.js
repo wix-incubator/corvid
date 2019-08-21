@@ -4,7 +4,8 @@ const chokidar = require("chokidar");
 const find_ = require("lodash/find");
 const reject_ = require("lodash/reject");
 const logger = require("corvid-local-logger");
-const sitePaths = require("./sitePaths");
+const { isUnderPath, isSamePath } = require("./utils/fileUtils");
+const { isPathRelatedToSite } = require("./sitePaths");
 const getMessage = require("./messages");
 
 const ensureWriteFile = async (path, content) => {
@@ -25,14 +26,19 @@ const watch = async givenPath => {
 
   const fullPath = relativePath => path.join(rootPath, relativePath);
 
-  const shouldIgnoreFile = watchPath => {
-    return !sitePaths.isSitePath(rootPath, watchPath);
-  };
-  const isUnderRoot = relativePath =>
-    !path.relative(rootPath, fullPath(relativePath)).startsWith("..");
+  const isUnderRoot = pathToCheck =>
+    isUnderPath(rootPath, fullPath(pathToCheck));
 
-  const assertUnderRoot = relativePath => {
-    if (!isUnderRoot(relativePath)) {
+  const shouldIgnoreFile = watchPath => {
+    const isInterestingPath =
+      isSamePath(rootPath, watchPath) ||
+      (isUnderRoot(watchPath) && isPathRelatedToSite(rootPath, watchPath));
+
+    return !isInterestingPath;
+  };
+
+  const assertUnderRoot = pathToCheck => {
+    if (!isUnderRoot(pathToCheck)) {
       throw new Error(getMessage("Watcher_Not_Under_Root_Error"));
     }
   };
@@ -42,7 +48,9 @@ const watch = async givenPath => {
     persistent: true,
     ignoreInitial: true,
     cwd: rootPath,
-    awaitWriteFinish: true,
+    awaitWriteFinish: {
+      stabilityThreshold: 500
+    },
     followSymlinks: false,
     disableGlobbing: true,
     alwaysStat: true
@@ -79,7 +87,7 @@ const watch = async givenPath => {
             getMessage("Watcher_Add_Reporting_Log", { path: posixRelativePath })
           );
           callback(
-            sitePaths.fromLocalCode(posixRelativePath),
+            posixRelativePath,
             await fs.readFile(fullPath(posixRelativePath), "utf8")
           );
         } else {
@@ -101,7 +109,7 @@ const watch = async givenPath => {
             })
           );
           callback(
-            sitePaths.fromLocalCode(posixRelativePath),
+            posixRelativePath,
             await fs.readFile(fullPath(posixRelativePath), "utf8")
           );
         } else {
@@ -124,7 +132,7 @@ const watch = async givenPath => {
               path: posixRelativePath
             })
           );
-          callback(sitePaths.fromLocalCode(posixRelativePath));
+          callback(posixRelativePath);
         } else {
           logger.debug(
             getMessage("Watcher_Delete_Ignoring_Log", {
@@ -175,7 +183,7 @@ const watch = async givenPath => {
       try {
         ignoreAction("delete", relativePath);
         assertUnderRoot(relativePath);
-        await fs.unlink(fullPath(relativePath));
+        await fs.remove(fullPath(relativePath));
       } catch (err) {
         logger.error(err);
         removeFromIgnoredActions("delete", relativePath);
@@ -231,6 +239,7 @@ const watch = async givenPath => {
     pause: () => {
       ignoreAll = true;
     },
+
     resume: () => {
       ignoreAll = false;
       ignoreBefore = Date.now();

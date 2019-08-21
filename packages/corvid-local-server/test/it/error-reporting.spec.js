@@ -12,7 +12,7 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const { initLocalSite } = require("../utils/localSiteDir");
+
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 
@@ -32,12 +32,12 @@ describe("santy tests for error reporting", () => {
   });
 
   it("should report clone errors to sentry", async () => {
-    const localSitePath = await initLocalSite();
+    const localSitePath = await testUtils.localSiteDir.initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull();
     const brokenEditorSite = Object.assign(editorSite, {
-      siteDocument: { pages: null }
+      siteDocument: null
     });
     await loadEditor(server.port, brokenEditorSite).catch(() => {});
 
@@ -50,16 +50,13 @@ describe("santy tests for error reporting", () => {
   });
 
   it("should report save errors to sentry", async () => {
-    const localSitePath = await initLocalSite();
+    const localSitePath = await testUtils.localSiteDir.initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull();
     const editor = await loadEditor(server.port, editorSite);
 
-    const illegalDocument = Object.assign({}, editorSite.siteDocument, {
-      pages: null
-    });
-    editor.modifyDocument(illegalDocument);
+    editor.modifyDocument(null);
     await editor.save().catch(() => {});
 
     await eventually(() => {
@@ -73,7 +70,9 @@ describe("santy tests for error reporting", () => {
   if (!isWindows) {
     it("should report errors loading in edit mode", async () => {
       const localSite = localSiteBuilder.buildFull();
-      const localSitePath = await initLocalSite(localSite);
+      const localSitePath = await testUtils.localSiteDir.initLocalSite(
+        localSite
+      );
 
       await fs.chmod(localSitePath, fs.constants.S_IWUSR); // owner can only write
       await localServer.startInEditMode(localSitePath).catch(() => {});

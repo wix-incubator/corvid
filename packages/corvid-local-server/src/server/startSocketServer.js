@@ -32,9 +32,9 @@ const setupSocketServer = async (defaultPort, options = {}) => {
   }
 
   return {
-    close: () => {
-      io.close();
-      server.close();
+    close: async () => {
+      await new Promise(resolve => io.close(resolve));
+      await new Promise(resolve => server.close(resolve));
     },
     port,
     io
