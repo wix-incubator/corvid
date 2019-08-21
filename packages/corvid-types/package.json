@@ -1,0 +1,17 @@
+{
+  "name": "corvid-types",
+  "version": "0.1.78",
+  "description": "",
+  "scripts": {
+    "build": ":"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wix-incubator/corvid"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}
