@@ -1,9 +1,10 @@
 {
   "name": "corvid-types",
-  "version": "0.1.78",
+  "version": "0.1.80",
   "description": "",
   "scripts": {
-    "build": ":"
+    "build": ":",
+    "test": ":"
   },
   "repository": {
     "type": "git",
