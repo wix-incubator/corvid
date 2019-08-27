@@ -104,6 +104,8 @@ const pageWithCode = ({ page: pageData, code }) => [
   pageCode(pageData, code)
 ];
 
+//todo:: maybe create pageWithAutocomplate
+
 const lightbox = lightbox => ({
   path: lightboxFilePath(lightbox),
   content: wixFileContent(lightbox)

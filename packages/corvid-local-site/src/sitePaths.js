@@ -107,6 +107,12 @@ const pageStructureFilePath = ({ pageId, title, isPopup }) =>
 const pageCodeFilePath = ({ pageId, title, isPopup }) =>
   pageFilePath({ pageId, title, isPopup, extension: "js" });
 
+const pageRootFolderPath = ({ pageId, title, isPopup }) => {
+  const pageOrLightboxRoot = isPopup ? ROOT_PATHS.LIGHTBOXES : ROOT_PATHS.PAGES;
+  const sanitizedTitle = sanitizePageTitle(title);
+  return `${pageOrLightboxRoot}/${sanitizedTitle}.${pageId}`;
+};
+
 module.exports = {
   ROOT_PATHS,
 
@@ -114,6 +120,7 @@ module.exports = {
   sitePartFilePath,
   menuFilePath,
   routerFilePath,
+  pageRootFolderPath,
   pageStructureFilePath,
   pageCodeFilePath,
 

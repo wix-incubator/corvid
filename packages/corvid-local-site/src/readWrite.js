@@ -12,6 +12,7 @@ const {
   isPathOfDocumentFile,
   isPathOfPageFile,
   pageCodeFilePath,
+  pageRootFolderPath,
   ROOT_PATHS
 } = require("./sitePaths");
 
@@ -23,6 +24,8 @@ const {
   editorCodePathToLocalCodePath,
   updateLocalPageFilePath
 } = require("./siteConverter");
+
+const { TS_CONFIG_NAME, getTypescriptConfigFile } = require("./codeCompletion");
 
 const listFilesRecursive = async siteRootPath =>
   Object.keys(
@@ -81,6 +84,31 @@ const readWrite = (siteRootPath, filesWatcher) => {
       )
     );
 
+  const createTsConfigIfNotExist = async configRoot => {
+    const tsConfigFile = getTypescriptConfigFile(configRoot);
+    if (await fs.exists(path.join(siteRootPath, tsConfigFile.path))) {
+      return Promise.resolve();
+    }
+    return filesWatcher.ignoredWriteFile(
+      tsConfigFile.path,
+      tsConfigFile.content
+    );
+  };
+
+  const createRootCodeFoldersTsConfigsIfNotExist = async () =>
+    Promise.all(
+      [ROOT_PATHS.BACKEND, ROOT_PATHS.PUBLIC].map(configRoot =>
+        createTsConfigIfNotExist(configRoot)
+      )
+    );
+
+  const createPageFoldersTsConfigsIfNotExist = async newSiteDocumentPages =>
+    Promise.all(
+      map_(newSiteDocumentPages, async page =>
+        createTsConfigIfNotExist(pageRootFolderPath(page))
+      )
+    );
+
   const syncExistingPageFolders = async newSiteDocumentPages => {
     const existingPageFilePaths = await listLocalPageFiles(siteRootPath);
     const updatedPageFilePaths = existingPageFilePaths.map(existingPath => ({
@@ -102,13 +130,21 @@ const readWrite = (siteRootPath, filesWatcher) => {
       filesWatcher.ignoredEnsureFile(pageCodeFilePath(page))
     );
 
-    await deleteEmptySubFolders(path.join(siteRootPath, ROOT_PATHS.PAGES));
-    await deleteEmptySubFolders(path.join(siteRootPath, ROOT_PATHS.LIGHTBOXES));
+    // todo:: make sure that we delete the tsconmfig when a page has been removed
+    await deleteEmptySubFolders(path.join(siteRootPath, ROOT_PATHS.PAGES), [
+      TS_CONFIG_NAME
+    ]);
+    await deleteEmptySubFolders(
+      path.join(siteRootPath, ROOT_PATHS.LIGHTBOXES),
+      [TS_CONFIG_NAME]
+    );
   };
 
   const updateSiteDocument = async newEditorDocument => {
     await ensureLocalFolderSkeleton();
     await syncExistingPageFolders(newEditorDocument.pages);
+
+    await createPageFoldersTsConfigsIfNotExist(newEditorDocument.pages);
 
     const newLocalDocumentFiles = editorDocumentToLocalDocumentFiles(
       newEditorDocument
@@ -132,6 +168,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
     deletedFiles = []
   } = {}) => {
     await ensureLocalFolderSkeleton();
+    await createRootCodeFoldersTsConfigsIfNotExist();
+
     const existingLocalPageFilePaths = await listLocalPageFiles(siteRootPath);
 
     const editorPathToLocalPath = editorPath =>
