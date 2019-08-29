@@ -1,3 +1,4 @@
+const isObject_ = require("lodash/isObject");
 const eventually = require("wix-eventually");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
@@ -36,8 +37,9 @@ describe("local changes", () => {
 
         const docItem = sc[itemKey]();
         let filePath = localSiteBuilder.getLocalFilePath(docItem);
+        filePath = isObject_(filePath) ? filePath.page : filePath;
         let fileContent = localSiteBuilder.getLocalFileContent(docItem);
-
+        fileContent = isObject_(fileContent) ? fileContent.page : fileContent;
         await writeFile(localSitePath, filePath, fileContent);
 
         await eventually(async () => {
@@ -64,7 +66,9 @@ describe("local changes", () => {
         );
 
         let filePath = localSiteBuilder.getLocalFilePath(docItem);
-        let fileContent = localSiteBuilder.getLocalFileContent(sc[itemKey]());
+        filePath = isObject_(filePath) ? filePath.page : filePath;
+        let fileContent = localSiteBuilder.getLocalFileContent(docItem);
+        fileContent = isObject_(fileContent) ? fileContent.page : fileContent;
 
         await writeFile(localSitePath, filePath, fileContent);
 
@@ -92,6 +96,7 @@ describe("local changes", () => {
         );
 
         let filePath = localSiteBuilder.getLocalFilePath(docItem);
+        filePath = isObject_(filePath) ? filePath.page : filePath;
 
         await deleteFile(localSitePath, filePath);
 
@@ -137,11 +142,12 @@ describe("local changes", () => {
       expect(onChange).not.toHaveBeenCalled();
 
       const newPage = sc.page();
-      await writeFile(
-        localSitePath,
-        localSiteBuilder.getLocalFilePath(newPage),
-        localSiteBuilder.getLocalFileContent(newPage)
-      );
+      let filePath = localSiteBuilder.getLocalFilePath(newPage);
+      filePath = isObject_(filePath) ? filePath.page : filePath;
+      let fileContent = localSiteBuilder.getLocalFileContent(newPage);
+      fileContent = isObject_(fileContent) ? fileContent.page : fileContent;
+
+      await writeFile(localSitePath, filePath, fileContent);
 
       await eventually(async () => {
         expect(onChange).toHaveBeenCalledTimes(1);

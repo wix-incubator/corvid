@@ -66,7 +66,7 @@ describe("pageFiles", () => {
       const dummyMasterPageCodeItem = sc.masterPageCode();
       const expectedLocalMasterPageCodePath = localSiteBuilder.getLocalFilePath(
         dummyMasterPageCodeItem
-      );
+      ).code;
 
       const siteWithNoMasterPageCode = sc
         .fullSiteItems()

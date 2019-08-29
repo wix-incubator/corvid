@@ -1,3 +1,4 @@
+const isObject_ = require("lodash/isObject");
 const eventually = require("wix-eventually");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
@@ -93,9 +94,13 @@ describe("Backup", () => {
     editor.modifyDocument(merge_({}, editorSite, siteUpdates).siteDocument);
 
     await editor.save();
+
     const code = sc.backendCode();
     let filePath = localSiteBuilder.getLocalFilePath(code);
+    filePath = isObject_(filePath) ? filePath.code : filePath;
     let fileContent = localSiteBuilder.getLocalFileContent(code);
+    fileContent = isObject_(fileContent) ? fileContent.code : fileContent;
+
     localSiteDir.writeFile(localSitePath, filePath, fileContent);
     const watcherPayload = createCodeChangePayload(
       editorSiteBuilder.getEditorCodeFilePath(code),
@@ -103,7 +108,11 @@ describe("Backup", () => {
     );
     const page = sc.page();
     let pageFilePath = localSiteBuilder.getLocalFilePath(page);
+    pageFilePath = isObject_(pageFilePath) ? pageFilePath.page : pageFilePath;
     let pageFileContent = localSiteBuilder.getLocalFileContent(page);
+    pageFileContent = isObject_(pageFileContent)
+      ? pageFileContent.page
+      : pageFileContent;
     await localSiteDir.writeFile(localSitePath, pageFilePath, pageFileContent);
 
     await eventually(async () => {
@@ -140,7 +149,9 @@ describe("Backup", () => {
     } catch (e) {
       const code = sc.backendCode();
       let filePath = localSiteBuilder.getLocalFilePath(code);
+      filePath = isObject_(filePath) ? filePath.code : filePath;
       let fileContent = localSiteBuilder.getLocalFileContent(code);
+      fileContent = isObject_(fileContent) ? fileContent.code : fileContent;
       localSiteDir.writeFile(localSitePath, filePath, fileContent);
       const watcherPayload = createCodeChangePayload(
         editorSiteBuilder.getEditorCodeFilePath(code),
@@ -148,7 +159,11 @@ describe("Backup", () => {
       );
       const page = sc.page();
       let pageFilePath = localSiteBuilder.getLocalFilePath(page);
+      pageFilePath = isObject_(pageFilePath) ? pageFilePath.page : pageFilePath;
       let pageFileContent = localSiteBuilder.getLocalFileContent(page);
+      pageFileContent = isObject_(pageFileContent)
+        ? pageFileContent.page
+        : pageFileContent;
       await localSiteDir.writeFile(
         localSitePath,
         pageFilePath,

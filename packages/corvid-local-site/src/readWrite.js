@@ -97,8 +97,8 @@ const readWrite = (siteRootPath, filesWatcher) => {
 
   const createRootCodeFoldersTsConfigsIfNotExist = async () =>
     Promise.all(
-      [ROOT_PATHS.BACKEND, ROOT_PATHS.PUBLIC].map(configRoot =>
-        createTsConfigIfNotExist(configRoot)
+      [ROOT_PATHS.BACKEND, ROOT_PATHS.PUBLIC, ROOT_PATHS.SITE_CODE].map(
+        configRoot => createTsConfigIfNotExist(configRoot)
       )
     );
 

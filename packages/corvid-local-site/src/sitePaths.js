@@ -17,6 +17,7 @@ const ROOT_PATHS = {
   SITE: `assets/site`,
   ROUTERS: `assets/routers`,
   MENUS: `assets/menus`,
+  SITE_CODE: "pages/site",
 
   METADATA_FILE: ".metadata.json",
   SITE_CODE_FILE: "pages/site/site.js",

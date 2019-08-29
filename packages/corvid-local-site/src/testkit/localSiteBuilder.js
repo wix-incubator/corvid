@@ -29,10 +29,24 @@ const PATH_ROUTERS = `${PATH_ASSETS}/routers`;
 const PATH_MENUS = `${PATH_ASSETS}/menus`;
 const documentSchemaVersion = "1.0";
 
+const TS_CONFIG_NAME = "tsconfig.json";
+const TS_CONFIG_BACKEND_CONTENT =
+  '{"extends": "corvid-types/configs/tsconfig.backend.json"}';
+
+const TS_CONFIG_PUBLIC_CONTENT =
+  '{"extends": "corvid-types/configs/tsconfig.public.json"}';
+
+const TS_CONFIG_PAGE_CONTENT =
+  '{"extends": "corvid-types/configs/tsconfig.pages.json"}';
+
 const LOCAL_SITE_SKELETON = {
   [PATH_ASSETS]: {},
-  [PATH_BACKEND]: {},
-  [PATH_PUBLIC]: {},
+  [PATH_BACKEND]: {
+    [TS_CONFIG_NAME]: TS_CONFIG_BACKEND_CONTENT
+  },
+  [PATH_PUBLIC]: {
+    [TS_CONFIG_NAME]: TS_CONFIG_PUBLIC_CONTENT
+  },
   [PATH_DATABASE]: {},
   [PATH_PAGES]: {},
   [PATH_LIGHTBOXES]: {}
@@ -89,10 +103,13 @@ const router = router =>
 
 const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
-const page = page => ({
-  path: pageFilePath(page),
-  content: wixFileContent(page)
-});
+const page = page => [
+  { path: pageFilePath(page), content: wixFileContent(page) },
+  {
+    path: `${pageRootPath(page)}/${TS_CONFIG_NAME}`,
+    content: TS_CONFIG_PAGE_CONTENT
+  }
+];
 
 const pageCode = (page, code) => ({
   path: pageCodeFilePath(page),
@@ -100,16 +117,20 @@ const pageCode = (page, code) => ({
 });
 
 const pageWithCode = ({ page: pageData, code }) => [
-  page(pageData),
+  ...page(pageData),
   pageCode(pageData, code)
 ];
 
-//todo:: maybe create pageWithAutocomplate
-
-const lightbox = lightbox => ({
-  path: lightboxFilePath(lightbox),
-  content: wixFileContent(lightbox)
-});
+const lightbox = lightbox => [
+  {
+    path: lightboxFilePath(lightbox),
+    content: wixFileContent(lightbox)
+  },
+  {
+    path: `${lightboxRootPath(lightbox)}/${TS_CONFIG_NAME}`,
+    content: TS_CONFIG_PAGE_CONTENT
+  }
+];
 
 const lighboxCode = (lightbox, code) => ({
   path: lightboxCodeFilePath(lightbox),
@@ -117,12 +138,11 @@ const lighboxCode = (lightbox, code) => ({
 });
 
 const lightboxWithCode = ({ lightbox: lightboxData, code }) => [
-  lightbox(lightboxData),
+  ...lightbox(lightboxData),
   lighboxCode(lightboxData, code)
 ];
 
 // code
-
 const codeFile = ({ path, content }) => ({ path, content });
 
 const backendCodeFile = ({ path: relativePath, content }) =>
@@ -143,12 +163,16 @@ const collectionSchema = ({ collectionName, schema }) =>
     content: prettyStringify(schema)
   });
 
-const masterPageCode = ({ content }) =>
+const masterPageCode = ({ content }) => [
   codeFile({
     path: `${PATH_PAGES}/site/site.js`,
     content
-  });
-
+  }),
+  {
+    path: `${PATH_PAGES}/site/${TS_CONFIG_NAME}`,
+    content: TS_CONFIG_PAGE_CONTENT
+  }
+];
 const corvidPackageJson = ({ content }) =>
   codeFile({
     path: "corvid-package.json",
@@ -210,10 +234,27 @@ const buildFull = (...siteItems) => {
 const getLocalFilePath = siteItem => {
   const file = itemToFile(siteItem);
   return sc.matchItem(siteItem, {
-    [sc.pageWithCode]: () => ({ page: file[0].path, code: file[1].path }),
+    [sc.masterPageCode]: () => ({
+      code: file[0].path,
+      tsConfig: file[1].path
+    }),
+    [sc.page]: () => ({
+      page: file[0].path,
+      tsConfig: file[1].path
+    }),
+    [sc.pageWithCode]: () => ({
+      page: file[0].path,
+      tsConfig: file[1].path,
+      code: file[2].path
+    }),
+    [sc.lightbox]: () => ({
+      page: file[0].path,
+      tsConfig: file[1].path
+    }),
     [sc.lightboxWithCode]: () => ({
       lightbox: file[0].path,
-      code: file[1].path
+      tsConfig: file[1].path,
+      code: file[2].path
     }),
     "*": () => file.path
   });
@@ -222,10 +263,27 @@ const getLocalFilePath = siteItem => {
 const getLocalFileContent = siteItem => {
   const file = itemToFile(siteItem);
   return sc.matchItem(siteItem, {
-    [sc.pageWithCode]: () => ({ page: file[0].content, code: file[1].content }),
+    [sc.masterPageCode]: () => ({
+      code: file[0].content,
+      tsConfig: file[1].content
+    }),
+    [sc.page]: () => ({
+      page: file[0].content,
+      tsConfig: file[1].content
+    }),
+    [sc.pageWithCode]: () => ({
+      page: file[0].content,
+      tsConfig: file[1].content,
+      code: file[2].content
+    }),
+    [sc.lightbox]: () => ({
+      page: file[0].content,
+      tsConfig: file[1].content
+    }),
     [sc.lightboxWithCode]: () => ({
       lightbox: file[0].content,
-      code: file[1].content
+      tsConfig: file[1].content,
+      code: file[2].content
     }),
     "*": () => file.content
   });
