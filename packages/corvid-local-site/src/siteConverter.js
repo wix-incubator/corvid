@@ -16,17 +16,25 @@ const {
 const {
   ROOT_PATHS,
   isPathOfWixFile,
+  matchLocalPageTsConfigFile,
   matchLocalPageDocumentPath,
   matchLocalPageCodePath,
   isPathOfPageCode,
   isPathOfPageStructure,
+  isPathOfPageTsConfigFile,
   stylesFilePath,
   sitePartFilePath,
   menuFilePath,
   routerFilePath,
   pageStructureFilePath,
-  pageCodeFilePath
+  pageCodeFilePath,
+  pageTsConfigFilePath,
+  masterPageTsConfigFilePath,
+  backendTsConfigFilePath,
+  publicTsConfigFilePath
 } = require("./sitePaths");
+
+const { getTsConfigContent } = require("./codeCompletion");
 
 const { toWixFileContent, fromWixFileContent } = require("./utils/wixFiles");
 
@@ -106,6 +114,11 @@ const pageDocumentToFile = page => ({
   content: page
 });
 
+const pageDocumentToTsConfigFile = page => ({
+  path: pageTsConfigFilePath(page),
+  content: getTsConfigContent(ROOT_PATHS.PAGES)
+});
+
 const pageFileToDocument = pageFile => {
   const { pageId, isPopup } = matchLocalPageDocumentPath(pageFile.path);
   return {
@@ -161,6 +174,7 @@ const localFileToDocument = file => {
 const editorDocumentToLocalDocumentFiles = siteDocument => {
   const localDocumentFiles = [
     ...map_(siteDocument.pages, pageDocumentToFile),
+    ...map_(siteDocument.pages, pageDocumentToTsConfigFile),
     ...map_(siteDocument.styles, styleDocumentToFile),
     ...map_(siteDocument.site, sitePartDocumentToFile),
     ...map_(siteDocument.routers, routerDocumentToFile),
@@ -305,19 +319,36 @@ const localCodePathToEditorCodePath = localCodePath => {
   return null;
 };
 
+const getCodeFilesTsConfigs = () => [
+  {
+    path: masterPageTsConfigFilePath(),
+    content: getTsConfigContent(ROOT_PATHS.PAGES)
+  },
+  {
+    path: backendTsConfigFilePath(),
+    content: getTsConfigContent(ROOT_PATHS.BACKEND)
+  },
+  {
+    path: publicTsConfigFilePath(),
+    content: getTsConfigContent(ROOT_PATHS.PUBLIC)
+  }
+];
+
 const editorCodeFilesToLocalCodeFiles = (
   editorCodeFiles,
   existingLocalPageFilePaths
 ) =>
-  editorCodeFiles.map(editorFile => ({
-    path: editorCodePathToLocalCodePath(
-      editorFile.path,
-      existingLocalPageFilePaths
-    ),
-    content: isUnderPath(".schemas", editorFile.path)
-      ? tryToPrettifyJsonString(editorFile.content)
-      : editorFile.content
-  }));
+  editorCodeFiles
+    .map(editorFile => ({
+      path: editorCodePathToLocalCodePath(
+        editorFile.path,
+        existingLocalPageFilePaths
+      ),
+      content: isUnderPath(".schemas", editorFile.path)
+        ? tryToPrettifyJsonString(editorFile.content)
+        : editorFile.content
+    }))
+    .concat(getCodeFilesTsConfigs());
 
 const localCodeFilesToEditorCodeFiles = localCodeFiles => {
   return localCodeFiles
@@ -337,6 +368,10 @@ const updateLocalPageFilePath = (existingPath, newSiteDocumentPages) => {
     const { pageId } = matchLocalPageDocumentPath(existingPath);
     const newPageInfo = newSiteDocumentPages[pageId];
     return newPageInfo ? pageStructureFilePath(newPageInfo) : null;
+  } else if (isPathOfPageTsConfigFile(existingPath)) {
+    const { pageId } = matchLocalPageTsConfigFile(existingPath);
+    const newPageInfo = newSiteDocumentPages[pageId];
+    return newPageInfo ? pageTsConfigFilePath(newPageInfo) : null;
   }
 };
 

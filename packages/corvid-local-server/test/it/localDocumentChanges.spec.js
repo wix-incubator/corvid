@@ -1,4 +1,3 @@
-const isObject_ = require("lodash/isObject");
 const eventually = require("wix-eventually");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
@@ -36,10 +35,12 @@ describe("local changes", () => {
         );
 
         const docItem = sc[itemKey]();
-        let filePath = localSiteBuilder.getLocalFilePath(docItem);
-        filePath = isObject_(filePath) ? filePath.page : filePath;
-        let fileContent = localSiteBuilder.getLocalFileContent(docItem);
-        fileContent = isObject_(fileContent) ? fileContent.page : fileContent;
+        const filePath = localSiteBuilder.getLocalFilePath(docItem, "page");
+        const fileContent = localSiteBuilder.getLocalFileContent(
+          docItem,
+          "page"
+        );
+
         await writeFile(localSitePath, filePath, fileContent);
 
         await eventually(async () => {
@@ -65,10 +66,11 @@ describe("local changes", () => {
           onDocumentChange
         );
 
-        let filePath = localSiteBuilder.getLocalFilePath(docItem);
-        filePath = isObject_(filePath) ? filePath.page : filePath;
-        let fileContent = localSiteBuilder.getLocalFileContent(docItem);
-        fileContent = isObject_(fileContent) ? fileContent.page : fileContent;
+        const filePath = localSiteBuilder.getLocalFilePath(docItem, "page");
+        const fileContent = localSiteBuilder.getLocalFileContent(
+          docItem,
+          "page"
+        );
 
         await writeFile(localSitePath, filePath, fileContent);
 
@@ -95,8 +97,7 @@ describe("local changes", () => {
           onDocumentChange
         );
 
-        let filePath = localSiteBuilder.getLocalFilePath(docItem);
-        filePath = isObject_(filePath) ? filePath.page : filePath;
+        const filePath = localSiteBuilder.getLocalFilePath(docItem, "page");
 
         await deleteFile(localSitePath, filePath);
 
@@ -142,10 +143,8 @@ describe("local changes", () => {
       expect(onChange).not.toHaveBeenCalled();
 
       const newPage = sc.page();
-      let filePath = localSiteBuilder.getLocalFilePath(newPage);
-      filePath = isObject_(filePath) ? filePath.page : filePath;
-      let fileContent = localSiteBuilder.getLocalFileContent(newPage);
-      fileContent = isObject_(fileContent) ? fileContent.page : fileContent;
+      const filePath = localSiteBuilder.getLocalFilePath(newPage, "page");
+      const fileContent = localSiteBuilder.getLocalFileContent(newPage, "page");
 
       await writeFile(localSitePath, filePath, fileContent);
 

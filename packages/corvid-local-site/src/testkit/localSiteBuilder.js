@@ -2,6 +2,7 @@ const flatten_ = require("lodash/flatten");
 const set_ = require("lodash/set");
 const omit_ = require("lodash/omit");
 const isObject_ = require("lodash/isObject");
+const isUndefined_ = require("lodash/isUndefined");
 const defaultsDeep_ = require("lodash/defaultsDeep");
 const sanitize = require("sanitize-filename");
 
@@ -22,6 +23,7 @@ const PATH_PUBLIC = "public";
 const PATH_DATABASE = "database";
 const PATH_PAGES = "pages";
 const PATH_LIGHTBOXES = "lightboxes";
+const PATH_MASTER_PAGE = "site";
 
 const PATH_STYLES = `${PATH_ASSETS}/styles`;
 const PATH_SITE = `${PATH_ASSETS}/site`;
@@ -30,14 +32,17 @@ const PATH_MENUS = `${PATH_ASSETS}/menus`;
 const documentSchemaVersion = "1.0";
 
 const TS_CONFIG_NAME = "tsconfig.json";
-const TS_CONFIG_BACKEND_CONTENT =
-  '{"extends": "corvid-types/configs/tsconfig.backend.json"}';
+const TS_CONFIG_BACKEND_CONTENT = prettyStringify(
+  '{"extends": "corvid-types/configs/tsconfig.backend.json"}'
+);
 
-const TS_CONFIG_PUBLIC_CONTENT =
-  '{"extends": "corvid-types/configs/tsconfig.public.json"}';
+const TS_CONFIG_PUBLIC_CONTENT = prettyStringify(
+  '{"extends": "corvid-types/configs/tsconfig.public.json"}'
+);
 
-const TS_CONFIG_PAGE_CONTENT =
-  '{"extends": "corvid-types/configs/tsconfig.pages.json"}';
+const TS_CONFIG_PAGE_CONTENT = prettyStringify(
+  '{"extends": "corvid-types/configs/tsconfig.pages.json"}'
+);
 
 const LOCAL_SITE_SKELETON = {
   [PATH_ASSETS]: {},
@@ -48,7 +53,11 @@ const LOCAL_SITE_SKELETON = {
     [TS_CONFIG_NAME]: TS_CONFIG_PUBLIC_CONTENT
   },
   [PATH_DATABASE]: {},
-  [PATH_PAGES]: {},
+  [PATH_PAGES]: {
+    [PATH_MASTER_PAGE]: {
+      [TS_CONFIG_NAME]: TS_CONFIG_PAGE_CONTENT
+    }
+  },
   [PATH_LIGHTBOXES]: {}
 };
 
@@ -163,16 +172,11 @@ const collectionSchema = ({ collectionName, schema }) =>
     content: prettyStringify(schema)
   });
 
-const masterPageCode = ({ content }) => [
+const masterPageCode = ({ content }) =>
   codeFile({
     path: `${PATH_PAGES}/site/site.js`,
     content
-  }),
-  {
-    path: `${PATH_PAGES}/site/${TS_CONFIG_NAME}`,
-    content: TS_CONFIG_PAGE_CONTENT
-  }
-];
+  });
 const corvidPackageJson = ({ content }) =>
   codeFile({
     path: "corvid-package.json",
@@ -231,60 +235,63 @@ const buildFull = (...siteItems) => {
   return fullSite;
 };
 
-const getLocalFilePath = siteItem => {
+const getLocalFilePath = (siteItem, partKey) => {
   const file = itemToFile(siteItem);
+  const pickValue = paths => (isUndefined_(partKey) ? paths : paths[partKey]);
   return sc.matchItem(siteItem, {
-    [sc.masterPageCode]: () => ({
-      code: file[0].path,
-      tsConfig: file[1].path
-    }),
-    [sc.page]: () => ({
-      page: file[0].path,
-      tsConfig: file[1].path
-    }),
-    [sc.pageWithCode]: () => ({
-      page: file[0].path,
-      tsConfig: file[1].path,
-      code: file[2].path
-    }),
-    [sc.lightbox]: () => ({
-      page: file[0].path,
-      tsConfig: file[1].path
-    }),
-    [sc.lightboxWithCode]: () => ({
-      lightbox: file[0].path,
-      tsConfig: file[1].path,
-      code: file[2].path
-    }),
+    [sc.page]: () =>
+      pickValue({
+        page: file[0].path,
+        tsConfig: file[1].path
+      }),
+    [sc.pageWithCode]: () =>
+      pickValue({
+        page: file[0].path,
+        tsConfig: file[1].path,
+        code: file[2].path
+      }),
+    [sc.lightbox]: () =>
+      pickValue({
+        page: file[0].path,
+        tsConfig: file[1].path
+      }),
+    [sc.lightboxWithCode]: () =>
+      pickValue({
+        page: file[0].path,
+        tsConfig: file[1].path,
+        code: file[2].path
+      }),
     "*": () => file.path
   });
 };
 
-const getLocalFileContent = siteItem => {
+const getLocalFileContent = (siteItem, partKey) => {
   const file = itemToFile(siteItem);
+  const pickValue = contents =>
+    isUndefined_(partKey) ? contents : contents[partKey];
   return sc.matchItem(siteItem, {
-    [sc.masterPageCode]: () => ({
-      code: file[0].content,
-      tsConfig: file[1].content
-    }),
-    [sc.page]: () => ({
-      page: file[0].content,
-      tsConfig: file[1].content
-    }),
-    [sc.pageWithCode]: () => ({
-      page: file[0].content,
-      tsConfig: file[1].content,
-      code: file[2].content
-    }),
-    [sc.lightbox]: () => ({
-      page: file[0].content,
-      tsConfig: file[1].content
-    }),
-    [sc.lightboxWithCode]: () => ({
-      lightbox: file[0].content,
-      tsConfig: file[1].content,
-      code: file[2].content
-    }),
+    [sc.page]: () =>
+      pickValue({
+        page: file[0].content,
+        tsConfig: file[1].content
+      }),
+    [sc.pageWithCode]: () =>
+      pickValue({
+        page: file[0].content,
+        tsConfig: file[1].content,
+        code: file[2].content
+      }),
+    [sc.lightbox]: () =>
+      pickValue({
+        page: file[0].content,
+        tsConfig: file[1].content
+      }),
+    [sc.lightboxWithCode]: () =>
+      pickValue({
+        page: file[0].content,
+        tsConfig: file[1].content,
+        code: file[2].content
+      }),
     "*": () => file.content
   });
 };

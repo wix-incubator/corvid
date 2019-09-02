@@ -6,13 +6,11 @@ const isDirectory = async pathToCheck => {
   return stat.isDirectory();
 };
 
-const isEmptyDirectory = async (pathToCheck, excludeFiles) => {
+const isEmptyDirectory = async pathToCheck => {
   if (!(await isDirectory(pathToCheck))) {
     return false;
   }
-  const contents = (await fs.readdir(pathToCheck)).filter(fileName =>
-    excludeFiles.every(excludeFile => excludeFile !== fileName)
-  );
+  const contents = await fs.readdir(pathToCheck);
   return contents.length === 0;
 };
 
@@ -23,13 +21,13 @@ const isSamePath = (path1, path2) => path.relative(path1, path2) === "";
 
 const getFileName = filePath => path.parse(filePath).name;
 
-const deleteEmptySubFolders = async (rootPath, excludeFiles = []) => {
+const deleteEmptySubFolders = async rootPath => {
   if (await fs.exists(rootPath)) {
     const contents = await fs.readdir(rootPath);
     await Promise.all(
       contents.map(async subPath => {
         const fullPath = path.join(rootPath, subPath);
-        const shouldDelete = await isEmptyDirectory(fullPath, excludeFiles);
+        const shouldDelete = await isEmptyDirectory(fullPath);
         return shouldDelete ? fs.remove(fullPath) : Promise.resolve();
       })
     );

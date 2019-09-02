@@ -18,7 +18,6 @@ const {
 } = require("corvid-local-test-utils");
 
 afterEach(closeAll);
-
 describe("pageFiles", () => {
   describe("clone mode", () => {
     it("should create an empty local page code file if page with no code is sent on load", async () => {
@@ -66,7 +65,7 @@ describe("pageFiles", () => {
       const dummyMasterPageCodeItem = sc.masterPageCode();
       const expectedLocalMasterPageCodePath = localSiteBuilder.getLocalFilePath(
         dummyMasterPageCodeItem
-      ).code;
+      );
 
       const siteWithNoMasterPageCode = sc
         .fullSiteItems()

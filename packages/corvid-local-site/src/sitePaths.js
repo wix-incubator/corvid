@@ -24,6 +24,8 @@ const ROOT_PATHS = {
   PACKAGE_JSON_FILE: "corvid-package.json"
 };
 
+const TS_CONFIG_NAME = "tsconfig.json";
+
 const isPathRelatedToSite = (rootSitePath, fullPathToCheck) =>
   values_(ROOT_PATHS).some(siteSubFolder => {
     const fullSiteSubFolder = path.join(rootSitePath, siteSubFolder);
@@ -50,6 +52,21 @@ const matchLocalPageFile = extension => filePath => {
     : null;
 };
 
+const matchLocalPageTsConfigFile = filePath => {
+  const matches = filePath.match(
+    new RegExp(
+      `^(?<root>${ROOT_PATHS.PAGES}|${
+        ROOT_PATHS.LIGHTBOXES
+      })\/(?<folderTitle>[^\/]*)\\.(?<pageId>[^.\/]*)\/tsconfig.json`
+    )
+  );
+  return matches
+    ? {
+        pageId: matches.groups.pageId
+      }
+    : null;
+};
+
 const matchLocalPageCodePath = matchLocalPageFile("js");
 const matchLocalPageDocumentPath = matchLocalPageFile("wix");
 
@@ -65,9 +82,15 @@ const isPathOfPageStructure = (localFilePath, pageId = null) => {
 
 const isPathOfPageFile = (localFilePath, pageId = null) =>
   isPathOfPageCode(localFilePath, pageId) ||
-  isPathOfPageStructure(localFilePath, pageId);
+  isPathOfPageStructure(localFilePath, pageId) ||
+  isPathOfPageTsConfigFile(localFilePath, pageId);
 
 const isPathOfWixFile = relativePath => path.extname(relativePath) === ".wix";
+
+const isPathOfPageTsConfigFile = (localFilePath, pageId = null) => {
+  const match = matchLocalPageTsConfigFile(localFilePath);
+  return pageId ? match && match.pageId === pageId : !!match;
+};
 
 const isMetadataFilePath = filePath => filePath === ROOT_PATHS.METADATA_FILE;
 
@@ -114,6 +137,16 @@ const pageRootFolderPath = ({ pageId, title, isPopup }) => {
   return `${pageOrLightboxRoot}/${sanitizedTitle}.${pageId}`;
 };
 
+const pageTsConfigFilePath = ({ pageId, title, isPopup }) =>
+  `${pageRootFolderPath({ pageId, title, isPopup })}/${TS_CONFIG_NAME}`;
+
+const masterPageTsConfigFilePath = () =>
+  `${ROOT_PATHS.SITE_CODE}/${TS_CONFIG_NAME}`;
+
+const backendTsConfigFilePath = () => `${ROOT_PATHS.BACKEND}/${TS_CONFIG_NAME}`;
+
+const publicTsConfigFilePath = () => `${ROOT_PATHS.PUBLIC}/${TS_CONFIG_NAME}`;
+
 module.exports = {
   ROOT_PATHS,
 
@@ -124,6 +157,10 @@ module.exports = {
   pageRootFolderPath,
   pageStructureFilePath,
   pageCodeFilePath,
+  pageTsConfigFilePath,
+  masterPageTsConfigFilePath,
+  backendTsConfigFilePath,
+  publicTsConfigFilePath,
 
   isPathRelatedToSite,
   isPathOfCodeFile,
@@ -132,7 +169,9 @@ module.exports = {
   isPathOfPageFile,
   isPathOfPageCode,
   isPathOfPageStructure,
+  isPathOfPageTsConfigFile,
 
+  matchLocalPageTsConfigFile,
   matchLocalPageDocumentPath,
   matchLocalPageCodePath
 };
