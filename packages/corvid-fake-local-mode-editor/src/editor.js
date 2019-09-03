@@ -115,7 +115,7 @@ const getCodeFilesFromServer = async socket => {
     expect(file.path).toEqual(expect.any(String));
     expect(file.content).toEqual(expect.any(String));
   });
-  return codeFiles;
+  return codeFiles.filter(code => code.content !== "");
 };
 
 const getSiteDocumentFromServer = async socket =>

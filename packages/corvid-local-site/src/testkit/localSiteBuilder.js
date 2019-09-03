@@ -114,6 +114,7 @@ const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
 const page = page => [
   { path: pageFilePath(page), content: wixFileContent(page) },
+  { path: pageCodeFilePath(page), content: "" },
   {
     path: `${pageRootPath(page)}/${TS_CONFIG_NAME}`,
     content: TS_CONFIG_PAGE_CONTENT
@@ -125,9 +126,13 @@ const pageCode = (page, code) => ({
   content: code
 });
 
-const pageWithCode = ({ page: pageData, code }) => [
-  ...page(pageData),
-  pageCode(pageData, code)
+const pageWithCode = ({ page, code }) => [
+  { path: pageFilePath(page), content: wixFileContent(page) },
+  pageCode(page, code),
+  {
+    path: `${pageRootPath(page)}/${TS_CONFIG_NAME}`,
+    content: TS_CONFIG_PAGE_CONTENT
+  }
 ];
 
 const lightbox = lightbox => [
@@ -135,6 +140,7 @@ const lightbox = lightbox => [
     path: lightboxFilePath(lightbox),
     content: wixFileContent(lightbox)
   },
+  { path: lightboxCodeFilePath(lightbox), content: "" },
   {
     path: `${lightboxRootPath(lightbox)}/${TS_CONFIG_NAME}`,
     content: TS_CONFIG_PAGE_CONTENT
@@ -146,9 +152,16 @@ const lighboxCode = (lightbox, code) => ({
   content: code
 });
 
-const lightboxWithCode = ({ lightbox: lightboxData, code }) => [
-  ...lightbox(lightboxData),
-  lighboxCode(lightboxData, code)
+const lightboxWithCode = ({ lightbox, code }) => [
+  {
+    path: lightboxFilePath(lightbox),
+    content: wixFileContent(lightbox)
+  },
+  lighboxCode(lightbox, code),
+  {
+    path: `${lightboxRootPath(lightbox)}/${TS_CONFIG_NAME}`,
+    content: TS_CONFIG_PAGE_CONTENT
+  }
 ];
 
 // code
@@ -242,24 +255,26 @@ const getLocalFilePath = (siteItem, partKey) => {
     [sc.page]: () =>
       pickValue({
         page: file[0].path,
-        tsConfig: file[1].path
+        code: file[1].path,
+        tsConfig: file[2].path
       }),
     [sc.pageWithCode]: () =>
       pickValue({
         page: file[0].path,
-        tsConfig: file[1].path,
-        code: file[2].path
+        code: file[1].path,
+        tsConfig: file[2].path
       }),
     [sc.lightbox]: () =>
       pickValue({
         page: file[0].path,
-        tsConfig: file[1].path
+        code: file[1].path,
+        tsConfig: file[2].path
       }),
     [sc.lightboxWithCode]: () =>
       pickValue({
         page: file[0].path,
-        tsConfig: file[1].path,
-        code: file[2].path
+        code: file[1].path,
+        tsConfig: file[2].path
       }),
     "*": () => file.path
   });
@@ -273,24 +288,26 @@ const getLocalFileContent = (siteItem, partKey) => {
     [sc.page]: () =>
       pickValue({
         page: file[0].content,
-        tsConfig: file[1].content
+        code: file[1].content,
+        tsConfig: file[2].content
       }),
     [sc.pageWithCode]: () =>
       pickValue({
         page: file[0].content,
-        tsConfig: file[1].content,
-        code: file[2].content
+        code: file[1].content,
+        tsConfig: file[2].content
       }),
     [sc.lightbox]: () =>
       pickValue({
         page: file[0].content,
-        tsConfig: file[1].content
+        code: file[1].content,
+        tsConfig: file[2].content
       }),
     [sc.lightboxWithCode]: () =>
       pickValue({
         page: file[0].content,
-        tsConfig: file[1].content,
-        code: file[2].content
+        code: file[1].content,
+        tsConfig: file[2].content
       }),
     "*": () => file.content
   });
@@ -315,6 +332,10 @@ const getLocalPageRootPath = pageOrLightboxItem =>
   });
 
 module.exports = {
+  TS_CONFIG_BACKEND_CONTENT,
+  TS_CONFIG_PAGE_CONTENT,
+  TS_CONFIG_PUBLIC_CONTENT,
+
   buildFull,
   buildPartial,
   getLocalFilePath,

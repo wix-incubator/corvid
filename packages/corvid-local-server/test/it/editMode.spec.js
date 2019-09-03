@@ -166,6 +166,17 @@ describe("edit mode", () => {
     expect(localSite).toMatchObject(expectedLocalSite);
   });
 
+  it("should send updated of site document and code files to the editor", async () => {
+    const fullSite = sc.fullSiteItems();
+    const fullLocalSite = localSiteBuilder.buildPartial(...fullSite);
+    const fullEditorSite = editorSiteBuilder.buildPartial(...fullSite);
+    const localSitePath = await localSiteDir.initLocalSite(fullLocalSite);
+    const server = await localServer.startInEditMode(localSitePath);
+    const editor = await loadEditor(server.port);
+    const editorSite = await editor.getSite();
+    expect(editorSite).toEqual(fullEditorSite);
+  });
+
   describe("code file updates when editor site is saved", () => {
     it.each(Object.keys(sc.codeCreators))(
       `should update a local [%s] file that was modified in the editor and saved`,

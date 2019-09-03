@@ -92,18 +92,27 @@ const isPathOfPageTsConfigFile = (localFilePath, pageId = null) => {
   return pageId ? match && match.pageId === pageId : !!match;
 };
 
+const isPathOfBackendCodeFile = relativePath =>
+  isUnderPath(ROOT_PATHS.BACKEND, relativePath) &&
+  relativePath !== backendTsConfigFilePath();
+
+const isPathOfPublicCodeFile = relativePath =>
+  isUnderPath(ROOT_PATHS.PUBLIC, relativePath) &&
+  relativePath !== publicTsConfigFilePath();
+
 const isMetadataFilePath = filePath => filePath === ROOT_PATHS.METADATA_FILE;
 
 const isPathOfDocumentFile = relativePath =>
   isPathOfWixFile(relativePath) || isMetadataFilePath(relativePath);
 
+// add tests
 const isPathOfCodeFile = relativePath =>
-  isUnderPath(ROOT_PATHS.BACKEND, relativePath) ||
-  isUnderPath(ROOT_PATHS.PUBLIC, relativePath) ||
+  isPathOfPageCode(relativePath) ||
+  isPathOfBackendCodeFile(relativePath) ||
+  isPathOfPublicCodeFile(relativePath) ||
   isUnderPath(ROOT_PATHS.DATABASE, relativePath) ||
   relativePath === ROOT_PATHS.SITE_CODE_FILE ||
-  relativePath === ROOT_PATHS.PACKAGE_JSON_FILE ||
-  isPathOfPageCode(relativePath);
+  relativePath === ROOT_PATHS.PACKAGE_JSON_FILE;
 
 const stylesFilePath = name => path.join(ROOT_PATHS.STYLES, `${name}.wix`);
 
