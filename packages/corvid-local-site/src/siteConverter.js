@@ -28,13 +28,13 @@ const {
   routerFilePath,
   pageStructureFilePath,
   pageCodeFilePath,
-  pageTsConfigFilePath,
-  masterPageTsConfigFilePath,
-  backendTsConfigFilePath,
-  publicTsConfigFilePath
+  pageTsConfigFilePath
 } = require("./sitePaths");
 
-const { getTsConfigContent } = require("./codeCompletion");
+const {
+  getPagesTsConfigs,
+  getCodeFilesTsConfigs
+} = require("./codeCompletion");
 
 const { toWixFileContent, fromWixFileContent } = require("./utils/wixFiles");
 
@@ -114,11 +114,6 @@ const pageDocumentToFile = page => ({
   content: page
 });
 
-const pageDocumentToTsConfigFile = page => ({
-  path: pageTsConfigFilePath(page),
-  content: getTsConfigContent(ROOT_PATHS.PAGES)
-});
-
 const pageFileToDocument = pageFile => {
   const { pageId, isPopup } = matchLocalPageDocumentPath(pageFile.path);
   return {
@@ -173,8 +168,8 @@ const localFileToDocument = file => {
 
 const editorDocumentToLocalDocumentFiles = siteDocument => {
   const localDocumentFiles = [
+    ...getPagesTsConfigs(siteDocument.pages),
     ...map_(siteDocument.pages, pageDocumentToFile),
-    ...map_(siteDocument.pages, pageDocumentToTsConfigFile),
     ...map_(siteDocument.styles, styleDocumentToFile),
     ...map_(siteDocument.site, sitePartDocumentToFile),
     ...map_(siteDocument.routers, routerDocumentToFile),
@@ -318,21 +313,6 @@ const localCodePathToEditorCodePath = localCodePath => {
   logger.error(new Error(`Unknown local code file path ${localCodePath}`));
   return null;
 };
-
-const getCodeFilesTsConfigs = () => [
-  {
-    path: masterPageTsConfigFilePath(),
-    content: getTsConfigContent(ROOT_PATHS.PAGES)
-  },
-  {
-    path: backendTsConfigFilePath(),
-    content: getTsConfigContent(ROOT_PATHS.BACKEND)
-  },
-  {
-    path: publicTsConfigFilePath(),
-    content: getTsConfigContent(ROOT_PATHS.PUBLIC)
-  }
-];
 
 const editorCodeFilesToLocalCodeFiles = (
   editorCodeFiles,

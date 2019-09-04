@@ -105,7 +105,6 @@ const isMetadataFilePath = filePath => filePath === ROOT_PATHS.METADATA_FILE;
 const isPathOfDocumentFile = relativePath =>
   isPathOfWixFile(relativePath) || isMetadataFilePath(relativePath);
 
-// add tests
 const isPathOfCodeFile = relativePath =>
   isPathOfPageCode(relativePath) ||
   isPathOfBackendCodeFile(relativePath) ||
