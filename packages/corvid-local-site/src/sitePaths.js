@@ -108,6 +108,12 @@ const pageStructureFilePath = ({ pageId, title, isPopup }) =>
 const pageCodeFilePath = ({ pageId, title, isPopup }) =>
   pageFilePath({ pageId, title, isPopup, extension: "js" });
 
+const isPathOfEmptyByDefaultCodeFile = localFilePath =>
+  isPathOfPageCode(localFilePath) ||
+  [ROOT_PATHS.PACKAGE_JSON_FILE, ROOT_PATHS.SITE_CODE_FILE].includes(
+    localFilePath
+  );
+
 module.exports = {
   ROOT_PATHS,
 
@@ -125,6 +131,7 @@ module.exports = {
   isPathOfPageFile,
   isPathOfPageCode,
   isPathOfPageStructure,
+  isPathOfEmptyByDefaultCodeFile,
 
   matchLocalPageDocumentPath,
   matchLocalPageCodePath
