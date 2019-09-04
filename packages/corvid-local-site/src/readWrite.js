@@ -9,6 +9,7 @@ const {
   isPathOfCodeFile,
   isPathOfDocumentFile,
   isPathOfPageFile,
+  isPathOfEmptyByDefaultCodeFile,
   pageCodeFilePath,
   ROOT_PATHS
 } = require("./sitePaths");
@@ -147,9 +148,12 @@ const readWrite = (siteRootPath, filesWatcher) => {
       )
     );
 
-    const deletes = deletedFiles.map(deletedFile =>
-      filesWatcher.ignoredDeleteFile(editorPathToLocalPath(deletedFile.path))
-    );
+    const deletes = deletedFiles.map(deletedFile => {
+      const localFilePath = editorPathToLocalPath(deletedFile.path);
+      return isPathOfEmptyByDefaultCodeFile(localFilePath)
+        ? filesWatcher.ignoredWriteFile(localFilePath, "")
+        : filesWatcher.ignoredDeleteFile(localFilePath);
+    });
 
     await Promise.all([...modifications, ...copies, ...deletes]);
   };

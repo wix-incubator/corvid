@@ -198,8 +198,8 @@ describe("edit mode", () => {
       }
     );
 
-    it.each(Object.keys(sc.codeCreators))(
-      `should delete a local [%s] file that was deleted in the editor and saved`,
+    it.each(["publicCode", "backendCode", "collectionSchema"])(
+      `should delete a local [%s] file that was deleted in the editor`,
       async itemKey => {
         const originalCodeItem = sc[itemKey]();
 
@@ -220,6 +220,36 @@ describe("edit mode", () => {
           localSiteBuilder.getLocalCodeFilePath(originalCodeItem)
         );
         expect(localFileExists).toBe(false);
+      }
+    );
+
+    it.each([
+      "pageWithCode",
+      "lightboxWithCode",
+      "corvidPackageJson",
+      "masterPageCode"
+    ])(
+      `should clear the contents of a local [%s] file that was deleted in the editor`,
+      async itemKey => {
+        const originalCodeItem = sc[itemKey]();
+
+        const localSiteFiles = localSiteBuilder.buildFull(originalCodeItem);
+
+        const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+        const server = await localServer.startInEditMode(localSitePath);
+        const editor = await loadEditor(server.port);
+
+        editor.deleteCodeFile(
+          editorSiteBuilder.getEditorCodeFilePath(originalCodeItem)
+        );
+
+        await editor.save();
+
+        const fileContents = await localSiteDir.readFile(
+          localSitePath,
+          localSiteBuilder.getLocalCodeFilePath(originalCodeItem)
+        );
+        expect(fileContents).toBe("");
       }
     );
 
