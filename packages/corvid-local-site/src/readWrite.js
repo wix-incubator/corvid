@@ -5,6 +5,8 @@ const map_ = require("lodash/map");
 
 const { readDirToJson } = require("corvid-dir-as-json");
 
+const createAsyncQueue = require("./utils/asyncQueue");
+
 const {
   isPathOfCodeFile,
   isPathOfDocumentFile,
@@ -163,11 +165,13 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return localCodeFilesToEditorCodeFiles(localCodeFiles);
   };
 
+  const readWriteQueue = createAsyncQueue();
+
   return {
-    updateSiteDocument,
-    getSiteDocument,
-    getCodeFiles,
-    updateCode
+    updateSiteDocument: readWriteQueue(updateSiteDocument),
+    getSiteDocument: readWriteQueue(getSiteDocument),
+    getCodeFiles: readWriteQueue(getCodeFiles),
+    updateCode: readWriteQueue(updateCode)
   };
 };
 
