@@ -30,7 +30,6 @@
   "devDependencies": {
     "corvid-dir-as-json": "0.1.82",
     "corvid-fake-local-mode-editor": "0.1.82",
-    "corvid-local-test-utils": "0.1.79",
     "jest": "^24.8.0",
     "lodash": "^4.17.15",
     "nock": "^10.0.6",
