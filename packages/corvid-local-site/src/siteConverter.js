@@ -3,6 +3,7 @@
 const map_ = require("lodash/map");
 const merge_ = require("lodash/merge");
 const find_ = require("lodash/find");
+const isEmpty_ = require("lodash/isEmpty");
 
 const logger = require("corvid-local-logger");
 
@@ -236,9 +237,12 @@ const editorPageCodePathToLocalCodePath = (
     return existingLocalPageStructureFile.replace(/\.wix$/, ".js");
   }
 
-  logger.error(
-    new Error(`Couldn't match editor page code file path ${editorCodePath}`)
-  );
+  if (!isEmpty_(existingLocalPageFilePaths)) {
+    logger.error(
+      new Error(`Couldn't match editor page code file path ${editorCodePath}`)
+    );
+  }
+
   return pageCodeFilePath({ pageId, title: "Unknown" });
 };
 
