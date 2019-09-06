@@ -16,7 +16,7 @@ install:
   - yarn
 
 script:
-  - yarn test
+  - yarn test --runInBand
 
 jobs:
   include:
