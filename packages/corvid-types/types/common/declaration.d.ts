@@ -704,6 +704,10 @@ declare namespace $w {
    */
   type $w = (selector: string) => $w.Element & [$w.Element];
 
+  type dataset = wix_dataset.Dataset;
+
+  type router_dataset = wix_dataset.DynamicDataset;
+
   /**
    * A post page for a specific blog post.
    */
