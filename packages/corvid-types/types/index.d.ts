@@ -1,2 +1,1 @@
-/// <reference path="./declaration.d.ts" />
-/// <reference path="./$w.d.ts" />
+/// <reference path="./public/index.d.ts" />
