@@ -2,7 +2,34 @@ const uniqueId_ = require("lodash/uniqueId");
 const defaults_ = require("lodash/defaults");
 const mapValues_ = require("lodash/mapValues");
 const flow_ = require("lodash/flow");
+const mapKeys_ = require("lodash/mapKeys");
 const omit_ = require("lodash/omit");
+const atob = require("atob");
+const btoa = require("btoa");
+
+const sdkTypes = {
+  IFRAME: "$w.iframe",
+  BUTTON: "$w.button",
+  DATASET: "$w.dataset"
+};
+
+const generatePageContent = (
+  content,
+  elementsMap = uniqueElementsMap({
+    comp1: randomSdkType(),
+    comp2: randomSdkType(),
+    comp3: randomSdkType()
+  })
+) => encodePageContent({ content, elementsMap });
+
+const encodePageContent = content => {
+  const encode = flow_([JSON.stringify, encodeURIComponent, unescape, btoa]);
+  return encode(content);
+};
+const decodePageContent = payload => {
+  const decode = flow_([atob, escape, decodeURIComponent, JSON.parse]);
+  return decode(payload);
+};
 
 const unique = prefix => uniqueId_(prefix + "-");
 const uniqueCodeFileName = name => unique(name) + ".js";
@@ -12,12 +39,19 @@ const uniqueCollectionSchema = collectionName => ({
   collectionName,
   fields: {}
 });
+const uniqueElementsMap = elements =>
+  mapKeys_(elements, (sdk, nickname) => unique(nickname));
 
-const page = ({ pageId = unique("page"), ...rest } = {}) =>
+const randomSdkType = () => {
+  const sdkKeys = Object.keys(sdkTypes);
+  return sdkTypes[sdkKeys[Math.floor(Math.random() * sdkKeys.length)]];
+};
+
+const page = ({ pageId = unique("page"), content, ...rest } = {}) =>
   defaults_({ pageId, isPopup: false }, rest, {
     title: `${pageId} title`,
     uriSEO: `${pageId} uri SEO`,
-    content: `${pageId} encoded page content`
+    content: content || generatePageContent(`${pageId} encoded page content`)
   });
 
 const pageWithCode = (pageData, code) => {
@@ -28,11 +62,11 @@ const pageWithCode = (pageData, code) => {
   };
 };
 
-const lightbox = ({ pageId = unique("lightbox"), ...rest } = {}) =>
+const lightbox = ({ pageId = unique("lightbox"), content, ...rest } = {}) =>
   defaults_({ pageId, isPopup: true }, rest, {
     title: `${pageId} title`,
     uriSEO: `${pageId} uri SEO`,
-    content: `${pageId} encoded lightbox content`
+    content: content || generatePageContent(`${pageId} encoded page content`)
   });
 
 const lightboxWithCode = (lightboxData, code) => {
@@ -71,9 +105,10 @@ const topLevelStyles = (content = unique(`Encoded top level styles data`)) => ({
   content
 });
 
-const commonComponents = (
-  content = unique(`Encoded commonComponents data`)
-) => ({ content });
+const commonComponents = content => ({
+  content:
+    content || generatePageContent(unique(`Encoded commonComponents data`))
+});
 
 const multilingualInfo = (
   content = unique(`Encoded multilingualInfo site data`)
@@ -185,11 +220,16 @@ const creators = { ...documentCreators, ...codeCreators };
 const fullSiteItems = () => Object.values(creators).map(creator => creator());
 
 module.exports = {
+  atob,
+  decodePageContent,
+  randomSdkType,
+  sdkTypes,
   getType,
   matchItem,
   isSameCreator,
   fullSiteItems,
   documentCreators,
   codeCreators,
+  generatePageContent,
   ...creators
 };

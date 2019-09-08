@@ -27,6 +27,7 @@ const DEFAULT_FILE_PATHS = {
 };
 
 const TS_CONFIG_NAME = "tsconfig.json";
+const TYPINGS_NAME = "types.d.ts";
 
 const isPathRelatedToSite = (rootSitePath, fullPathToCheck) =>
   values_(ROOT_PATHS)
@@ -50,7 +51,7 @@ const matchLocalPageFile = extension => filePath => {
   return matches && matches.groups.fileNameTitle === matches.groups.folderTitle
     ? {
         pageId: matches.groups.pageId,
-        title: matches.groups.fileName,
+        title: matches.groups.fileNameTitle,
         isPopup: matches.groups.root === ROOT_PATHS.LIGHTBOXES
       }
     : null;
@@ -62,6 +63,21 @@ const matchLocalPageTsConfigFile = filePath => {
       `^(?<root>${ROOT_PATHS.PAGES}|${
         ROOT_PATHS.LIGHTBOXES
       })\/(?<folderTitle>[^\/]*)\\.(?<pageId>[^.\/]*)\/tsconfig.json`
+    )
+  );
+  return matches
+    ? {
+        pageId: matches.groups.pageId
+      }
+    : null;
+};
+
+const matchLocalPageTypingsFile = filePath => {
+  const matches = filePath.match(
+    new RegExp(
+      `^(?<root>${ROOT_PATHS.PAGES}|${
+        ROOT_PATHS.LIGHTBOXES
+      })\/(?<folderTitle>[^\/]*)\\.(?<pageId>[^.\/]*)\/types.d.ts`
     )
   );
   return matches
@@ -87,27 +103,41 @@ const isPathOfPageStructure = (localFilePath, pageId = null) => {
 const isPathOfPageFile = (localFilePath, pageId = null) =>
   isPathOfPageCode(localFilePath, pageId) ||
   isPathOfPageStructure(localFilePath, pageId) ||
-  isPathOfPageTsConfigFile(localFilePath, pageId);
+  isPathOfPageTsConfigFile(localFilePath, pageId) ||
+  isPathOfPageTypingsFile(localFilePath, pageId);
 
 const isPathOfWixFile = relativePath => path.extname(relativePath) === ".wix";
 
+const isPathOfPageTypingsFile = (localFilePath, pageId = null) => {
+  const match = matchLocalPageTypingsFile(localFilePath);
+  return pageId ? match && match.pageId === pageId : !!match;
+};
 const isPathOfPageTsConfigFile = (localFilePath, pageId = null) => {
   const match = matchLocalPageTsConfigFile(localFilePath);
   return pageId ? match && match.pageId === pageId : !!match;
 };
+
+const isPathOfBackendCodeFile = relativePath =>
+  isUnderPath(ROOT_PATHS.BACKEND, relativePath) &&
+  relativePath !== backendTsConfigFilePath();
+
+const isPathOfPublicCodeFile = relativePath =>
+  isUnderPath(ROOT_PATHS.PUBLIC, relativePath) &&
+  relativePath !== publicTsConfigFilePath();
 
 const isMetadataFilePath = filePath => filePath === DEFAULT_FILE_PATHS.METADATA;
 
 const isPathOfDocumentFile = relativePath =>
   isPathOfWixFile(relativePath) || isMetadataFilePath(relativePath);
 
+// add tests
 const isPathOfCodeFile = relativePath =>
-  isUnderPath(ROOT_PATHS.BACKEND, relativePath) ||
-  isUnderPath(ROOT_PATHS.PUBLIC, relativePath) ||
+  isPathOfPageCode(relativePath) ||
+  isPathOfBackendCodeFile(relativePath) ||
+  isPathOfPublicCodeFile(relativePath) ||
   isUnderPath(ROOT_PATHS.DATABASE, relativePath) ||
   relativePath === DEFAULT_FILE_PATHS.SITE_CODE ||
-  relativePath === DEFAULT_FILE_PATHS.PACKAGE_JSON ||
-  isPathOfPageCode(relativePath);
+  relativePath === DEFAULT_FILE_PATHS.PACKAGE_JSON;
 
 const stylesFilePath = name => path.join(ROOT_PATHS.STYLES, `${name}.wix`);
 
@@ -149,8 +179,14 @@ const pageRootFolderPath = ({ pageId, title, isPopup }) => {
 const pageTsConfigFilePath = ({ pageId, title, isPopup }) =>
   `${pageRootFolderPath({ pageId, title, isPopup })}/${TS_CONFIG_NAME}`;
 
+const pageTypingsFilePath = ({ pageId, title, isPopup }) =>
+  `${pageRootFolderPath({ pageId, title, isPopup })}/${TYPINGS_NAME}`;
+
 const masterPageTsConfigFilePath = () =>
   `${ROOT_PATHS.SITE_CODE}/${TS_CONFIG_NAME}`;
+
+const masterPageTypingsFilePath = () =>
+  `${ROOT_PATHS.SITE_CODE}/${TYPINGS_NAME}`;
 
 const backendTsConfigFilePath = () => `${ROOT_PATHS.BACKEND}/${TS_CONFIG_NAME}`;
 
@@ -159,6 +195,7 @@ const publicTsConfigFilePath = () => `${ROOT_PATHS.PUBLIC}/${TS_CONFIG_NAME}`;
 module.exports = {
   ROOT_PATHS,
   DEFAULT_FILE_PATHS,
+  TYPINGS_NAME,
 
   stylesFilePath,
   sitePartFilePath,
@@ -168,6 +205,8 @@ module.exports = {
   pageStructureFilePath,
   pageCodeFilePath,
   pageTsConfigFilePath,
+  pageTypingsFilePath,
+  masterPageTypingsFilePath,
   masterPageTsConfigFilePath,
   backendTsConfigFilePath,
   publicTsConfigFilePath,
@@ -181,8 +220,10 @@ module.exports = {
   isPathOfPageStructure,
   isPathOfEmptyByDefaultCodeFile,
   isPathOfPageTsConfigFile,
+  isPathOfPageTypingsFile,
 
   matchLocalPageTsConfigFile,
+  matchLocalPageTypingsFile,
   matchLocalPageDocumentPath,
   matchLocalPageCodePath
 };

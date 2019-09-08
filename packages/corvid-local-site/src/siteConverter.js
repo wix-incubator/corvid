@@ -18,22 +18,26 @@ const {
   ROOT_PATHS,
   DEFAULT_FILE_PATHS,
   isPathOfWixFile,
+  matchLocalPageTypingsFile,
   matchLocalPageTsConfigFile,
   matchLocalPageDocumentPath,
   matchLocalPageCodePath,
   isPathOfPageCode,
   isPathOfPageStructure,
   isPathOfPageTsConfigFile,
+  isPathOfPageTypingsFile,
   stylesFilePath,
   sitePartFilePath,
   menuFilePath,
   routerFilePath,
   pageStructureFilePath,
   pageCodeFilePath,
-  pageTsConfigFilePath
+  pageTsConfigFilePath,
+  pageTypingsFilePath
 } = require("./sitePaths");
 
 const {
+  getPagesDynamicTypings,
   getPagesTsConfigs,
   getCodeFilesTsConfigs
 } = require("./codeCompletion");
@@ -357,7 +361,22 @@ const updateLocalPageFilePath = (existingPath, newSiteDocumentPages) => {
     const { pageId } = matchLocalPageTsConfigFile(existingPath);
     const newPageInfo = newSiteDocumentPages[pageId];
     return newPageInfo ? pageTsConfigFilePath(newPageInfo) : null;
+  } else if (isPathOfPageTypingsFile(existingPath)) {
+    const { pageId } = matchLocalPageTypingsFile(existingPath);
+    const newPageInfo = newSiteDocumentPages[pageId];
+    return newPageInfo ? pageTypingsFilePath(newPageInfo) : null;
   }
+};
+
+const editorCodeIntelligenceToLocalTypingsFiles = (
+  existingPaths,
+  newCodeIntelligencePages
+) => {
+  const pages = existingPaths
+    .filter(matchLocalPageDocumentPath)
+    .map(path => matchLocalPageDocumentPath(path));
+
+  return getPagesDynamicTypings(newCodeIntelligencePages, pages);
 };
 
 module.exports = {
@@ -369,6 +388,8 @@ module.exports = {
 
   editorCodePathToLocalCodePath,
   localCodePathToEditorCodePath,
+
+  editorCodeIntelligenceToLocalTypingsFiles,
 
   updateLocalPageFilePath
 };

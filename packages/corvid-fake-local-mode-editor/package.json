@@ -16,6 +16,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "atob": "^2.1.2",
     "browserify": "^16.2.3",
     "corvid-local-test-utils": "0.1.83",
     "expect": "^24.8.0",

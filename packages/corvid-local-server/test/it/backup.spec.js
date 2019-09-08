@@ -1,7 +1,7 @@
 const eventually = require("wix-eventually");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
-const { siteCreators: sc } = require("corvid-local-test-utils");
+const { siteCreators: sc, socketClient } = require("corvid-local-test-utils");
 const {
   editor: loadEditor,
   localServer,
@@ -20,18 +20,42 @@ const createCodeChangePayload = (path, content) => ({
 
 afterEach(closeAll);
 
+const sendUpdateSiteDocument = async (server, updatedDocument) => {
+  const clientSocketOptions = {
+    transportOptions: {
+      polling: {
+        extraHeaders: {
+          origin: "https://editor.wix.com"
+        }
+      }
+    }
+  };
+
+  const editorSocket = await socketClient.connect(
+    `http://localhost:${server.port}`,
+    clientSocketOptions
+  );
+
+  await socketClient.sendRequest(
+    editorSocket,
+    "UPDATE_DOCUMENT",
+    updatedDocument
+  );
+};
+
 describe("Backup", () => {
   it("should restore from backup if updating site document is failed", async done => {
     const localSiteFiles = localSiteBuilder.buildFull();
-
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
-    // it should fail save
-    editor.modifyDocument(null);
+
     const prevLocalSite = await localSiteDir.readLocalSite(localSitePath);
+
     try {
-      await editor.save();
+      const invalidSiteDocument = {
+        pages: "string which is not pages"
+      };
+      await sendUpdateSiteDocument(server, invalidSiteDocument);
     } catch (e) {
       const localSite = await localSiteDir.readLocalSite(localSitePath);
       expect(localSite).toMatchObject(prevLocalSite);
@@ -48,7 +72,10 @@ describe("Backup", () => {
     const editor = await loadEditor(server.port);
     const editorSite = await editor.getSite();
     const updatedSiteItems = [
-      sc.page({ pageId: "page1", content: "modified content" })
+      sc.page({
+        pageId: "page1",
+        content: sc.generatePageContent("modified content")
+      })
     ];
 
     const siteUpdates = editorSiteBuilder.buildPartial(...updatedSiteItems);
@@ -87,7 +114,10 @@ describe("Backup", () => {
     );
     const editorSite = await editor.getSite();
     const updatedSiteItems = [
-      sc.page({ pageId: "page1", content: "modified content" })
+      sc.page({
+        pageId: "page1",
+        content: sc.generatePageContent("modified content")
+      })
     ];
     const siteUpdates = editorSiteBuilder.buildPartial(...updatedSiteItems);
     editor.modifyDocument(merge_({}, editorSite, siteUpdates).siteDocument);
@@ -185,7 +215,10 @@ describe("Backup", () => {
     const editor = await loadEditor(server.port);
     const editorSite = await editor.getSite();
     const updatedSiteItems = [
-      sc.page({ pageId: "page1", content: "modified content" })
+      sc.page({
+        pageId: "page1",
+        content: sc.generatePageContent("modified content")
+      })
     ];
 
     const siteUpdates = editorSiteBuilder.buildPartial(...updatedSiteItems);

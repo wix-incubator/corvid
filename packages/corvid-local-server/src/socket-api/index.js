@@ -19,6 +19,7 @@ const initServerApi = (
 
   let wasSiteDocumentUpdated = false;
   let wereCodeFilesUpdated = false;
+  let wereCodeIntelligenceUpdated = false;
 
   const handshake = () => ({
     editorApiVersion,
@@ -26,7 +27,10 @@ const initServerApi = (
     serverVersion
   });
 
-  const wasSiteSaved = () => wasSiteDocumentUpdated && wereCodeFilesUpdated;
+  const wasSiteSaved = () =>
+    wasSiteDocumentUpdated &&
+    wereCodeFilesUpdated &&
+    wereCodeIntelligenceUpdated;
 
   const isCloneMode = () => loadedInCloneMode && !wasSiteSaved();
 
@@ -76,6 +80,17 @@ const initServerApi = (
     return result;
   });
 
+  const updateCodeIntelligence = withCloneModeNotification(
+    async codeIntelligence => {
+      logger.verbose(getMessage("Index_Update_Code_Intelligence_Start_Log"));
+      const result = await localSite.updateCodeIntelligence(codeIntelligence);
+      logger.verbose(getMessage("Index_Update_Code_Intelligence_Complete_Log"));
+      notifyAdmin("code-intelligence-updated");
+      wereCodeIntelligenceUpdated = true;
+      return result;
+    }
+  );
+
   const onCodeChanged = callback => localSite.onCodeChanged(callback);
   const onDocumentChanged = callback => localSite.onDocumentChanged(callback);
 
@@ -90,6 +105,7 @@ const initServerApi = (
     updateSiteDocument,
     getCodeFiles,
     updateCodeFiles,
+    updateCodeIntelligence,
     onCodeChanged,
     onDocumentChanged,
     userMessage
