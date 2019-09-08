@@ -50,10 +50,9 @@ type IntersectionArrayAndBase<T> = {
   [P in keyof T]: P extends "Document" ? T[P] : T[P] & [T[P]];
 }
 
-type ComponentSelectorByType = IntersectionArrayAndBase<TypeNameToSdkType>
+type WixElementSelector = PageElementsMap & IntersectionArrayAndBase<TypeNameToSdkType>
 
-declare function $w<T extends keyof PageElementsMap>(selector: T): PageElementsMap[T]
-declare function $w<T extends keyof ComponentSelectorByType>(selector: T): ComponentSelectorByType[T]
+declare function $w<T extends keyof WixElementSelector>(selector: T): WixElementSelector[T]
 
 /**
  * The `$w` namespace contains everything you need in order to work
@@ -76,4 +75,8 @@ declare namespace $w {
    */
   export function onReady(initFunction: $w.ReadyHandler): void;
 
+  /**
+   * Selects and returns elements from a page.
+   */
+  type $w =  <T extends keyof WixElementSelector>(selector: T) => WixElementSelector[T]
 }
