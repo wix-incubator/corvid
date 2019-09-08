@@ -699,10 +699,6 @@ declare module 'wix-users' {
 }
 
 declare namespace $w {
-  /**
-   * Selects and returns elements from a page.
-   */
-  type $w = (selector: string) => $w.Element & [$w.Element];
 
   type dataset = wix_dataset.Dataset;
 
