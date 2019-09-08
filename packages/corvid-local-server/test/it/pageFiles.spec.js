@@ -24,8 +24,9 @@ describe("pageFiles", () => {
       const page = sc.page();
 
       const expectedPageCodePath = localSiteBuilder.getLocalFilePath(
-        sc.pageWithCode(page)
-      ).code;
+        sc.pageWithCode(page),
+        "code"
+      );
 
       const localSitePath = await initLocalSite();
       const server = await localServer.startInCloneMode(localSitePath);
@@ -44,8 +45,9 @@ describe("pageFiles", () => {
     it("should create an empty local lightbox code file if lightbox with no code is sent on load", async () => {
       const lightbox = sc.lightbox();
       const expectedLightboxCodePath = localSiteBuilder.getLocalFilePath(
-        sc.lightboxWithCode(lightbox)
-      ).code;
+        sc.lightboxWithCode(lightbox),
+        "code"
+      );
 
       const localSitePath = await initLocalSite();
       const server = await localServer.startInCloneMode(localSitePath);
@@ -98,14 +100,16 @@ describe("pageFiles", () => {
             : sc.lightboxWithCode({ title: "old title" });
 
         const itemWithNewTitle = cloneDeep_(itemWithOldTitle);
-        itemWithOldTitle[pageOrLightbox].title = "new title";
+        itemWithNewTitle[pageOrLightbox].title = "new title";
 
         const oldLocalCodePath = localSiteBuilder.getLocalFilePath(
-          itemWithOldTitle
-        ).code;
+          itemWithOldTitle,
+          "code"
+        );
         const newLocalCodePath = localSiteBuilder.getLocalFilePath(
-          itemWithNewTitle
-        ).code;
+          itemWithNewTitle,
+          "code"
+        );
 
         const basicSite = sc.fullSiteItems();
 
@@ -169,8 +173,11 @@ describe("pageFiles", () => {
         editor.togglePageLightbox("testPageId");
         await editor.save();
 
-        const fromLocalPath = localSiteBuilder.getLocalFilePath(fromItem).code;
-        const toLocalPath = localSiteBuilder.getLocalFilePath(toItem).code;
+        const fromLocalPath = localSiteBuilder.getLocalFilePath(
+          fromItem,
+          "code"
+        );
+        const toLocalPath = localSiteBuilder.getLocalFilePath(toItem, "code");
 
         expect(await doesSiteFileExist(localSitePath, fromLocalPath)).toBe(
           false

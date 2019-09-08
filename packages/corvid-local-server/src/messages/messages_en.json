@@ -5,6 +5,8 @@
     "Index_Update_Site_Document_Complete_Log": "Updating local site document done",
     "Index_Update_Code_Files_Start_Log": "Updating local code files",
     "Index_Update_Code_Files_Complete_Log": "Updating local code files done",
+    "Index_Update_Code_Intelligence_Start_Log": "Updating local code intelligence",
+    "Index_Update_Code_Intelligence_Complete_Log": "Updating local code intelligence done",
     "Index_Admin_Connected_Log": "Admin connected",
     "Index_Admin_Disconnected_Log": "Admin disconnected",
     "Index_Editor_Connected_Log": "Editor connected",

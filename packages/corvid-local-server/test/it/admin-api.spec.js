@@ -100,7 +100,7 @@ describe("admin api", () => {
       expect(cloneCompleteSpy).not.toHaveBeenCalledTimes(1);
     });
 
-    it("should not be sent if only the document was cloned", async () => {
+    it("should not be sent if document save hasn't been completed", async () => {
       const localSiteDir = await initLocalSite();
       const server = await localServer.startInCloneMode(localSiteDir);
       const cli = await connectCli(server.adminPort, server.adminToken);
@@ -116,12 +116,34 @@ describe("admin api", () => {
         }
       );
 
-      await editor.advanced.saveSiteDocument();
+      await editor.advanced.saveCodeIntelligence();
+      await editor.advanced.saveCodeFiles();
 
       expect(cloneCompleteSpy).not.toHaveBeenCalledTimes(1);
     });
 
-    it("should not be sent if only the code files were cloned", async () => {
+    it("should not be sent if code files hasn't been completed", async () => {
+      const localSiteDir = await initLocalSite();
+      const server = await localServer.startInCloneMode(localSiteDir);
+      const cli = await connectCli(server.adminPort, server.adminToken);
+
+      const cloneCompleteSpy = jest.fn();
+      cli.onServerEvent("clone-complete", cloneCompleteSpy);
+
+      const editor = await loadEditor(
+        server.port,
+        editorSiteBuilder.buildFull(),
+        {
+          cloneOnLoad: false
+        }
+      );
+
+      await editor.advanced.saveCodeIntelligence();
+      await editor.advanced.saveSiteDocument();
+
+      expect(cloneCompleteSpy).not.toHaveBeenCalledTimes(1);
+    });
+    it("should not be sent if code intelligence hasn't been completed", async () => {
       const localSiteDir = await initLocalSite();
       const server = await localServer.startInCloneMode(localSiteDir);
       const cli = await connectCli(server.adminPort, server.adminToken);
@@ -138,6 +160,7 @@ describe("admin api", () => {
       );
 
       await editor.advanced.saveCodeFiles();
+      await editor.advanced.saveSiteDocument();
 
       expect(cloneCompleteSpy).not.toHaveBeenCalledTimes(1);
     });

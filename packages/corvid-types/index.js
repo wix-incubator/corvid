@@ -4,8 +4,16 @@ const getTsConfigContent = configName =>
     extends: `corvid-types/configs/tsconfig.${configName}.json`
   });
 
+const getPageDynamicTypingsContent = elementsMap =>
+  prettyStringify(
+    `type PageElementsMap = { ${Object.keys(elementsMap)
+      .map(nicknmae => `#${nicknmae}: $${elementsMap[nicknmae]}`)
+      .join("; ")} }`
+  );
+
 module.exports = {
   getPageTsConfig: () => getTsConfigContent("pages"),
   getBackendTsConfig: () => getTsConfigContent("backend"),
-  getPublicTsConfig: () => getTsConfigContent("public")
+  getPublicTsConfig: () => getTsConfigContent("public"),
+  getPageDynamicTypingsContent
 };

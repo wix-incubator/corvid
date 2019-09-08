@@ -20,6 +20,7 @@ const {
 } = require("./sitePaths");
 
 const {
+  editorCodeIntelligenceToLocalTypingsFiles,
   editorDocumentToLocalDocumentFiles,
   localDocumentFilesToEditorDocument,
   editorCodeFilesToLocalCodeFiles,
@@ -175,13 +176,31 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
     return localCodeFilesToEditorCodeFiles(localCodeFiles);
   };
 
+  const updateCodeIntelligence = async codeIntelligence => {
+    await ensureLocalFolderSkeleton();
+
+    const existingLocalPageFilePaths = await listLocalPageFiles(siteRootPath);
+
+    const newLocalCodeIntelligenceFiles = editorCodeIntelligenceToLocalTypingsFiles(
+      existingLocalPageFilePaths,
+      codeIntelligence.elementsMap
+    );
+
+    await Promise.all(
+      newLocalCodeIntelligenceFiles.map(async localFile =>
+        filesWatcher.ignoredWriteFile(localFile.path, localFile.content)
+      )
+    );
+  };
+
   const readWriteQueue = createAsyncQueue();
 
   return {
     updateSiteDocument: readWriteQueue(withBackup(updateSiteDocument)),
     getSiteDocument: readWriteQueue(getSiteDocument),
     getCodeFiles: readWriteQueue(getCodeFiles),
-    updateCode: readWriteQueue(updateCode)
+    updateCode: readWriteQueue(updateCode),
+    updateCodeIntelligence: readWriteQueue(updateCodeIntelligence)
   };
 };
 
