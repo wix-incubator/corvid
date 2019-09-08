@@ -14,5 +14,12 @@
     "Watcher_Ignored_Delete_Log": "Deleting file <%= path %>",
     "Watcher_Ignored_Copy_Log": "Copying file from <%= sourcePath %> to <%= targetPath %>",
     "Watcher_Ignored_Move_Log": "Moving file from <%= sourcePath %> to <%= targetPath %>",
-    "Watcher_Ignored_Move_Fail_Log": "Moving file from <%= sourcePath %> to <%= targetPath %> failed with error '<%= message %>'"
+    "Watcher_Ignored_Move_Fail_Log": "Moving file from <%= sourcePath %> to <%= targetPath %> failed with error '<%= message %>'",
+    "Backup_Start_log": "Backing up site",
+    "Backup_Complete_log": "Backing up site complete",
+    "Backup_Fail_log": "Backing up site failed",
+    "Backup_Delete_Start_log": "Deleting backup",
+    "Backup_Delete_Complete_log": "Deleting backup complete",
+    "Backup_Restore_Start_log": "Restoring site from backup",
+    "Backup_Restore_Complete_log": "Restoring site from backup complete"
 }

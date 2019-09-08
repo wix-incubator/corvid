@@ -2,7 +2,6 @@ const { version: serverVersion } = require("../../package.json");
 const logger = require("corvid-local-logger");
 const editorSocketApi = require("./editorSocketHandler");
 const adminSocketApi = require("./adminSocketHandler");
-const backup = require("../backup");
 const getMessage = require("../messages");
 const { editorApiVersion } = require("../versions.json");
 const {
@@ -13,8 +12,7 @@ const initServerApi = (
   localSite,
   adminServer,
   editorServer,
-  loadedInCloneMode,
-  siteRootPath
+  loadedInCloneMode
 ) => {
   const notifyAdmin = (event, payload) =>
     adminServer.io.sockets.emit(event, payload);
@@ -43,8 +41,6 @@ const initServerApi = (
     return result;
   };
 
-  const withBackup = backup.withBackupInit(siteRootPath, localSite);
-
   const getEditorPort = () => editorServer.port;
 
   const isEditorConnected = () =>
@@ -61,14 +57,14 @@ const initServerApi = (
   };
 
   const updateSiteDocument = withCloneModeNotification(
-    withBackup(async updatedDocument => {
+    async updatedDocument => {
       logger.verbose(getMessage("Index_Update_Site_Document_Start_Log"));
       const result = await localSite.updateSiteDocument(updatedDocument);
       logger.verbose(getMessage("Index_Update_Site_Document_Complete_Log"));
       notifyAdmin("document-updated");
       wasSiteDocumentUpdated = true;
       return result;
-    })
+    }
   );
 
   const updateCodeFiles = withCloneModeNotification(async codeFileUpdates => {

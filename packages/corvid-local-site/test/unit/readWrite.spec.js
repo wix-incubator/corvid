@@ -1,7 +1,7 @@
 const flat = require("flat");
 const map_ = require("lodash/map");
 
-const { localSiteDir } = require("corvid-local-test-utils");
+const { localSiteDir, initTempDir } = require("corvid-local-test-utils");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 
 const initLocalSiteManager = require("../../src/init");
@@ -9,8 +9,12 @@ const initLocalSiteManager = require("../../src/init");
 describe("read write", () => {
   describe("parallel reads & writes", () => {
     it("should not allow reading and writing at the same time", async () => {
+      const tempSiteBackupDir = await initTempDir();
       const localSiteRootPath = await localSiteDir.initLocalSite();
-      const localSite = await initLocalSiteManager(localSiteRootPath);
+      const localSite = await initLocalSiteManager(
+        localSiteRootPath,
+        tempSiteBackupDir
+      );
 
       const exampleSite1 = editorSiteBuilder.buildFull();
       const exampleSite2 = editorSiteBuilder.buildFull();

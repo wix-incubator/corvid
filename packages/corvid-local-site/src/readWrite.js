@@ -6,6 +6,7 @@ const map_ = require("lodash/map");
 const { readDirToJson } = require("corvid-dir-as-json");
 
 const createAsyncQueue = require("./utils/asyncQueue");
+const initWithBackup = require("./utils/backup");
 
 const {
   isPathOfCodeFile,
@@ -72,7 +73,9 @@ const readLocalCodeFiles = async siteRootPath => {
   return readLocalFiles(siteRootPath, localCodeFilePaths);
 };
 
-const readWrite = (siteRootPath, filesWatcher) => {
+const readWrite = (siteRootPath, filesWatcher, backupPath) => {
+  const withBackup = initWithBackup(siteRootPath, backupPath, filesWatcher);
+
   const ensureLocalFolderSkeleton = () =>
     Promise.all(
       map_(ROOT_PATHS, (dirOrFilePath, rootName) =>
@@ -168,7 +171,7 @@ const readWrite = (siteRootPath, filesWatcher) => {
   const readWriteQueue = createAsyncQueue();
 
   return {
-    updateSiteDocument: readWriteQueue(updateSiteDocument),
+    updateSiteDocument: readWriteQueue(withBackup(updateSiteDocument)),
     getSiteDocument: readWriteQueue(getSiteDocument),
     getCodeFiles: readWriteQueue(getCodeFiles),
     updateCode: readWriteQueue(updateCode)
