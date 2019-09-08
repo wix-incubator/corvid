@@ -48,7 +48,10 @@ describe("Backup", () => {
     const editor = await loadEditor(server.port);
     const editorSite = await editor.getSite();
     const updatedSiteItems = [
-      sc.page({ pageId: "page1", content: "modified content" })
+      sc.page({
+        pageId: "page1",
+        content: sc.generatePageContent("modified content")
+      })
     ];
 
     const siteUpdates = editorSiteBuilder.buildPartial(...updatedSiteItems);
@@ -87,7 +90,10 @@ describe("Backup", () => {
     );
     const editorSite = await editor.getSite();
     const updatedSiteItems = [
-      sc.page({ pageId: "page1", content: "modified content" })
+      sc.page({
+        pageId: "page1",
+        content: sc.generatePageContent("modified content")
+      })
     ];
     const siteUpdates = editorSiteBuilder.buildPartial(...updatedSiteItems);
     editor.modifyDocument(merge_({}, editorSite, siteUpdates).siteDocument);

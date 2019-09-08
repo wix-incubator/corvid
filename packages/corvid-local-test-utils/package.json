@@ -16,6 +16,8 @@
   },
   "license": "MIT",
   "dependencies": {
+    "atob": "^2.1.2",
+    "btoa": "^1.2.1",
     "corvid-dir-as-json": "0.1.82",
     "fs-extra": "^8.1.0",
     "lodash": "^4.17.15",

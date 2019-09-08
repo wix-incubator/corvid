@@ -165,7 +165,16 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return localCodeFilesToEditorCodeFiles(localCodeFiles);
   };
 
+  const updateCodeIntelligence = async () => {
+    // console.log("updateCodeIntelligence", codeIntelligence);
+    // todo:: implement, maybe do queue
+    // how did we slove the sync problem between the page code and the the pages folder
+    // we have a problem in some cases our code / intelligence will be written in the wrong palce
+    // the listLocalPageFiles(siteRootPath) may return result that are outdated race condition
+  };
+
   return {
+    updateCodeIntelligence,
     updateSiteDocument,
     getSiteDocument,
     getCodeFiles,

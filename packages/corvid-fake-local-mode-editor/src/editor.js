@@ -9,6 +9,8 @@ const set_ = require("lodash/set");
 const head_ = require("lodash/head");
 const reduce_ = require("lodash/reduce");
 const noop_ = require("lodash/noop");
+const omit_ = require("lodash/omit");
+const get_ = require("lodash/get");
 const expect = require("expect");
 
 const flatten = data => flat(data, { delimiter: "/", safe: true });
@@ -99,6 +101,39 @@ const calculateCodeFileChanges = codeFiles => {
   };
 };
 
+const withoutElementsMap = siteDocument => {
+  if (get_(siteDocument, "pages")) {
+    siteDocument.pages = mapValues_(siteDocument.pages, page =>
+      omit_(page, "elementsMap")
+    );
+  }
+
+  if (get_(siteDocument, ["site", "commonComponents"])) {
+    siteDocument.site.commonComponents = omit_(
+      siteDocument.site.commonComponents,
+      "elementsMap"
+    );
+  }
+
+  return siteDocument;
+};
+
+const generateCodeIntelligencePayload = siteDocument => {
+  const codeIntelligence = {};
+  if (get_(siteDocument, "pages")) {
+    codeIntelligence.pages = mapValues_(
+      siteDocument.pages,
+      page => page.elementsMap
+    );
+  }
+  if (get_(siteDocument, ["site", "commonComponents"])) {
+    codeIntelligence.site = {
+      commonComponents: siteDocument.site.commonComponents.elementsMap
+    };
+  }
+  return codeIntelligence;
+};
+
 const getCurrentCodeFiles = codeFiles => {
   const flattened = flatten(codeFiles.current);
   const withCopied = mapValues_(flattened, value =>
@@ -123,7 +158,11 @@ const getSiteDocumentFromServer = async socket =>
 
 const loadEditor = async (
   port,
-  { siteDocument: initialSiteDocument, siteCode: initialSiteCode } = {},
+  {
+    siteDocument: initialSiteDocument,
+    siteCode: initialSiteCode,
+    codeIntelligence: initialCodeIntelligence
+  } = {},
   { cloneOnLoad = true, failOnClone = false } = {}
 ) => {
   const codeChangesLocallyHandler = payload => {
@@ -140,12 +179,24 @@ const loadEditor = async (
       previous: {},
       current: initialSiteCode || {}
     },
+    codeIntelligence: initialCodeIntelligence,
     codeChangesLocally: [codeChangesLocallyHandler],
     documentChangesLocally: [noop_]
   };
 
   const saveSiteDocument = async () =>
-    sendRequest(socket, "UPDATE_DOCUMENT", editorState.siteDocument);
+    sendRequest(
+      socket,
+      "UPDATE_DOCUMENT",
+      withoutElementsMap(editorState.siteDocument)
+    );
+
+  const saveCodeIntelligence = async () =>
+    sendRequest(
+      socket,
+      "UPDATE_CODE_INTELLIGENCE",
+      editorState.siteCodeIntelligence
+    );
 
   const saveCodeFiles = async () => {
     const codeFileChanges = calculateCodeFileChanges(editorState.codeFiles);
@@ -158,12 +209,19 @@ const loadEditor = async (
   };
 
   const saveLocal = async () => {
-    await saveSiteDocument(socket, editorState.siteDocument);
+    await saveSiteDocument();
     if (failOnClone) {
       // eslint-disable-next-line no-console
       console.log("[CORVID] failOnClone is set");
     }
-    await saveCodeFiles(socket, editorState.codeFiles);
+    await saveCodeFiles();
+    await saveCodeIntelligence();
+
+    // await Promise.all([
+    //   saveCodeFiles(),
+    //   saveSiteDocument(),
+    //   saveCodeIntelligence()
+    // ]);
   };
 
   const socket = await connectToLocalServer(port);
@@ -270,14 +328,20 @@ const loadEditor = async (
     getSite: () =>
       cloneDeep_({
         siteDocument: editorState.siteDocument,
-        siteCode: getCurrentCodeFiles(editorState.codeFiles)
+        siteCode: getCurrentCodeFiles(editorState.codeFiles),
+        siteCodeIntelligence: editorState.siteCodeIntelligence
       }),
 
     modifyDocument: newDocumnet => {
       editorState.siteDocument = newDocumnet;
+      // todo:: it's a problem autocomplete
+      editorState.siteCodeIntelligence = generateCodeIntelligencePayload(
+        newDocumnet
+      );
     },
     modifySite: newSite => {
       editorState.siteDocument = newSite.siteDocument;
+      editorState.siteCodeIntelligence = newSite.siteCodeIntelligence;
       editorState.codeFiles = {
         previous: editorState.codeFiles.current,
         current: newSite.siteCode
@@ -287,6 +351,7 @@ const loadEditor = async (
     registerDocumentChange,
     registerCodeChange,
     advanced: {
+      saveCodeIntelligence,
       saveSiteDocument,
       saveCodeFiles
     },

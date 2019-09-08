@@ -32,6 +32,8 @@ const PATH_MENUS = `${PATH_ASSETS}/menus`;
 const documentSchemaVersion = "1.0";
 
 const TS_CONFIG_NAME = "tsconfig.json";
+const D_TS_NAME = "types.d.ts";
+
 const TS_CONFIG_BACKEND_CONTENT = prettyStringify(
   '{"extends": "corvid-types/configs/tsconfig.backend.json"}'
 );
@@ -59,6 +61,20 @@ const LOCAL_SITE_SKELETON = {
     }
   },
   [PATH_LIGHTBOXES]: {}
+};
+
+const getElementsMapFromEncodedContent = content => {
+  const { elementsMap } = sc.decodeContent(content);
+  return elementsMap;
+};
+
+const getPageTypingsContent = content => {
+  const elementsMap = getElementsMapFromEncodedContent(content);
+  return prettyStringify(
+    `type PageElementsMap = { ${Object.keys(elementsMap)
+      .map(nicknmae => `#${nicknmae}: $${elementsMap[nicknmae]}`)
+      .join("; ")} }`
+  );
 };
 
 const wrapWithVersion = content => ({
@@ -102,7 +118,14 @@ const theme = content => stylesFile("theme", content);
 const topLevelStyles = content => stylesFile("topLevelStyles", content);
 
 const siteFile = (name, content) => wixFile(PATH_SITE, name, content);
-const commonComponents = content => siteFile("commonComponents", content);
+const commonComponents = commonComponents => [
+  siteFile("commonComponents", commonComponents),
+  {
+    path: `${PATH_PAGES}/${PATH_MASTER_PAGE}/${D_TS_NAME}`,
+    content: getPageTypingsContent(commonComponents.content)
+  }
+];
+
 const multilingualInfo = content => siteFile("multilingualInfo", content);
 const siteInfo = content => siteFile("siteInfo", content);
 const version = content => siteFile("version", content);
@@ -112,56 +135,71 @@ const router = router =>
 
 const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
-const page = page => [
-  { path: pageFilePath(page), content: wixFileContent(page) },
-  { path: pageCodeFilePath(page), content: "" },
-  {
-    path: `${pageRootPath(page)}/${TS_CONFIG_NAME}`,
-    content: TS_CONFIG_PAGE_CONTENT
-  }
-];
+const pageDocument = page => ({
+  path: pageFilePath(page),
+  content: wixFileContent(page)
+});
 
 const pageCode = (page, code) => ({
   path: pageCodeFilePath(page),
   content: code
 });
 
-const pageWithCode = ({ page, code }) => [
-  { path: pageFilePath(page), content: wixFileContent(page) },
-  pageCode(page, code),
-  {
-    path: `${pageRootPath(page)}/${TS_CONFIG_NAME}`,
-    content: TS_CONFIG_PAGE_CONTENT
-  }
-];
+const pageTsConfig = page => ({
+  path: `${pageRootPath(page)}/${TS_CONFIG_NAME}`,
+  content: TS_CONFIG_PAGE_CONTENT
+});
 
-const lightbox = lightbox => [
-  {
-    path: lightboxFilePath(lightbox),
-    content: wixFileContent(lightbox)
-  },
-  { path: lightboxCodeFilePath(lightbox), content: "" },
-  {
-    path: `${lightboxRootPath(lightbox)}/${TS_CONFIG_NAME}`,
-    content: TS_CONFIG_PAGE_CONTENT
-  }
-];
+const pageTypings = page => ({
+  path: `${pageRootPath(page)}/${D_TS_NAME}`,
+  content: getPageTypingsContent(page.content)
+});
 
-const lighboxCode = (lightbox, code) => ({
+const lightboxDocument = lightbox => ({
+  path: lightboxFilePath(lightbox),
+  content: wixFileContent(lightbox)
+});
+
+const lightboxCode = (lightbox, code) => ({
   path: lightboxCodeFilePath(lightbox),
   content: code
 });
 
+const lightboxTsConfig = lightbox => ({
+  path: `${lightboxRootPath(lightbox)}/${TS_CONFIG_NAME}`,
+  content: TS_CONFIG_PAGE_CONTENT
+});
+const lightboxTypings = lightbox => ({
+  path: `${lightboxRootPath(lightbox)}/${D_TS_NAME}`,
+  content: getPageTypingsContent(lightbox.content)
+});
+
+const page = page => [
+  pageDocument(page),
+  pageCode(page, ""),
+  pageTsConfig(page),
+  pageTypings(page)
+];
+
+const pageWithCode = ({ page, code }) => [
+  pageDocument(page),
+  pageCode(page, code),
+  pageTsConfig(page),
+  pageTypings(page)
+];
+
+const lightbox = lightbox => [
+  lightboxDocument(lightbox),
+  lightboxCode(lightbox, ""),
+  lightboxTsConfig(lightbox),
+  lightboxTypings(lightbox)
+];
+
 const lightboxWithCode = ({ lightbox, code }) => [
-  {
-    path: lightboxFilePath(lightbox),
-    content: wixFileContent(lightbox)
-  },
-  lighboxCode(lightbox, code),
-  {
-    path: `${lightboxRootPath(lightbox)}/${TS_CONFIG_NAME}`,
-    content: TS_CONFIG_PAGE_CONTENT
-  }
+  lightboxDocument(lightbox),
+  lightboxCode(lightbox, code),
+  lightboxTsConfig(lightbox),
+  lightboxTypings(lightbox)
 ];
 
 // code
@@ -256,25 +294,34 @@ const getLocalFilePath = (siteItem, partKey) => {
       pickValue({
         page: file[0].path,
         code: file[1].path,
-        tsConfig: file[2].path
+        tsConfig: file[2].path,
+        typings: file[3].path
       }),
     [sc.pageWithCode]: () =>
       pickValue({
         page: file[0].path,
         code: file[1].path,
-        tsConfig: file[2].path
+        tsConfig: file[2].path,
+        typings: file[3].path
       }),
     [sc.lightbox]: () =>
       pickValue({
         page: file[0].path,
         code: file[1].path,
-        tsConfig: file[2].path
+        tsConfig: file[2].path,
+        typings: file[3].path
       }),
     [sc.lightboxWithCode]: () =>
       pickValue({
         page: file[0].path,
         code: file[1].path,
-        tsConfig: file[2].path
+        tsConfig: file[2].path,
+        typings: file[3].path
+      }),
+    [sc.commonComponents]: () =>
+      pickValue({
+        page: file[0].path,
+        typings: file[1].path
       }),
     "*": () => file.path
   });
@@ -289,25 +336,34 @@ const getLocalFileContent = (siteItem, partKey) => {
       pickValue({
         page: file[0].content,
         code: file[1].content,
-        tsConfig: file[2].content
+        tsConfig: file[2].content,
+        typings: file[3].content
       }),
     [sc.pageWithCode]: () =>
       pickValue({
         page: file[0].content,
         code: file[1].content,
-        tsConfig: file[2].content
+        tsConfig: file[2].content,
+        typings: file[3].content
       }),
     [sc.lightbox]: () =>
       pickValue({
         page: file[0].content,
         code: file[1].content,
-        tsConfig: file[2].content
+        tsConfig: file[2].content,
+        typings: file[3].content
       }),
     [sc.lightboxWithCode]: () =>
       pickValue({
         page: file[0].content,
         code: file[1].content,
-        tsConfig: file[2].content
+        tsConfig: file[2].content,
+        typings: file[3].content
+      }),
+    [sc.commonComponents]: () =>
+      pickValue({
+        page: file[0].content,
+        typings: file[1].content
       }),
     "*": () => file.content
   });

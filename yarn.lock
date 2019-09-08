@@ -5313,7 +5313,12 @@ lodash.uniq@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
 
-lodash@4.17.11, lodash@^4.17.11, lodash@^4.17.15, lodash@^4.17.5, lodash@^4.2.1:
+lodash@4.17.11:
+  version "4.17.11"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
+  integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
+
+lodash@^4.17.11, lodash@^4.17.15, lodash@^4.17.5, lodash@^4.2.1:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
@@ -5648,7 +5653,7 @@ mississippi@^3.0.0:
     stream-each "^1.1.0"
     through2 "^2.0.0"
 
-mixin-deep@1.3.2, mixin-deep@^1.2.0:
+mixin-deep@^1.2.0:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/mixin-deep/-/mixin-deep-1.3.2.tgz#1120b43dc359a785dce65b55b82e257ccf479566"
   integrity sha512-WRoDn//mXBiJ1H40rqa3vH0toePwSsGb45iInWlTySa+Uu4k3tYUSxa2v1KqAiLtvlrSzaExqS1gtk96A9zvEA==
@@ -8075,7 +8080,7 @@ undeclared-identifiers@^1.1.2:
     simple-concat "^1.0.0"
     xtend "^4.0.1"
 
-union-value@1.0.1, union-value@^1.0.0:
+union-value@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/union-value/-/union-value-1.0.1.tgz#0b6fe7b835aecda61c6ea4d4f02c14221e109847"
   integrity sha512-tJfXmxMeWYnczCVs7XAEvIV7ieppALdyepWMkHkwciRpZraG/xwT+s2JN8+pr1+8jCRf80FFzvr+MpQeeoF4Xg==

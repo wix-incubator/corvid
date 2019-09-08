@@ -127,11 +127,18 @@ describe("edit mode", () => {
   });
 
   it("should send updated site document when user changes page content from the editor and clicks save", async () => {
+    const elementsMap = {
+      comp1: sc.randomSdkType(),
+      comp2: sc.randomSdkType()
+    };
     const existingSiteItems = [
-      sc.page({ pageId: "page1", content: "existing content" }),
+      sc.page({
+        pageId: "page1",
+        content: sc.generatePageContent("existing content1", elementsMap)
+      }),
       sc.lightbox({
         pageId: "lightbox1",
-        content: "existing content"
+        content: sc.generatePageContent("existing content2", elementsMap)
       })
     ];
 
@@ -144,10 +151,13 @@ describe("edit mode", () => {
     const editorSite = editor.getSite();
 
     const updatedSiteItems = [
-      sc.page({ pageId: "page1", content: "modified content" }),
+      sc.page({
+        pageId: "page1",
+        content: sc.generatePageContent("modified content1", elementsMap)
+      }),
       sc.lightbox({
         pageId: "lightbox1",
-        content: "modified content"
+        content: sc.generatePageContent("modified content2", elementsMap)
       }),
       sc.page({ pageId: "page2" }) //  new page
     ];
@@ -158,7 +168,6 @@ describe("edit mode", () => {
     await editor.save();
 
     const localSite = await localSiteDir.readLocalSite(localSitePath);
-
     const expectedLocalSite = localSiteBuilder.buildPartial(
       ...updatedSiteItems
     );

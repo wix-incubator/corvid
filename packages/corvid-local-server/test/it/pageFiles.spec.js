@@ -100,7 +100,7 @@ describe("pageFiles", () => {
             : sc.lightboxWithCode({ title: "old title" });
 
         const itemWithNewTitle = cloneDeep_(itemWithOldTitle);
-        itemWithOldTitle[pageOrLightbox].title = "new title";
+        itemWithNewTitle[pageOrLightbox].title = "new title";
 
         const oldLocalCodePath = localSiteBuilder.getLocalFilePath(
           itemWithOldTitle,
