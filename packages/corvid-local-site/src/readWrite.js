@@ -7,6 +7,7 @@ const { readDirToJson } = require("corvid-dir-as-json");
 
 const createAsyncQueue = require("./utils/asyncQueue");
 const initWithBackup = require("./utils/backup");
+const { deleteEmptySubFolders } = require("./utils/fileUtils");
 
 const {
   isPathOfCodeFile,
@@ -107,6 +108,9 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
     await map_(newSiteDocumentPages, page =>
       filesWatcher.ignoredEnsureFile(pageCodeFilePath(page))
     );
+
+    await deleteEmptySubFolders(path.join(siteRootPath, ROOT_PATHS.PAGES));
+    await deleteEmptySubFolders(path.join(siteRootPath, ROOT_PATHS.LIGHTBOXES));
   };
 
   const updateSiteDocument = async newEditorDocument => {

@@ -16,12 +16,13 @@ const ROOT_PATHS = {
   STYLES: `assets/styles`,
   SITE: `assets/site`,
   ROUTERS: `assets/routers`,
-  MENUS: `assets/menus`
+  MENUS: `assets/menus`,
+  SITE_CODE: "pages/site"
 };
 
 const DEFAULT_FILE_PATHS = {
   METADATA: ".metadata.json",
-  SITE_CODE: "pages/site.js",
+  SITE_CODE: "pages/site/site.js",
   PACKAGE_JSON: "corvid-package.json"
 };
 
@@ -41,13 +42,13 @@ const matchLocalPageFile = extension => filePath => {
     new RegExp(
       `^(?<root>${ROOT_PATHS.PAGES}|${
         ROOT_PATHS.LIGHTBOXES
-      })\/(?<title>[^\/]*)\\.(?<pageId>[^.\/]*).${extension}`
+      })\/(?<folderTitle>[^\/]*)\\.(?<pageId>[^.\/]*)\/(?<fileNameTitle>[^\/]*).${extension}`
     )
   );
-  return matches
+  return matches && matches.groups.fileNameTitle === matches.groups.folderTitle
     ? {
         pageId: matches.groups.pageId,
-        title: matches.groups.title,
+        title: matches.groups.fileName,
         isPopup: matches.groups.root === ROOT_PATHS.LIGHTBOXES
       }
     : null;
@@ -100,10 +101,9 @@ const sanitizePageTitle = pageTitle => sanitize(removeSpaces(pageTitle));
 const pageFilePath = ({ pageId, title, isPopup, extension }) => {
   const pageOrLightboxRoot = isPopup ? ROOT_PATHS.LIGHTBOXES : ROOT_PATHS.PAGES;
   const sanitizedTitle = sanitizePageTitle(title);
-  return path.join(
-    pageOrLightboxRoot,
-    `${sanitizedTitle}.${pageId}.${extension}`
-  );
+  const pageSubFolder = `${pageOrLightboxRoot}/${sanitizedTitle}.${pageId}`;
+  const pageFileName = `${sanitizedTitle}.${extension}`;
+  return path.join(pageSubFolder, pageFileName);
 };
 
 const pageStructureFilePath = ({ pageId, title, isPopup }) =>
