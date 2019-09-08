@@ -16,21 +16,25 @@ const ROOT_PATHS = {
   STYLES: `assets/styles`,
   SITE: `assets/site`,
   ROUTERS: `assets/routers`,
-  MENUS: `assets/menus`,
+  MENUS: `assets/menus`
+};
 
-  METADATA_FILE: ".metadata.json",
-  SITE_CODE_FILE: "pages/site.js",
-  PACKAGE_JSON_FILE: "corvid-package.json"
+const DEFAULT_FILE_PATHS = {
+  METADATA: ".metadata.json",
+  SITE_CODE: "pages/site.js",
+  PACKAGE_JSON: "corvid-package.json"
 };
 
 const isPathRelatedToSite = (rootSitePath, fullPathToCheck) =>
-  values_(ROOT_PATHS).some(siteSubFolder => {
-    const fullSiteSubFolder = path.join(rootSitePath, siteSubFolder);
-    return (
-      isUnderPath(fullSiteSubFolder, fullPathToCheck) ||
-      isUnderPath(fullPathToCheck, fullSiteSubFolder)
-    );
-  });
+  values_(ROOT_PATHS)
+    .concat(values_(DEFAULT_FILE_PATHS))
+    .some(siteSubFolder => {
+      const fullSiteSubFolder = path.join(rootSitePath, siteSubFolder);
+      return (
+        isUnderPath(fullSiteSubFolder, fullPathToCheck) ||
+        isUnderPath(fullPathToCheck, fullSiteSubFolder)
+      );
+    });
 
 const matchLocalPageFile = extension => filePath => {
   const matches = filePath.match(
@@ -68,7 +72,7 @@ const isPathOfPageFile = (localFilePath, pageId = null) =>
 
 const isPathOfWixFile = relativePath => path.extname(relativePath) === ".wix";
 
-const isMetadataFilePath = filePath => filePath === ROOT_PATHS.METADATA_FILE;
+const isMetadataFilePath = filePath => filePath === DEFAULT_FILE_PATHS.METADATA;
 
 const isPathOfDocumentFile = relativePath =>
   isPathOfWixFile(relativePath) || isMetadataFilePath(relativePath);
@@ -77,8 +81,8 @@ const isPathOfCodeFile = relativePath =>
   isUnderPath(ROOT_PATHS.BACKEND, relativePath) ||
   isUnderPath(ROOT_PATHS.PUBLIC, relativePath) ||
   isUnderPath(ROOT_PATHS.DATABASE, relativePath) ||
-  relativePath === ROOT_PATHS.SITE_CODE_FILE ||
-  relativePath === ROOT_PATHS.PACKAGE_JSON_FILE ||
+  relativePath === DEFAULT_FILE_PATHS.SITE_CODE ||
+  relativePath === DEFAULT_FILE_PATHS.PACKAGE_JSON ||
   isPathOfPageCode(relativePath);
 
 const stylesFilePath = name => path.join(ROOT_PATHS.STYLES, `${name}.wix`);
@@ -110,12 +114,13 @@ const pageCodeFilePath = ({ pageId, title, isPopup }) =>
 
 const isPathOfEmptyByDefaultCodeFile = localFilePath =>
   isPathOfPageCode(localFilePath) ||
-  [ROOT_PATHS.PACKAGE_JSON_FILE, ROOT_PATHS.SITE_CODE_FILE].includes(
+  [DEFAULT_FILE_PATHS.PACKAGE_JSON, DEFAULT_FILE_PATHS.SITE_CODE].includes(
     localFilePath
   );
 
 module.exports = {
   ROOT_PATHS,
+  DEFAULT_FILE_PATHS,
 
   stylesFilePath,
   sitePartFilePath,
