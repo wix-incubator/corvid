@@ -14,7 +14,8 @@ const {
   isPathOfPageFile,
   isPathOfEmptyByDefaultCodeFile,
   pageCodeFilePath,
-  ROOT_PATHS
+  ROOT_PATHS,
+  DEFAULT_FILE_PATHS
 } = require("./sitePaths");
 
 const {
@@ -77,13 +78,14 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
   const withBackup = initWithBackup(siteRootPath, backupPath, filesWatcher);
 
   const ensureLocalFolderSkeleton = () =>
-    Promise.all(
-      map_(ROOT_PATHS, (dirOrFilePath, rootName) =>
-        rootName.endsWith("_FILE")
-          ? fs.ensureFile(path.join(siteRootPath, dirOrFilePath))
-          : fs.ensureDir(path.join(siteRootPath, dirOrFilePath))
+    Promise.all([
+      ...map_(ROOT_PATHS, dirOrFilePath =>
+        fs.ensureDir(path.join(siteRootPath, dirOrFilePath))
+      ),
+      ...map_(DEFAULT_FILE_PATHS, dirOrFilePath =>
+        fs.ensureFile(path.join(siteRootPath, dirOrFilePath))
       )
-    );
+    ]);
 
   const syncExistingPageFolders = async newSiteDocumentPages => {
     const existingPageFilePaths = await listLocalPageFiles(siteRootPath);

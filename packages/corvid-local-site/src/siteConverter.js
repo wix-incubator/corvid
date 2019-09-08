@@ -16,6 +16,7 @@ const {
 
 const {
   ROOT_PATHS,
+  DEFAULT_FILE_PATHS,
   isPathOfWixFile,
   matchLocalPageDocumentPath,
   matchLocalPageCodePath,
@@ -122,7 +123,7 @@ const pageFileToDocument = pageFile => {
 // misc
 
 const metadataDocumentToFile = documentSchemaVersion => ({
-  path: ROOT_PATHS.METADATA_FILE,
+  path: DEFAULT_FILE_PATHS.METADATA,
   content: prettyStringify({
     documentSchemaVersion,
     localFileSystemLayout
@@ -147,7 +148,7 @@ const localFileToDocument = file => {
       [ROOT_PATHS.SITE]: sitePartFileToDocument,
       [ROOT_PATHS.ROUTERS]: routerFileToDocument,
       [ROOT_PATHS.MENUS]: menuFileToDocument,
-      [ROOT_PATHS.METADATA_FILE]: metadataFileToDocument
+      [DEFAULT_FILE_PATHS.METADATA]: metadataFileToDocument
     },
     (_, rootPath) => isUnderPath(rootPath, file.path)
   );
@@ -257,10 +258,10 @@ const editorCodePathToLocalCodePath = (
   existingLocalPageFilePaths
 ) => {
   if (editorCodePath === EDITOR_PATHS.MASTER_PAGE_CODE_FILE) {
-    return ROOT_PATHS.SITE_CODE_FILE;
+    return DEFAULT_FILE_PATHS.SITE_CODE;
   }
   if (editorCodePath === EDITOR_PATHS.WIX_CODE_PACKAGE_JSON_FILE) {
-    return ROOT_PATHS.PACKAGE_JSON_FILE;
+    return DEFAULT_FILE_PATHS.PACKAGE_JSON;
   }
   if (isUnderPath("public/pages", editorCodePath)) {
     return editorPageCodePathToLocalCodePath(
@@ -283,10 +284,10 @@ const editorCodePathToLocalCodePath = (
 };
 
 const localCodePathToEditorCodePath = localCodePath => {
-  if (localCodePath === ROOT_PATHS.SITE_CODE_FILE) {
+  if (localCodePath === DEFAULT_FILE_PATHS.SITE_CODE) {
     return EDITOR_PATHS.MASTER_PAGE_CODE_FILE;
   }
-  if (localCodePath === ROOT_PATHS.PACKAGE_JSON_FILE) {
+  if (localCodePath === DEFAULT_FILE_PATHS.PACKAGE_JSON) {
     return EDITOR_PATHS.WIX_CODE_PACKAGE_JSON_FILE;
   }
   if (
