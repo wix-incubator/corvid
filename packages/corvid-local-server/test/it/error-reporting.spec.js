@@ -37,7 +37,10 @@ describe("santy tests for error reporting", () => {
 
     const editorSite = editorSiteBuilder.buildFull();
     const brokenEditorSite = Object.assign(editorSite, {
-      siteDocument: null
+      siteDocument: {
+        pages: "some string which is not pages",
+        site: "some string which is not site"
+      }
     });
     await loadEditor(server.port, brokenEditorSite).catch(() => {});
 

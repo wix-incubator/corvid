@@ -35,7 +35,8 @@ async function startServer(siteRootPath, options) {
   const isWix = await fs.exists(
     path.join(siteRootPath, ".corvid", "corvidrc.json")
   ); // TEMPORARY
-  const hasBackup = await fs.exists(projectPaths.backupPath(siteRootPath));
+  const siteBackupPath = projectPaths.backupPath(siteRootPath);
+  const hasBackup = await fs.exists(siteBackupPath);
 
   if (hasBackup) {
     logger.info(getMessage("Server_Backup_Found_Log"));
@@ -91,7 +92,7 @@ async function startServer(siteRootPath, options) {
   let localSite, editorServer, adminServer;
 
   try {
-    localSite = await initLocalSiteManager(siteSrcPath);
+    localSite = await initLocalSiteManager(siteSrcPath, siteBackupPath);
     editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
       allowedDomains: ["editor.wix.com"].concat(
         process.env.NODE_ENV === "test" ? ["localhost"] : []
@@ -101,13 +102,7 @@ async function startServer(siteRootPath, options) {
 
     adminServer.io.use(adminTokenMiddleware(adminToken));
 
-    initServerApi(
-      localSite,
-      adminServer,
-      editorServer,
-      !isEdit(options),
-      siteRootPath
-    );
+    initServerApi(localSite, adminServer, editorServer, !isEdit(options));
 
     logger.info(
       getMessage("Server_Listening_Log", {

@@ -1,7 +1,6 @@
-const logger = require("corvid-local-logger");
 const fs = require("fs-extra");
-const projectPaths = require("./projectPaths");
-const getMessage = require("./messages");
+const logger = require("corvid-local-logger");
+const getMessage = require("../messages");
 
 const backup = async (siteSrcPath, backupPath) => {
   logger.info(getMessage("Backup_Start_log"));
@@ -27,9 +26,7 @@ const restore = async (siteSrcPath, backupPath) => {
   logger.info(getMessage("Backup_Restore_Complete_log"));
 };
 
-const withBackupInit = (rootPath, localSite) => {
-  const siteSrcPath = projectPaths.siteSrcPath(rootPath);
-  const backupPath = projectPaths.backupPath(rootPath);
+const withBackupInit = (siteSrcPath, backupPath, filesWatcher) => {
   return asyncCallback => async (...args) => {
     await backup(siteSrcPath, backupPath);
     try {
@@ -37,13 +34,11 @@ const withBackupInit = (rootPath, localSite) => {
       await deleteBackup(backupPath);
       return result;
     } catch (error) {
-      localSite.pause();
+      filesWatcher.pause();
       await restore(siteSrcPath, backupPath);
-      localSite.resume();
+      filesWatcher.resume();
       throw error;
     }
   };
 };
-module.exports = {
-  withBackupInit
-};
+module.exports = withBackupInit;
