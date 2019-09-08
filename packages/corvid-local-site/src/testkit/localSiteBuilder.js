@@ -14,16 +14,7 @@ const titleCharReplacement = "_";
 const prettyStringify = content => JSON.stringify(content, null, 2);
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
-const pageFileName = page =>
-  [sanitize(removeSpaces(page.title)), page.pageId].join(".");
-
-const pageCodeFileName = page =>
-  [sanitize(removeSpaces(page.title)), page.pageId, pageCodeExtention].join(
-    "."
-  );
-
-const lightboxFileName = pageFileName;
-const lightboxCodeFileName = pageCodeFileName;
+const toFilename = title => sanitize(removeSpaces(title));
 
 const PATH_ASSETS = "assets";
 const PATH_BACKEND = "backend";
@@ -52,13 +43,34 @@ const wrapWithVersion = content => ({
   documentSchemaVersion
 });
 
-const wixFilePath = (filename, parentPath = "") =>
-  `${parentPath}/${filename}.${wixFileExtension}`;
+const wixFileContent = content => prettyStringify(wrapWithVersion(content));
 
 const wixFile = (parentPath, name, content) => ({
-  path: wixFilePath(name, parentPath),
-  content: prettyStringify(wrapWithVersion(content))
+  path: `${parentPath}/${name}.${wixFileExtension}`,
+  content: wixFileContent(content)
 });
+
+const pageRootPath = page =>
+  `${PATH_PAGES}/${toFilename(page.title)}.${page.pageId}`;
+
+const pageFilePath = page =>
+  `${pageRootPath(page)}/${toFilename(page.title)}.${wixFileExtension}`;
+
+const pageCodeFilePath = page =>
+  `${pageRootPath(page)}/${toFilename(page.title)}.${pageCodeExtention}`;
+
+const lightboxRootPath = lightbox =>
+  `${PATH_LIGHTBOXES}/${toFilename(lightbox.title)}.${lightbox.pageId}`;
+
+const lightboxFilePath = lightbox =>
+  `${lightboxRootPath(lightbox)}/${toFilename(
+    lightbox.title
+  )}.${wixFileExtension}`;
+
+const lightboxCodeFilePath = lightbox =>
+  `${lightboxRootPath(lightbox)}/${toFilename(
+    lightbox.title
+  )}.${pageCodeExtention}`;
 
 const stylesFile = (name, content) => wixFile(PATH_STYLES, name, content);
 const colors = content => stylesFile("colors", content);
@@ -77,10 +89,13 @@ const router = router =>
 
 const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
-const page = page => wixFile(PATH_PAGES, pageFileName(page), page);
+const page = page => ({
+  path: pageFilePath(page),
+  content: wixFileContent(page)
+});
 
 const pageCode = (page, code) => ({
-  path: `${PATH_PAGES}/${pageCodeFileName(page)}`,
+  path: pageCodeFilePath(page),
   content: code
 });
 
@@ -89,11 +104,13 @@ const pageWithCode = ({ page: pageData, code }) => [
   pageCode(pageData, code)
 ];
 
-const lightbox = lightbox =>
-  wixFile(PATH_LIGHTBOXES, lightboxFileName(lightbox), lightbox);
+const lightbox = lightbox => ({
+  path: lightboxFilePath(lightbox),
+  content: wixFileContent(lightbox)
+});
 
 const lighboxCode = (lightbox, code) => ({
-  path: `${PATH_LIGHTBOXES}/${lightboxCodeFileName(lightbox)}`,
+  path: lightboxCodeFilePath(lightbox),
   content: code
 });
 
@@ -126,7 +143,7 @@ const collectionSchema = ({ collectionName, schema }) =>
 
 const masterPageCode = ({ content }) =>
   codeFile({
-    path: `${PATH_PAGES}/site.js`,
+    path: `${PATH_PAGES}/site/site.js`,
     content
   });
 
@@ -222,11 +239,20 @@ const getLocalCodeFileContent = siteItem => {
   return isObject_(localFileContent) ? localFileContent.code : localFileContent;
 };
 
+const getLocalPageRootPath = pageOrLightboxItem =>
+  sc.matchItem(pageOrLightboxItem, {
+    [sc.page]: pageRootPath,
+    [sc.pageWithCode]: ({ page }) => pageRootPath(page),
+    [sc.lightbox]: lightboxRootPath,
+    [sc.lightboxWithCode]: ({ lightbox }) => lightboxRootPath(lightbox)
+  });
+
 module.exports = {
   buildFull,
   buildPartial,
   getLocalFilePath,
   getLocalFileContent,
   getLocalCodeFilePath,
-  getLocalCodeFileContent
+  getLocalCodeFileContent,
+  getLocalPageRootPath
 };
