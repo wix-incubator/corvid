@@ -1,6 +1,6 @@
 {
   "name": "corvid-local-server",
-  "version": "0.1.82",
+  "version": "0.1.83",
   "description": "",
   "main": "src/index.js",
   "scripts": {
@@ -17,9 +17,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "corvid-local-logger": "0.1.82",
-    "corvid-local-site": "0.1.82",
-    "corvid-local-test-utils": "0.1.82",
+    "corvid-local-logger": "0.1.83",
+    "corvid-local-site": "0.1.83",
+    "corvid-local-test-utils": "0.1.83",
     "express": "^4.16.4",
     "fs-extra": "^7.0.1",
     "listen-on-free-port": "1.0.3",
@@ -28,8 +28,8 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "corvid-dir-as-json": "0.1.82",
-    "corvid-fake-local-mode-editor": "0.1.82",
+    "corvid-dir-as-json": "0.1.83",
+    "corvid-fake-local-mode-editor": "0.1.83",
     "jest": "^24.8.0",
     "lodash": "^4.17.15",
     "nock": "^10.0.6",
