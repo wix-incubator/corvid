@@ -142,6 +142,21 @@ declare module 'wix-window' {
      * Gets which mode the site is currently being viewed in.
      */
     const viewMode: string;
+    
+    /**
+     * A lightbox pops up on your site to grab your visitor's attention.
+     */
+    const lightbox: wix_window.lightbox;
+
+    /**
+     * The Multilingual API is used when working with the languages in a multilingual site.
+     */
+    const rendering: wix_window.rendering;
+
+    /**
+     * The Multilingual API is used when working with the languages in a multilingual site.
+     */
+    const multilingual: wix_window.multilingual;
 
     /**
      * Returns information about the window.
