@@ -187,7 +187,7 @@ const metadata = () => ({
   path: ".metadata.json",
   content: prettyStringify({
     documentSchemaVersion: "1.0",
-    localFileSystemLayout: "1.0"
+    localFileSystemLayout: "2.0"
   })
 });
 

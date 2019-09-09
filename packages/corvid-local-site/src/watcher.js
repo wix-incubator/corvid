@@ -6,7 +6,7 @@ const reject_ = require("lodash/reject");
 const logger = require("corvid-local-logger");
 const { isUnderPath, isSamePath } = require("./utils/fileUtils");
 const { isPathRelatedToSite } = require("./sitePaths");
-const getMessage = require("./messages");
+const { getMessage } = require("./messages");
 
 const ensureWriteFile = async (path, content) => {
   await fs.ensureFile(path);
