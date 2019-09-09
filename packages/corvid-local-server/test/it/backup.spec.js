@@ -93,17 +93,20 @@ describe("Backup", () => {
     editor.modifyDocument(merge_({}, editorSite, siteUpdates).siteDocument);
 
     await editor.save();
+
     const code = sc.backendCode();
-    let filePath = localSiteBuilder.getLocalFilePath(code);
-    let fileContent = localSiteBuilder.getLocalFileContent(code);
+    const filePath = localSiteBuilder.getLocalFilePath(code, "code");
+    const fileContent = localSiteBuilder.getLocalFileContent(code, "code");
+
     localSiteDir.writeFile(localSitePath, filePath, fileContent);
     const watcherPayload = createCodeChangePayload(
       editorSiteBuilder.getEditorCodeFilePath(code),
       fileContent
     );
     const page = sc.page();
-    let pageFilePath = localSiteBuilder.getLocalFilePath(page);
-    let pageFileContent = localSiteBuilder.getLocalFileContent(page);
+    const pageFilePath = localSiteBuilder.getLocalFilePath(page, "page");
+    const pageFileContent = localSiteBuilder.getLocalFileContent(page, "page");
+
     await localSiteDir.writeFile(localSitePath, pageFilePath, pageFileContent);
 
     await eventually(async () => {
@@ -139,16 +142,21 @@ describe("Backup", () => {
       await editor.save();
     } catch (e) {
       const code = sc.backendCode();
-      let filePath = localSiteBuilder.getLocalFilePath(code);
-      let fileContent = localSiteBuilder.getLocalFileContent(code);
+      const filePath = localSiteBuilder.getLocalFilePath(code, "code");
+      const fileContent = localSiteBuilder.getLocalFileContent(code, "code");
+
       localSiteDir.writeFile(localSitePath, filePath, fileContent);
       const watcherPayload = createCodeChangePayload(
         editorSiteBuilder.getEditorCodeFilePath(code),
         fileContent
       );
       const page = sc.page();
-      let pageFilePath = localSiteBuilder.getLocalFilePath(page);
-      let pageFileContent = localSiteBuilder.getLocalFileContent(page);
+      const pageFilePath = localSiteBuilder.getLocalFilePath(page, "page");
+      const pageFileContent = localSiteBuilder.getLocalFileContent(
+        page,
+        "page"
+      );
+
       await localSiteDir.writeFile(
         localSitePath,
         pageFilePath,

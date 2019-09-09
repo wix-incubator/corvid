@@ -35,8 +35,11 @@ describe("local changes", () => {
         );
 
         const docItem = sc[itemKey]();
-        let filePath = localSiteBuilder.getLocalFilePath(docItem);
-        let fileContent = localSiteBuilder.getLocalFileContent(docItem);
+        const filePath = localSiteBuilder.getLocalFilePath(docItem, "page");
+        const fileContent = localSiteBuilder.getLocalFileContent(
+          docItem,
+          "page"
+        );
 
         await writeFile(localSitePath, filePath, fileContent);
 
@@ -63,8 +66,11 @@ describe("local changes", () => {
           onDocumentChange
         );
 
-        let filePath = localSiteBuilder.getLocalFilePath(docItem);
-        let fileContent = localSiteBuilder.getLocalFileContent(sc[itemKey]());
+        const filePath = localSiteBuilder.getLocalFilePath(docItem, "page");
+        const fileContent = localSiteBuilder.getLocalFileContent(
+          docItem,
+          "page"
+        );
 
         await writeFile(localSitePath, filePath, fileContent);
 
@@ -91,7 +97,7 @@ describe("local changes", () => {
           onDocumentChange
         );
 
-        let filePath = localSiteBuilder.getLocalFilePath(docItem);
+        const filePath = localSiteBuilder.getLocalFilePath(docItem, "page");
 
         await deleteFile(localSitePath, filePath);
 
@@ -137,11 +143,10 @@ describe("local changes", () => {
       expect(onChange).not.toHaveBeenCalled();
 
       const newPage = sc.page();
-      await writeFile(
-        localSitePath,
-        localSiteBuilder.getLocalFilePath(newPage),
-        localSiteBuilder.getLocalFileContent(newPage)
-      );
+      const filePath = localSiteBuilder.getLocalFilePath(newPage, "page");
+      const fileContent = localSiteBuilder.getLocalFileContent(newPage, "page");
+
+      await writeFile(localSitePath, filePath, fileContent);
 
       await eventually(async () => {
         expect(onChange).toHaveBeenCalledTimes(1);
