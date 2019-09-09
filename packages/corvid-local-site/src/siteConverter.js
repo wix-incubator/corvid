@@ -18,17 +18,25 @@ const {
   ROOT_PATHS,
   DEFAULT_FILE_PATHS,
   isPathOfWixFile,
+  matchLocalPageTsConfigFile,
   matchLocalPageDocumentPath,
   matchLocalPageCodePath,
   isPathOfPageCode,
   isPathOfPageStructure,
+  isPathOfPageTsConfigFile,
   stylesFilePath,
   sitePartFilePath,
   menuFilePath,
   routerFilePath,
   pageStructureFilePath,
-  pageCodeFilePath
+  pageCodeFilePath,
+  pageTsConfigFilePath
 } = require("./sitePaths");
+
+const {
+  getPagesTsConfigs,
+  getCodeFilesTsConfigs
+} = require("./codeCompletion");
 
 const { toWixFileContent, fromWixFileContent } = require("./utils/wixFiles");
 
@@ -162,6 +170,7 @@ const localFileToDocument = file => {
 
 const editorDocumentToLocalDocumentFiles = siteDocument => {
   const localDocumentFiles = [
+    ...getPagesTsConfigs(siteDocument.pages),
     ...map_(siteDocument.pages, pageDocumentToFile),
     ...map_(siteDocument.styles, styleDocumentToFile),
     ...map_(siteDocument.site, sitePartDocumentToFile),
@@ -314,15 +323,17 @@ const editorCodeFilesToLocalCodeFiles = (
   editorCodeFiles,
   existingLocalPageFilePaths
 ) =>
-  editorCodeFiles.map(editorFile => ({
-    path: editorCodePathToLocalCodePath(
-      editorFile.path,
-      existingLocalPageFilePaths
-    ),
-    content: isUnderPath(".schemas", editorFile.path)
-      ? tryToPrettifyJsonString(editorFile.content)
-      : editorFile.content
-  }));
+  editorCodeFiles
+    .map(editorFile => ({
+      path: editorCodePathToLocalCodePath(
+        editorFile.path,
+        existingLocalPageFilePaths
+      ),
+      content: isUnderPath(".schemas", editorFile.path)
+        ? tryToPrettifyJsonString(editorFile.content)
+        : editorFile.content
+    }))
+    .concat(getCodeFilesTsConfigs());
 
 const localCodeFilesToEditorCodeFiles = localCodeFiles => {
   return localCodeFiles
@@ -342,6 +353,10 @@ const updateLocalPageFilePath = (existingPath, newSiteDocumentPages) => {
     const { pageId } = matchLocalPageDocumentPath(existingPath);
     const newPageInfo = newSiteDocumentPages[pageId];
     return newPageInfo ? pageStructureFilePath(newPageInfo) : null;
+  } else if (isPathOfPageTsConfigFile(existingPath)) {
+    const { pageId } = matchLocalPageTsConfigFile(existingPath);
+    const newPageInfo = newSiteDocumentPages[pageId];
+    return newPageInfo ? pageTsConfigFilePath(newPageInfo) : null;
   }
 };
 

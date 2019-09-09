@@ -93,10 +93,10 @@ const pageWithCode = ({ page: pageData, code }) =>
 
 const lightbox = lightbox => page(lightbox);
 
-const lighboxCode = (lightbox, code) => pageCode(lightbox, code);
+const lightboxCode = (lightbox, code) => pageCode(lightbox, code);
 
 const lightboxWithCode = ({ lightbox: lightboxData, code }) =>
-  merge_(lightbox(lightboxData), lighboxCode(lightboxData, code));
+  merge_(lightbox(lightboxData), lightboxCode(lightboxData, code));
 
 const router = router => ({
   siteDocument: {

@@ -1,5 +1,6 @@
 {
   "name": "corvid-types",
+  "main": "index.js",
   "version": "0.1.83",
   "description": "",
   "scripts": {

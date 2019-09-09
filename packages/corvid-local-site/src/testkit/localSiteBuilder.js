@@ -2,6 +2,7 @@ const flatten_ = require("lodash/flatten");
 const set_ = require("lodash/set");
 const omit_ = require("lodash/omit");
 const isObject_ = require("lodash/isObject");
+const isUndefined_ = require("lodash/isUndefined");
 const defaultsDeep_ = require("lodash/defaultsDeep");
 const sanitize = require("sanitize-filename");
 
@@ -22,6 +23,7 @@ const PATH_PUBLIC = "public";
 const PATH_DATABASE = "database";
 const PATH_PAGES = "pages";
 const PATH_LIGHTBOXES = "lightboxes";
+const PATH_MASTER_PAGE = "site";
 
 const PATH_STYLES = `${PATH_ASSETS}/styles`;
 const PATH_SITE = `${PATH_ASSETS}/site`;
@@ -29,12 +31,33 @@ const PATH_ROUTERS = `${PATH_ASSETS}/routers`;
 const PATH_MENUS = `${PATH_ASSETS}/menus`;
 const documentSchemaVersion = "1.0";
 
+const TS_CONFIG_NAME = "tsconfig.json";
+const TS_CONFIG_BACKEND_CONTENT = prettyStringify({
+  extends: "corvid-types/configs/tsconfig.backend.json"
+});
+
+const TS_CONFIG_PUBLIC_CONTENT = prettyStringify({
+  extends: "corvid-types/configs/tsconfig.public.json"
+});
+
+const TS_CONFIG_PAGE_CONTENT = prettyStringify({
+  extends: "corvid-types/configs/tsconfig.pages.json"
+});
+
 const LOCAL_SITE_SKELETON = {
   [PATH_ASSETS]: {},
-  [PATH_BACKEND]: {},
-  [PATH_PUBLIC]: {},
+  [PATH_BACKEND]: {
+    [TS_CONFIG_NAME]: TS_CONFIG_BACKEND_CONTENT
+  },
+  [PATH_PUBLIC]: {
+    [TS_CONFIG_NAME]: TS_CONFIG_PUBLIC_CONTENT
+  },
   [PATH_DATABASE]: {},
-  [PATH_PAGES]: {},
+  [PATH_PAGES]: {
+    [PATH_MASTER_PAGE]: {
+      [TS_CONFIG_NAME]: TS_CONFIG_PAGE_CONTENT
+    }
+  },
   [PATH_LIGHTBOXES]: {}
 };
 
@@ -89,10 +112,13 @@ const router = router =>
 
 const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
-const page = page => ({
-  path: pageFilePath(page),
-  content: wixFileContent(page)
-});
+const page = page => [
+  { path: pageFilePath(page), content: wixFileContent(page) },
+  {
+    path: `${pageRootPath(page)}/${TS_CONFIG_NAME}`,
+    content: TS_CONFIG_PAGE_CONTENT
+  }
+];
 
 const pageCode = (page, code) => ({
   path: pageCodeFilePath(page),
@@ -100,14 +126,20 @@ const pageCode = (page, code) => ({
 });
 
 const pageWithCode = ({ page: pageData, code }) => [
-  page(pageData),
+  ...page(pageData),
   pageCode(pageData, code)
 ];
 
-const lightbox = lightbox => ({
-  path: lightboxFilePath(lightbox),
-  content: wixFileContent(lightbox)
-});
+const lightbox = lightbox => [
+  {
+    path: lightboxFilePath(lightbox),
+    content: wixFileContent(lightbox)
+  },
+  {
+    path: `${lightboxRootPath(lightbox)}/${TS_CONFIG_NAME}`,
+    content: TS_CONFIG_PAGE_CONTENT
+  }
+];
 
 const lighboxCode = (lightbox, code) => ({
   path: lightboxCodeFilePath(lightbox),
@@ -115,12 +147,11 @@ const lighboxCode = (lightbox, code) => ({
 });
 
 const lightboxWithCode = ({ lightbox: lightboxData, code }) => [
-  lightbox(lightboxData),
+  ...lightbox(lightboxData),
   lighboxCode(lightboxData, code)
 ];
 
 // code
-
 const codeFile = ({ path, content }) => ({ path, content });
 
 const backendCodeFile = ({ path: relativePath, content }) =>
@@ -146,7 +177,6 @@ const masterPageCode = ({ content }) =>
     path: `${PATH_PAGES}/site/site.js`,
     content
   });
-
 const corvidPackageJson = ({ content }) =>
   codeFile({
     path: "corvid-package.json",
@@ -205,26 +235,63 @@ const buildFull = (...siteItems) => {
   return fullSite;
 };
 
-const getLocalFilePath = siteItem => {
+const getLocalFilePath = (siteItem, partKey) => {
   const file = itemToFile(siteItem);
+  const pickValue = paths => (isUndefined_(partKey) ? paths : paths[partKey]);
   return sc.matchItem(siteItem, {
-    [sc.pageWithCode]: () => ({ page: file[0].path, code: file[1].path }),
-    [sc.lightboxWithCode]: () => ({
-      lightbox: file[0].path,
-      code: file[1].path
-    }),
+    [sc.page]: () =>
+      pickValue({
+        page: file[0].path,
+        tsConfig: file[1].path
+      }),
+    [sc.pageWithCode]: () =>
+      pickValue({
+        page: file[0].path,
+        tsConfig: file[1].path,
+        code: file[2].path
+      }),
+    [sc.lightbox]: () =>
+      pickValue({
+        page: file[0].path,
+        tsConfig: file[1].path
+      }),
+    [sc.lightboxWithCode]: () =>
+      pickValue({
+        page: file[0].path,
+        tsConfig: file[1].path,
+        code: file[2].path
+      }),
     "*": () => file.path
   });
 };
 
-const getLocalFileContent = siteItem => {
+const getLocalFileContent = (siteItem, partKey) => {
   const file = itemToFile(siteItem);
+  const pickValue = contents =>
+    isUndefined_(partKey) ? contents : contents[partKey];
   return sc.matchItem(siteItem, {
-    [sc.pageWithCode]: () => ({ page: file[0].content, code: file[1].content }),
-    [sc.lightboxWithCode]: () => ({
-      lightbox: file[0].content,
-      code: file[1].content
-    }),
+    [sc.page]: () =>
+      pickValue({
+        page: file[0].content,
+        tsConfig: file[1].content
+      }),
+    [sc.pageWithCode]: () =>
+      pickValue({
+        page: file[0].content,
+        tsConfig: file[1].content,
+        code: file[2].content
+      }),
+    [sc.lightbox]: () =>
+      pickValue({
+        page: file[0].content,
+        tsConfig: file[1].content
+      }),
+    [sc.lightboxWithCode]: () =>
+      pickValue({
+        page: file[0].content,
+        tsConfig: file[1].content,
+        code: file[2].content
+      }),
     "*": () => file.content
   });
 };

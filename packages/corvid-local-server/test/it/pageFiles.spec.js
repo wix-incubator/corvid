@@ -18,7 +18,6 @@ const {
 } = require("corvid-local-test-utils");
 
 afterEach(closeAll);
-
 describe("pageFiles", () => {
   describe("clone mode", () => {
     it("should create an empty local page code file if page with no code is sent on load", async () => {
