@@ -4,9 +4,9 @@ const initReadWrite = require("./readWrite");
 const { isPathOfCodeFile, isPathOfDocumentFile } = require("./sitePaths");
 const { localCodePathToEditorCodePath } = require("./siteConverter");
 
-const initSiteManager = async siteRootPath => {
+const initSiteManager = async (siteRootPath, backupPath) => {
   const watcher = await initWatcher(siteRootPath);
-  const readWrite = initReadWrite(siteRootPath, watcher);
+  const readWrite = initReadWrite(siteRootPath, watcher, backupPath);
   let codeChangedCallbacks = [];
   let documentChangedCallbacks = [];
 
@@ -63,8 +63,6 @@ const initSiteManager = async siteRootPath => {
 
   return {
     close: watcher.close,
-    pause: watcher.pause,
-    resume: watcher.resume,
 
     getSiteDocument: readWrite.getSiteDocument,
     updateSiteDocument: readWrite.updateSiteDocument,

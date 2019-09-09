@@ -5,10 +5,14 @@ const map_ = require("lodash/map");
 
 const { readDirToJson } = require("corvid-dir-as-json");
 
+const createAsyncQueue = require("./utils/asyncQueue");
+const initWithBackup = require("./utils/backup");
+
 const {
   isPathOfCodeFile,
   isPathOfDocumentFile,
   isPathOfPageFile,
+  isPathOfEmptyByDefaultCodeFile,
   pageCodeFilePath,
   ROOT_PATHS
 } = require("./sitePaths");
@@ -69,7 +73,9 @@ const readLocalCodeFiles = async siteRootPath => {
   return readLocalFiles(siteRootPath, localCodeFilePaths);
 };
 
-const readWrite = (siteRootPath, filesWatcher) => {
+const readWrite = (siteRootPath, filesWatcher, backupPath) => {
+  const withBackup = initWithBackup(siteRootPath, backupPath, filesWatcher);
+
   const ensureLocalFolderSkeleton = () =>
     Promise.all(
       map_(ROOT_PATHS, (dirOrFilePath, rootName) =>
@@ -147,9 +153,12 @@ const readWrite = (siteRootPath, filesWatcher) => {
       )
     );
 
-    const deletes = deletedFiles.map(deletedFile =>
-      filesWatcher.ignoredDeleteFile(editorPathToLocalPath(deletedFile.path))
-    );
+    const deletes = deletedFiles.map(deletedFile => {
+      const localFilePath = editorPathToLocalPath(deletedFile.path);
+      return isPathOfEmptyByDefaultCodeFile(localFilePath)
+        ? filesWatcher.ignoredWriteFile(localFilePath, "")
+        : filesWatcher.ignoredDeleteFile(localFilePath);
+    });
 
     await Promise.all([...modifications, ...copies, ...deletes]);
   };
@@ -159,11 +168,13 @@ const readWrite = (siteRootPath, filesWatcher) => {
     return localCodeFilesToEditorCodeFiles(localCodeFiles);
   };
 
+  const readWriteQueue = createAsyncQueue();
+
   return {
-    updateSiteDocument,
-    getSiteDocument,
-    getCodeFiles,
-    updateCode
+    updateSiteDocument: readWriteQueue(withBackup(updateSiteDocument)),
+    getSiteDocument: readWriteQueue(getSiteDocument),
+    getCodeFiles: readWriteQueue(getCodeFiles),
+    updateCode: readWriteQueue(updateCode)
   };
 };
 

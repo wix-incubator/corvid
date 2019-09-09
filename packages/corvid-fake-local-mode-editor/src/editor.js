@@ -158,12 +158,15 @@ const loadEditor = async (
   };
 
   const saveLocal = async () => {
-    await saveSiteDocument(socket, editorState.siteDocument);
+    const savePromise = Promise.all([
+      saveSiteDocument(socket, editorState.siteDocument),
+      saveCodeFiles(socket, editorState.codeFiles)
+    ]);
     if (failOnClone) {
       // eslint-disable-next-line no-console
       console.log("[CORVID] failOnClone is set");
     }
-    await saveCodeFiles(socket, editorState.codeFiles);
+    await savePromise;
   };
 
   const socket = await connectToLocalServer(port);
