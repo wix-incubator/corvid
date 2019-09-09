@@ -7,7 +7,7 @@ const isEmpty_ = require("lodash/isEmpty");
 
 const logger = require("corvid-local-logger");
 
-const { localFileSystemLayout } = require("./versions.json");
+const { localFileSystemLayout } = require("./versions");
 const { isUnderPath, getFileName } = require("./utils/fileUtils");
 const {
   prettyStringify,

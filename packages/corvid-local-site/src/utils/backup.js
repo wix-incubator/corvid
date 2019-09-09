@@ -1,6 +1,6 @@
 const fs = require("fs-extra");
 const logger = require("corvid-local-logger");
-const getMessage = require("../messages");
+const { getMessage } = require("../messages");
 
 const backup = async (siteSrcPath, backupPath) => {
   logger.info(getMessage("Backup_Start_log"));

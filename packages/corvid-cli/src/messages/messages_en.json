@@ -52,6 +52,7 @@
     "CAN_NOT_PULL_NON_WIX_SITE": "Project not found. Pull site files to the project's root folder.",
     "CAN_NOT_EDIT_NON_WIX_SITE": "Project not found. Open the Editor in the project's root folder.",
     "BACKUP_FOLDER_EXISTS": "Something went wrong during the last save. An old version of your site is stored in .corvid/backup. Consolidate your changes and remove the backup folder.",
+    "OLD_FILE_SYSTEM_LAYOUT_NOT_SUPPORTED": "Your local site project was created using an older version of the Corvid CLI. You cannot use this version with your current project.\n\nTo work with the new Corvid CLI:\n1. Run \"npm install --save-dev corvid-cli@<%=oldCliVersion%>\" to reinstall the version used to create your project.\n2. Run \"npx corvid open-editor\" to open the Local Editor.\n3. Click Push in the Local Editor to push your changes to the Wix remote repository.\n4. Close the Local Editor.\n5. Run \"npm install --save-dev corvid-cli@latest\" to install the latest version of the Corvid CLI.\n6. Run \"npx corvid pull --override\" to pull your site using the new CLI.\n7. Your local project is now set up to work with the new CLI.",
     "Electron_Prompt_Title_Not_Saved": "Leave site?",
     "Electron_Prompt_Message_Not_Saved": "Changes you made may not be saved",
     "Electron_Prompt_Cancel_Not_Saved": "Cancel",

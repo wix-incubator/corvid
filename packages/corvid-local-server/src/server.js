@@ -91,6 +91,13 @@ async function startServer(siteRootPath, options) {
 
   let localSite, editorServer, adminServer;
 
+  const closeAll = () =>
+    Promise.all([
+      Promise.resolve(localSite && localSite.close()),
+      Promise.resolve(editorServer && editorServer.close()),
+      Promise.resolve(adminServer && adminServer.close())
+    ]);
+
   try {
     localSite = await initLocalSiteManager(siteSrcPath, siteBackupPath);
     editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
@@ -116,19 +123,12 @@ async function startServer(siteRootPath, options) {
       adminToken,
       close: async () => {
         logger.info(getMessage("Server_Close_Log"));
-        await Promise.all([
-          localSite.close(),
-          editorServer.close(),
-          adminServer.close()
-        ]);
+        await closeAll();
       }
     };
   } catch (error) {
-    await Promise.all([
-      Promise.resolve(localSite && localSite.close()),
-      Promise.resolve(editorServer.close()),
-      Promise.resolve(adminServer.close())
-    ]);
+    await closeAll();
+    throw error;
   }
 }
 

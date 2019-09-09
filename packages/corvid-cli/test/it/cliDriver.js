@@ -2,10 +2,9 @@ const util = require("util");
 const yargs = require("yargs/yargs")(process.argv.slice(2));
 
 const getConsoleSpyOuput = consoleSpy =>
-  consoleSpy.mock.calls.reduce(
-    (output, args) => output + util.format(...args) + "\n",
-    ""
-  );
+  consoleSpy.mock.calls
+    .map(consoleArgs => util.format(...consoleArgs))
+    .join("\n");
 
 const runCommand = commandName => {
   return (cwd, cliArgsStr) =>

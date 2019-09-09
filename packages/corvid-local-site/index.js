@@ -1,5 +1,5 @@
 const initSiteManager = require("./src/init");
-const versions = require("./src/versions.json");
+const versions = require("./src/versions");
 
 module.exports = {
   initSiteManager,
