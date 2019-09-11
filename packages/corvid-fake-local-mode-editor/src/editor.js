@@ -174,15 +174,19 @@ const loadEditor = async (
     documentChangesLocally: [noop_]
   };
 
+  const handshake = async () => sendRequest(socket, "HANDSHAKE");
+
   const saveSiteDocument = async () =>
     sendRequest(socket, "UPDATE_DOCUMENT", editorState.siteDocument);
 
   const saveCodeIntelligence = async () =>
-    sendRequest(
-      socket,
-      "UPDATE_CODE_INTELLIGENCE",
-      generateCodeIntelligencePayload(editorState.siteDocument)
-    );
+    editorState.supportedEditorApiVersion === "1.1"
+      ? sendRequest(
+          socket,
+          "UPDATE_CODE_INTELLIGENCE",
+          generateCodeIntelligencePayload(editorState.siteDocument)
+        )
+      : Promise.resolve();
 
   const saveCodeFiles = async () => {
     const codeFileChanges = calculateCodeFileChanges(editorState.codeFiles);
@@ -210,6 +214,9 @@ const loadEditor = async (
   const socket = await connectToLocalServer(port);
   if (socket.connected) {
     try {
+      const handshakeResponse = await handshake();
+      editorState.supportedEditorApiVersion =
+        handshakeResponse.editorApiVersion;
       const isInCloneMode = await isCloneMode(socket);
       if (isInCloneMode) {
         if (cloneOnLoad) {
