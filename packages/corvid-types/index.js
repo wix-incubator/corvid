@@ -5,11 +5,11 @@ const getTsConfigContent = configName =>
   });
 
 const getPageDynamicTypingsContent = elementsMap =>
-  prettyStringify(
-    `type PageElementsMap = { ${Object.keys(elementsMap)
-      .map(nicknmae => `#${nicknmae}: $${elementsMap[nicknmae]}`)
-      .join("; ")} }`
-  );
+  "type PageElementsMap = {\n" +
+  Object.keys(elementsMap)
+    .map(nickname => `  "#${nickname}": ${elementsMap[nickname]};\n`)
+    .join("") +
+  "}";
 
 module.exports = {
   getPageTsConfig: () => getTsConfigContent("pages"),
