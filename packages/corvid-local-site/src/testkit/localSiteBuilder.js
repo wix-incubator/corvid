@@ -35,15 +35,33 @@ const TS_CONFIG_NAME = "tsconfig.json";
 const D_TS_NAME = "types.d.ts";
 
 const TS_CONFIG_BACKEND_CONTENT = prettyStringify({
-  extends: "corvid-types/configs/tsconfig.backend.json"
+  extends: "corvid-types/configs/tsconfig.backend.json",
+  compilerOptions: {
+    baseUrl: ".",
+    paths: {
+      "backend/*": ["./*"]
+    }
+  }
 });
 
 const TS_CONFIG_PUBLIC_CONTENT = prettyStringify({
-  extends: "corvid-types/configs/tsconfig.public.json"
+  extends: "corvid-types/configs/tsconfig.public.json",
+  compilerOptions: {
+    baseUrl: ".",
+    paths: {
+      "public/*": ["./*"]
+    }
+  }
 });
 
 const TS_CONFIG_PAGE_CONTENT = prettyStringify({
-  extends: "corvid-types/configs/tsconfig.pages.json"
+  extends: "corvid-types/configs/tsconfig.pages.json",
+  compilerOptions: {
+    baseUrl: ".",
+    paths: {
+      "public/*": ["../../public/*"]
+    }
+  }
 });
 
 const LOCAL_SITE_SKELETON = {

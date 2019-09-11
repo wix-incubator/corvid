@@ -1,5 +1,6 @@
 const map_ = require("lodash/map");
 const logger = require("corvid-local-logger");
+const { prettyStringify } = require("./utils/prettify");
 const {
   masterPageTypingsFilePath,
   pageTypingsFilePath,
@@ -9,65 +10,98 @@ const {
   publicTsConfigFilePath
 } = require("./sitePaths");
 
-let corvidTypes;
+let corvidTypes,
+  pageTsConfigContent,
+  backendTsConfigContent,
+  publicTsConfigContent;
+
 try {
   corvidTypes = require("corvid-types");
+
+  pageTsConfigContent = prettyStringify({
+    extends: corvidTypes.configPaths.page,
+    compilerOptions: {
+      baseUrl: ".",
+      paths: {
+        "public/*": ["../../public/*"]
+      }
+    }
+  });
+  backendTsConfigContent = prettyStringify({
+    extends: corvidTypes.configPaths.backend,
+    compilerOptions: {
+      baseUrl: ".",
+      paths: {
+        "backend/*": ["./*"]
+      }
+    }
+  });
+  publicTsConfigContent = prettyStringify({
+    extends: corvidTypes.configPaths.public,
+    compilerOptions: {
+      baseUrl: ".",
+      paths: {
+        "public/*": ["./*"]
+      }
+    }
+  });
 } catch (e) {
   logger.info("Using corvid-cli without code completion");
 }
-const isCorvidTypes = !!corvidTypes;
+const isCorvidTypesInstalled = !!corvidTypes;
 
-const pageDocumentToTsConfigFile = page => ({
-  path: pageTsConfigFilePath(page),
-  content: corvidTypes.getPageTsConfig()
-});
+const getPagesTsConfigs = pages => {
+  if (!isCorvidTypesInstalled) return [];
+  return map_(pages, page => ({
+    path: pageTsConfigFilePath(page),
+    content: pageTsConfigContent
+  }));
+};
+
+const getCodeFilesTsConfigs = () => {
+  if (!isCorvidTypesInstalled) return [];
+  return [
+    {
+      path: masterPageTsConfigFilePath(),
+      content: pageTsConfigContent
+    },
+    {
+      path: backendTsConfigFilePath(),
+      content: backendTsConfigContent
+    },
+    {
+      path: publicTsConfigFilePath(),
+      content: publicTsConfigContent
+    }
+  ];
+};
+
+const getPagesDynamicTypings = (codeIntelligencePayload, pages) => {
+  if (!isCorvidTypesInstalled) return [];
+  const typings = map_(codeIntelligencePayload.pages, (elementsMap, pageId) => {
+    return {
+      elementsMap,
+      path: pageTypingsFilePath(
+        pages.find(page => page.pageId === pageId) || {
+          pageId,
+          title: "Unknown"
+        }
+      )
+    };
+  }).concat([
+    {
+      elementsMap: codeIntelligencePayload.site.commonComponents,
+      path: masterPageTypingsFilePath()
+    }
+  ]);
+  return typings.map(typeObject => ({
+    path: typeObject.path,
+    content: corvidTypes.getPageElementsTypeDeclarations(typeObject.elementsMap)
+  }));
+};
 
 module.exports = {
-  getPagesTsConfigs: pages => {
-    if (!isCorvidTypes) return [];
-    return map_(pages, pageDocumentToTsConfigFile);
-  },
-  getCodeFilesTsConfigs: () => {
-    if (!isCorvidTypes) return [];
-    return [
-      {
-        path: masterPageTsConfigFilePath(),
-        content: corvidTypes.getPageTsConfig()
-      },
-      {
-        path: backendTsConfigFilePath(),
-        content: corvidTypes.getBackendTsConfig()
-      },
-      {
-        path: publicTsConfigFilePath(),
-        content: corvidTypes.getPublicTsConfig()
-      }
-    ];
-  },
-  getPagesDynamicTypings: (codeIntelligencePayload, pages) => {
-    if (!isCorvidTypes) return [];
-    const typings = map_(
-      codeIntelligencePayload.pages,
-      (elementsMap, pageId) => {
-        return {
-          elementsMap,
-          path: pageTypingsFilePath(
-            pages.find(page => page.pageId === pageId) || {
-              pageId,
-              title: "Unknown"
-            }
-          )
-        };
-      }
-    ).concat([
-      {
-        elementsMap: codeIntelligencePayload.site.commonComponents,
-        path: masterPageTypingsFilePath()
-      }
-    ]);
-    return typings.map(typeObject => ({
-      path: typeObject.path,
-      content: corvidTypes.getPageDynamicTypingsContent(typeObject.elementsMap)
-    }));
-  }
+  getPagesTsConfigs,
+  getCodeFilesTsConfigs,
+  getPagesDynamicTypings
 };
