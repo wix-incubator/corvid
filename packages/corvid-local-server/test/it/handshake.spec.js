@@ -37,7 +37,7 @@ describe("local server version", () => {
 
     expect(handshakeData).toEqual({
       serverVersion: localServerModuleVersion,
-      editorApiVersion: "1.0",
+      editorApiVersion: "1.1",
       supportedSiteDocumentVersion: "1.0"
     });
   });
