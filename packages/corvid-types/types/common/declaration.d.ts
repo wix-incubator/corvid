@@ -11,7 +11,7 @@ declare module 'wix-location' {
   /**
    * Gets the path of the page's URL.
    */
-  const path: [string];
+  const path: string[];
 
   /**
    * Gets the prefix of a dynamic page's or router page's URL.
@@ -87,7 +87,7 @@ declare module 'wix-site' {
   /**
    * Returns the sitemap for a router or dynamic page prefix.
    */
-  function routerSitemap(routerPrefix: string): Promise<[wix_router.WixRouterSitemapEntry]>;
+  function routerSitemap(routerPrefix: string): Promise<wix_router.WixRouterSitemapEntry[]>;
 
 }
 
@@ -309,22 +309,22 @@ declare module 'wix-data' {
   /**
    * Adds a number of items to a collection.
    */
-  function bulkInsert(collectionName: string, items: [object], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
+  function bulkInsert(collectionName: string, items: object[], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
 
   /**
    * Removes a number of items from a collection.
    */
-  function bulkRemove(collectionName: string, itemIds: [string], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
+  function bulkRemove(collectionName: string, itemIds: string[], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
 
   /**
    * Inserts or updates a number of items in a collection.
    */
-  function bulkSave(collectionName: string, items: [object], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
+  function bulkSave(collectionName: string, items: object[], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
 
   /**
    * Updates a number of items in a collection.
    */
-  function bulkUpdate(collectionName: string, items: [object], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
+  function bulkUpdate(collectionName: string, items: object[], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
 
   /**
    * Creates a filter to be used with the dataset `setFilter()` function.
@@ -344,7 +344,7 @@ declare module 'wix-data' {
   /**
    * Inserts a reference in the specified property.
    */
-  function insertReference(collectionName: string, propertyName: string, referringItem: object | string, referencedItem: object | string | [object] | [string], options?: wix_data.WixDataOptions): Promise<void>;
+  function insertReference(collectionName: string, propertyName: string, referringItem: object | string, referencedItem: object | string | object[] | string[], options?: wix_data.WixDataOptions): Promise<void>;
 
   /**
    * Checks if a reference to the referenced item exists in the specified
@@ -370,12 +370,12 @@ declare module 'wix-data' {
   /**
    * Removes a reference from the specified property.
    */
-  function removeReference(collectionName: string, propertyName: string, referringItem: object | string, referencedItem: object | string | [object] | [string], options?: wix_data.WixDataOptions): Promise<void>;
+  function removeReference(collectionName: string, propertyName: string, referringItem: object | string, referencedItem: object | string | object[] | string[], options?: wix_data.WixDataOptions): Promise<void>;
 
   /**
    * Replaces current references with references in the specified property.
    */
-  function replaceReferences(collectionName: string, propertyName: string, referringItem: object | string, referencedItem: object | string | [object] | [string], options?: wix_data.WixDataOptions): Promise<void>;
+  function replaceReferences(collectionName: string, propertyName: string, referringItem: object | string, referencedItem: object | string | object[] | string[], options?: wix_data.WixDataOptions): Promise<void>;
 
   /**
    * Inserts or updates an item in a collection.
@@ -437,7 +437,7 @@ declare module 'wix-router' {
   /**
    * Registers a hook that is called after a sitemap is created.
    */
-  function afterSitemap(request: wix_router.WixRouterSitemapRequest, sitemapEntries: [wix_router.WixRouterSitemapEntry]): Promise<[wix_router.WixRouterSitemapEntry]>;
+  function afterSitemap(request: wix_router.WixRouterSitemapRequest, sitemapEntries: wix_router.WixRouterSitemapEntry[]): Promise<wix_router.WixRouterSitemapEntry[]>;
 
   /**
    * Registers a hook that is called before a router.
@@ -467,7 +467,7 @@ declare module 'wix-router' {
   /**
    * Returns a response with a status code 200 (OK) and instructs the router to show the selected page.
    */
-  function ok(Page: string | [string], routerReturnedData?: object, head?: wix_router.WixRouterResponse.HeadOptions): Promise<wix_router.WixRouterResponse>;
+  function ok(Page: string | string[], routerReturnedData?: object, head?: wix_router.WixRouterResponse.HeadOptions): Promise<wix_router.WixRouterResponse>;
 
   /**
    * Returns a response with a status code of 301 (Moved Permanently) or 302 (Found) and instructs the router to redirect to the given URL.
@@ -487,7 +487,7 @@ declare module 'wix-router' {
   /**
    * Function containing sitemap logic for a given URL prefix.
    */
-  function sitemap(request: wix_router.WixRouterSitemapRequest): Promise<[wix_router.WixRouterSitemapEntry]>;
+  function sitemap(request: wix_router.WixRouterSitemapRequest): Promise<wix_router.WixRouterSitemapEntry[]>;
 
 }
 
@@ -699,7 +699,6 @@ declare module 'wix-users' {
 }
 
 declare namespace $w {
-
   type dataset = wix_dataset.Dataset;
 
   type router_dataset = wix_dataset.DynamicDataset;
@@ -770,7 +769,7 @@ declare namespace $w {
       /**
        * List of all hashtags in the post.
        */
-      hashtags: [string];
+      hashtags: string[];
       /**
        * The post's cover [image]($w.Image.html#src).
        */
@@ -890,11 +889,11 @@ declare namespace $w {
     /**
      * Sets or gets the options of a checkbox group.
      */
-    options: [$w.CheckboxGroup.Option];
+    options: $w.CheckboxGroup.Option[];
     /**
      * Sets or gets the indices of the selected options.
      */
-    selectedIndices: [number];
+    selectedIndices: number[];
     /**
      * Gets an object containing information about the checkbox group's styles.
      */
@@ -902,7 +901,7 @@ declare namespace $w {
     /**
      * Sets or gets the value of the selected options.
      */
-    value: [string];
+    value: string[];
   }
 
   namespace CheckboxGroup {
@@ -978,7 +977,7 @@ declare namespace $w {
     /**
      * Gets a list of all the columns contained in the column strip.
      */
-    readonly columns: [$w.Column];
+    readonly columns: $w.Column[];
   }
 
   /**
@@ -994,7 +993,7 @@ declare namespace $w {
     /**
      * Gets an array of the elements that are contained within the element.
      */
-    readonly children: [$w.Element];
+    readonly children: $w.Element[];
   }
 
   /**
@@ -1011,11 +1010,11 @@ declare namespace $w {
     /**
      * Sets or gets the dates that a user cannot select.
      */
-    disabledDates: [Date];
+    disabledDates: Date[];
     /**
      * Sets or gets the days of the week that a user cannot select.
      */
-    disabledDaysOfWeek: [number];
+    disabledDaysOfWeek: number[];
     /**
      * Sets or gets the latest date that a user can select.
      */
@@ -1056,7 +1055,7 @@ declare namespace $w {
     /**
      * Gets the document's Header, Page, and Footer.
      */
-    readonly children: [$w.Node];
+    readonly children: $w.Node[];
     /**
      * Gets the document's type.
      */
@@ -1088,7 +1087,7 @@ declare namespace $w {
     /**
      * Sets or gets the options in a dropdown.
      */
-    options: [$w.Dropdown.Option];
+    options: $w.Dropdown.Option[];
     /**
      * Sets or gets the dropdown's placeholder text.
      */
@@ -1388,7 +1387,7 @@ declare namespace $w {
     /**
      * Sets or gets the items in a gallery.
      */
-    items: [$w.Gallery.ImageItem] | [$w.Gallery.VideoItem];
+    items: $w.Gallery.ImageItem[] | $w.Gallery.VideoItem[];
     /**
      * Determines if a gallery's navigation arrows are shown.
      */
@@ -1838,7 +1837,7 @@ declare namespace $w {
     /**
      * Gets the page's keywords.
      */
-    readonly keywords: [string];
+    readonly keywords: string[];
     /**
      * Gets the page's title.
      */
@@ -1957,7 +1956,7 @@ declare namespace $w {
     /**
      * Sets or gets the options in a radio button group.
      */
-    options: [$w.RadioButtonGroup.Option];
+    options: $w.RadioButtonGroup.Option[];
     /**
      * Sets or gets the index of the selected option.
      */
@@ -2006,7 +2005,7 @@ declare namespace $w {
     /**
      * Sets or gets the repeater data.
      */
-    data: [object];
+    data: object[];
     /**
      * Runs a function for each repeated item.
      */
@@ -2014,7 +2013,7 @@ declare namespace $w {
     /**
      * Runs a function for each repeated item with the given IDs.
      */
-    forItems(itemIds: [string], callback: $w.ForItemCallback): void;
+    forItems(itemIds: string[], callback: $w.ForItemCallback): void;
     /**
      * Sets the function that runs when a new repeated item is created.
      */
@@ -2072,7 +2071,7 @@ declare namespace $w {
     /**
      * Gets a list of all the slides contained in the slideshow.
      */
-    readonly slides: [$w.Slide];
+    readonly slides: $w.Slide[];
     /**
      * Change the slideshow's current slide to a specific slide or index.
      */
@@ -2149,7 +2148,7 @@ declare namespace $w {
     /**
      * Sets or gets the defining properties of the columns in a table.
      */
-    columns: [$w.Table.Column];
+    columns: $w.Table.Column[];
     /**
      * Sets the function that is called when a new page of table data is to be displayed.
      */
@@ -2161,7 +2160,7 @@ declare namespace $w {
     /**
      * Sets or gets the table's row data.
      */
-    rows: [object];
+    rows: object[];
     /**
      * Adds an event handler that runs when a table cell is selected.
      */
@@ -2403,7 +2402,7 @@ declare namespace $w {
     /**
      * Returns a list of files that are pending upload.
      */
-    value: [$w.UploadButton.File];
+    value: $w.UploadButton.File[];
     /**
      * Clears the files that are pending upload.
      */
@@ -2648,6 +2647,11 @@ declare namespace $w {
   type GalleryItemClickedEventHandler = (event: $w.GalleryItemClickedEvent, $w: $w.$w)=>void;
 
   /**
+   * Handles events fired when google map / marker is clicked.
+   */
+  type GoogleMapClickEvent = (event: $w.GoogleMapClickEvent)=>void;
+
+  /**
    * Handles events fired when the code in an HtmlComponent sends a message.
    */
   type HtmlComponentMessageEventHandler = (event: $w.HtmlComponentMessageEvent, $w: $w.$w)=>void;
@@ -2659,7 +2663,7 @@ declare namespace $w {
    */
   type IconMouseInEventHandler = (event: $w.IconMouseInEvent)=>void;
 
-  type ItemReadyEventHandler = ($item: $w.$w, itemData: object, index: number)=>void;
+  type ItemReadyEventHandler = ($item: $w.$w, itemData: Object, index: number)=>void;
 
   type ItemRemovedEventHandler = (itemData: object)=>void;
 
@@ -2681,7 +2685,7 @@ declare namespace $w {
   /**
    * Function that runs when all page elements have finished loading.
    */
-  type ReadyHandler = ()=> Promise<void> | void;
+  type ReadyHandler = ()=>Promise<void> | void;
 
   /**
    * Handles events fired when a table cell is selected.
@@ -2696,7 +2700,7 @@ declare namespace $w {
   /**
    * Function that runs when custom validation is checked.
    */
-  type Validator = (value: string | [$w.UploadButton.File] | boolean, reject: Function)=>void;
+  type Validator = (value: string | $w.UploadButton.File[] | boolean, reject: Function)=>void;
 
   /**
    * An element for playing audio files.
@@ -2996,7 +3000,7 @@ declare namespace $w {
     /**
      * Adds multiple products to the shopping cart.
      */
-    addProductsToCart(products: [$w.CartIcon.AddToCartItem]): Promise<void>;
+    addProductsToCart(products: $w.CartIcon.AddToCartItem[]): Promise<void>;
     /**
      * Adds a product to the shopping cart.
      */
@@ -3087,7 +3091,7 @@ declare namespace $w {
       /**
        * List of product media items.
        */
-      mediaItems: [$w.Gallery.ImageItem] | [$w.Gallery.VideoItem];
+      mediaItems: $w.Gallery.ImageItem[] | $w.Gallery.VideoItem[];
       /**
        * Product stock keeping unit value.
        */
@@ -3095,7 +3099,7 @@ declare namespace $w {
       /**
        * List of product ribbons.
        */
-      ribbons: [$w.ProductPage.StoreProductRibbon];
+      ribbons: $w.ProductPage.StoreProductRibbon[];
       /**
        * Product currency.
        */
@@ -3131,7 +3135,7 @@ declare namespace $w {
       /**
        * Additional product information sections.
        */
-      additionalInfoSections: [$w.ProductPage.StoreProductAdditionalInfoSection];
+      additionalInfoSections: $w.ProductPage.StoreProductAdditionalInfoSection[];
       /**
        * All the available options for a store product.
        */
@@ -3147,7 +3151,7 @@ declare namespace $w {
       /**
        * List of product customization fields.
        */
-      customTextField: [$w.ProductPage.StoreProductCustomTextFields];
+      customTextField: $w.ProductPage.StoreProductCustomTextFields[];
       /**
        * Product type. Either `"physical"` or `"digital"`.
        */
@@ -3205,7 +3209,7 @@ declare namespace $w {
       /**
        * Option choices.
        */
-      choices: [$w.ProductPage.StoreProductOptionsChoice];
+      choices: $w.ProductPage.StoreProductOptionsChoice[];
     };
 
     /**
@@ -3257,7 +3261,7 @@ declare namespace $w {
       /**
        * List of choice media items.
        */
-      mediaItems: [$w.Gallery.ImageItem] | [$w.Gallery.VideoItem];
+      mediaItems: $w.Gallery.ImageItem[] | $w.Gallery.VideoItem[];
     };
 
     /**
@@ -3446,7 +3450,7 @@ declare namespace $w {
       /**
        * Line item options.
        */
-      options: [$w.ThankYouPage.Option];
+      options: $w.ThankYouPage.Option[];
       /**
        * Media item.
        */
@@ -3454,7 +3458,7 @@ declare namespace $w {
       /**
        * Custom text.
        */
-      customTextFields: [$w.ThankYouPage.CustomTextField];
+      customTextFields: $w.ThankYouPage.CustomTextField[];
       /**
        * Line item index.
        */
@@ -3532,7 +3536,7 @@ declare namespace $w {
       /**
        * Order items.
        */
-      lineItems: [$w.ThankYouPage.LineItem];
+      lineItems: $w.ThankYouPage.LineItem[];
       /**
        * Order totals.
        */
@@ -3766,7 +3770,7 @@ declare namespace wix_dataset {
     /**
      * Loads the specified page.
      */
-    loadPage(pageIndex: number): Promise<[object]>;
+    loadPage(pageIndex: number): Promise<object[]>;
     /**
      * Create a new blank item.
      */
@@ -3778,7 +3782,7 @@ declare namespace wix_dataset {
     /**
      * Moves to the next page of data.
      */
-    nextPage(): Promise<[object]>;
+    nextPage(): Promise<object[]>;
     /**
      * Adds an event handler that runs just after a save.
      */
@@ -3810,7 +3814,7 @@ declare namespace wix_dataset {
     /**
      * Moves to the previous page of data.
      */
-    previousPage(): Promise<[object]>;
+    previousPage(): Promise<object[]>;
     /**
      * Refetches the contents of the dataset from the collection.
      */
@@ -3875,7 +3879,7 @@ declare namespace wix_dataset {
       /**
        * List of items objects where key:value pairs are the field keys and field values of the retrieved items, including all hidden fields.
        */
-      items: [object];
+      items: object[];
       /**
        * The number of items in the dataset that match its filter criteria.
        */
@@ -4094,15 +4098,15 @@ declare namespace wix_site {
     /**
      * The pages of the site.
      */
-    pages: [wix_site.StructurePage];
+    pages: wix_site.StructurePage[];
     /**
      * The prefixes of the site's routers and dynamic pages.
      */
-    prefixes: [wix_site.Prefix];
+    prefixes: wix_site.Prefix[];
     /**
      * The site's lightboxes.
      */
-    lightboxes: [wix_site.StructureLightbox];
+    lightboxes: wix_site.StructureLightbox[];
   };
 
   /**
@@ -4202,7 +4206,7 @@ declare namespace wix_window {
     /**
      * Gets information about the site's languages.
      */
-    readonly siteLanguages: [wix_window.multilingual.SiteLanguage];
+    readonly siteLanguages: wix_window.multilingual.SiteLanguage[];
   }
 
   namespace multilingual {
@@ -4280,7 +4284,7 @@ declare namespace wix_window {
       /**
        * Product information.
        */
-      contents: [wix_window.trackingParameters.AddProductImpressionEventContents];
+      contents: wix_window.trackingParameters.AddProductImpressionEventContents[];
       /**
        * Origin of the event.
        */
@@ -4474,7 +4478,7 @@ declare namespace wix_window {
       /**
        * Product information.
        */
-      contents: [wix_window.trackingParameters.InitiateCheckoutEventContents];
+      contents: wix_window.trackingParameters.InitiateCheckoutEventContents[];
       /**
        * Origin of the event.
        */
@@ -4554,7 +4558,7 @@ declare namespace wix_window {
       /**
        * Product information.
        */
-      contents: [wix_window.trackingParameters.PurchaseEventContents];
+      contents: wix_window.trackingParameters.PurchaseEventContents[];
       /**
        * Origin of the event.
        */
@@ -5019,7 +5023,7 @@ declare namespace wix_billing_backend {
       /**
        * Line items listed on the invoice.
        */
-      lineItems: [wix_billing_backend.invoices.LineItem];
+      lineItems: wix_billing_backend.invoices.LineItem[];
       /**
        * Discount included in the invoice.
        */
@@ -5027,11 +5031,11 @@ declare namespace wix_billing_backend {
       /**
        * List of payments already received from the customer.
        */
-      payments: [wix_billing_backend.invoices.Payment];
+      payments: wix_billing_backend.invoices.Payment[];
       /**
        * List of taxes calculated based on the line items.
        */
-      taxes: [wix_billing_backend.invoices.CalculatedTax];
+      taxes: wix_billing_backend.invoices.CalculatedTax[];
       /**
        * Total values.
        */
@@ -5097,7 +5101,7 @@ declare namespace wix_billing_backend {
       /**
        * Line items listed on the invoice.
        */
-      lineItems: [wix_billing_backend.invoices.LineItem];
+      lineItems: wix_billing_backend.invoices.LineItem[];
       /**
        * Discount included in the invoice.
        */
@@ -5105,7 +5109,7 @@ declare namespace wix_billing_backend {
       /**
        * Invoice payments.
        */
-      payments: [wix_billing_backend.invoices.Payment];
+      payments: wix_billing_backend.invoices.Payment[];
       /**
        * Invoice metadata.
        */
@@ -5157,7 +5161,7 @@ declare namespace wix_billing_backend {
       /**
        * Line item taxes.
        */
-      taxes?: [wix_billing_backend.invoices.LineItemTax];
+      taxes?: wix_billing_backend.invoices.LineItemTax[];
     };
 
     /**
@@ -5254,7 +5258,7 @@ declare namespace wix_billing_backend {
       /**
        * List of itemized fees.
        */
-      fees: [wix_billing_backend.invoices.ItemizedFee];
+      fees: wix_billing_backend.invoices.ItemizedFee[];
       /**
        * Sum of line item tax amounts.
        */
@@ -5479,7 +5483,7 @@ declare namespace wix_billing_backend {
       /**
        * Line item taxes.
        */
-      taxes?: [wix_billing_backend.priceQuotes.LineItemTax];
+      taxes?: wix_billing_backend.priceQuotes.LineItemTax[];
     };
 
     /**
@@ -5601,7 +5605,7 @@ declare namespace wix_billing_backend {
       /**
        * Line items listed on the price quote.
        */
-      lineItems: [wix_billing_backend.priceQuotes.LineItem];
+      lineItems: wix_billing_backend.priceQuotes.LineItem[];
       /**
        * Discount included in the price quote.
        */
@@ -5613,7 +5617,7 @@ declare namespace wix_billing_backend {
       /**
        * List of taxes calculated based on the line items.
        */
-      taxes: [wix_billing_backend.priceQuotes.CalculatedTax];
+      taxes: wix_billing_backend.priceQuotes.CalculatedTax[];
       /**
        * Total values.
        */
@@ -5677,7 +5681,7 @@ declare namespace wix_billing_backend {
       /**
        * Line items listed on the price quote.
        */
-      lineItems: [wix_billing_backend.priceQuotes.LineItem];
+      lineItems: wix_billing_backend.priceQuotes.LineItem[];
       /**
        * Discount included in the price quote.
        */
@@ -5717,7 +5721,7 @@ declare namespace wix_billing_backend {
       /**
        * List of itemized fees.
        */
-      fees: [wix_billing_backend.priceQuotes.ItemizedFee];
+      fees: wix_billing_backend.priceQuotes.ItemizedFee[];
       /**
        * Sum of line item tax amounts.
        */
@@ -5768,7 +5772,7 @@ declare namespace wix_http_functions {
     /**
      * Returns the path of the URL used to call an HTTP function.
      */
-    readonly path: [string];
+    readonly path: string[];
     /**
      * Returns the query fields and values of the URL used to call an HTTP function.
      */
@@ -6001,11 +6005,11 @@ declare namespace wix_crm_backend {
       /**
        * The form's attachments.
        */
-      attachments: [wix_crm_backend.Events.FormAttachment];
+      attachments: wix_crm_backend.Events.FormAttachment[];
       /**
        * Data submitted in the form. The object contains key:value pairs where the key is the field name and the value is the contents of the field.
        */
-      submissionData: [wix_crm_backend.Events.FormField];
+      submissionData: wix_crm_backend.Events.FormField[];
     };
 
   }
@@ -6017,7 +6021,7 @@ declare namespace wix_crm_backend {
     /**
      * Sends a notification.
      */
-    notify(body: string, channels: [string], options: wix_crm_backend.notifications.NotificationOptions): Promise<void>;
+    notify(body: string, channels: string[], options: wix_crm_backend.notifications.NotificationOptions): Promise<void>;
   }
 
   namespace notifications {
@@ -6178,180 +6182,6 @@ declare namespace wix_crm_backend {
   }
 
   /**
-   * The wix-crm-backend module contains functionality for working with
-   *  your site's [workflows](https://support.wix.com/en/article/about-workflows)
-   *  from backend code.
-   *
-   *  A workflow consists of a number of phases, also known as steps. The final phase
-   *  in the workflow, the phase that indicates the workflow has been completed,
-   *  is know as the win phase. Each phase can contain cards that move between the phases,
-   *  indicating the card's progression through the workflow.
-   */
-  interface workflows {
-    /**
-     * Archives a workflow card.
-     */
-    archiveCard(id: string): Promise<void>;
-    /**
-     * Creates a new workflow card.
-     */
-    createCard(workflowId: string, phaseId: string, card: wix_crm_backend.workflows.Card, position?: number): Promise<string>;
-    /**
-     * Creates a new workflow phase.
-     */
-    createPhase(workflowId: string, phase: wix_crm_backend.workflows.Phase, position?: number): Promise<string>;
-    /**
-     * Deletes a workflow card by ID.
-     */
-    deleteCard(id: string): Promise<void>;
-    /**
-     * Deletes a workflow phase by ID.
-     */
-    deletePhase(id: string): Promise<void>;
-    /**
-     * Gets a workflow card by ID.
-     */
-    getCard(id: string): Promise<wix_crm_backend.workflows.Card>;
-    /**
-     * Gets a phase by ID.
-     */
-    getPhase(id: string): Promise<wix_crm_backend.workflows.Phase>;
-    /**
-     * Gets a workflow by ID.
-     */
-    getWorkflow(id: string): Promise<wix_crm_backend.workflows.Workflow>;
-    /**
-     * Moves a card to a new position within a workflow.
-     */
-    moveCard(cardId: string, options: wix_crm_backend.workflows.MoveCardOptions): Promise<void>;
-    /**
-     * Moves a phase to a new position with a workflow.
-     */
-    movePhase(id: string, options: wix_crm_backend.workflows.MovePhaseOptions): Promise<void>;
-    /**
-     * Restores an archived workflow card.
-     */
-    restoreCard(id: string, options: wix_crm_backend.workflows.MoveCardOptions): Promise<void>;
-    /**
-     * Updates an existing workflow card.
-     */
-    updateCardFields(id: string, card: wix_crm_backend.workflows.Card): Promise<void>;
-    /**
-     * Updates an existing workflow phase.
-     */
-    updatePhaseFields(id: string, phase: wix_crm_backend.workflows.Phase): Promise<void>;
-    /**
-     * Updates an existing workflow.
-     */
-    updateWorkflowFields(id: string, workflow: wix_crm_backend.workflows.Workflow): Promise<void>;
-  }
-
-  namespace workflows {
-    /**
-     * An object containing card information.
-     */
-    type Card = {
-      /**
-       * Name of the card.
-       */
-      name: string;
-      /**
-       * Unique card identifier.
-       */
-      id: string;
-      /**
-       * ID of the contact associated with the card.
-       */
-      contactId: string;
-      /**
-       * Date the card was created.
-       */
-      createdDate: Date;
-      /**
-       * Date the card was last updated.
-       */
-      updatedDate: Date;
-      /**
-       * Source that created the card.
-       *
-       *  One of:
-       *
-       *  + `"Contacts"`
-       *  + `"Inbox"`
-       *  + `"Invoices"`
-       *  + `"Price Quotes"`
-       *  + `"Wix Forms"`
-       */
-      source: string;
-    };
-
-    /**
-     * An object containing information used when moving a card.
-     */
-    type MoveCardOptions = {
-      /**
-       * ID of the phase to move the card to. If omitted, the card remains in the same phase.
-       */
-      newPhaseId?: string;
-      /**
-       * Position within the phase to move the card to. If omitted, the card is moved to the top of the phase.
-       */
-      newPosition?: number;
-    };
-
-    /**
-     * An object containing information used when moving a phase.
-     */
-    type MovePhaseOptions = {
-      /**
-       * ID of the workflow to move the phase to.
-       */
-      workflowId: string;
-      /**
-       * Position within the workflow to move the phase to.
-       */
-      newPosition: number;
-    };
-
-    /**
-     * An object containing phase information.
-     */
-    type Phase = {
-      /**
-       * Name of the phase.
-       */
-      name: string;
-      /**
-       * Unique phase identifier.
-       */
-      id: string;
-    };
-
-    /**
-     * An object containing information about a workflow.
-     */
-    type Workflow = {
-      /**
-       * Unique workflow identifier.
-       */
-      id: string;
-      /**
-       * Name of the workflow.
-       */
-      name: string;
-      /**
-       * Workflow description.
-       */
-      description: string;
-      /**
-       * Date the workflow was created.
-       */
-      createdDate: Date;
-    };
-
-  }
-
-  /**
    * An object that contains information about a site contact.
    */
   type ContactInfo = {
@@ -6370,7 +6200,7 @@ declare namespace wix_crm_backend {
     /**
      * List of contact's email addresses.
      */
-    emails: [string];
+    emails: string[];
     /**
      * Email address the contact who is also
      *  a member uses to log into the system.
@@ -6379,13 +6209,13 @@ declare namespace wix_crm_backend {
     /**
      * List of contact's phone numbers.
      */
-    phones: [string];
+    phones: string[];
     /**
      * List of contact's labels. [Labels](https://support.wix.com/en/article/creating-contact-labels)
      *  are used to organize contacts. When setting the `labels` property, you can
      *  only list labels that already exist in your site's [Contacts List](https://support.wix.com/en/article/accessing-your-contact-list).
      */
-    labels: [string];
+    labels: string[];
     /**
      * Contact's language.
      */
@@ -6554,7 +6384,7 @@ declare namespace wix_data {
     /**
      * Gets the aggregated values.
      */
-    readonly items: [object];
+    readonly items: object[];
     /**
      * Returns the number of values in the aggregate results.
      */
@@ -6753,7 +6583,7 @@ declare namespace wix_data {
     /**
      * Returns the items that match the reference query.
      */
-    readonly items: [object];
+    readonly items: object[];
     /**
      * Returns the total number of items that match the reference query.
      */
@@ -6787,7 +6617,7 @@ declare namespace wix_data {
     /**
      * Returns the items that match the query.
      */
-    readonly items: [object];
+    readonly items: object[];
     /**
      * Returns the number of items in the current results page.
      */
@@ -6860,11 +6690,11 @@ declare namespace wix_data {
     /**
      * List of IDs of inserted items.
      */
-    insertedItemIds: [string];
+    insertedItemIds: string[];
     /**
      * List of errors.
      */
-    errors: [Error];
+    errors: Error[];
     /**
      * The number of removed items.
      */
@@ -6872,7 +6702,7 @@ declare namespace wix_data {
     /**
      * List of IDs of removed items.
      */
-    removedItemIds: [string];
+    removedItemIds: string[];
   };
 
   /**
@@ -7223,11 +7053,11 @@ declare namespace wix_router {
     /**
      * Returns the names of the pages associated with this router.
      */
-    readonly pages: [string];
+    readonly pages: string[];
     /**
      * Returns the path of the router request URL.
      */
-    readonly path: [string];
+    readonly path: string[];
     /**
      * Returns the router prefix of the router request URL.
      */
@@ -7362,7 +7192,7 @@ declare namespace wix_router {
     /**
      * Returns the names of the pages associated with this router.
      */
-    readonly pages: [string];
+    readonly pages: string[];
     /**
      * Returns the router prefix of the request.
      */
@@ -7548,7 +7378,7 @@ declare namespace wix_site_backend {
       /**
        * List of secondary site categories.
        */
-      secondary: [string];
+      secondary: string[];
     };
 
     /**
@@ -7558,7 +7388,7 @@ declare namespace wix_site_backend {
       /**
        * List supported languages.
        */
-      supportedLanguages: [wix_site_backend.generalInfo.GeneralInfoLanguagesSupported];
+      supportedLanguages: wix_site_backend.generalInfo.GeneralInfoLanguagesSupported[];
       /**
        * Whether to automatically redirect users based on their browser's settings.
        */
@@ -7608,11 +7438,11 @@ declare namespace wix_site_backend {
       /**
        * List of opening and closing days and times.
        */
-      periods: [wix_site_backend.generalInfo.GeneralInfoSchedulePeriods];
+      periods: wix_site_backend.generalInfo.GeneralInfoSchedulePeriods[];
       /**
        * Special hours.
        */
-      specialHourPeriod: [wix_site_backend.generalInfo.GeneralInfoScheduleSpecial];
+      specialHourPeriod: wix_site_backend.generalInfo.GeneralInfoScheduleSpecial[];
     };
 
     /**
@@ -8019,7 +7849,7 @@ declare namespace wix_stores_backend {
     /**
      * Items in the shopping cart.
      */
-    lineItems: [wix_stores_backend.LineItem];
+    lineItems: wix_stores_backend.LineItem[];
     /**
      * The shopping cart's totals.
      */
@@ -8107,7 +7937,7 @@ declare namespace wix_stores_backend {
     /**
      * Line item options.
      */
-    options: [wix_stores_backend.Option];
+    options: wix_stores_backend.Option[];
     /**
      * Media item.
      */
@@ -8115,7 +7945,7 @@ declare namespace wix_stores_backend {
     /**
      * Custom text.
      */
-    customTextFields: [wix_stores_backend.CustomTextField];
+    customTextFields: wix_stores_backend.CustomTextField[];
   };
 
   /**
@@ -8211,7 +8041,7 @@ declare namespace wix_stores_backend {
     /**
      * List of product media items.
      */
-    mediaItems: [$w.Gallery.ImageItem] | [$w.Gallery.VideoItem];
+    mediaItems: $w.Gallery.ImageItem[] | $w.Gallery.VideoItem[];
     /**
      * The variant of the product selected using the specified option choices if there is one.
      */
@@ -8405,17 +8235,17 @@ declare namespace wix_users_backend {
     /**
      * List of the member's email addresses.
      */
-    emails: [string];
+    emails: string[];
     /**
      * List of the member's phone numbers.
      */
-    phones: [string];
+    phones: string[];
     /**
      * List of the member's labels. [Labels](https://support.wix.com/en/article/creating-contact-labels)
      *  are used to organize contacts. When setting the `labels` property, you can
      *  only list labels that already exist in your site's [Contacts List](https://support.wix.com/en/article/accessing-your-contact-list).
      */
-    labels: [string];
+    labels: string[];
     /**
      * Member's picture.
      */
@@ -8469,7 +8299,7 @@ declare namespace wix_bookings {
     /**
      * List of form field values required to book the session.
      */
-    formFields: [wix_bookings.FormField];
+    formFields: wix_bookings.FormField[];
   };
 
   /**
@@ -8530,7 +8360,7 @@ declare namespace wix_bookings {
     /**
      * List of available slots.
      */
-    slots: [wix_bookings.Slot];
+    slots: wix_bookings.Slot[];
   };
 
   /**
@@ -8589,7 +8419,7 @@ declare namespace wix_crm {
     /**
      * List of contact's email addresses.
      */
-    emails: [string];
+    emails: string[];
     /**
      * Email address the contact who is also
      *  a member uses to log into the system.
@@ -8598,13 +8428,13 @@ declare namespace wix_crm {
     /**
      * List of contact's phone numbers.
      */
-    phones: [string];
+    phones: string[];
     /**
      * List of contact's labels. [Labels](https://support.wix.com/en/article/creating-contact-labels)
      *  are used to organize contacts. When setting the `labels` property, you can
      *  only list labels that already exist in your site's [Contacts List](https://support.wix.com/en/article/accessing-your-contact-list).
      */
-    labels: [string];
+    labels: string[];
     /**
      * Contact's language.
      */
@@ -8842,7 +8672,7 @@ declare namespace wix_pay {
     /**
      * Payment items.
      */
-    items: [wix_pay.PaymentItem];
+    items: wix_pay.PaymentItem[];
     /**
      * An object representing information about the user. It will be used to prefill
      *  the user info form during the payment process.
@@ -8885,7 +8715,7 @@ declare namespace wix_pay {
      * Deprecated: An object representing information about the user. It will be used to prefill
      *  user info form during payment process.
      *
-     *  Deprecation note: Pass user information to [`createPayment( )`](wix-pay-backend#createPayment) instead.
+     *  Deprecation note: Pass user information to [`createPayment( )`](wix-pay-backend.html#createPayment) instead.
      */
     userInfo?: wix_pay.PaymentUserInfo;
     /**
@@ -8982,11 +8812,11 @@ declare namespace wix_users {
     /**
      * Gets the user's member pricing plan.
      */
-    getPricingPlans(): Promise<[wix_users.User.PricingPlan]>;
+    getPricingPlans(): Promise<wix_users.User.PricingPlan[]>;
     /**
      * Gets the user's member roles.
      */
-    getRoles(): Promise<[wix_users.User.UserRole]>;
+    getRoles(): Promise<wix_users.User.UserRole[]>;
   }
 
   namespace User {

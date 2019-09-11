@@ -47,7 +47,7 @@ type TypeNameToSdkType = {
 }
 
 type IntersectionArrayAndBase<T> = {
-  [P in keyof T]: P extends "Document" ? T[P] : T[P] & [T[P]];
+  [P in keyof T]: P extends "Document" ? T[P] : T[P] & T[P][];
 }
 
 type WixElementSelector = PageElementsMap & IntersectionArrayAndBase<TypeNameToSdkType>
