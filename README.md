@@ -18,7 +18,7 @@ Features relating to the Local Editor are currently in the stage of alpha releas
 `corvid-cli` allows you to download your [Wix](https://www.wix.com) site and work on it locally. With this tool you can use your favorite development tools (e.g IDE, version control) to manage the code of your site, use the Wix Editor to edit the view, and collaborate with others in building your site. Read more about how to use the corvid-cli [here](https://support.wix.com/en/article/working-with-the-corvid-cli).
 
 ## Getting Started
-
+m
 ### Prerequisites
 Before doing anything else, you need to make sure you have [Node.JS](https://nodejs.org)  version >= 10.0.0 installed and working.
 
@@ -38,7 +38,7 @@ npm init -y
 
 Install corvid-cli as a local development dependency:
 ```
-npm install --save-dev corvid-cli
+npm install --save-dev corvid-cli corvid-types
 ```
 
 ### Work on your site

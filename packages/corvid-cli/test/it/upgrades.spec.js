@@ -70,7 +70,7 @@ describe("edit", () => {
       await expect(openEditor(rootSitePath)).rejects.toThrow(
         new UserError(
           chalk.red(
-            'Your local site project was created using an older version of the Corvid CLI. You cannot use this version with your current project.\n\nTo work with the new Corvid CLI:\n1. Run "npm install --save-dev corvid-cli@0.1.83" to reinstall the version used to create your project.\n2. Run "npx corvid open-editor" to open the Local Editor.\n3. Click Push in the Local Editor to push your changes to the Wix remote repository.\n4. Close the Local Editor.\n5. Run "npm install --save-dev corvid-cli@latest" to install the latest version of the Corvid CLI.\n6. Run "npx corvid pull --override" to pull your site using the new CLI.\n7. Your local project is now set up to work with the new CLI.'
+            'Your local site project was created using an older version of the Corvid CLI. You cannot use this version with your current project.\n\nTo work with the new Corvid CLI:\n1. Run "npm install --save-dev corvid-cli@0.1.83" to reinstall the version used to create your project.\n2. Run "npx corvid open-editor" to open the Local Editor.\n3. Click Push in the Local Editor to push your changes to the Wix remote repository.\n4. Close the Local Editor.\n5. Run "npm install --save-dev corvid-cli@latest corvid-types" to install the latest version of the Corvid CLI.\n6. Run "npx corvid pull --override" to pull your site using the new CLI.\n7. Your local project is now set up to work with the new CLI.'
           )
         )
       );

@@ -38,7 +38,7 @@ npm init -y
 
 Install corvid-cli as a local development dependency:
 ```
-npm install --save-dev corvid-cli
+npm install --save-dev corvid-cli corvid-types
 ```
 
 ### Work on your site
