@@ -70,10 +70,12 @@ const getElementsMapFromEncodedContent = content => {
 
 const getPageTypingsContent = content => {
   const elementsMap = getElementsMapFromEncodedContent(content);
-  return prettyStringify(
-    `type PageElementsMap = { ${Object.keys(elementsMap)
-      .map(nicknmae => `#${nicknmae}: $${elementsMap[nicknmae]}`)
-      .join("; ")} }`
+  return (
+    "type PageElementsMap = {\n" +
+    Object.keys(elementsMap)
+      .map(nickname => `  "#${nickname}": ${elementsMap[nickname]};\n`)
+      .join("") +
+    "}"
   );
 };
 
