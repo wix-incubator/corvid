@@ -126,7 +126,7 @@ describe("clone mode", () => {
     expect(serverFiles).toMatchObject(expectedLocalSite);
   });
 
-  it("should save localy site document and code files", async () => {
+  it("should save localy site document, code files and code intelligence", async () => {
     const fullSite = sc.fullSiteItems();
     const fullLocalSite = localSiteBuilder.buildPartial(...fullSite);
     const fullEditorSite = editorSiteBuilder.buildPartial(...fullSite);

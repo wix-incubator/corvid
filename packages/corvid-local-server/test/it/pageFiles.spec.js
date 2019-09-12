@@ -18,50 +18,32 @@ const {
 } = require("corvid-local-test-utils");
 
 afterEach(closeAll);
+
 describe("pageFiles", () => {
   describe("clone mode", () => {
-    it("should create an empty local page code file if page with no code is sent on load", async () => {
-      const page = sc.page();
+    it.each(["page", "lightbox"])(
+      "should create an empty local lightbox code file if %s with no code is sent on load",
+      async item => {
+        const pageOrLightbox = sc[item]();
+        const expectedLightboxCodePath = localSiteBuilder.getLocalFilePath(
+          pageOrLightbox,
+          "code"
+        );
 
-      const expectedPageCodePath = localSiteBuilder.getLocalFilePath(
-        sc.pageWithCode(page),
-        "code"
-      );
+        const localSitePath = await initLocalSite();
+        const server = await localServer.startInCloneMode(localSitePath);
 
-      const localSitePath = await initLocalSite();
-      const server = await localServer.startInCloneMode(localSitePath);
+        const editorSite = editorSiteBuilder.buildFull(pageOrLightbox);
+        await loadEditor(server.port, editorSite);
 
-      const editorSite = editorSiteBuilder.buildFull(page);
-      await loadEditor(server.port, editorSite);
+        const localLightboxCode = await readSiteFile(
+          localSitePath,
+          expectedLightboxCodePath
+        );
 
-      const localPageCode = await readSiteFile(
-        localSitePath,
-        expectedPageCodePath
-      );
-
-      expect(localPageCode).toBe("");
-    });
-
-    it("should create an empty local lightbox code file if lightbox with no code is sent on load", async () => {
-      const lightbox = sc.lightbox();
-      const expectedLightboxCodePath = localSiteBuilder.getLocalFilePath(
-        sc.lightboxWithCode(lightbox),
-        "code"
-      );
-
-      const localSitePath = await initLocalSite();
-      const server = await localServer.startInCloneMode(localSitePath);
-
-      const editorSite = editorSiteBuilder.buildFull(lightbox);
-      await loadEditor(server.port, editorSite);
-
-      const localLightboxCode = await readSiteFile(
-        localSitePath,
-        expectedLightboxCodePath
-      );
-
-      expect(localLightboxCode).toBe("");
-    });
+        expect(localLightboxCode).toBe("");
+      }
+    );
 
     it("should create an empty master page code file if it does not exist in the editor", async () => {
       const dummyMasterPageCodeItem = sc.masterPageCode();

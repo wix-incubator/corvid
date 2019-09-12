@@ -408,6 +408,8 @@ const getLocalPageRootPath = pageOrLightboxItem =>
   });
 
 module.exports = {
+  TS_CONFIG_NAME,
+  D_TS_NAME,
   TS_CONFIG_BACKEND_CONTENT,
   TS_CONFIG_PAGE_CONTENT,
   TS_CONFIG_PUBLIC_CONTENT,
