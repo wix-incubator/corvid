@@ -239,7 +239,9 @@ describe("Code Completion", () => {
           const { siteCode } = editor.getSite();
           const siteCodeFlatMap = flatten(siteCode, { delimiter: "/" });
           const typingsFiles = Object.keys(siteCodeFlatMap).filter(path =>
-            path.endsWith(localSiteBuilder.D_TS_NAME)
+            path.endsWith(
+              localSiteBuilder.PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME
+            )
           );
           expect(typingsFiles.length).toEqual(0);
         });
