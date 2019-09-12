@@ -16,6 +16,7 @@
   "license": "MIT",
   "devDependencies": {
     "corvid-local-test-utils": "0.1.83",
+    "corvid-types": "^0.1.84",
     "flat": "^4.1.0",
     "jest": "^24.8.0",
     "wix-eventually": "^2.2.0"

@@ -1,1 +1,0 @@
-/// <reference path="../common/declaration.d.ts" />
