@@ -59,5 +59,8 @@
     "socket.io-client": "^2.2.0",
     "update-notifier": "^3.0.0",
     "yargs": "^13.2.2"
+  },
+  "peerDependencies": {
+    "corvid-types": "^0.1.82"
   }
 }
