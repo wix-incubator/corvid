@@ -123,7 +123,7 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
     );
 
     await Promise.all(
-      newLocalDocumentFiles.map(async localFile =>
+      newLocalDocumentFiles.map(localFile =>
         filesWatcher.ignoredWriteFile(localFile.path, localFile.content)
       )
     );
@@ -140,7 +140,6 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
     deletedFiles = []
   } = {}) => {
     await ensureLocalFolderSkeleton();
-
     const existingLocalPageFilePaths = await listLocalPageFiles(siteRootPath);
 
     const editorPathToLocalPath = editorPath =>
@@ -187,7 +186,7 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
     );
 
     await Promise.all(
-      newLocalCodeIntelligenceFiles.map(async localFile =>
+      newLocalCodeIntelligenceFiles.map(localFile =>
         filesWatcher.ignoredWriteFile(localFile.path, localFile.content)
       )
     );

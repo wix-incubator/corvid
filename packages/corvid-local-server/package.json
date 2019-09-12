@@ -21,6 +21,7 @@
     "corvid-local-site": "0.1.83",
     "corvid-local-test-utils": "0.1.83",
     "express": "^4.16.4",
+    "lodash": "^4.17.15",
     "fs-extra": "^7.0.1",
     "listen-on-free-port": "1.0.3",
     "socket.io": "^2.2.0",
@@ -30,8 +31,8 @@
   "devDependencies": {
     "corvid-dir-as-json": "0.1.83",
     "corvid-fake-local-mode-editor": "0.1.83",
+    "flat": "^4.1.0",
     "jest": "^24.8.0",
-    "lodash": "^4.17.15",
     "nock": "^10.0.6",
     "wix-eventually": "^2.2.0"
   },
