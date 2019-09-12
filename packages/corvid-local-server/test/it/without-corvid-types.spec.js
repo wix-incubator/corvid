@@ -56,9 +56,11 @@ describe("user did NOT installed corvid-types", () => {
         const localSiteFiles = await readLocalSite(localSitePath);
 
         Object.values(localSiteFiles[folder]).forEach(async page => {
-          expect(page.hasOwnProperty(localSiteBuilder.D_TS_NAME)).toEqual(
-            false
-          );
+          expect(
+            page.hasOwnProperty(
+              localSiteBuilder.PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME
+            )
+          ).toEqual(false);
         });
       }
     );

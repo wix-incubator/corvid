@@ -27,7 +27,7 @@ const DEFAULT_FILE_PATHS = {
 };
 
 const TS_CONFIG_NAME = "tsconfig.json";
-const TYPINGS_NAME = "types.d.ts";
+const PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME = "pageElements.d.ts";
 
 const isPathRelatedToSite = (rootSitePath, fullPathToCheck) =>
   values_(ROOT_PATHS)
@@ -77,7 +77,7 @@ const matchLocalPageTypingsFile = filePath => {
     new RegExp(
       `^(?<root>${ROOT_PATHS.PAGES}|${
         ROOT_PATHS.LIGHTBOXES
-      })\/(?<folderTitle>[^\/]*)\\.(?<pageId>[^.\/]*)\/types.d.ts`
+      })\/(?<folderTitle>[^\/]*)\\.(?<pageId>[^.\/]*)\/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`
     )
   );
   return matches
@@ -180,13 +180,17 @@ const pageTsConfigFilePath = ({ pageId, title, isPopup }) =>
   `${pageRootFolderPath({ pageId, title, isPopup })}/${TS_CONFIG_NAME}`;
 
 const pageTypingsFilePath = ({ pageId, title, isPopup }) =>
-  `${pageRootFolderPath({ pageId, title, isPopup })}/${TYPINGS_NAME}`;
+  `${pageRootFolderPath({
+    pageId,
+    title,
+    isPopup
+  })}/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`;
 
 const masterPageTsConfigFilePath = () =>
   `${ROOT_PATHS.SITE_CODE}/${TS_CONFIG_NAME}`;
 
 const masterPageTypingsFilePath = () =>
-  `${ROOT_PATHS.SITE_CODE}/${TYPINGS_NAME}`;
+  `${ROOT_PATHS.SITE_CODE}/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`;
 
 const backendTsConfigFilePath = () => `${ROOT_PATHS.BACKEND}/${TS_CONFIG_NAME}`;
 
@@ -195,7 +199,7 @@ const publicTsConfigFilePath = () => `${ROOT_PATHS.PUBLIC}/${TS_CONFIG_NAME}`;
 module.exports = {
   ROOT_PATHS,
   DEFAULT_FILE_PATHS,
-  TYPINGS_NAME,
+  TYPINGS_NAME: PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME,
 
   stylesFilePath,
   sitePartFilePath,

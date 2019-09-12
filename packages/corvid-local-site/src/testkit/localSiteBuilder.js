@@ -32,7 +32,7 @@ const PATH_MENUS = `${PATH_ASSETS}/menus`;
 const documentSchemaVersion = "1.0";
 
 const TS_CONFIG_NAME = "tsconfig.json";
-const D_TS_NAME = "types.d.ts";
+const PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME = "pageElements.d.ts";
 
 const TS_CONFIG_BACKEND_CONTENT = prettyStringify({
   extends: "corvid-types/configs/tsconfig.backend.json",
@@ -141,7 +141,7 @@ const siteFile = (name, content) => wixFile(PATH_SITE, name, content);
 const commonComponents = commonComponents => [
   siteFile("commonComponents", commonComponents),
   {
-    path: `${PATH_PAGES}/${PATH_MASTER_PAGE}/${D_TS_NAME}`,
+    path: `${PATH_PAGES}/${PATH_MASTER_PAGE}/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`,
     content: getPageTypingsContent(commonComponents.content)
   }
 ];
@@ -171,7 +171,7 @@ const pageTsConfig = page => ({
 });
 
 const pageTypings = page => ({
-  path: `${pageRootPath(page)}/${D_TS_NAME}`,
+  path: `${pageRootPath(page)}/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`,
   content: getPageTypingsContent(page.content)
 });
 
@@ -190,7 +190,9 @@ const lightboxTsConfig = lightbox => ({
   content: TS_CONFIG_PAGE_CONTENT
 });
 const lightboxTypings = lightbox => ({
-  path: `${lightboxRootPath(lightbox)}/${D_TS_NAME}`,
+  path: `${lightboxRootPath(
+    lightbox
+  )}/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`,
   content: getPageTypingsContent(lightbox.content)
 });
 
@@ -409,7 +411,7 @@ const getLocalPageRootPath = pageOrLightboxItem =>
 
 module.exports = {
   TS_CONFIG_NAME,
-  D_TS_NAME,
+  PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME,
   TS_CONFIG_BACKEND_CONTENT,
   TS_CONFIG_PAGE_CONTENT,
   TS_CONFIG_PUBLIC_CONTENT,
