@@ -369,14 +369,14 @@ const updateLocalPageFilePath = (existingPath, newSiteDocumentPages) => {
 };
 
 const editorCodeIntelligenceToLocalTypingsFiles = (
-  existingPaths,
-  newCodeIntelligencePages
+  newPagesElementsMapCodeIntelligence,
+  existingLocalPageFilePaths
 ) => {
-  const pages = existingPaths
+  const pages = existingLocalPageFilePaths
     .filter(matchLocalPageDocumentPath)
     .map(path => matchLocalPageDocumentPath(path));
 
-  return getPagesDynamicTypings(newCodeIntelligencePages, pages);
+  return getPagesDynamicTypings(newPagesElementsMapCodeIntelligence, pages);
 };
 
 module.exports = {

@@ -12,7 +12,7 @@ const { deleteEmptySubFolders } = require("./utils/fileUtils");
 const {
   isPathOfCodeFile,
   isPathOfDocumentFile,
-  isPathOfPageFile,
+  isPathOfPageRealtedFile,
   isPathOfEmptyByDefaultCodeFile,
   pageCodeFilePath,
   ROOT_PATHS,
@@ -50,7 +50,7 @@ const listLocalCodeFiles = async siteRootPath => {
 
 const listLocalPageFiles = async siteRootPath => {
   const allFilePaths = await listFilesRecursive(siteRootPath);
-  return allFilePaths.filter(filePath => isPathOfPageFile(filePath));
+  return allFilePaths.filter(filePath => isPathOfPageRealtedFile(filePath));
 };
 
 const readLocalFiles = async (siteRootPath, filePaths) => {
@@ -181,8 +181,8 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
     const existingLocalPageFilePaths = await listLocalPageFiles(siteRootPath);
 
     const newLocalCodeIntelligenceFiles = editorCodeIntelligenceToLocalTypingsFiles(
-      existingLocalPageFilePaths,
-      codeIntelligence.elementsMap
+      codeIntelligence.elementsMap,
+      existingLocalPageFilePaths
     );
 
     await Promise.all(

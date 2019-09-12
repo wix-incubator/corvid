@@ -40,12 +40,15 @@ const isPathRelatedToSite = (rootSitePath, fullPathToCheck) =>
       );
     });
 
+const getMatchLocalPageFileRegex = fileName =>
+  `^(?<root>${ROOT_PATHS.PAGES}|${
+    ROOT_PATHS.LIGHTBOXES
+  })\/(?<folderTitle>[^\/]*)\\.(?<pageId>[^.\/]*)\/${fileName}`;
+
 const matchLocalPageFile = extension => filePath => {
   const matches = filePath.match(
     new RegExp(
-      `^(?<root>${ROOT_PATHS.PAGES}|${
-        ROOT_PATHS.LIGHTBOXES
-      })\/(?<folderTitle>[^\/]*)\\.(?<pageId>[^.\/]*)\/(?<fileNameTitle>[^\/]*).${extension}`
+      getMatchLocalPageFileRegex(`(?<fileNameTitle>[^\/]*).${extension}`)
     )
   );
   return matches && matches.groups.fileNameTitle === matches.groups.folderTitle
@@ -59,11 +62,7 @@ const matchLocalPageFile = extension => filePath => {
 
 const matchLocalPageTsConfigFile = filePath => {
   const matches = filePath.match(
-    new RegExp(
-      `^(?<root>${ROOT_PATHS.PAGES}|${
-        ROOT_PATHS.LIGHTBOXES
-      })\/(?<folderTitle>[^\/]*)\\.(?<pageId>[^.\/]*)\/tsconfig.json`
-    )
+    new RegExp(getMatchLocalPageFileRegex(TS_CONFIG_NAME))
   );
   return matches
     ? {
@@ -75,9 +74,7 @@ const matchLocalPageTsConfigFile = filePath => {
 const matchLocalPageTypingsFile = filePath => {
   const matches = filePath.match(
     new RegExp(
-      `^(?<root>${ROOT_PATHS.PAGES}|${
-        ROOT_PATHS.LIGHTBOXES
-      })\/(?<folderTitle>[^\/]*)\\.(?<pageId>[^.\/]*)\/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`
+      getMatchLocalPageFileRegex(PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME)
     )
   );
   return matches
@@ -100,7 +97,7 @@ const isPathOfPageStructure = (localFilePath, pageId = null) => {
   return pageId ? match && match.pageId === pageId : !!match;
 };
 
-const isPathOfPageFile = (localFilePath, pageId = null) =>
+const isPathOfPageRealtedFile = (localFilePath, pageId = null) =>
   isPathOfPageCode(localFilePath, pageId) ||
   isPathOfPageStructure(localFilePath, pageId) ||
   isPathOfPageTsConfigFile(localFilePath, pageId) ||
@@ -151,11 +148,14 @@ const removeSpaces = string => string.replace(/\s/g, "_");
 
 const sanitizePageTitle = pageTitle => sanitize(removeSpaces(pageTitle));
 
-const pageFilePath = ({ pageId, title, isPopup, extension }) => {
+const pageFilePath = ({ pageId, title, isPopup, extension, fileName }) => {
   const pageOrLightboxRoot = isPopup ? ROOT_PATHS.LIGHTBOXES : ROOT_PATHS.PAGES;
-  const sanitizedTitle = sanitizePageTitle(title);
-  const pageSubFolder = `${pageOrLightboxRoot}/${sanitizedTitle}.${pageId}`;
-  const pageFileName = `${sanitizedTitle}.${extension}`;
+  const sanitizedFolderTitle = sanitizePageTitle(title);
+  const sanitizedFilename = sanitizePageTitle(fileName || title);
+  const pageSubFolder = `${pageOrLightboxRoot}/${sanitizedFolderTitle}.${pageId}`;
+  const pageFileName = fileName
+    ? sanitizedFilename
+    : `${sanitizedFilename}.${extension}`;
   return path.join(pageSubFolder, pageFileName);
 };
 
@@ -170,21 +170,22 @@ const isPathOfEmptyByDefaultCodeFile = localFilePath =>
   [DEFAULT_FILE_PATHS.PACKAGE_JSON, DEFAULT_FILE_PATHS.SITE_CODE].includes(
     localFilePath
   );
-const pageRootFolderPath = ({ pageId, title, isPopup }) => {
-  const pageOrLightboxRoot = isPopup ? ROOT_PATHS.LIGHTBOXES : ROOT_PATHS.PAGES;
-  const sanitizedTitle = sanitizePageTitle(title);
-  return `${pageOrLightboxRoot}/${sanitizedTitle}.${pageId}`;
-};
 
 const pageTsConfigFilePath = ({ pageId, title, isPopup }) =>
-  `${pageRootFolderPath({ pageId, title, isPopup })}/${TS_CONFIG_NAME}`;
-
-const pageTypingsFilePath = ({ pageId, title, isPopup }) =>
-  `${pageRootFolderPath({
+  pageFilePath({
     pageId,
     title,
-    isPopup
-  })}/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`;
+    isPopup,
+    fileName: TS_CONFIG_NAME
+  });
+
+const pageTypingsFilePath = ({ pageId, title, isPopup }) =>
+  pageFilePath({
+    pageId,
+    title,
+    isPopup,
+    fileName: PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME
+  });
 
 const masterPageTsConfigFilePath = () =>
   `${ROOT_PATHS.SITE_CODE}/${TS_CONFIG_NAME}`;
@@ -205,7 +206,6 @@ module.exports = {
   sitePartFilePath,
   menuFilePath,
   routerFilePath,
-  pageRootFolderPath,
   pageStructureFilePath,
   pageCodeFilePath,
   pageTsConfigFilePath,
@@ -219,7 +219,7 @@ module.exports = {
   isPathOfCodeFile,
   isPathOfDocumentFile,
   isPathOfWixFile,
-  isPathOfPageFile,
+  isPathOfPageRealtedFile,
   isPathOfPageCode,
   isPathOfPageStructure,
   isPathOfEmptyByDefaultCodeFile,
