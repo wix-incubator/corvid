@@ -47,6 +47,12 @@ const randomSdkType = () => {
   return sdkTypes[sdkKeys[Math.floor(Math.random() * sdkKeys.length)]];
 };
 
+const randomElementsMap = () => ({
+  comp1: randomSdkType(),
+  comp2: randomSdkType(),
+  comp3: randomSdkType()
+});
+
 const page = ({ pageId = unique("page"), content, ...rest } = {}) =>
   defaults_({ pageId, isPopup: false }, rest, {
     title: `${pageId} title`,
@@ -222,7 +228,7 @@ const fullSiteItems = () => Object.values(creators).map(creator => creator());
 module.exports = {
   atob,
   decodePageContent,
-  randomSdkType,
+  randomElementsMap,
   sdkTypes,
   getType,
   matchItem,

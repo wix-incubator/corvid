@@ -127,10 +127,7 @@ describe("edit mode", () => {
   });
 
   it("should send updated site document when user changes page content from the editor and clicks save", async () => {
-    const elementsMap = {
-      comp1: sc.randomSdkType(),
-      comp2: sc.randomSdkType()
-    };
+    const elementsMap = sc.randomElementsMap();
     const existingSiteItems = [
       sc.page({
         pageId: "page1",

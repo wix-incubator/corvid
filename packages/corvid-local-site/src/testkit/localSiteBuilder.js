@@ -396,10 +396,8 @@ const getLocalCodeFilePath = siteItem => {
   return isObject_(localFilePath) ? localFilePath.code : localFilePath;
 };
 
-const getLocalCodeFileContent = siteItem => {
-  const localFileContent = getLocalFileContent(siteItem);
-  return isObject_(localFileContent) ? localFileContent.code : localFileContent;
-};
+const getLocalCodeFileContent = siteItem =>
+  getLocalFileContent(siteItem, "code");
 
 const getLocalPageRootPath = pageOrLightboxItem =>
   sc.matchItem(pageOrLightboxItem, {
