@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "types": ["corvid-types"]
+    "types": ["corvid-types/types/public"]
   }
 }
