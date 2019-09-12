@@ -26,7 +26,7 @@ declare module 'wix-location' {
   /**
    * Gets an object that represents the query segment of the page's URL.
    */
-  const query: object;
+  const query: any;
 
   /**
    * Gets the full URL of the current page.
@@ -151,17 +151,17 @@ declare module 'wix-window' {
   /**
    * Returns the current geolocation of the user.
    */
-  function getCurrentGeolocation(): Promise<object>;
+  function getCurrentGeolocation(): Promise<any>;
 
   /**
    * Returns the data that a router passed to the page in its response.
    */
-  function getRouterData(): object;
+  function getRouterData(): any;
 
   /**
    * Opens a lightbox and optionally passes it the given data.
    */
-  function openLightbox(name: string, data?: object): Promise<object>;
+  function openLightbox(name: string, data?: any): Promise<any>;
 
   /**
    * Opens a modal window that displays the specified web page.
@@ -171,7 +171,7 @@ declare module 'wix-window' {
   /**
    * Sends a message to the page's parent.
    */
-  function postMessage(message: object, target?: string): Promise<object>;
+  function postMessage(message: any, target?: string): Promise<any>;
 
   /**
    * Scrolls the page by a given number of pixels.
@@ -309,7 +309,7 @@ declare module 'wix-data' {
   /**
    * Adds a number of items to a collection.
    */
-  function bulkInsert(collectionName: string, items: object[], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
+  function bulkInsert(collectionName: string, items: any[], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
 
   /**
    * Removes a number of items from a collection.
@@ -319,12 +319,12 @@ declare module 'wix-data' {
   /**
    * Inserts or updates a number of items in a collection.
    */
-  function bulkSave(collectionName: string, items: object[], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
+  function bulkSave(collectionName: string, items: any[], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
 
   /**
    * Updates a number of items in a collection.
    */
-  function bulkUpdate(collectionName: string, items: object[], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
+  function bulkUpdate(collectionName: string, items: any[], options?: wix_data.WixDataOptions): Promise<wix_data.WixDataBulkResult>;
 
   /**
    * Creates a filter to be used with the dataset `setFilter()` function.
@@ -334,23 +334,23 @@ declare module 'wix-data' {
   /**
    * Retrieves an item from a collection.
    */
-  function get(collectionName: string, itemId: string, options?: wix_data.WixDataOptions): Promise<object>;
+  function get(collectionName: string, itemId: string, options?: wix_data.WixDataOptions): Promise<any>;
 
   /**
    * Adds an item to a collection.
    */
-  function insert(collectionName: string, item: object, options?: wix_data.WixDataOptions): Promise<object>;
+  function insert(collectionName: string, item: any, options?: wix_data.WixDataOptions): Promise<any>;
 
   /**
    * Inserts a reference in the specified property.
    */
-  function insertReference(collectionName: string, propertyName: string, referringItem: object | string, referencedItem: object | string | object[] | string[], options?: wix_data.WixDataOptions): Promise<void>;
+  function insertReference(collectionName: string, propertyName: string, referringItem: any | string, referencedItem: any | string | any[] | string[], options?: wix_data.WixDataOptions): Promise<void>;
 
   /**
    * Checks if a reference to the referenced item exists in the specified
    *   property of the referring item.
    */
-  function isReferenced(collectionName: string, propertyName: string, referringItem: object | string, referencedItem: object | string): Promise<boolean>;
+  function isReferenced(collectionName: string, propertyName: string, referringItem: any | string, referencedItem: any | string): Promise<boolean>;
 
   /**
    * Creates a query.
@@ -360,27 +360,27 @@ declare module 'wix-data' {
   /**
    * Gets the full items referenced in the specified property.
    */
-  function queryReferenced(collectionName: string, item: object | string, propertyName: string, options: wix_data.WixDataQueryReferencedOptions): Promise<wix_data.WixDataQueryReferencedResult>;
+  function queryReferenced(collectionName: string, item: any | string, propertyName: string, options: wix_data.WixDataQueryReferencedOptions): Promise<wix_data.WixDataQueryReferencedResult>;
 
   /**
    * Removes an item from a collection.
    */
-  function remove(collectionName: string, itemId: string, options?: wix_data.WixDataOptions): Promise<object>;
+  function remove(collectionName: string, itemId: string, options?: wix_data.WixDataOptions): Promise<any>;
 
   /**
    * Removes a reference from the specified property.
    */
-  function removeReference(collectionName: string, propertyName: string, referringItem: object | string, referencedItem: object | string | object[] | string[], options?: wix_data.WixDataOptions): Promise<void>;
+  function removeReference(collectionName: string, propertyName: string, referringItem: any | string, referencedItem: any | string | any[] | string[], options?: wix_data.WixDataOptions): Promise<void>;
 
   /**
    * Replaces current references with references in the specified property.
    */
-  function replaceReferences(collectionName: string, propertyName: string, referringItem: object | string, referencedItem: object | string | object[] | string[], options?: wix_data.WixDataOptions): Promise<void>;
+  function replaceReferences(collectionName: string, propertyName: string, referringItem: any | string, referencedItem: any | string | any[] | string[], options?: wix_data.WixDataOptions): Promise<void>;
 
   /**
    * Inserts or updates an item in a collection.
    */
-  function save(collectionName: string, item: object, options?: wix_data.WixDataOptions): Promise<object>;
+  function save(collectionName: string, item: any, options?: wix_data.WixDataOptions): Promise<any>;
 
   /**
    * Creates a sort to be used with the dataset `setSort()` function.
@@ -390,7 +390,7 @@ declare module 'wix-data' {
   /**
    * Updates an item in a collection.
    */
-  function update(collectionName: string, item: object, options?: wix_data.WixDataOptions): Promise<object>;
+  function update(collectionName: string, item: any, options?: wix_data.WixDataOptions): Promise<any>;
 
 }
 
@@ -409,7 +409,7 @@ declare module 'wix-fetch' {
   /**
    * Retrieves the specified JSON resource from the network using HTTPS.
    */
-  function getJSON(url: string, options: wix_fetch.WixFetchRequest): Promise<object>;
+  function getJSON(url: string, options: wix_fetch.WixFetchRequest): Promise<any>;
 
 }
 
@@ -467,7 +467,7 @@ declare module 'wix-router' {
   /**
    * Returns a response with a status code 200 (OK) and instructs the router to show the selected page.
    */
-  function ok(Page: string | string[], routerReturnedData?: object, head?: wix_router.WixRouterResponse.HeadOptions): Promise<wix_router.WixRouterResponse>;
+  function ok(Page: string | string[], routerReturnedData?: any, head?: wix_router.WixRouterResponse.HeadOptions): Promise<wix_router.WixRouterResponse>;
 
   /**
    * Returns a response with a status code of 301 (Moved Permanently) or 302 (Found) and instructs the router to redirect to the given URL.
@@ -1621,7 +1621,7 @@ declare namespace $w {
     /**
      * Sends a message to the HTML Component.
      */
-    postMessage(message: string | number | boolean | object | Array): void;
+    postMessage(message: string | number | boolean | any | Array): void;
   }
 
   /**
@@ -2005,7 +2005,7 @@ declare namespace $w {
     /**
      * Sets or gets the repeater data.
      */
-    data: object[];
+    data: any[];
     /**
      * Runs a function for each repeated item.
      */
@@ -2160,7 +2160,7 @@ declare namespace $w {
     /**
      * Sets or gets the table's row data.
      */
-    rows: object[];
+    rows: any[];
     /**
      * Adds an event handler that runs when a table cell is selected.
      */
@@ -2184,7 +2184,7 @@ declare namespace $w {
     /**
      * Updates a the row data of a single row at the specified index.
      */
-    updateRow(index: number, rowData: object): void;
+    updateRow(index: number, rowData: any): void;
   }
 
   namespace Table {
@@ -2297,7 +2297,7 @@ declare namespace $w {
     /**
      * Gets the data for the selected row.
      */
-    readonly rowData: object;
+    readonly rowData: any;
     /**
      * Gets the index of the selected row.
      */
@@ -2634,7 +2634,7 @@ declare namespace $w {
 
   type EventHandler = (event: $w.Event, $w: $w.$w)=>void;
 
-  type ForItemCallback = ($item: $w.$w, itemData: object, index: number)=>void;
+  type ForItemCallback = ($item: $w.$w, itemData: any, index: number)=>void;
 
   /**
    * Handles events fired when a gallery moves to a new image.
@@ -2663,9 +2663,9 @@ declare namespace $w {
    */
   type IconMouseInEventHandler = (event: $w.IconMouseInEvent)=>void;
 
-  type ItemReadyEventHandler = ($item: $w.$w, itemData: Object, index: number)=>void;
+  type ItemReadyEventHandler = ($item: $w.$w, itemData: any, index: number)=>void;
 
-  type ItemRemovedEventHandler = (itemData: object)=>void;
+  type ItemRemovedEventHandler = (itemData: any)=>void;
 
   /**
    * Handles events fired when the keyboard is pressed.
@@ -3047,7 +3047,7 @@ declare namespace $w {
        *  product to the cart. The object contains key:value pairs where the key is the
        *  option name and the value is the chosen option value.
        */
-      choices: object;
+      choices: any;
       /**
        * Custom custom
        *  text fields to use when adding the product to the cart.
@@ -3722,7 +3722,7 @@ declare namespace wix_dataset {
     /**
      * Returns the current item.
      */
-    getCurrentItem(): object;
+    getCurrentItem(): any;
     /**
      * Returns the current item's index.
      */
@@ -3770,7 +3770,7 @@ declare namespace wix_dataset {
     /**
      * Loads the specified page.
      */
-    loadPage(pageIndex: number): Promise<object[]>;
+    loadPage(pageIndex: number): Promise<any[]>;
     /**
      * Create a new blank item.
      */
@@ -3778,11 +3778,11 @@ declare namespace wix_dataset {
     /**
      * Saves the current item and moves to the next item.
      */
-    next(): Promise<object>;
+    next(): Promise<any>;
     /**
      * Moves to the next page of data.
      */
-    nextPage(): Promise<object[]>;
+    nextPage(): Promise<any[]>;
     /**
      * Adds an event handler that runs just after a save.
      */
@@ -3810,11 +3810,11 @@ declare namespace wix_dataset {
     /**
      * Saves the current item and moves to the previous item.
      */
-    previous(): Promise<object>;
+    previous(): Promise<any>;
     /**
      * Moves to the previous page of data.
      */
-    previousPage(): Promise<object[]>;
+    previousPage(): Promise<any[]>;
     /**
      * Refetches the contents of the dataset from the collection.
      */
@@ -3830,7 +3830,7 @@ declare namespace wix_dataset {
     /**
      * Saves the current item.
      */
-    save(): Promise<object>;
+    save(): Promise<any>;
     /**
      * Sets the current item by index.
      */
@@ -3842,7 +3842,7 @@ declare namespace wix_dataset {
     /**
      * Updates the values of a set of fields in the current item.
      */
-    setFieldValues(fieldValues: object): void;
+    setFieldValues(fieldValues: any): void;
     /**
      * Sets the dataset filter.
      */
@@ -3879,7 +3879,7 @@ declare namespace wix_dataset {
       /**
        * List of items objects where key:value pairs are the field keys and field values of the retrieved items, including all hidden fields.
        */
-      items: object[];
+      items: any[];
       /**
        * The number of items in the dataset that match its filter criteria.
        */
@@ -3893,7 +3893,7 @@ declare namespace wix_dataset {
     /**
      * An after save event handler.
      */
-    type AfterSaveHandler = (itemBeforeSave: object, itemAfterSave: object)=>void;
+    type AfterSaveHandler = (itemBeforeSave: any, itemAfterSave: any)=>void;
 
     /**
      * A before save event handler.
@@ -3913,7 +3913,7 @@ declare namespace wix_dataset {
     /**
      * A current item value change event handler.
      */
-    type ItemValuesChangedHandler = (itemBeforeChange: object, updatedItem: object)=>void;
+    type ItemValuesChangedHandler = (itemBeforeChange: any, updatedItem: any)=>void;
 
     /**
      * A dataset ready event handler.
@@ -4184,11 +4184,11 @@ declare namespace wix_window {
     /**
      * Closes the lightbox.
      */
-    close(data?: object): void;
+    close(data?: any): void;
     /**
      * Returns the data object that was passed to a lightbox.
      */
-    getContext(): object;
+    getContext(): any;
   }
 
   /**
@@ -4253,7 +4253,7 @@ declare namespace wix_window {
     /**
      * **Deprecated:** Gets data sent from server-side code to client-side code.
      */
-    readonly warmupData: boolean | number | string | object;
+    readonly warmupData: boolean | number | string | any;
   }
 
   /**
@@ -4746,15 +4746,15 @@ declare namespace wix_window {
     /**
      * An object with `height` and `width` key:value pairs containing the size of the viewable area of the current browser window.
      */
-    window: object;
+    window: any;
     /**
      * An object with `height` and `width` key:value pairs containing the size of the actual body of the page, which may be larger or smaller than the current window.
      */
-    document: object;
+    document: any;
     /**
      * An object with `x` and `y` key:value pairs containing the scroll offset of the page within the window from the top-left corner.
      */
-    scroll: object;
+    scroll: any;
   };
 
 }
@@ -5760,7 +5760,7 @@ declare namespace wix_http_functions {
     /**
      * Returns the HTTP header fields used in a call to an HTTP function.
      */
-    readonly headers: object;
+    readonly headers: any;
     /**
      * Returns the IP address of the client who called the HTTP function.
      */
@@ -5776,7 +5776,7 @@ declare namespace wix_http_functions {
     /**
      * Returns the query fields and values of the URL used to call an HTTP function.
      */
-    readonly query: object;
+    readonly query: any;
     /**
      * Returns the full URL of a call to an HTTP function.
      */
@@ -5795,7 +5795,7 @@ declare namespace wix_http_functions {
       /**
        * Returns a Promise which resolves to the body of the call as a JSON object.
        */
-      "json()": Promise<object>;
+      "json()": Promise<any>;
     };
 
   }
@@ -5811,7 +5811,7 @@ declare namespace wix_http_functions {
     /**
      * Sets or gets the HTTP response header fields.
      */
-    headers: object;
+    headers: any;
     /**
      * Sets or gets the HTTP status code of the response.
      */
@@ -5833,7 +5833,7 @@ declare namespace wix_http_functions {
     /**
      * The response's header fields. The `headers` property contains an object of `key:value` pairs where the `key` is the header field name and the `value` is the header field value.
      */
-    headers?: object;
+    headers?: any;
   };
 
 }
@@ -6246,23 +6246,23 @@ declare namespace wix_data {
     /**
      * A hook that is triggered after a `get()` operation.
      */
-    afterGet(item: object, context: wix_data.Hooks.HookContext): Promise<object>;
+    afterGet(item: any, context: wix_data.Hooks.HookContext): Promise<any>;
     /**
      * A hook that is triggered after an `insert()` operation.
      */
-    afterInsert(item: object, context: wix_data.Hooks.HookContext): Promise<object>;
+    afterInsert(item: any, context: wix_data.Hooks.HookContext): Promise<any>;
     /**
      * A hook that is triggered after a `find` operation, for each of the items in the query results.
      */
-    afterQuery(item: object, context: wix_data.Hooks.HookContext): Promise<object>;
+    afterQuery(item: any, context: wix_data.Hooks.HookContext): Promise<any>;
     /**
      * A hook that is triggered after a `remove()` operation.
      */
-    afterRemove(item: object, context: wix_data.Hooks.HookContext): Promise<object>;
+    afterRemove(item: any, context: wix_data.Hooks.HookContext): Promise<any>;
     /**
      * A hook that is triggered after an `update()` operation.
      */
-    afterUpdate(item: object, context: wix_data.Hooks.HookContext): Promise<object>;
+    afterUpdate(item: any, context: wix_data.Hooks.HookContext): Promise<any>;
     /**
      * A hook that is triggered before a `count()` operation.
      */
@@ -6274,7 +6274,7 @@ declare namespace wix_data {
     /**
      * A hook that is triggered before an `insert()` operation.
      */
-    beforeInsert(item: object, context: wix_data.Hooks.HookContext): Promise<object>;
+    beforeInsert(item: any, context: wix_data.Hooks.HookContext): Promise<any>;
     /**
      * A hook that is triggered before a `find()` operation.
      */
@@ -6286,11 +6286,11 @@ declare namespace wix_data {
     /**
      * A hook that is triggered before an `update()` operation.
      */
-    beforeUpdate(item: object, context: wix_data.Hooks.HookContext): Promise<object>;
+    beforeUpdate(item: any, context: wix_data.Hooks.HookContext): Promise<any>;
     /**
      * A hook that is triggered on any error or rejected Promise from any of the wix-data operations.
      */
-    onFailure(error: Error, context: wix_data.Hooks.HookContext): Promise<object>;
+    onFailure(error: Error, context: wix_data.Hooks.HookContext): Promise<any>;
   }
 
   namespace Hooks {
@@ -6314,7 +6314,7 @@ declare namespace wix_data {
        * The item stored in the database before an `update` or `delete` operation.
        * Will be `undefined` for all other operations.
        */
-      currentItem: object;
+      currentItem: any;
     };
 
   }
@@ -6384,7 +6384,7 @@ declare namespace wix_data {
     /**
      * Gets the aggregated values.
      */
-    readonly items: object[];
+    readonly items: any[];
     /**
      * Returns the number of values in the aggregate results.
      */
@@ -6583,7 +6583,7 @@ declare namespace wix_data {
     /**
      * Returns the items that match the reference query.
      */
-    readonly items: object[];
+    readonly items: any[];
     /**
      * Returns the total number of items that match the reference query.
      */
@@ -6617,7 +6617,7 @@ declare namespace wix_data {
     /**
      * Returns the items that match the query.
      */
-    readonly items: object[];
+    readonly items: any[];
     /**
      * Returns the number of items in the current results page.
      */
@@ -6744,7 +6744,7 @@ declare namespace wix_fetch {
     /**
      * The response headers.
      */
-    readonly headers: object;
+    readonly headers: any;
     /**
      * Indicates if the request was successful, meaning its `status` is in the range 2xx.
      */
@@ -6764,7 +6764,7 @@ declare namespace wix_fetch {
     /**
      * Reads the response body as JSON.
      */
-    json(): Promise<object>;
+    json(): Promise<any>;
     /**
      * Reads the response body as a string.
      */
@@ -6782,7 +6782,7 @@ declare namespace wix_fetch {
     /**
      * The request headers.
      */
-    headers: object;
+    headers: any;
     /**
      * The request body.
      */
@@ -7069,7 +7069,7 @@ declare namespace wix_router {
     /**
      * Returns the query fields and values of the request URL.
      */
-    readonly query: object;
+    readonly query: any;
     /**
      * Returns the `referrer` header from the router request.
      */
@@ -7095,7 +7095,7 @@ declare namespace wix_router {
     /**
      * Sets or gets the data to pass with the response.
      */
-    data: object;
+    data: any;
     /**
      * Sets or gets the members to be written to the HTML head of the page.
      */
@@ -7142,7 +7142,7 @@ declare namespace wix_router {
       /**
        * Other meta tags of the head. An object with key:value pairs where the key is the meta tag name and the value is the content.
        */
-      metaTags: object;
+      metaTags: any;
     };
 
   }
@@ -8909,7 +8909,7 @@ declare namespace wix_users {
      *  corresponding `value` is the value to insert into the template in place of
      *  variable. The values must be strings.
      */
-    variables: object;
+    variables: any;
   };
 
   /**
