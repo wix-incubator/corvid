@@ -1,0 +1,36 @@
+{
+  "name": "create-corvid-project",
+  "version": "0.1.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "build": ":",
+    "test": "run-script-os",
+    "test:windows": "jest --testTimeout=40000 --detectOpenHandles --forceExit",
+    "test:default": "jest",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "bin": {
+    "create-corvid-project": "./src/index.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "execa": "^2.0.4",
+    "find-free-port": "^2.0.0",
+    "jest": "^24.9.0",
+    "npm-which": "^3.0.1",
+    "run-script-os": "^1.0.7",
+    "temp": "^0.9.0",
+    "verdaccio": "^4.2.2"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "commander": "^2.20.0",
+    "dedent": "^0.7.0",
+    "fs-extra": "^7.0.1",
+    "semver": "^6.3.0"
+  }
+}
