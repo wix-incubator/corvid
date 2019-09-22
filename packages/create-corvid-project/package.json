@@ -6,7 +6,7 @@
   "scripts": {
     "build": ":",
     "test": "run-script-os",
-    "test:windows": "jest --testTimeout=40000 --detectOpenHandles --forceExit",
+    "test:windows": "jest --testTimeout=40000 --forceExit",
     "test:default": "jest",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   },
