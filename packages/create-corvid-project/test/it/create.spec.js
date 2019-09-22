@@ -30,16 +30,22 @@ const fakeCorvidTypesPath = path.join(
 describe("create", () => {
   let fakeNpmRegistry;
   let createCorvidProject = () => {};
+  const executedProcess = [];
 
   beforeAll(async () => {
     fakeNpmRegistry = await startFakeNpmRegistry();
     await publishPackage(fakeNpmRegistry.registryUrl, fakeCorvidCliPath);
     await publishPackage(fakeNpmRegistry.registryUrl, fakeCorvidTypesPath);
-    createCorvidProject = args => runCreateCorvidProject(args, fakeNpmRegistry);
+    createCorvidProject = args => {
+      const process = runCreateCorvidProject(args, fakeNpmRegistry);
+      executedProcess.push(process);
+      return process;
+    };
   });
 
   afterAll(async () => {
     await fakeNpmRegistry.close();
+    await Promise.all(executedProcess.map(proc => proc.kill()));
   });
 
   describe("project template", () => {
