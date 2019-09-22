@@ -45,7 +45,7 @@ describe("create", () => {
 
   afterAll(async () => {
     await fakeNpmRegistry.close();
-    await Promise.all(executedProcess.map(proc => proc.kill()));
+    await Promise.all(executedProcess.map(proc => proc.kill("SIGKILL")));
   });
 
   describe("project template", () => {

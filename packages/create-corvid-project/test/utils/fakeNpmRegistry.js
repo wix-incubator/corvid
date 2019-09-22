@@ -44,7 +44,7 @@ const start = async () => {
 
   return {
     registryUrl,
-    close: () => verdaccioProcess.kill()
+    close: () => verdaccioProcess.kill("SIGKILL")
   };
 };
 
