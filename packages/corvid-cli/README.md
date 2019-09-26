@@ -17,38 +17,37 @@ Features relating to the Local Editor are currently in the stage of alpha releas
 
 `corvid-cli` allows you to download your [Wix](https://www.wix.com) site and work on it locally. With this tool you can use your favorite development tools (e.g IDE, version control) to manage the code of your site, use the Wix Editor to edit the view, and collaborate with others in building your site. Read more about how to use the corvid-cli [here](https://support.wix.com/en/article/working-with-the-corvid-cli).
 
-## Getting Started
+
+## Setup
 
 ### Prerequisites
-Before doing anything else, you need to make sure you have [Node.JS](https://nodejs.org)  version >= 10.0.0 installed and working.
-
+[Node.JS](https://nodejs.org) version >= 10 
 
 ### Getting ready to use corvid-cli
 
-Create a new empty directory that will contain your site files and cd into it:
+Just run:
+
 ```
-mkdir <any-folder-name>
-cd <any-folder-name>
+npx create-corvid-app <folder-name> [your-wix-site-url]
 ```
 
-Initialize a package.json file so that you can install local dependencies:
+Sit back and relax while we initialize the specified folder with the recommended setup for working with `corvid-cli`.
+If you provide a Wix site URL (optional), we will also download your site into that folder.
+
+
+## Work on your site
+
+Navigate into the folder you specified above:
 ```
-npm init -y
+cd <folder-name>
 ```
 
-Install corvid-cli as a local development dependency:
-```
-npm install --save-dev corvid-cli corvid-types
-```
-
-### Work on your site
-
-Download your exising wix site locally:
+If you didn't provide your Wix site URL when running `create-corvid-app`, download your site:
 ```
 npx corvid clone <your-wix-site-url>
 ```
 
-Now you can start editing your site site by executing:
+To open an Editor so you can edit your site:
 ```
 npx corvid open-editor
 ```
