@@ -1,6 +1,6 @@
 {
   "name": "corvid-local-test-utils",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "main": "src/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "dependencies": {
     "atob": "^2.1.2",
     "btoa": "^1.2.1",
-    "corvid-dir-as-json": "0.2.0",
+    "corvid-dir-as-json": "0.2.1",
     "fs-extra": "^8.1.0",
     "lodash": "^4.17.15",
     "socket.io-client": "^2.2.0",
