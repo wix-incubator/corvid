@@ -10,7 +10,7 @@
 Just run:
 
 ```
-npx create-corvid-app <older-name> [your-wix-site-url]
+npx create-corvid-app <folder-name> [your-wix-site-url]
 ```
 
 Sit back and relax while we initialize the specified folder with the recommended setup for working with `corvid-cli`.
