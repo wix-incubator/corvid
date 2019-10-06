@@ -8,12 +8,12 @@ const testSites = [
     editorUrl:
       "https://editor.wix.com/html/editor/web/renderer/edit/bdce5f39-c471-4198-9778-c6c8118dbaa8?metaSiteId=d387aea5-55d2-47cf-a348-3d1fbe316245&editorSessionId=bf5f376b-7485-4995-a6c6-d7535d9c7853",
     description: "blank"
+  },
+  {
+    editorUrl:
+      "https://editor.wix.com/html/editor/web/renderer/edit/356795a0-49ed-4503-b662-2552189be995?metaSiteId=f248b2fc-953b-4c46-85c0-132f851ad6c2&editorSessionId=ebbc915a-dea0-4ad8-8a41-fb2b1fff65ab",
+    description: "inputs"
   }
-  // {
-  //   editorUrl:
-  //     "https://editor.wix.com/html/editor/web/renderer/edit/356795a0-49ed-4503-b662-2552189be995?metaSiteId=f248b2fc-953b-4c46-85c0-132f851ad6c2&editorSessionId=ebbc915a-dea0-4ad8-8a41-fb2b1fff65ab",
-  //   description: "inputs"
-  // },
   // {
   //   editorUrl:
   //     "https://editor.wix.com/html/editor/web/renderer/edit/425f3d9a-0d1b-45bd-9ce7-47cdac76d6a4?metaSiteId=ce77f15d-c430-4d6a-bb53-c56cb0f75ffb&editorSessionId=d8b144f4-71c4-42de-a0f4-5e08f4b06674",

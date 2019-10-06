@@ -48,11 +48,12 @@ function withCleanUp(asyncCallback) {
 async function cloneHandler(args) {
   const spinner = createSpinner();
   sessionData.on(["msid", "uuid"], (msid, uuid) => sendCloneEvent(msid, uuid));
-  return login(spinner, args)
+  return login(spinner, { remoteDebuggingPort: args.loginRemoteDebuggingPort })
     .then(async cookie => {
       if (cookie) {
         await clone(spinner, args, cookie);
         await pull(spinner, {
+          remoteDebuggingPort: args.pullRemoteDebuggingPort,
           dir: args.dir,
           ignoreCertificate: args.ignoreCertificate
         });

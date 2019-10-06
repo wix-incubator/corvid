@@ -38,6 +38,9 @@ async function pullCommand(spinner, args) {
 
   if (args.override) pullArgs.push("--override");
   if (args.move) pullArgs.push("--move");
+  if (args.remoteDebuggingPort) {
+    pullArgs.push(`--remote-debugging-port=${args.remoteDebuggingPort}`);
+  }
 
   await new Promise((resolve, reject) => {
     launch(
@@ -55,6 +58,11 @@ async function pullCommand(spinner, args) {
         },
         editorConnected: () => {
           spinner.start(chalk.grey(getMessage("Pull_Command_Downloading")));
+        },
+        editorLoadingFailed: () => {
+          spinner.fail(
+            chalk.red(getMessage("Pull_Command_Editor_Loading_Failed"))
+          );
         },
         projectDownloaded: () => {
           spinner.start(chalk.grey(getMessage("Pull_Command_Downloaded")));

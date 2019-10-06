@@ -5,7 +5,7 @@
   "scripts": {
     "test": "run-script-os",
     "test:windows": ":",
-    "test:default": "jest --maxWorkers=1 --detectOpenHandles"
+    "test:default": "jest --maxWorker=1 --runInBand --detectOpenHandles"
   },
   "devDependencies": {
     "execa": "^1.0.0",

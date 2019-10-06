@@ -50,6 +50,16 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
         isHeadless
       );
 
+      win.webContents.on("did-finish-load", async () => {
+        const editorLoadingFailed = await win.webContents.executeJavaScript(
+          "window.editorModel === undefined"
+        );
+        if (editorLoadingFailed) {
+          console.log(JSON.stringify({ event: "editorLoadingFailed" }));
+          win.show();
+        }
+      });
+
       win.webContents.on(
         "console-message",
         clientMessageActions({
