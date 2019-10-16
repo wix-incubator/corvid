@@ -1,8 +1,6 @@
-/* eslint-disable no-console */
+const path = require("path");
 const chalk = require("chalk");
 const jwt = require("jsonwebtoken");
-const { URL } = require("url");
-const { app, BrowserWindow } = require("electron");
 const _ = require("lodash");
 const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
@@ -10,45 +8,6 @@ const sessionData = require("../utils/sessionData");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
 const commandWithDefaults = require("../utils/commandWithDefaults");
-
-const mySitesUrl = "https://www.wix.com/account/sites";
-const signInHostname = "users.wix.com";
-
-app &&
-  app.on("ready", async () => {
-    const win = new BrowserWindow({
-      width: 1280,
-      height: 960,
-      show: false,
-      webPreferences: { nodeIntegration: false }
-    });
-
-    win.webContents.on("did-navigate", (event, url) => {
-      const parsed = new URL(url);
-      if (parsed.hostname === signInHostname) {
-        console.log(JSON.stringify({ event: "authenticatingUser" }));
-        win.show();
-      } else if (url === mySitesUrl) {
-        console.log(JSON.stringify({ event: "userAuthenticated" }));
-        win.hide();
-
-        win.webContents.session.cookies.get(
-          { url: "http://wix.com", name: "wixSession2" },
-          (error, cookies) => {
-            if (error) {
-              throw error;
-            }
-
-            console.log(
-              JSON.stringify({ msg: "authCookie", cookie: cookies[0] }, null, 2)
-            );
-          }
-        );
-        win.webContents.on("did-finish-load", () => app.quit());
-      }
-    });
-    win.loadURL(mySitesUrl);
-  });
 
 function parseSessionCookie(cookie) {
   try {
@@ -68,7 +27,7 @@ async function loginCommand(spinner, args = {}) {
   spinner.start(chalk.grey(getMessage("Login_Command_Accessing")));
 
   return launch(
-    __filename,
+    path.join(__dirname, "../electron/login"),
     {},
     {
       authenticatingUser: () => {
