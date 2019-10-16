@@ -1,16 +1,9 @@
-/* eslint-disable no-console */
 const fs = require("fs-extra");
 const path = require("path");
 const process = require("process");
 const chalk = require("chalk");
-const { app } = require("electron");
-const {
-  openWindow,
-  launch,
-  killAllChildProcesses
-} = require("../utils/electron");
+const { launch, killAllChildProcesses } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
-const openEditorApp = require("../apps/open-editor");
 const sessionData = require("../utils/sessionData");
 const { sendOpenEditorEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
@@ -20,25 +13,6 @@ const commandWithDefaults = require("../utils/commandWithDefaults");
 const {
   versions: { readFileSystemLayoutVersion }
 } = require("corvid-local-site");
-
-app &&
-  app.on("ready", async () => {
-    if (process.env.IGNORE_CERTIFICATE_ERRORS) {
-      app.on(
-        "certificate-error",
-        (event, webContents, url, error, certificate, callback) => {
-          // On certificate error we disable default behaviour (stop loading the page)
-          // and we then say "it is all fine - true" to the callback
-          event.preventDefault();
-          callback(true);
-        }
-      );
-    }
-
-    await openWindow(openEditorApp(), {
-      show: true && !process.env.CORVID_FORCE_HEADLESS
-    });
-  });
 
 const ensureLocalFileSystemVersion = async siteRootPath => {
   const existingFileSystemLayoutVersion = await readFileSystemLayoutVersion(
@@ -86,7 +60,7 @@ async function openEditorHandler(args) {
     process.on("exit", () => killAllChildProcesses());
 
     launch(
-      __filename,
+      path.join(__dirname, "../electron/open-editor"),
       {
         // TODO uncomment the following two option to spawn the app in the
         // background once the local server can be spawned in the background as
