@@ -10,8 +10,10 @@ const handleSocketEvent = async (
   try {
     const result = await handler(payload);
     callback(null, result);
+    logger.info(`Socket event ${event} handled succesfully`);
     return result;
   } catch (err) {
+    logger.info(`Socket event ${event} handling failed`);
     logger.error(err);
     callback({
       name: err.name,
