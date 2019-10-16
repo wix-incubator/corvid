@@ -2,8 +2,10 @@ const fs = require("fs-extra");
 const path = require("path").posix;
 
 const map_ = require("lodash/map");
+const flowRight_ = require("lodash/flowRight");
 
 const { readDirToJson } = require("corvid-dir-as-json");
+const { logger } = require("corvid-local-logger");
 
 const createAsyncQueue = require("./utils/asyncQueue");
 const initWithBackup = require("./utils/backup");
@@ -194,12 +196,21 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
 
   const readWriteQueue = createAsyncQueue();
 
+  const withStartFinishLog = callback => async (...args) => {
+    logger.info(`${callback.name} started`);
+    const result = await callback(...args);
+    logger.info(`${callback.name} finished`);
+    return result;
+  };
+
+  const withLogsAndQueue = flowRight_(readWriteQueue, withStartFinishLog);
+
   return {
-    updateSiteDocument: readWriteQueue(withBackup(updateSiteDocument)),
-    getSiteDocument: readWriteQueue(getSiteDocument),
-    getCodeFiles: readWriteQueue(getCodeFiles),
-    updateCode: readWriteQueue(updateCode),
-    updateCodeIntelligence: readWriteQueue(updateCodeIntelligence)
+    updateSiteDocument: withLogsAndQueue(withBackup(updateSiteDocument)),
+    getSiteDocument: withLogsAndQueue(getSiteDocument),
+    getCodeFiles: withLogsAndQueue(getCodeFiles),
+    updateCode: withLogsAndQueue(updateCode),
+    updateCodeIntelligence: withLogsAndQueue(updateCodeIntelligence)
   };
 };
 
