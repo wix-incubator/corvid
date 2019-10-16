@@ -10,6 +10,7 @@ const backup = async (siteSrcPath, backupPath) => {
     logger.info(getMessage("Backup_Complete_log"));
   } catch (e) {
     logger.info(getMessage("Backup_Fail_log"));
+    logger.error(e);
     await deleteBackup();
     throw e;
   }
@@ -34,6 +35,10 @@ const withBackupInit = (siteSrcPath, backupPath, filesWatcher) => {
       await deleteBackup(backupPath);
       return result;
     } catch (error) {
+      logger.info(
+        `Restoring from backup because an error occured: ${error.message}`
+      );
+      logger.error(error);
       filesWatcher.pause();
       await restore(siteSrcPath, backupPath);
       filesWatcher.resume();
