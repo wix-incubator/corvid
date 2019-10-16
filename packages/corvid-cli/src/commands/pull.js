@@ -2,10 +2,7 @@
 const path = require("path");
 const process = require("process");
 const chalk = require("chalk");
-const { app } = require("electron");
-const yargs = require("yargs");
-const { openWindow, launch } = require("../utils/electron");
-const pullApp = require("../apps/pull");
+const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
 const { sendPullEvent } = require("../utils/bi");
@@ -14,34 +11,15 @@ const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
 const commandWithDefaults = require("../utils/commandWithDefaults");
 
-app &&
-  app.on("ready", async () => {
-    if (process.env.IGNORE_CERTIFICATE_ERRORS) {
-      app.on(
-        "certificate-error",
-        (event, webContents, url, error, certificate, callback) => {
-          // On certificate error we disable default behaviour (stop loading the page)
-          // and we then say "it is all fine - true" to the callback
-          event.preventDefault();
-          callback(true);
-        }
-      );
-    }
-
-    const args = yargs.argv;
-    await openWindow(pullApp({ override: args.override, move: args.move }));
-  });
-
 async function pullCommand(spinner, args) {
   spinner.start(chalk.grey(getMessage("Pull_Command_Connecting")));
   const pullArgs = [];
 
   if (args.override) pullArgs.push("--override");
   if (args.move) pullArgs.push("--move");
-
   await new Promise((resolve, reject) => {
     launch(
-      __filename,
+      path.join(__dirname, "../electron/pull"),
       {
         cwd: args.dir,
         env: {
