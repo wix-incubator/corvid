@@ -11,15 +11,20 @@ const backup = async (siteSrcPath, backupPath) => {
   } catch (e) {
     logger.info(getMessage("Backup_Fail_log"));
     logger.error(e);
-    await deleteBackup();
-    throw e;
+    await deleteBackup(backupPath);
   }
 };
 const deleteBackup = async backupPath => {
-  logger.info(getMessage("Backup_Delete_Start_log"));
-  await fs.remove(backupPath);
-  logger.info(getMessage("Backup_Delete_Complete_log"));
+  try {
+    logger.info(getMessage("Backup_Delete_Start_log"));
+    await fs.remove(backupPath);
+    logger.info(getMessage("Backup_Delete_Complete_log"));
+  } catch (e) {
+    logger.info("Error deleting backup");
+    logger.warn(e);
+  }
 };
+
 const restore = async (siteSrcPath, backupPath) => {
   logger.info(getMessage("Backup_Restore_Start_log"));
   await fs.emptyDir(siteSrcPath);
