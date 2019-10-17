@@ -64,6 +64,7 @@ describe("Backup", () => {
       done();
     }
   });
+
   it("should not keep a backup for a succesful save", async () => {
     const localSiteFiles = localSiteBuilder.buildFull();
 
@@ -234,5 +235,28 @@ describe("Backup", () => {
     });
 
     await watcher.close();
+  });
+
+  it("should not fail save if cannot save a backup", async () => {
+    const originalSite = sc.fullSiteItems();
+    const updatedSite = sc.fullSiteItems();
+
+    const localSitePath = await localSiteDir.initLocalSite(
+      localSiteBuilder.buildPartial(...originalSite)
+    );
+    const server = await localServer.startInEditMode(localSitePath);
+    const editor = await loadEditor(server.port);
+
+    const backupPath = backupsPath(localSitePath);
+    await fs.mkdir(backupPath);
+
+    await fs.chmod(backupPath, 0o400); // owner can only read
+
+    editor.modifySite(editorSiteBuilder.buildPartial(...updatedSite));
+    await editor.save();
+
+    expect(await localSiteDir.readLocalSite(localSitePath)).toMatchObject(
+      localSiteBuilder.buildPartial(...updatedSite)
+    );
   });
 });
