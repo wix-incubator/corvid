@@ -18,8 +18,12 @@ const logAsyncErrors = asyncCallback => async (...args) =>
     throw error;
   });
 
-process.on("uncaughtException", error => logger.error(error));
-process.on("unhandledRejection", reason => logger.error(reason));
+process.on("uncaughtException", error =>
+  logger.error(error, { origin: "uncaughtException" })
+);
+process.on("unhandledRejection", reason =>
+  logger.error(reason, { origin: "unhandledRejection" })
+);
 
 module.exports = logger;
 module.exports.logger = logger;
