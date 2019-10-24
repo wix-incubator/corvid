@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const fs = require("fs-extra");
 const path = require("path");
+const { UserError } = require("corvid-local-logger");
 const clone = require("../apps/clone");
 const { login } = require("./login");
 const { pull } = require("./pull");
@@ -65,7 +66,7 @@ async function cloneHandler(args) {
         );
         return getMessage("Clone_Command_Complete");
       } else {
-        throw new Error(getMessage("Clone_Command_Login_Failed_Error"));
+        throw new UserError(getMessage("Clone_Command_Login_Failed_Error"));
       }
     })
     .catch(async error => {
