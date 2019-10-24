@@ -14,16 +14,22 @@ logger.addSessionData({
 
 const logAsyncErrors = asyncCallback => async (...args) =>
   asyncCallback(...args).catch(error => {
-    logger.error(error);
+    if (!UserError.isUserError(error)) {
+      logger.error(error);
+    }
     throw error;
   });
 
-process.on("uncaughtException", error =>
-  logger.error(error, { origin: "uncaughtException" })
-);
-process.on("unhandledRejection", reason =>
-  logger.error(reason, { origin: "unhandledRejection" })
-);
+process.on("uncaughtException", error => {
+  if (!UserError.isUserError(error)) {
+    logger.error(error, { origin: "uncaughtException" });
+  }
+});
+process.on("unhandledRejection", reason => {
+  if (!UserError.isUserError(reason)) {
+    logger.error(reason, { origin: "unhandledRejection" });
+  }
+});
 
 module.exports = logger;
 module.exports.logger = logger;
