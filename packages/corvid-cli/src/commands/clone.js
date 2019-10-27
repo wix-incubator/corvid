@@ -13,6 +13,7 @@ const reject_ = require("lodash/reject");
 const paths = require("../utils/paths");
 const { killAllChildProcesses } = require("../utils/electron");
 const commandWithDefaults = require("../utils/commandWithDefaults");
+const { UserError } = require("corvid-local-logger");
 
 function withCleanUp(asyncCallback) {
   const dirContent = async rootPath => {
@@ -65,7 +66,7 @@ async function cloneHandler(args) {
         );
         return getMessage("Clone_Command_Complete");
       } else {
-        throw new Error(getMessage("Clone_Command_Login_Failed_Error"));
+        throw new UserError(getMessage("Clone_Command_Login_Failed_Error"));
       }
     })
     .catch(async error => {

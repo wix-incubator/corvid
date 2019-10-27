@@ -4,6 +4,7 @@
     "Cli_Unsupported_Node_Version": "Unsupported Node.js version, please use",
     "Clone_Getting_Site_Data": "Getting site information",
     "Clone_No_MetasiteId_Error": "Could not get site information from <%= url %>",
+    "Clone_Bad_URL_Error": "Bad URL: <%= url %>",
     "Clone_Project_Exists_Error": "Project already exists.",
     "Clone_Workspace_Initialized": "Workspace initialized ",
     "OpenEditor_Already_Connected_Error": "The local Corvid server is already connected to a Local Editor. \nClose the Local Editor and try again.",

@@ -44,6 +44,7 @@ describe("clone", () => {
           [
             {
               metasiteId: "12345678",
+              siteName: "test",
               publicUrl: siteUrl
             }
           ],
@@ -89,7 +90,8 @@ describe("clone", () => {
             [
               {
                 metasiteId: "12345678",
-                publicUrl: "http://a-site.com"
+                publicUrl: "http://a-site.com",
+                siteName: "a-site"
               }
             ],
             null,
@@ -126,7 +128,8 @@ describe("clone", () => {
             [
               {
                 metasiteId: "12345678",
-                publicUrl: "http://a-site.com"
+                publicUrl: "http://a-site.com",
+                siteName: "a-site"
               }
             ],
             null,
@@ -161,7 +164,16 @@ describe("clone", () => {
       fetchMock
         .mock(
           "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-          JSON.stringify([], null, 2)
+          JSON.stringify(
+            [
+              {
+                metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb",
+                siteName: "test"
+              }
+            ],
+            null,
+            2
+          )
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
@@ -196,7 +208,16 @@ describe("clone", () => {
       fetchMock
         .mock(
           "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-          JSON.stringify([], null, 2)
+          JSON.stringify(
+            [
+              {
+                metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb",
+                siteName: "test"
+              }
+            ],
+            null,
+            2
+          )
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
@@ -235,7 +256,8 @@ describe("clone", () => {
             [
               {
                 metasiteId: "12345678",
-                publicUrl: "http://a-site.com"
+                publicUrl: "http://a-site.com",
+                siteName: "a-site"
               }
             ],
             null,
@@ -276,7 +298,8 @@ describe("clone", () => {
             [
               {
                 metasiteId: "87654321",
-                publicUrl: "http://a-site.com"
+                publicUrl: "http://a-site.com",
+                siteName: "a-site"
               }
             ],
             null,
@@ -319,6 +342,7 @@ describe("clone", () => {
             [
               {
                 metasiteId: "87654321",
+                siteName: "a-site",
                 publicUrl: "http://a-site.com"
               }
             ],
