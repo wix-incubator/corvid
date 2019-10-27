@@ -61,8 +61,11 @@ async function extractMetasiteIdAndName(url, cookie) {
     const site = siteList.find(
       site =>
         site.publicUrl &&
-        normalize(site.publicUrl, { forceHttps: true }) ===
-          publicSiteOrEditorUrl
+        (normalize(site.publicUrl, { forceHttps: true }) ===
+          publicSiteOrEditorUrl ||
+          publicSiteOrEditorUrl.startsWith(
+            normalize(site.publicUrl, { forceHttps: true }) + "/"
+          ))
     );
 
     return {
@@ -75,10 +78,17 @@ async function extractMetasiteIdAndName(url, cookie) {
 async function clone(spinner, args, cookie) {
   spinner.start(chalk.grey(getMessage("Clone_Getting_Site_Data")));
   try {
-    const { metasiteId } = await extractMetasiteIdAndName(args.url, cookie);
+    const { metasiteId, siteName } = await extractMetasiteIdAndName(
+      args.url,
+      cookie
+    );
+
+    if (siteName == null) {
+      throw new UserError(getMessage("Clone_Bad_URL_Error", { url: args.url }));
+    }
 
     if (metasiteId == null) {
-      throw new Error(
+      throw new UserError(
         getMessage("Clone_No_MetasiteId_Error", { url: args.url })
       );
     }
