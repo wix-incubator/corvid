@@ -1,4 +1,3 @@
-const isObject_ = require("lodash/isObject");
 const eventually = require("wix-eventually");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
@@ -46,10 +45,8 @@ describe("local changes", () => {
         );
 
         const code = sc[itemKey]();
-        let filePath = localSiteBuilder.getLocalFilePath(code);
-        filePath = isObject_(filePath) ? filePath.code : filePath;
-        let fileContent = localSiteBuilder.getLocalFileContent(code);
-        fileContent = isObject_(fileContent) ? fileContent.code : fileContent;
+        const filePath = localSiteBuilder.getLocalFilePath(code, "code");
+        const fileContent = localSiteBuilder.getLocalFileContent(code, "code");
 
         const watcherPayload = createCodeChangePayload(
           editorSiteBuilder.getEditorCodeFilePath(code),
@@ -79,10 +76,11 @@ describe("local changes", () => {
         const unsubscribeFromCodeChange = editor.registerCodeChange(
           onCodeChange
         );
-        let filePath = localSiteBuilder.getLocalFilePath(code);
-        filePath = isObject_(filePath) ? filePath.code : filePath;
-        let fileContent = localSiteBuilder.getLocalFileContent(sc[itemKey]());
-        fileContent = isObject_(fileContent) ? fileContent.code : fileContent;
+        const filePath = localSiteBuilder.getLocalFilePath(code, "code");
+        const fileContent = localSiteBuilder.getLocalFileContent(
+          sc[itemKey](),
+          "code"
+        );
 
         const watcherPayload = createCodeChangePayload(
           editorSiteBuilder.getEditorCodeFilePath(code),
@@ -112,8 +110,7 @@ describe("local changes", () => {
         const unsubscribeFromCodeChange = editor.registerCodeChange(
           onCodeChange
         );
-        let filePath = localSiteBuilder.getLocalFilePath(code);
-        filePath = isObject_(filePath) ? filePath.code : filePath;
+        const filePath = localSiteBuilder.getLocalFilePath(code, "code");
 
         await deleteFile(localSitePath, filePath);
 

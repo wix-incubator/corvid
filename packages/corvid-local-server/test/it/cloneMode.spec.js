@@ -126,6 +126,16 @@ describe("clone mode", () => {
     expect(serverFiles).toMatchObject(expectedLocalSite);
   });
 
+  it("should save localy site document, code files and code intelligence", async () => {
+    const fullSite = sc.fullSiteItems();
+    const fullLocalSite = localSiteBuilder.buildPartial(...fullSite);
+    const fullEditorSite = editorSiteBuilder.buildPartial(...fullSite);
+    const localSitePath = await initLocalSite();
+    const server = await localServer.startInCloneMode(localSitePath);
+    await loadEditor(server.port, fullEditorSite);
+    const localSiteFiles = await readLocalSite(localSitePath);
+    expect(fullLocalSite).toEqual(localSiteFiles);
+  });
   it.each([
     "backend",
     "public",

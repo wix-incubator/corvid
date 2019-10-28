@@ -7,7 +7,7 @@ const isEmpty_ = require("lodash/isEmpty");
 
 const logger = require("corvid-local-logger");
 
-const { localFileSystemLayout } = require("./versions.json");
+const { localFileSystemLayout } = require("./versions");
 const { isUnderPath, getFileName } = require("./utils/fileUtils");
 const {
   prettyStringify,
@@ -16,18 +16,31 @@ const {
 
 const {
   ROOT_PATHS,
+  DEFAULT_FILE_PATHS,
   isPathOfWixFile,
+  matchLocalPageTypingsFile,
+  matchLocalPageTsConfigFile,
   matchLocalPageDocumentPath,
   matchLocalPageCodePath,
   isPathOfPageCode,
   isPathOfPageStructure,
+  isPathOfPageTsConfigFile,
+  isPathOfPageTypingsFile,
   stylesFilePath,
   sitePartFilePath,
   menuFilePath,
   routerFilePath,
   pageStructureFilePath,
-  pageCodeFilePath
+  pageCodeFilePath,
+  pageTsConfigFilePath,
+  pageTypingsFilePath
 } = require("./sitePaths");
+
+const {
+  getPagesDynamicTypings,
+  getPagesTsConfigs,
+  getCodeFilesTsConfigs
+} = require("./codeCompletion");
 
 const { toWixFileContent, fromWixFileContent } = require("./utils/wixFiles");
 
@@ -122,7 +135,7 @@ const pageFileToDocument = pageFile => {
 // misc
 
 const metadataDocumentToFile = documentSchemaVersion => ({
-  path: ROOT_PATHS.METADATA_FILE,
+  path: DEFAULT_FILE_PATHS.METADATA,
   content: prettyStringify({
     documentSchemaVersion,
     localFileSystemLayout
@@ -147,7 +160,7 @@ const localFileToDocument = file => {
       [ROOT_PATHS.SITE]: sitePartFileToDocument,
       [ROOT_PATHS.ROUTERS]: routerFileToDocument,
       [ROOT_PATHS.MENUS]: menuFileToDocument,
-      [ROOT_PATHS.METADATA_FILE]: metadataFileToDocument
+      [DEFAULT_FILE_PATHS.METADATA]: metadataFileToDocument
     },
     (_, rootPath) => isUnderPath(rootPath, file.path)
   );
@@ -161,6 +174,7 @@ const localFileToDocument = file => {
 
 const editorDocumentToLocalDocumentFiles = siteDocument => {
   const localDocumentFiles = [
+    ...getPagesTsConfigs(siteDocument.pages),
     ...map_(siteDocument.pages, pageDocumentToFile),
     ...map_(siteDocument.styles, styleDocumentToFile),
     ...map_(siteDocument.site, sitePartDocumentToFile),
@@ -257,10 +271,10 @@ const editorCodePathToLocalCodePath = (
   existingLocalPageFilePaths
 ) => {
   if (editorCodePath === EDITOR_PATHS.MASTER_PAGE_CODE_FILE) {
-    return ROOT_PATHS.SITE_CODE_FILE;
+    return DEFAULT_FILE_PATHS.SITE_CODE;
   }
   if (editorCodePath === EDITOR_PATHS.WIX_CODE_PACKAGE_JSON_FILE) {
-    return ROOT_PATHS.PACKAGE_JSON_FILE;
+    return DEFAULT_FILE_PATHS.PACKAGE_JSON;
   }
   if (isUnderPath("public/pages", editorCodePath)) {
     return editorPageCodePathToLocalCodePath(
@@ -283,10 +297,10 @@ const editorCodePathToLocalCodePath = (
 };
 
 const localCodePathToEditorCodePath = localCodePath => {
-  if (localCodePath === ROOT_PATHS.SITE_CODE_FILE) {
+  if (localCodePath === DEFAULT_FILE_PATHS.SITE_CODE) {
     return EDITOR_PATHS.MASTER_PAGE_CODE_FILE;
   }
-  if (localCodePath === ROOT_PATHS.PACKAGE_JSON_FILE) {
+  if (localCodePath === DEFAULT_FILE_PATHS.PACKAGE_JSON) {
     return EDITOR_PATHS.WIX_CODE_PACKAGE_JSON_FILE;
   }
   if (
@@ -313,15 +327,17 @@ const editorCodeFilesToLocalCodeFiles = (
   editorCodeFiles,
   existingLocalPageFilePaths
 ) =>
-  editorCodeFiles.map(editorFile => ({
-    path: editorCodePathToLocalCodePath(
-      editorFile.path,
-      existingLocalPageFilePaths
-    ),
-    content: isUnderPath(".schemas", editorFile.path)
-      ? tryToPrettifyJsonString(editorFile.content)
-      : editorFile.content
-  }));
+  editorCodeFiles
+    .map(editorFile => ({
+      path: editorCodePathToLocalCodePath(
+        editorFile.path,
+        existingLocalPageFilePaths
+      ),
+      content: isUnderPath(".schemas", editorFile.path)
+        ? tryToPrettifyJsonString(editorFile.content)
+        : editorFile.content
+    }))
+    .concat(getCodeFilesTsConfigs());
 
 const localCodeFilesToEditorCodeFiles = localCodeFiles => {
   return localCodeFiles
@@ -341,7 +357,26 @@ const updateLocalPageFilePath = (existingPath, newSiteDocumentPages) => {
     const { pageId } = matchLocalPageDocumentPath(existingPath);
     const newPageInfo = newSiteDocumentPages[pageId];
     return newPageInfo ? pageStructureFilePath(newPageInfo) : null;
+  } else if (isPathOfPageTsConfigFile(existingPath)) {
+    const { pageId } = matchLocalPageTsConfigFile(existingPath);
+    const newPageInfo = newSiteDocumentPages[pageId];
+    return newPageInfo ? pageTsConfigFilePath(newPageInfo) : null;
+  } else if (isPathOfPageTypingsFile(existingPath)) {
+    const { pageId } = matchLocalPageTypingsFile(existingPath);
+    const newPageInfo = newSiteDocumentPages[pageId];
+    return newPageInfo ? pageTypingsFilePath(newPageInfo) : null;
   }
+};
+
+const editorCodeIntelligenceToLocalTypingsFiles = (
+  newPagesElementsMapCodeIntelligence,
+  existingLocalPageFilePaths
+) => {
+  const pages = existingLocalPageFilePaths
+    .filter(matchLocalPageDocumentPath)
+    .map(path => matchLocalPageDocumentPath(path));
+
+  return getPagesDynamicTypings(newPagesElementsMapCodeIntelligence, pages);
 };
 
 module.exports = {
@@ -353,6 +388,8 @@ module.exports = {
 
   editorCodePathToLocalCodePath,
   localCodePathToEditorCodePath,
+
+  editorCodeIntelligenceToLocalTypingsFiles,
 
   updateLocalPageFilePath
 };

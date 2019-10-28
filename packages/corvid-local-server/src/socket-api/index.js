@@ -18,7 +18,8 @@ const initServerApi = (
     adminServer.io.sockets.emit(event, payload);
 
   let wasSiteDocumentUpdated = false;
-  let wereCodeFilesUpdated = false;
+  let wasCodeFilesUpdated = false;
+  let wasCodeIntelligenceUpdated = false;
 
   const handshake = () => ({
     editorApiVersion,
@@ -26,7 +27,8 @@ const initServerApi = (
     serverVersion
   });
 
-  const wasSiteSaved = () => wasSiteDocumentUpdated && wereCodeFilesUpdated;
+  const wasSiteSaved = () =>
+    wasSiteDocumentUpdated && wasCodeFilesUpdated && wasCodeIntelligenceUpdated;
 
   const isCloneMode = () => loadedInCloneMode && !wasSiteSaved();
 
@@ -47,20 +49,16 @@ const initServerApi = (
     Object.keys(editorServer.io.sockets.connected).length > 0;
 
   const getSiteDocument = () => {
-    logger.verbose(getMessage("Index_Site_Document_Requested_Log"));
     return localSite.getSiteDocument();
   };
 
   const getCodeFiles = () => {
-    logger.verbose("code files requested");
     return localSite.getCodeFiles();
   };
 
   const updateSiteDocument = withCloneModeNotification(
     async updatedDocument => {
-      logger.verbose(getMessage("Index_Update_Site_Document_Start_Log"));
       const result = await localSite.updateSiteDocument(updatedDocument);
-      logger.verbose(getMessage("Index_Update_Site_Document_Complete_Log"));
       notifyAdmin("document-updated");
       wasSiteDocumentUpdated = true;
       return result;
@@ -68,13 +66,20 @@ const initServerApi = (
   );
 
   const updateCodeFiles = withCloneModeNotification(async codeFileUpdates => {
-    logger.verbose(getMessage("Index_Update_Code_Files_Start_Log"));
     const result = await localSite.updateCode(codeFileUpdates);
-    logger.verbose(getMessage("Index_Update_Code_Files_Complete_Log"));
     notifyAdmin("code-updated");
-    wereCodeFilesUpdated = true;
+    wasCodeFilesUpdated = true;
     return result;
   });
+
+  const updateCodeIntelligence = withCloneModeNotification(
+    async codeIntelligence => {
+      const result = await localSite.updateCodeIntelligence(codeIntelligence);
+      notifyAdmin("code-intelligence-updated");
+      wasCodeIntelligenceUpdated = true;
+      return result;
+    }
+  );
 
   const onCodeChanged = callback => localSite.onCodeChanged(callback);
   const onDocumentChanged = callback => localSite.onDocumentChanged(callback);
@@ -90,6 +95,7 @@ const initServerApi = (
     updateSiteDocument,
     getCodeFiles,
     updateCodeFiles,
+    updateCodeIntelligence,
     onCodeChanged,
     onDocumentChanged,
     userMessage

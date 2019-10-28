@@ -127,11 +127,15 @@ describe("edit mode", () => {
   });
 
   it("should send updated site document when user changes page content from the editor and clicks save", async () => {
+    const elementsMap = sc.randomElementsMap();
     const existingSiteItems = [
-      sc.page({ pageId: "page1", content: "existing content" }),
+      sc.page({
+        pageId: "page1",
+        content: sc.generatePageContent("existing content1", elementsMap)
+      }),
       sc.lightbox({
         pageId: "lightbox1",
-        content: "existing content"
+        content: sc.generatePageContent("existing content2", elementsMap)
       })
     ];
 
@@ -144,10 +148,13 @@ describe("edit mode", () => {
     const editorSite = editor.getSite();
 
     const updatedSiteItems = [
-      sc.page({ pageId: "page1", content: "modified content" }),
+      sc.page({
+        pageId: "page1",
+        content: sc.generatePageContent("modified content1", elementsMap)
+      }),
       sc.lightbox({
         pageId: "lightbox1",
-        content: "modified content"
+        content: sc.generatePageContent("modified content2", elementsMap)
       }),
       sc.page({ pageId: "page2" }) //  new page
     ];
@@ -158,12 +165,22 @@ describe("edit mode", () => {
     await editor.save();
 
     const localSite = await localSiteDir.readLocalSite(localSitePath);
-
     const expectedLocalSite = localSiteBuilder.buildPartial(
       ...updatedSiteItems
     );
 
     expect(localSite).toMatchObject(expectedLocalSite);
+  });
+
+  it("should send updated of site document and code files to the editor", async () => {
+    const fullSite = sc.fullSiteItems();
+    const fullLocalSite = localSiteBuilder.buildPartial(...fullSite);
+    const fullEditorSite = editorSiteBuilder.buildPartial(...fullSite);
+    const localSitePath = await localSiteDir.initLocalSite(fullLocalSite);
+    const server = await localServer.startInEditMode(localSitePath);
+    const editor = await loadEditor(server.port);
+    const editorSite = await editor.getSite();
+    expect(editorSite).toEqual(fullEditorSite);
   });
 
   describe("code file updates when editor site is saved", () => {

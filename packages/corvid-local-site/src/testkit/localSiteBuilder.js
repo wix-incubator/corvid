@@ -2,6 +2,7 @@ const flatten_ = require("lodash/flatten");
 const set_ = require("lodash/set");
 const omit_ = require("lodash/omit");
 const isObject_ = require("lodash/isObject");
+const isUndefined_ = require("lodash/isUndefined");
 const defaultsDeep_ = require("lodash/defaultsDeep");
 const sanitize = require("sanitize-filename");
 
@@ -14,16 +15,7 @@ const titleCharReplacement = "_";
 const prettyStringify = content => JSON.stringify(content, null, 2);
 const removeSpaces = string => string.replace(/\s/g, titleCharReplacement);
 
-const pageFileName = page =>
-  [sanitize(removeSpaces(page.title)), page.pageId].join(".");
-
-const pageCodeFileName = page =>
-  [sanitize(removeSpaces(page.title)), page.pageId, pageCodeExtention].join(
-    "."
-  );
-
-const lightboxFileName = pageFileName;
-const lightboxCodeFileName = pageCodeFileName;
+const toFilename = title => sanitize(removeSpaces(title));
 
 const PATH_ASSETS = "assets";
 const PATH_BACKEND = "backend";
@@ -31,6 +23,7 @@ const PATH_PUBLIC = "public";
 const PATH_DATABASE = "database";
 const PATH_PAGES = "pages";
 const PATH_LIGHTBOXES = "lightboxes";
+const PATH_MASTER_PAGE = "site";
 
 const PATH_STYLES = `${PATH_ASSETS}/styles`;
 const PATH_SITE = `${PATH_ASSETS}/site`;
@@ -38,13 +31,70 @@ const PATH_ROUTERS = `${PATH_ASSETS}/routers`;
 const PATH_MENUS = `${PATH_ASSETS}/menus`;
 const documentSchemaVersion = "1.0";
 
+const TS_CONFIG_NAME = "tsconfig.json";
+const PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME = "pageElements.d.ts";
+
+const TS_CONFIG_BACKEND_CONTENT = prettyStringify({
+  extends: "corvid-types/configs/tsconfig.backend.json",
+  compilerOptions: {
+    baseUrl: ".",
+    paths: {
+      "backend/*": ["./*"]
+    }
+  }
+});
+
+const TS_CONFIG_PUBLIC_CONTENT = prettyStringify({
+  extends: "corvid-types/configs/tsconfig.public.json",
+  compilerOptions: {
+    baseUrl: ".",
+    paths: {
+      "public/*": ["./*"]
+    }
+  }
+});
+
+const TS_CONFIG_PAGE_CONTENT = prettyStringify({
+  extends: "corvid-types/configs/tsconfig.pages.json",
+  compilerOptions: {
+    baseUrl: ".",
+    paths: {
+      "public/*": ["../../public/*"]
+    }
+  }
+});
+
 const LOCAL_SITE_SKELETON = {
   [PATH_ASSETS]: {},
-  [PATH_BACKEND]: {},
-  [PATH_PUBLIC]: {},
+  [PATH_BACKEND]: {
+    [TS_CONFIG_NAME]: TS_CONFIG_BACKEND_CONTENT
+  },
+  [PATH_PUBLIC]: {
+    [TS_CONFIG_NAME]: TS_CONFIG_PUBLIC_CONTENT
+  },
   [PATH_DATABASE]: {},
-  [PATH_PAGES]: {},
+  [PATH_PAGES]: {
+    [PATH_MASTER_PAGE]: {
+      [TS_CONFIG_NAME]: TS_CONFIG_PAGE_CONTENT
+    }
+  },
   [PATH_LIGHTBOXES]: {}
+};
+
+const getElementsMapFromEncodedContent = content => {
+  const { elementsMap } = sc.decodePageContent(content);
+  return elementsMap;
+};
+
+const getPageTypingsContent = content => {
+  const elementsMap = getElementsMapFromEncodedContent(content);
+  return (
+    "type PageElementsMap = {\n" +
+    Object.keys(elementsMap)
+      .map(nickname => `  "#${nickname}": ${elementsMap[nickname]};\n`)
+      .join("") +
+    "}"
+  );
 };
 
 const wrapWithVersion = content => ({
@@ -52,13 +102,34 @@ const wrapWithVersion = content => ({
   documentSchemaVersion
 });
 
-const wixFilePath = (filename, parentPath = "") =>
-  `${parentPath}/${filename}.${wixFileExtension}`;
+const wixFileContent = content => prettyStringify(wrapWithVersion(content));
 
 const wixFile = (parentPath, name, content) => ({
-  path: wixFilePath(name, parentPath),
-  content: prettyStringify(wrapWithVersion(content))
+  path: `${parentPath}/${name}.${wixFileExtension}`,
+  content: wixFileContent(content)
 });
+
+const pageRootPath = page =>
+  `${PATH_PAGES}/${toFilename(page.title)}.${page.pageId}`;
+
+const pageFilePath = page =>
+  `${pageRootPath(page)}/${toFilename(page.title)}.${wixFileExtension}`;
+
+const pageCodeFilePath = page =>
+  `${pageRootPath(page)}/${toFilename(page.title)}.${pageCodeExtention}`;
+
+const lightboxRootPath = lightbox =>
+  `${PATH_LIGHTBOXES}/${toFilename(lightbox.title)}.${lightbox.pageId}`;
+
+const lightboxFilePath = lightbox =>
+  `${lightboxRootPath(lightbox)}/${toFilename(
+    lightbox.title
+  )}.${wixFileExtension}`;
+
+const lightboxCodeFilePath = lightbox =>
+  `${lightboxRootPath(lightbox)}/${toFilename(
+    lightbox.title
+  )}.${pageCodeExtention}`;
 
 const stylesFile = (name, content) => wixFile(PATH_STYLES, name, content);
 const colors = content => stylesFile("colors", content);
@@ -67,7 +138,14 @@ const theme = content => stylesFile("theme", content);
 const topLevelStyles = content => stylesFile("topLevelStyles", content);
 
 const siteFile = (name, content) => wixFile(PATH_SITE, name, content);
-const commonComponents = content => siteFile("commonComponents", content);
+const commonComponents = commonComponents => [
+  siteFile("commonComponents", commonComponents),
+  {
+    path: `${PATH_PAGES}/${PATH_MASTER_PAGE}/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`,
+    content: getPageTypingsContent(commonComponents.content)
+  }
+];
+
 const multilingualInfo = content => siteFile("multilingualInfo", content);
 const siteInfo = content => siteFile("siteInfo", content);
 const version = content => siteFile("version", content);
@@ -77,33 +155,76 @@ const router = router =>
 
 const menu = menu => wixFile(PATH_MENUS, menu.menuId, omit_(menu, "menuId"));
 
-const page = page => wixFile(PATH_PAGES, pageFileName(page), page);
+const pageDocument = page => ({
+  path: pageFilePath(page),
+  content: wixFileContent(page)
+});
 
 const pageCode = (page, code) => ({
-  path: `${PATH_PAGES}/${pageCodeFileName(page)}`,
+  path: pageCodeFilePath(page),
   content: code
 });
 
-const pageWithCode = ({ page: pageData, code }) => [
-  page(pageData),
-  pageCode(pageData, code)
+const pageTsConfig = page => ({
+  path: `${pageRootPath(page)}/${TS_CONFIG_NAME}`,
+  content: TS_CONFIG_PAGE_CONTENT
+});
+
+const pageTypings = page => ({
+  path: `${pageRootPath(page)}/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`,
+  content: getPageTypingsContent(page.content)
+});
+
+const lightboxDocument = lightbox => ({
+  path: lightboxFilePath(lightbox),
+  content: wixFileContent(lightbox)
+});
+
+const lightboxCode = (lightbox, code) => ({
+  path: lightboxCodeFilePath(lightbox),
+  content: code
+});
+
+const lightboxTsConfig = lightbox => ({
+  path: `${lightboxRootPath(lightbox)}/${TS_CONFIG_NAME}`,
+  content: TS_CONFIG_PAGE_CONTENT
+});
+const lightboxTypings = lightbox => ({
+  path: `${lightboxRootPath(
+    lightbox
+  )}/${PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME}`,
+  content: getPageTypingsContent(lightbox.content)
+});
+
+const page = page => [
+  pageDocument(page),
+  pageCode(page, ""),
+  pageTsConfig(page),
+  pageTypings(page)
 ];
 
-const lightbox = lightbox =>
-  wixFile(PATH_LIGHTBOXES, lightboxFileName(lightbox), lightbox);
+const pageWithCode = ({ page, code }) => [
+  pageDocument(page),
+  pageCode(page, code),
+  pageTsConfig(page),
+  pageTypings(page)
+];
 
-const lighboxCode = (lightbox, code) => ({
-  path: `${PATH_LIGHTBOXES}/${lightboxCodeFileName(lightbox)}`,
-  content: code
-});
+const lightbox = lightbox => [
+  lightboxDocument(lightbox),
+  lightboxCode(lightbox, ""),
+  lightboxTsConfig(lightbox),
+  lightboxTypings(lightbox)
+];
 
-const lightboxWithCode = ({ lightbox: lightboxData, code }) => [
-  lightbox(lightboxData),
-  lighboxCode(lightboxData, code)
+const lightboxWithCode = ({ lightbox, code }) => [
+  lightboxDocument(lightbox),
+  lightboxCode(lightbox, code),
+  lightboxTsConfig(lightbox),
+  lightboxTypings(lightbox)
 ];
 
 // code
-
 const codeFile = ({ path, content }) => ({ path, content });
 
 const backendCodeFile = ({ path: relativePath, content }) =>
@@ -126,10 +247,9 @@ const collectionSchema = ({ collectionName, schema }) =>
 
 const masterPageCode = ({ content }) =>
   codeFile({
-    path: `${PATH_PAGES}/site.js`,
+    path: `${PATH_PAGES}/site/site.js`,
     content
   });
-
 const corvidPackageJson = ({ content }) =>
   codeFile({
     path: "corvid-package.json",
@@ -140,7 +260,7 @@ const metadata = () => ({
   path: ".metadata.json",
   content: prettyStringify({
     documentSchemaVersion: "1.0",
-    localFileSystemLayout: "1.0"
+    localFileSystemLayout: "2.0"
   })
 });
 
@@ -188,26 +308,85 @@ const buildFull = (...siteItems) => {
   return fullSite;
 };
 
-const getLocalFilePath = siteItem => {
+const getLocalFilePath = (siteItem, partKey) => {
   const file = itemToFile(siteItem);
+  const pickValue = paths => (isUndefined_(partKey) ? paths : paths[partKey]);
   return sc.matchItem(siteItem, {
-    [sc.pageWithCode]: () => ({ page: file[0].path, code: file[1].path }),
-    [sc.lightboxWithCode]: () => ({
-      lightbox: file[0].path,
-      code: file[1].path
-    }),
+    [sc.page]: () =>
+      pickValue({
+        page: file[0].path,
+        code: file[1].path,
+        tsConfig: file[2].path,
+        typings: file[3].path
+      }),
+    [sc.pageWithCode]: () =>
+      pickValue({
+        page: file[0].path,
+        code: file[1].path,
+        tsConfig: file[2].path,
+        typings: file[3].path
+      }),
+    [sc.lightbox]: () =>
+      pickValue({
+        page: file[0].path,
+        code: file[1].path,
+        tsConfig: file[2].path,
+        typings: file[3].path
+      }),
+    [sc.lightboxWithCode]: () =>
+      pickValue({
+        page: file[0].path,
+        code: file[1].path,
+        tsConfig: file[2].path,
+        typings: file[3].path
+      }),
+    [sc.commonComponents]: () =>
+      pickValue({
+        page: file[0].path,
+        typings: file[1].path
+      }),
     "*": () => file.path
   });
 };
 
-const getLocalFileContent = siteItem => {
+const getLocalFileContent = (siteItem, partKey) => {
   const file = itemToFile(siteItem);
+  const pickValue = contents =>
+    isUndefined_(partKey) ? contents : contents[partKey];
   return sc.matchItem(siteItem, {
-    [sc.pageWithCode]: () => ({ page: file[0].content, code: file[1].content }),
-    [sc.lightboxWithCode]: () => ({
-      lightbox: file[0].content,
-      code: file[1].content
-    }),
+    [sc.page]: () =>
+      pickValue({
+        page: file[0].content,
+        code: file[1].content,
+        tsConfig: file[2].content,
+        typings: file[3].content
+      }),
+    [sc.pageWithCode]: () =>
+      pickValue({
+        page: file[0].content,
+        code: file[1].content,
+        tsConfig: file[2].content,
+        typings: file[3].content
+      }),
+    [sc.lightbox]: () =>
+      pickValue({
+        page: file[0].content,
+        code: file[1].content,
+        tsConfig: file[2].content,
+        typings: file[3].content
+      }),
+    [sc.lightboxWithCode]: () =>
+      pickValue({
+        page: file[0].content,
+        code: file[1].content,
+        tsConfig: file[2].content,
+        typings: file[3].content
+      }),
+    [sc.commonComponents]: () =>
+      pickValue({
+        page: file[0].content,
+        typings: file[1].content
+      }),
     "*": () => file.content
   });
 };
@@ -217,16 +396,29 @@ const getLocalCodeFilePath = siteItem => {
   return isObject_(localFilePath) ? localFilePath.code : localFilePath;
 };
 
-const getLocalCodeFileContent = siteItem => {
-  const localFileContent = getLocalFileContent(siteItem);
-  return isObject_(localFileContent) ? localFileContent.code : localFileContent;
-};
+const getLocalCodeFileContent = siteItem =>
+  getLocalFileContent(siteItem, "code");
+
+const getLocalPageRootPath = pageOrLightboxItem =>
+  sc.matchItem(pageOrLightboxItem, {
+    [sc.page]: pageRootPath,
+    [sc.pageWithCode]: ({ page }) => pageRootPath(page),
+    [sc.lightbox]: lightboxRootPath,
+    [sc.lightboxWithCode]: ({ lightbox }) => lightboxRootPath(lightbox)
+  });
 
 module.exports = {
+  TS_CONFIG_NAME,
+  PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME,
+  TS_CONFIG_BACKEND_CONTENT,
+  TS_CONFIG_PAGE_CONTENT,
+  TS_CONFIG_PUBLIC_CONTENT,
+
   buildFull,
   buildPartial,
   getLocalFilePath,
   getLocalFileContent,
   getLocalCodeFilePath,
-  getLocalCodeFileContent
+  getLocalCodeFileContent,
+  getLocalPageRootPath
 };

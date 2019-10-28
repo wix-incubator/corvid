@@ -31,7 +31,6 @@ describe("login / logout", () => {
       const loginDriver = await editorDriver.waitForLogin();
       await loginDriver.login(getCorvidTestUser());
       await cliLoginCommandResult.waitForCommandToEnd();
-      console.log("after login"); //eslint-disable-line
 
       // clone
       const cliCloneCommandResult = await cliDriver.clone({
@@ -56,11 +55,9 @@ describe("login / logout", () => {
       const loginDriver = await editorDriver.waitForLogin();
       await loginDriver.login(getCorvidTestUser());
       await cliLoginCommandResult.waitForCommandToEnd();
-      console.log("after login"); //eslint-disable-line
 
       // logout
       await (await cliDriver.logout()).waitForCommandToEnd();
-      console.log("after logout"); //eslint-disable-line
 
       // clone
       const cliCloneCommandResult = await cliDriver.clone({

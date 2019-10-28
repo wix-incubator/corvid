@@ -1,6 +1,7 @@
 const io = require("socket.io-client");
 const flat = require("flat");
 const cloneDeep_ = require("lodash/cloneDeep");
+const flow_ = require("lodash/flow");
 const mapValues_ = require("lodash/mapValues");
 const map_ = require("lodash/map");
 const pickBy_ = require("lodash/pickBy");
@@ -9,7 +10,9 @@ const set_ = require("lodash/set");
 const head_ = require("lodash/head");
 const reduce_ = require("lodash/reduce");
 const noop_ = require("lodash/noop");
+const get_ = require("lodash/get");
 const expect = require("expect");
+const atob = require("atob");
 
 const flatten = data => flat(data, { delimiter: "/", safe: true });
 const unflatten = data => flat.unflatten(data, { delimiter: "/", safe: true });
@@ -99,6 +102,33 @@ const calculateCodeFileChanges = codeFiles => {
   };
 };
 
+const decodePageContent = payload => {
+  const decode = flow_([atob, escape, decodeURIComponent, JSON.parse]);
+  return decode(payload);
+};
+
+const getElementsMapFromEncodedContent = content => {
+  const { elementsMap } = decodePageContent(content);
+  return elementsMap;
+};
+
+const generateCodeIntelligencePayload = siteDocument => ({
+  elementsMap: {
+    pages: get_(siteDocument, "pages")
+      ? mapValues_(siteDocument.pages, page =>
+          getElementsMapFromEncodedContent(page.content)
+        )
+      : {},
+    site: {
+      commonComponents: get_(siteDocument, ["site", "commonComponents"])
+        ? getElementsMapFromEncodedContent(
+            siteDocument.site.commonComponents.content
+          )
+        : {}
+    }
+  }
+});
+
 const getCurrentCodeFiles = codeFiles => {
   const flattened = flatten(codeFiles.current);
   const withCopied = mapValues_(flattened, value =>
@@ -115,7 +145,7 @@ const getCodeFilesFromServer = async socket => {
     expect(file.path).toEqual(expect.any(String));
     expect(file.content).toEqual(expect.any(String));
   });
-  return codeFiles;
+  return codeFiles.filter(code => code.content !== "");
 };
 
 const getSiteDocumentFromServer = async socket =>
@@ -144,8 +174,19 @@ const loadEditor = async (
     documentChangesLocally: [noop_]
   };
 
+  const handshake = async () => sendRequest(socket, "HANDSHAKE");
+
   const saveSiteDocument = async () =>
     sendRequest(socket, "UPDATE_DOCUMENT", editorState.siteDocument);
+
+  const saveCodeIntelligence = async () =>
+    editorState.supportedEditorApiVersion === "1.1"
+      ? sendRequest(
+          socket,
+          "UPDATE_CODE_INTELLIGENCE",
+          generateCodeIntelligencePayload(editorState.siteDocument)
+        )
+      : Promise.resolve();
 
   const saveCodeFiles = async () => {
     const codeFileChanges = calculateCodeFileChanges(editorState.codeFiles);
@@ -159,8 +200,9 @@ const loadEditor = async (
 
   const saveLocal = async () => {
     const savePromise = Promise.all([
-      saveSiteDocument(socket, editorState.siteDocument),
-      saveCodeFiles(socket, editorState.codeFiles)
+      saveSiteDocument(),
+      saveCodeFiles(),
+      saveCodeIntelligence()
     ]);
     if (failOnClone) {
       // eslint-disable-next-line no-console
@@ -172,6 +214,9 @@ const loadEditor = async (
   const socket = await connectToLocalServer(port);
   if (socket.connected) {
     try {
+      const handshakeResponse = await handshake();
+      editorState.supportedEditorApiVersion =
+        handshakeResponse.editorApiVersion;
       const isInCloneMode = await isCloneMode(socket);
       if (isInCloneMode) {
         if (cloneOnLoad) {
@@ -290,6 +335,7 @@ const loadEditor = async (
     registerDocumentChange,
     registerCodeChange,
     advanced: {
+      saveCodeIntelligence,
       saveSiteDocument,
       saveCodeFiles
     },

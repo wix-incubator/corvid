@@ -2,22 +2,27 @@ const fs = require("fs-extra");
 const path = require("path").posix;
 
 const map_ = require("lodash/map");
+const flowRight_ = require("lodash/flowRight");
 
 const { readDirToJson } = require("corvid-dir-as-json");
+const { logger } = require("corvid-local-logger");
 
 const createAsyncQueue = require("./utils/asyncQueue");
 const initWithBackup = require("./utils/backup");
+const { deleteEmptySubFolders } = require("./utils/fileUtils");
 
 const {
   isPathOfCodeFile,
   isPathOfDocumentFile,
-  isPathOfPageFile,
+  isPathOfPageRealtedFile,
   isPathOfEmptyByDefaultCodeFile,
   pageCodeFilePath,
-  ROOT_PATHS
+  ROOT_PATHS,
+  DEFAULT_FILE_PATHS
 } = require("./sitePaths");
 
 const {
+  editorCodeIntelligenceToLocalTypingsFiles,
   editorDocumentToLocalDocumentFiles,
   localDocumentFilesToEditorDocument,
   editorCodeFilesToLocalCodeFiles,
@@ -47,7 +52,7 @@ const listLocalCodeFiles = async siteRootPath => {
 
 const listLocalPageFiles = async siteRootPath => {
   const allFilePaths = await listFilesRecursive(siteRootPath);
-  return allFilePaths.filter(filePath => isPathOfPageFile(filePath));
+  return allFilePaths.filter(filePath => isPathOfPageRealtedFile(filePath));
 };
 
 const readLocalFiles = async (siteRootPath, filePaths) => {
@@ -77,13 +82,14 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
   const withBackup = initWithBackup(siteRootPath, backupPath, filesWatcher);
 
   const ensureLocalFolderSkeleton = () =>
-    Promise.all(
-      map_(ROOT_PATHS, (dirOrFilePath, rootName) =>
-        rootName.endsWith("_FILE")
-          ? fs.ensureFile(path.join(siteRootPath, dirOrFilePath))
-          : fs.ensureDir(path.join(siteRootPath, dirOrFilePath))
+    Promise.all([
+      ...map_(ROOT_PATHS, dirOrFilePath =>
+        fs.ensureDir(path.join(siteRootPath, dirOrFilePath))
+      ),
+      ...map_(DEFAULT_FILE_PATHS, dirOrFilePath =>
+        fs.ensureFile(path.join(siteRootPath, dirOrFilePath))
       )
-    );
+    ]);
 
   const syncExistingPageFolders = async newSiteDocumentPages => {
     const existingPageFilePaths = await listLocalPageFiles(siteRootPath);
@@ -105,6 +111,9 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
     await map_(newSiteDocumentPages, page =>
       filesWatcher.ignoredEnsureFile(pageCodeFilePath(page))
     );
+
+    await deleteEmptySubFolders(path.join(siteRootPath, ROOT_PATHS.PAGES));
+    await deleteEmptySubFolders(path.join(siteRootPath, ROOT_PATHS.LIGHTBOXES));
   };
 
   const updateSiteDocument = async newEditorDocument => {
@@ -168,13 +177,40 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
     return localCodeFilesToEditorCodeFiles(localCodeFiles);
   };
 
+  const updateCodeIntelligence = async codeIntelligence => {
+    await ensureLocalFolderSkeleton();
+
+    const existingLocalPageFilePaths = await listLocalPageFiles(siteRootPath);
+
+    const newLocalCodeIntelligenceFiles = editorCodeIntelligenceToLocalTypingsFiles(
+      codeIntelligence.elementsMap,
+      existingLocalPageFilePaths
+    );
+
+    await Promise.all(
+      newLocalCodeIntelligenceFiles.map(localFile =>
+        filesWatcher.ignoredWriteFile(localFile.path, localFile.content)
+      )
+    );
+  };
+
   const readWriteQueue = createAsyncQueue();
 
+  const withStartFinishLog = callback => async (...args) => {
+    logger.info(`${callback.name} started`);
+    const result = await callback(...args);
+    logger.info(`${callback.name} finished`);
+    return result;
+  };
+
+  const withLogsAndQueue = flowRight_(readWriteQueue, withStartFinishLog);
+
   return {
-    updateSiteDocument: readWriteQueue(withBackup(updateSiteDocument)),
-    getSiteDocument: readWriteQueue(getSiteDocument),
-    getCodeFiles: readWriteQueue(getCodeFiles),
-    updateCode: readWriteQueue(updateCode)
+    updateSiteDocument: withLogsAndQueue(withBackup(updateSiteDocument)),
+    getSiteDocument: withLogsAndQueue(getSiteDocument),
+    getCodeFiles: withLogsAndQueue(getCodeFiles),
+    updateCode: withLogsAndQueue(updateCode),
+    updateCodeIntelligence: withLogsAndQueue(updateCodeIntelligence)
   };
 };
 

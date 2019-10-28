@@ -1,11 +1,10 @@
 const chalk = require("chalk");
-const updateNotifier = require("update-notifier");
 const getMessage = require("./messages");
-const packageJson = require("../package.json");
 const sessionData = require("./utils/sessionData");
 const logger = require("corvid-local-logger");
+const notifyOnUpdatedPackages = require("./utils/notifyOnUpdatedPackages");
 
-updateNotifier({ pkg: packageJson }).notify();
+notifyOnUpdatedPackages();
 
 // eslint-disable-next-line no-console
 console.log(chalk.yellow(getMessage("Cli_Description_Yellow")));

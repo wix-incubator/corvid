@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-const fs = require("fs");
+const fs = require("fs-extra");
+const path = require("path");
 const process = require("process");
 const chalk = require("chalk");
 const { app } = require("electron");
@@ -16,6 +17,9 @@ const { readCorvidConfig } = require("../utils/corvid-config");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
 const commandWithDefaults = require("../utils/commandWithDefaults");
+const {
+  versions: { readFileSystemLayoutVersion }
+} = require("corvid-local-site");
 
 app &&
   app.on("ready", async () => {
@@ -36,23 +40,42 @@ app &&
     });
   });
 
+const ensureLocalFileSystemVersion = async siteRootPath => {
+  const existingFileSystemLayoutVersion = await readFileSystemLayoutVersion(
+    path.join(siteRootPath, "src")
+  );
+  if (
+    existingFileSystemLayoutVersion &&
+    Number(existingFileSystemLayoutVersion) < 2
+  ) {
+    throw new UserError(
+      getMessage("OLD_FILE_SYSTEM_LAYOUT_NOT_SUPPORTED", {
+        oldCliVersion: "0.1.83"
+      })
+    );
+  }
+};
+
 async function openEditorHandler(args) {
+  const siteDirectory = args.dir;
+  await ensureLocalFileSystemVersion(siteDirectory);
   const openEditorArgs = [];
   if (args.remoteDebuggingPort)
     openEditorArgs.push(`--remote-debugging-port=${args.remoteDebuggingPort}`);
   const { login } = require("./login");
   const spinner = createSpinner();
-  const directory = args.dir;
-  await readCorvidConfig(directory);
+  await readCorvidConfig(siteDirectory);
   sessionData.on(["msid", "uuid"], (msid, uuid) =>
     sendOpenEditorEvent(msid, uuid)
   );
 
   try {
-    fs.readdirSync(directory);
+    fs.readdirSync(siteDirectory);
   } catch (exc) {
     throw new UserError(
-      getMessage("OpenEditor_Command_No_Folder_Error", { directory })
+      getMessage("OpenEditor_Command_No_Folder_Error", {
+        directory: siteDirectory
+      })
     );
   }
   await login(spinner);
@@ -70,7 +93,7 @@ async function openEditorHandler(args) {
         // well
         //detached: true,
         //stdio: "ignore",
-        cwd: directory,
+        cwd: siteDirectory,
         env: {
           ...process.env,
           IGNORE_CERTIFICATE_ERRORS: args.ignoreCertificate

@@ -25,6 +25,7 @@ const initSentry = getSessionData => {
         command,
         "session-id": sessionId,
         os: os.type(),
+        "os-version": os.release(),
         "metasite-id": metasiteId,
         "editor-version": editorVersion,
         "santa-version": santaVersion

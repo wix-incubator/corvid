@@ -1,3 +1,4 @@
+const path = require("path");
 const cloneDeep_ = require("lodash/cloneDeep");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
@@ -11,6 +12,7 @@ const {
   localSiteDir: {
     initLocalSite,
     readFile: readSiteFile,
+    writeFile: writeSiteFile,
     doesExist: doesSiteFileExist
   }
 } = require("corvid-local-test-utils");
@@ -19,46 +21,29 @@ afterEach(closeAll);
 
 describe("pageFiles", () => {
   describe("clone mode", () => {
-    it("should create an empty local page code filepage with no code is sent on load", async () => {
-      const page = sc.page();
+    it.each(["page", "lightbox"])(
+      "should create an empty local lightbox code file if %s with no code is sent on load",
+      async item => {
+        const pageOrLightbox = sc[item]();
+        const expectedLightboxCodePath = localSiteBuilder.getLocalFilePath(
+          pageOrLightbox,
+          "code"
+        );
 
-      const expectedPageCodePath = localSiteBuilder.getLocalFilePath(
-        sc.pageWithCode(page)
-      ).code;
+        const localSitePath = await initLocalSite();
+        const server = await localServer.startInCloneMode(localSitePath);
 
-      const localSitePath = await initLocalSite();
-      const server = await localServer.startInCloneMode(localSitePath);
+        const editorSite = editorSiteBuilder.buildFull(pageOrLightbox);
+        await loadEditor(server.port, editorSite);
 
-      const editorSite = editorSiteBuilder.buildFull(page);
-      await loadEditor(server.port, editorSite);
+        const localLightboxCode = await readSiteFile(
+          localSitePath,
+          expectedLightboxCodePath
+        );
 
-      const localPageCode = await readSiteFile(
-        localSitePath,
-        expectedPageCodePath
-      );
-
-      expect(localPageCode).toBe("");
-    });
-
-    it("should create an empty local lightbox code file if lightbox with no code is sent on load", async () => {
-      const lightbox = sc.lightbox();
-      const expectedLightboxCodePath = localSiteBuilder.getLocalFilePath(
-        sc.lightboxWithCode(lightbox)
-      ).code;
-
-      const localSitePath = await initLocalSite();
-      const server = await localServer.startInCloneMode(localSitePath);
-
-      const editorSite = editorSiteBuilder.buildFull(lightbox);
-      await loadEditor(server.port, editorSite);
-
-      const localLightboxCode = await readSiteFile(
-        localSitePath,
-        expectedLightboxCodePath
-      );
-
-      expect(localLightboxCode).toBe("");
-    });
+        expect(localLightboxCode).toBe("");
+      }
+    );
 
     it("should create an empty master page code file if it does not exist in the editor", async () => {
       const dummyMasterPageCodeItem = sc.masterPageCode();
@@ -97,14 +82,16 @@ describe("pageFiles", () => {
             : sc.lightboxWithCode({ title: "old title" });
 
         const itemWithNewTitle = cloneDeep_(itemWithOldTitle);
-        itemWithOldTitle[pageOrLightbox].title = "new title";
+        itemWithNewTitle[pageOrLightbox].title = "new title";
 
         const oldLocalCodePath = localSiteBuilder.getLocalFilePath(
-          itemWithOldTitle
-        ).code;
+          itemWithOldTitle,
+          "code"
+        );
         const newLocalCodePath = localSiteBuilder.getLocalFilePath(
-          itemWithNewTitle
-        ).code;
+          itemWithNewTitle,
+          "code"
+        );
 
         const basicSite = sc.fullSiteItems();
 
@@ -168,8 +155,11 @@ describe("pageFiles", () => {
         editor.togglePageLightbox("testPageId");
         await editor.save();
 
-        const fromLocalPath = localSiteBuilder.getLocalFilePath(fromItem).code;
-        const toLocalPath = localSiteBuilder.getLocalFilePath(toItem).code;
+        const fromLocalPath = localSiteBuilder.getLocalFilePath(
+          fromItem,
+          "code"
+        );
+        const toLocalPath = localSiteBuilder.getLocalFilePath(toItem, "code");
 
         expect(await doesSiteFileExist(localSitePath, fromLocalPath)).toBe(
           false
@@ -181,15 +171,16 @@ describe("pageFiles", () => {
     );
 
     it.each(["page", "lightbox"])(
-      "should remove an orphan code file when its related %s is removed",
+      "should remove a folder when its related %s is removed",
       async pageOrLightbox => {
         const itemWithCode =
           pageOrLightbox === "page"
             ? sc.pageWithCode({ pageId: "testPageId" })
             : sc.lightboxWithCode({ pageId: "testPageId" });
 
-        const localCodePath = localSiteBuilder.getLocalFilePath(itemWithCode)
-          .code;
+        const localPageSubFolder = localSiteBuilder.getLocalPageRootPath(
+          itemWithCode
+        );
 
         const editorSiteWithItemAndCode = editorSiteBuilder.buildFull(
           itemWithCode
@@ -202,9 +193,52 @@ describe("pageFiles", () => {
         editor.deletePage("testPageId");
         await editor.save();
 
-        expect(await doesSiteFileExist(localSitePath, localCodePath)).toBe(
+        expect(await doesSiteFileExist(localSitePath, localPageSubFolder)).toBe(
           false
         );
+      }
+    );
+
+    it.each(["page", "lightbox"])(
+      "should not remove a folder when its related %s is removed if it contains unrecognized user files",
+      async pageOrLightbox => {
+        const itemWithCode =
+          pageOrLightbox === "page"
+            ? sc.pageWithCode({ pageId: "testPageId" })
+            : sc.lightboxWithCode({ pageId: "testPageId" });
+
+        const localPageSubFolder = localSiteBuilder.getLocalPageRootPath(
+          itemWithCode
+        );
+
+        const editorSiteWithItemAndCode = editorSiteBuilder.buildFull(
+          itemWithCode
+        );
+
+        const localSitePath = await initLocalSite();
+        const server = await localServer.startInCloneMode(localSitePath);
+
+        const pathForUnrecognizedUserFileInsidePageSubFolder = path.join(
+          localPageSubFolder,
+          "some-user-file.js"
+        );
+
+        await writeSiteFile(
+          localSitePath,
+          pathForUnrecognizedUserFileInsidePageSubFolder,
+          "user content"
+        );
+
+        const editor = await loadEditor(server.port, editorSiteWithItemAndCode);
+        editor.deletePage("testPageId");
+        await editor.save();
+
+        expect(
+          await readSiteFile(
+            localSitePath,
+            pathForUnrecognizedUserFileInsidePageSubFolder
+          )
+        ).toBe("user content");
       }
     );
   });

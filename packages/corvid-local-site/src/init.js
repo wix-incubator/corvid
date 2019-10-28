@@ -1,10 +1,28 @@
 const reject_ = require("lodash/reject");
+const { UserError } = require("corvid-local-logger");
+
 const initWatcher = require("./watcher");
 const initReadWrite = require("./readWrite");
 const { isPathOfCodeFile, isPathOfDocumentFile } = require("./sitePaths");
+const { readFileSystemLayoutVersion } = require("./versions");
 const { localCodePathToEditorCodePath } = require("./siteConverter");
+const { ERRORS } = require("./messages");
+
+const ensureLocalFileSystemVersion = async siteRootPath => {
+  const existingFileSystemLayoutVersion = await readFileSystemLayoutVersion(
+    siteRootPath
+  );
+  if (
+    existingFileSystemLayoutVersion &&
+    Number(existingFileSystemLayoutVersion) < 2
+  ) {
+    throw new UserError(ERRORS.OLD_FILE_SYSTEM_LAYOUT_NOT_SUPPORTED);
+  }
+};
 
 const initSiteManager = async (siteRootPath, backupPath) => {
+  await ensureLocalFileSystemVersion(siteRootPath);
+
   const watcher = await initWatcher(siteRootPath);
   const readWrite = initReadWrite(siteRootPath, watcher, backupPath);
   let codeChangedCallbacks = [];
@@ -66,6 +84,7 @@ const initSiteManager = async (siteRootPath, backupPath) => {
 
     getSiteDocument: readWrite.getSiteDocument,
     updateSiteDocument: readWrite.updateSiteDocument,
+    updateCodeIntelligence: readWrite.updateCodeIntelligence,
 
     getCodeFiles: readWrite.getCodeFiles,
     updateCode: readWrite.updateCode,

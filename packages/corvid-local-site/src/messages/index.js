@@ -3,4 +3,11 @@ const template_ = require("lodash/template");
 
 const getMessage = (key, options) => template_(messages[key])(options);
 
-module.exports = getMessage;
+const ERRORS = {
+  OLD_FILE_SYSTEM_LAYOUT_NOT_SUPPORTED: "OLD_FILE_SYSTEM_LAYOUT_NOT_SUPPORTED"
+};
+
+module.exports = {
+  getMessage,
+  ERRORS
+};

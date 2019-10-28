@@ -6,7 +6,7 @@ const reject_ = require("lodash/reject");
 const logger = require("corvid-local-logger");
 const { isUnderPath, isSamePath } = require("./utils/fileUtils");
 const { isPathRelatedToSite } = require("./sitePaths");
-const getMessage = require("./messages");
+const { getMessage } = require("./messages");
 
 const ensureWriteFile = async (path, content) => {
   await fs.ensureFile(path);
@@ -153,6 +153,9 @@ const watch = async givenPath => {
         assertUnderRoot(relativePath);
         await ensureWriteFile(fullPath(relativePath), content);
       } catch (err) {
+        logger.info(
+          `Failed writing file to [${relativePath}] failed - ${err.message}`
+        );
         logger.error(err);
         removeFromIgnoredActions("write", relativePath);
         throw err;
@@ -170,6 +173,9 @@ const watch = async givenPath => {
         assertUnderRoot(relativePath);
         await fs.ensureFile(fullPathFile);
       } catch (err) {
+        logger.info(
+          `Failed ensuring file at [${relativePath}] failed - ${err.message}`
+        );
         logger.error(err);
         removeFromIgnoredActions("write", relativePath);
         throw err;
@@ -185,6 +191,9 @@ const watch = async givenPath => {
         assertUnderRoot(relativePath);
         await fs.remove(fullPath(relativePath));
       } catch (err) {
+        logger.info(
+          `Failed deleting file at [${relativePath}] failed - ${err.message}`
+        );
         logger.error(err);
         removeFromIgnoredActions("delete", relativePath);
         throw err;
@@ -208,6 +217,11 @@ const watch = async givenPath => {
           fullPath(relativeTargetPath)
         );
       } catch (err) {
+        logger.info(
+          `Failed copying file from [${relativeSourcePath}] to [${relativeTargetPath}] failed - ${
+            err.message
+          }`
+        );
         logger.error(err);
         removeFromIgnoredActions("write", relativeTargetPath);
         throw err;
@@ -229,6 +243,11 @@ const watch = async givenPath => {
           fullPath(relativeTargetPath)
         );
       } catch (err) {
+        logger.info(
+          `Failed moving file from [${relativeSourcePath}] to [${relativeTargetPath}] failed - ${
+            err.message
+          }`
+        );
         logger.error(err);
         removeFromIgnoredActions("delete", relativeSourcePath);
         removeFromIgnoredActions("write", relativeTargetPath);

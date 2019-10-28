@@ -50,20 +50,16 @@ describe("browser sanity", () => {
       const editorCloneDriver = await connectToLocalEditor(
         cliCloneCommandResult.editorDebugPort
       );
-      console.log("clone connected"); //eslint-disable-line
 
       const loginDriver = await editorCloneDriver.waitForLogin();
       await loginDriver.login(getCorvidTestUser());
-      console.log("after login"); //eslint-disable-line
 
       await cliCloneCommandResult.waitForCommandToEnd();
-      console.log("after clone"); //eslint-disable-line
 
       const openEditorCliCommand = await cliDriver.openEditor();
       const editorEditDriver = await connectToLocalEditor(
         openEditorCliCommand.editorDebugPort
       );
-      console.log("edit connected"); //eslint-disable-line
 
       const editDriver = await editorEditDriver.waitForEditor();
       await editDriver.push();
