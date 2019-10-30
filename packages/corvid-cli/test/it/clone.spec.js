@@ -44,7 +44,6 @@ describe("clone", () => {
           [
             {
               metasiteId: "12345678",
-              siteName: "test",
               publicUrl: siteUrl
             }
           ],
@@ -90,8 +89,7 @@ describe("clone", () => {
             [
               {
                 metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "a-site"
+                publicUrl: "http://a-site.com"
               }
             ],
             null,
@@ -128,8 +126,7 @@ describe("clone", () => {
             [
               {
                 metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "a-site"
+                publicUrl: "http://a-site.com"
               }
             ],
             null,
@@ -167,8 +164,7 @@ describe("clone", () => {
           JSON.stringify(
             [
               {
-                metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb",
-                siteName: "test"
+                metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb"
               }
             ],
             null,
@@ -211,8 +207,7 @@ describe("clone", () => {
           JSON.stringify(
             [
               {
-                metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb",
-                siteName: "test"
+                metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb"
               }
             ],
             null,
@@ -256,8 +251,7 @@ describe("clone", () => {
             [
               {
                 metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "a-site"
+                publicUrl: "http://a-site.com"
               }
             ],
             null,
@@ -298,8 +292,7 @@ describe("clone", () => {
             [
               {
                 metasiteId: "87654321",
-                publicUrl: "http://a-site.com",
-                siteName: "a-site"
+                publicUrl: "http://a-site.com"
               }
             ],
             null,
@@ -342,7 +335,6 @@ describe("clone", () => {
             [
               {
                 metasiteId: "87654321",
-                siteName: "a-site",
                 publicUrl: "http://a-site.com"
               }
             ],
@@ -470,6 +462,13 @@ describe("clone", () => {
         ...pathsToNotExist.map(() => false),
         ...pathsToExist.map(() => true)
       ]);
+    });
+    it("should fail for bad URL", async () => {
+      const { tempDir } = await setupFailingClone({
+        ".corvid": { "session.log": "some logs" }
+      });
+      const promise = clone(tempDir, "bad url");
+      await expect(promise).rejects.toThrow(/The URL is not Wix URL/);
     });
   });
 });

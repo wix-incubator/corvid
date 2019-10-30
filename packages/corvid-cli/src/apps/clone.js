@@ -38,9 +38,19 @@ function extractDataFromPublicUrl(parsedUrl) {
   return metasiteId;
 }
 
-async function extractMetasiteIdAndName(url, cookie) {
-  const publicSiteOrEditorUrl = normalize(url, { forceHttps: true });
-  const parsedUrl = new URL(publicSiteOrEditorUrl);
+function isInvalidUrl(url) {
+  try {
+    const normalizedUrl = normalize(url, { forceHttps: true });
+    const parsedUrl = new URL(normalizedUrl);
+    return !parsedUrl;
+  } catch (e) {
+    return true;
+  }
+}
+
+async function extractSiteData(url, cookie) {
+  const normalizedGivenUrl = normalize(url, { forceHttps: true });
+  const parsedUrl = new URL(normalizedGivenUrl);
   const siteList = await getUserSiteList(cookie);
   logger.addExtraData({ userSiteList: siteList });
 
@@ -48,7 +58,11 @@ async function extractMetasiteIdAndName(url, cookie) {
     const metasiteId = extractDataFromEditorUrl(parsedUrl);
     const site = siteList.find(site => site.metasiteId === metasiteId);
 
-    return { metasiteId, siteName: site ? site.siteName : null };
+    return {
+      metasiteId,
+      siteName: site ? site.siteName : null,
+      siteBelongsToUser: !!site
+    };
   } else if (
     parsedUrl.hostname.endsWith(publicWixDomain) &&
     parsedUrl.pathname.startsWith(editorPath)
@@ -56,21 +70,26 @@ async function extractMetasiteIdAndName(url, cookie) {
     const metasiteId = extractDataFromPublicUrl(parsedUrl);
     const site = siteList.find(site => site.metasiteId === metasiteId);
 
-    return { metasiteId, siteName: site ? site.siteName : null };
+    return {
+      metasiteId,
+      siteName: site ? site.siteName : null,
+      siteBelongsToUser: !!site
+    };
   } else {
     const site = siteList.find(
       site =>
         site.publicUrl &&
         (normalize(site.publicUrl, { forceHttps: true }) ===
-          publicSiteOrEditorUrl ||
-          publicSiteOrEditorUrl.startsWith(
+          normalizedGivenUrl ||
+          normalizedGivenUrl.startsWith(
             normalize(site.publicUrl, { forceHttps: true }) + "/"
           ))
     );
 
     return {
       metasiteId: site ? site.metasiteId : null,
-      siteName: site ? site.siteName : null
+      siteName: site ? site.siteName : null,
+      siteBelongsToUser: !!site
     };
   }
 }
@@ -78,20 +97,27 @@ async function extractMetasiteIdAndName(url, cookie) {
 async function clone(spinner, args, cookie) {
   spinner.start(chalk.grey(getMessage("Clone_Getting_Site_Data")));
   try {
-    const { metasiteId, siteName } = await extractMetasiteIdAndName(
+    if (isInvalidUrl(args.url)) {
+      throw new UserError(getMessage("Clone_Invalid_Url", { url: args.url }));
+    }
+
+    const { metasiteId, siteBelongsToUser } = await extractSiteData(
       args.url,
       cookie
     );
 
-    if (siteName == null) {
-      throw new UserError(getMessage("Clone_Bad_URL_Error", { url: args.url }));
-    }
-
     if (metasiteId == null) {
       throw new UserError(
-        getMessage("Clone_No_MetasiteId_Error", { url: args.url })
+        getMessage("Clone_Non_Wix_Url_Or_No_Permissions", { url: args.url })
       );
     }
+
+    if (!siteBelongsToUser) {
+      throw new UserError(
+        getMessage("Clone_Not_Owner_Error", { url: args.url })
+      );
+    }
+
     const msidUpdatePromise = sessionData.set({ msid: metasiteId });
 
     const dirName = args.dir;
