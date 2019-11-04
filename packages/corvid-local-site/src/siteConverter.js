@@ -22,10 +22,12 @@ const {
   matchLocalPageTsConfigFile,
   matchLocalPageDocumentPath,
   matchLocalPageCodePath,
+  matchOrphanCodeFile,
   isPathOfPageCode,
   isPathOfPageStructure,
   isPathOfPageTsConfigFile,
   isPathOfPageTypingsFile,
+  isPathOfOrphanCodeFile,
   stylesFilePath,
   sitePartFilePath,
   menuFilePath,
@@ -33,7 +35,8 @@ const {
   pageStructureFilePath,
   pageCodeFilePath,
   pageTsConfigFilePath,
-  pageTypingsFilePath
+  pageTypingsFilePath,
+  orphanCodeFilePath
 } = require("./sitePaths");
 
 const {
@@ -257,7 +260,7 @@ const editorPageCodePathToLocalCodePath = (
     );
   }
 
-  return pageCodeFilePath({ pageId, title: "Unknown" });
+  return orphanCodeFilePath(pageId);
 };
 
 const localSchemaPathToEditorPath = localSchemaPath =>
@@ -349,6 +352,7 @@ const localCodeFilesToEditorCodeFiles = localCodeFiles => {
 };
 
 const updateLocalPageFilePath = (existingPath, newSiteDocumentPages) => {
+  logger.debug(`existingPath: ${existingPath}`);
   if (isPathOfPageCode(existingPath)) {
     const { pageId } = matchLocalPageCodePath(existingPath);
     const newPageInfo = newSiteDocumentPages[pageId];
@@ -365,6 +369,10 @@ const updateLocalPageFilePath = (existingPath, newSiteDocumentPages) => {
     const { pageId } = matchLocalPageTypingsFile(existingPath);
     const newPageInfo = newSiteDocumentPages[pageId];
     return newPageInfo ? pageTypingsFilePath(newPageInfo) : null;
+  } else if (isPathOfOrphanCodeFile(existingPath)) {
+    const pageId = matchOrphanCodeFile(existingPath);
+    const newPageInfo = newSiteDocumentPages[pageId];
+    return newPageInfo ? pageCodeFilePath(newPageInfo) : null;
   }
 };
 

@@ -17,7 +17,8 @@ const ROOT_PATHS = {
   SITE: `assets/site`,
   ROUTERS: `assets/routers`,
   MENUS: `assets/menus`,
-  SITE_CODE: "pages/site"
+  SITE_CODE: "pages/site",
+  ORPHAN_PAGE_CODE_FILES: `tmp`
 };
 
 const DEFAULT_FILE_PATHS = {
@@ -58,6 +59,13 @@ const matchLocalPageFile = extension => filePath => {
         isPopup: matches.groups.root === ROOT_PATHS.LIGHTBOXES
       }
     : null;
+};
+
+const matchOrphanCodeFile = filePath => {
+  const regex = new RegExp(
+    `^${ROOT_PATHS.ORPHAN_PAGE_CODE_FILES}\/([^.\/]*)\.js`
+  );
+  return filePath.match(regex)[1];
 };
 
 const matchLocalPageTsConfigFile = filePath => {
@@ -101,7 +109,8 @@ const isPathOfPageRealtedFile = (localFilePath, pageId = null) =>
   isPathOfPageCode(localFilePath, pageId) ||
   isPathOfPageStructure(localFilePath, pageId) ||
   isPathOfPageTsConfigFile(localFilePath, pageId) ||
-  isPathOfPageTypingsFile(localFilePath, pageId);
+  isPathOfPageTypingsFile(localFilePath, pageId) ||
+  isPathOfOrphanCodeFile(localFilePath, pageId);
 
 const isPathOfWixFile = relativePath => path.extname(relativePath) === ".wix";
 
@@ -165,6 +174,14 @@ const pageStructureFilePath = ({ pageId, title, isPopup }) =>
 const pageCodeFilePath = ({ pageId, title, isPopup }) =>
   pageFilePath({ pageId, title, isPopup, extension: "js" });
 
+const orphanCodeFilePath = pageId =>
+  path.join(ROOT_PATHS.ORPHAN_PAGE_CODE_FILES, `${pageId}.js`);
+
+const isPathOfOrphanCodeFile = (relativePath, pageId = null) =>
+  pageId
+    ? relativePath === orphanCodeFilePath(pageId)
+    : isUnderPath(ROOT_PATHS.ORPHAN_PAGE_CODE_FILES, relativePath);
+
 const isPathOfEmptyByDefaultCodeFile = localFilePath =>
   isPathOfPageCode(localFilePath) ||
   [DEFAULT_FILE_PATHS.PACKAGE_JSON, DEFAULT_FILE_PATHS.SITE_CODE].includes(
@@ -214,6 +231,7 @@ module.exports = {
   masterPageTsConfigFilePath,
   backendTsConfigFilePath,
   publicTsConfigFilePath,
+  orphanCodeFilePath,
 
   isPathRelatedToSite,
   isPathOfCodeFile,
@@ -225,9 +243,11 @@ module.exports = {
   isPathOfEmptyByDefaultCodeFile,
   isPathOfPageTsConfigFile,
   isPathOfPageTypingsFile,
+  isPathOfOrphanCodeFile,
 
   matchLocalPageTsConfigFile,
   matchLocalPageTypingsFile,
   matchLocalPageDocumentPath,
-  matchLocalPageCodePath
+  matchLocalPageCodePath,
+  matchOrphanCodeFile
 };
