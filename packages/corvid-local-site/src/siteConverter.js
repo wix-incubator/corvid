@@ -352,7 +352,6 @@ const localCodeFilesToEditorCodeFiles = localCodeFiles => {
 };
 
 const updateLocalPageFilePath = (existingPath, newSiteDocumentPages) => {
-  logger.debug(`existingPath: ${existingPath}`);
   if (isPathOfPageCode(existingPath)) {
     const { pageId } = matchLocalPageCodePath(existingPath);
     const newPageInfo = newSiteDocumentPages[pageId];
