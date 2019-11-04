@@ -205,12 +205,16 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
 
   const withLogsAndQueue = flowRight_(readWriteQueue, withStartFinishLog);
 
+  const deleteOrphanFiles = async () =>
+    fs.remove(path.join(siteRootPath, ROOT_PATHS.ORPHAN_PAGE_CODE_FILES));
+
   return {
     updateSiteDocument: withLogsAndQueue(withBackup(updateSiteDocument)),
     getSiteDocument: withLogsAndQueue(getSiteDocument),
     getCodeFiles: withLogsAndQueue(getCodeFiles),
     updateCode: withLogsAndQueue(updateCode),
-    updateCodeIntelligence: withLogsAndQueue(updateCodeIntelligence)
+    updateCodeIntelligence: withLogsAndQueue(updateCodeIntelligence),
+    deleteOrphanFiles: withLogsAndQueue(deleteOrphanFiles)
   };
 };
 

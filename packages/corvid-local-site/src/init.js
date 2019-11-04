@@ -79,8 +79,13 @@ const initSiteManager = async (siteRootPath, backupPath) => {
     };
   };
 
+  const close = async () => {
+    await readWrite.deleteOrphanFiles();
+    await watcher.close();
+  };
+
   return {
-    close: watcher.close,
+    close,
 
     getSiteDocument: readWrite.getSiteDocument,
     updateSiteDocument: readWrite.updateSiteDocument,
