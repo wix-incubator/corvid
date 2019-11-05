@@ -17,9 +17,10 @@ const ROOT_PATHS = {
   SITE: `assets/site`,
   ROUTERS: `assets/routers`,
   MENUS: `assets/menus`,
-  SITE_CODE: "pages/site",
-  ORPHAN_PAGE_CODE_FILES: `tmp`
+  SITE_CODE: "pages/site"
 };
+
+const ORPHAN_PAGE_CODE_FILES = `codeFilesOfDeletedPages`;
 
 const DEFAULT_FILE_PATHS = {
   METADATA: ".metadata.json",
@@ -62,9 +63,7 @@ const matchLocalPageFile = extension => filePath => {
 };
 
 const matchOrphanCodeFile = filePath => {
-  const regex = new RegExp(
-    `^${ROOT_PATHS.ORPHAN_PAGE_CODE_FILES}\/([^.\/]*)\.js`
-  );
+  const regex = new RegExp(`^${ORPHAN_PAGE_CODE_FILES}\/([^.\/]*)\.js`);
   return filePath.match(regex)[1];
 };
 
@@ -175,12 +174,12 @@ const pageCodeFilePath = ({ pageId, title, isPopup }) =>
   pageFilePath({ pageId, title, isPopup, extension: "js" });
 
 const orphanCodeFilePath = pageId =>
-  path.join(ROOT_PATHS.ORPHAN_PAGE_CODE_FILES, `${pageId}.js`);
+  path.join(ORPHAN_PAGE_CODE_FILES, `${pageId}.js`);
 
 const isPathOfOrphanCodeFile = (relativePath, pageId = null) =>
   pageId
     ? relativePath === orphanCodeFilePath(pageId)
-    : isUnderPath(ROOT_PATHS.ORPHAN_PAGE_CODE_FILES, relativePath);
+    : isUnderPath(ORPHAN_PAGE_CODE_FILES, relativePath);
 
 const isPathOfEmptyByDefaultCodeFile = localFilePath =>
   isPathOfPageCode(localFilePath) ||
@@ -217,6 +216,7 @@ const publicTsConfigFilePath = () => `${ROOT_PATHS.PUBLIC}/${TS_CONFIG_NAME}`;
 module.exports = {
   ROOT_PATHS,
   DEFAULT_FILE_PATHS,
+  ORPHAN_PAGE_CODE_FILES,
   TYPINGS_NAME: PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME,
 
   stylesFilePath,

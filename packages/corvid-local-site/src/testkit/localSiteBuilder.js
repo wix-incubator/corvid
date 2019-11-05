@@ -24,6 +24,7 @@ const PATH_DATABASE = "database";
 const PATH_PAGES = "pages";
 const PATH_LIGHTBOXES = "lightboxes";
 const PATH_MASTER_PAGE = "site";
+const PATH_ORPHAN_FILES = "codeFilesOfDeletedPages";
 
 const PATH_STYLES = `${PATH_ASSETS}/styles`;
 const PATH_SITE = `${PATH_ASSETS}/site`;
@@ -407,6 +408,9 @@ const getLocalPageRootPath = pageOrLightboxItem =>
     [sc.lightboxWithCode]: ({ lightbox }) => lightboxRootPath(lightbox)
   });
 
+const getLocalOrphanFilePath = pageId =>
+  pageId ? `${PATH_ORPHAN_FILES}/${pageId}.js` : PATH_ORPHAN_FILES;
+
 module.exports = {
   TS_CONFIG_NAME,
   PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME,
@@ -420,5 +424,6 @@ module.exports = {
   getLocalFileContent,
   getLocalCodeFilePath,
   getLocalCodeFileContent,
-  getLocalPageRootPath
+  getLocalPageRootPath,
+  getLocalOrphanFilePath
 };

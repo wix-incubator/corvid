@@ -18,6 +18,7 @@ const {
   isPathOfEmptyByDefaultCodeFile,
   pageCodeFilePath,
   ROOT_PATHS,
+  ORPHAN_PAGE_CODE_FILES,
   DEFAULT_FILE_PATHS
 } = require("./sitePaths");
 
@@ -206,7 +207,7 @@ const readWrite = (siteRootPath, filesWatcher, backupPath) => {
   const withLogsAndQueue = flowRight_(readWriteQueue, withStartFinishLog);
 
   const deleteOrphanFiles = async () =>
-    fs.remove(path.join(siteRootPath, ROOT_PATHS.ORPHAN_PAGE_CODE_FILES));
+    fs.remove(path.join(siteRootPath, ORPHAN_PAGE_CODE_FILES));
 
   return {
     updateSiteDocument: withLogsAndQueue(withBackup(updateSiteDocument)),
