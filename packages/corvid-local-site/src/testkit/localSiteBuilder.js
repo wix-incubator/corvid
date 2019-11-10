@@ -24,7 +24,7 @@ const PATH_DATABASE = "database";
 const PATH_PAGES = "pages";
 const PATH_LIGHTBOXES = "lightboxes";
 const PATH_MASTER_PAGE = "site";
-const PATH_ORPHAN_FILES = "codeFilesOfDeletedPages";
+const PATH_ORPHAN_FILES = ".code-files-of-deleted-pages";
 
 const PATH_STYLES = `${PATH_ASSETS}/styles`;
 const PATH_SITE = `${PATH_ASSETS}/site`;

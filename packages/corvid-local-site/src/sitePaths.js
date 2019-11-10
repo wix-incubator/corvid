@@ -20,7 +20,7 @@ const ROOT_PATHS = {
   SITE_CODE: "pages/site"
 };
 
-const ORPHAN_PAGE_CODE_FILES = `codeFilesOfDeletedPages`;
+const ORPHAN_PAGE_CODE_FILES = `.code-files-of-deleted-pages`;
 
 const DEFAULT_FILE_PATHS = {
   METADATA: ".metadata.json",
