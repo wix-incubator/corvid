@@ -8,7 +8,8 @@ const {
   closeAll
 } = require("../utils/autoClosing");
 const {
-  localSiteDir: { initLocalSite, writeFile, deleteFile }
+  localSiteDir: { initLocalSite, writeFile, deleteFile },
+  getEditorOptions
 } = require("corvid-local-test-utils");
 
 const codeItemsTypes = Object.keys(sc.codeCreators);
@@ -38,7 +39,7 @@ describe("local changes", () => {
         const localSitePath = await initLocalSite(localSiteFiles);
 
         const server = await localServer.startInEditMode(localSitePath);
-        const editor = await loadEditor(server.port);
+        const editor = await loadEditor(getEditorOptions(server));
 
         const unsubscribeFromCodeChange = editor.registerCodeChange(
           onCodeChange
@@ -71,7 +72,7 @@ describe("local changes", () => {
 
         const localSitePath = await initLocalSite(localSiteFiles);
         const server = await localServer.startInEditMode(localSitePath);
-        const editor = await loadEditor(server.port);
+        const editor = await loadEditor(getEditorOptions(server));
 
         const unsubscribeFromCodeChange = editor.registerCodeChange(
           onCodeChange
@@ -105,7 +106,7 @@ describe("local changes", () => {
 
         const localSitePath = await initLocalSite(localSiteFiles);
         const server = await localServer.startInEditMode(localSitePath);
-        const editor = await loadEditor(server.port);
+        const editor = await loadEditor(getEditorOptions(server));
 
         const unsubscribeFromCodeChange = editor.registerCodeChange(
           onCodeChange

@@ -3,7 +3,10 @@ const flatten = require("flat");
 const cloneDeep_ = require("lodash/cloneDeep");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
-const { siteCreators: sc } = require("corvid-local-test-utils");
+const {
+  siteCreators: sc,
+  getEditorOptions
+} = require("corvid-local-test-utils");
 const {
   editor: loadEditor,
   localServer,
@@ -23,7 +26,7 @@ describe("Code Completion", () => {
           const editorSite = editorSiteBuilder.buildFull();
           const localSitePath = await initLocalSite();
           const server = await localServer.startInCloneMode(localSitePath);
-          await loadEditor(server.port, editorSite);
+          await loadEditor(getEditorOptions(server), editorSite);
 
           const localSiteFiles = await readLocalSite(localSitePath);
           const tsConfigContent = get_(localSiteFiles, [
@@ -38,7 +41,7 @@ describe("Code Completion", () => {
           const editorSite = editorSiteBuilder.buildFull();
           const localSitePath = await initLocalSite();
           const server = await localServer.startInCloneMode(localSitePath);
-          await loadEditor(server.port, editorSite);
+          await loadEditor(getEditorOptions(server), editorSite);
           const localSiteFiles = await readLocalSite(localSitePath);
 
           const tsConfigContent = get_(localSiteFiles, [
@@ -53,7 +56,7 @@ describe("Code Completion", () => {
           const editorSite = editorSiteBuilder.buildFull();
           const localSitePath = await initLocalSite();
           const server = await localServer.startInCloneMode(localSitePath);
-          await loadEditor(server.port, editorSite);
+          await loadEditor(getEditorOptions(server), editorSite);
 
           expect(
             await readFile(
@@ -68,7 +71,7 @@ describe("Code Completion", () => {
             const editorSite = editorSiteBuilder.buildFull();
             const localSitePath = await initLocalSite();
             const server = await localServer.startInCloneMode(localSitePath);
-            await loadEditor(server.port, editorSite);
+            await loadEditor(getEditorOptions(server), editorSite);
 
             const localSiteFiles = await readLocalSite(localSitePath);
             const items = get_(localSiteFiles, [folder]);
@@ -88,7 +91,7 @@ describe("Code Completion", () => {
           const localSiteFiles = localSiteBuilder.buildFull();
           const localSitePath = await initLocalSite(localSiteFiles);
           const server = await localServer.startInEditMode(localSitePath);
-          const editor = await loadEditor(server.port);
+          const editor = await loadEditor(getEditorOptions(server));
 
           const { siteCode } = editor.getSite();
           const siteCodeFlatMap = flatten(siteCode, { delimiter: "/" });
@@ -105,7 +108,7 @@ describe("Code Completion", () => {
               const localSiteFiles = localSiteBuilder.buildFull(item);
               const localSitePath = await initLocalSite(localSiteFiles);
               const server = await localServer.startInEditMode(localSitePath);
-              const editor = await loadEditor(server.port);
+              const editor = await loadEditor(getEditorOptions(server));
 
               editor.deletePage("testPageId");
               await editor.save();
@@ -131,7 +134,7 @@ describe("Code Completion", () => {
               );
               const localSitePath = await initLocalSite(editorSiteWithOldTitle);
               const server = await localServer.startInEditMode(localSitePath);
-              const editor = await loadEditor(server.port);
+              const editor = await loadEditor(getEditorOptions(server));
 
               const itemWithNewTitle = cloneDeep_(itemWithOldTitle);
               itemWithOldTitle.title = "new title";
@@ -167,7 +170,7 @@ describe("Code Completion", () => {
               const editorSiteWitoutItem = editorSiteBuilder.buildFull();
               const localSitePath = await initLocalSite(editorSiteWitoutItem);
               const server = await localServer.startInEditMode(localSitePath);
-              const editor = await loadEditor(server.port);
+              const editor = await loadEditor(getEditorOptions(server));
 
               const editorSiteWithNewItem = editorSiteBuilder.buildFull(item);
               editor.modifyDocument(editorSiteWithNewItem.siteDocument);
@@ -192,7 +195,7 @@ describe("Code Completion", () => {
           const editorSite = editorSiteBuilder.buildPartial(commonComponents);
           const localSitePath = await initLocalSite();
           const server = await localServer.startInCloneMode(localSitePath);
-          await loadEditor(server.port, editorSite);
+          await loadEditor(getEditorOptions(server), editorSite);
 
           const commonComponentsTypingsPath = localSiteBuilder.getLocalFilePath(
             commonComponents,
@@ -213,7 +216,7 @@ describe("Code Completion", () => {
             const editorSite = editorSiteBuilder.buildPartial(item);
             const localSitePath = await initLocalSite();
             const server = await localServer.startInCloneMode(localSitePath);
-            await loadEditor(server.port, editorSite);
+            await loadEditor(getEditorOptions(server), editorSite);
 
             const itemTypingsPath = localSiteBuilder.getLocalFilePath(
               item,
@@ -234,7 +237,7 @@ describe("Code Completion", () => {
           const localSiteFiles = localSiteBuilder.buildFull();
           const localSitePath = await initLocalSite(localSiteFiles);
           const server = await localServer.startInEditMode(localSitePath);
-          const editor = await loadEditor(server.port);
+          const editor = await loadEditor(getEditorOptions(server));
 
           const { siteCode } = editor.getSite();
           const siteCodeFlatMap = flatten(siteCode, { delimiter: "/" });
@@ -253,7 +256,7 @@ describe("Code Completion", () => {
               const localSiteFiles = localSiteBuilder.buildFull(item);
               const localSitePath = await initLocalSite(localSiteFiles);
               const server = await localServer.startInEditMode(localSitePath);
-              const editor = await loadEditor(server.port);
+              const editor = await loadEditor(getEditorOptions(server));
 
               editor.deletePage("testPageId");
               await editor.save();
@@ -279,7 +282,7 @@ describe("Code Completion", () => {
               );
               const localSitePath = await initLocalSite(editorSiteWithOldTitle);
               const server = await localServer.startInEditMode(localSitePath);
-              const editor = await loadEditor(server.port);
+              const editor = await loadEditor(getEditorOptions(server));
 
               const itemWithNewTitle = cloneDeep_(itemWithOldTitle);
               itemWithOldTitle.title = "new title";
@@ -320,7 +323,7 @@ describe("Code Completion", () => {
               const editorSiteWithNewItem = editorSiteBuilder.buildFull(item);
               const localSitePath = await initLocalSite(editorSiteWitoutItem);
               const server = await localServer.startInEditMode(localSitePath);
-              const editor = await loadEditor(server.port);
+              const editor = await loadEditor(getEditorOptions(server));
 
               editor.modifyDocument(editorSiteWithNewItem.siteDocument);
               await editor.save();

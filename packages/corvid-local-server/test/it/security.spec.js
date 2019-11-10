@@ -11,15 +11,18 @@ const { fakeCli: connectCli } = require("../utils/autoClosing");
 
 const getEditorEndpoint = server => `http://localhost:${server.port}`;
 
-const clientSocketOptions = {
+const clientSocketOptions = server => ({
   transportOptions: {
     polling: {
       extraHeaders: {
         origin: "https://editor.wix.com"
       }
     }
+  },
+  query: {
+    token: server.corvidSessionId
   }
-};
+});
 
 afterEach(closeAll);
 
@@ -32,7 +35,7 @@ describe("Security", () => {
     const server = await localServer.startInCloneMode(localSiteDir);
     const editorSocket = await socketClient.connect(
       getEditorEndpoint(server),
-      clientSocketOptions
+      clientSocketOptions(server)
     );
     editorSocket.emit(
       "UPDATE_CODE",
@@ -63,7 +66,7 @@ describe("Security", () => {
     const server = await localServer.startInCloneMode(localSiteDir);
     const editorSocket = await socketClient.connect(
       getEditorEndpoint(server),
-      clientSocketOptions
+      clientSocketOptions(server)
     );
     editorSocket.emit(
       "UPDATE_CODE",
@@ -92,7 +95,7 @@ describe("Security", () => {
     const server = await localServer.startInCloneMode(localSiteDir);
     const editorSocket = await socketClient.connect(
       getEditorEndpoint(server),
-      clientSocketOptions
+      clientSocketOptions(server)
     );
     editorSocket.emit(
       "UPDATE_CODE",
@@ -126,7 +129,7 @@ describe("Security", () => {
     const server = await localServer.startInCloneMode(localSiteDir);
     const editorSocket = await socketClient.connect(
       getEditorEndpoint(server),
-      clientSocketOptions
+      clientSocketOptions(server)
     );
     editorSocket.emit(
       "UPDATE_CODE",
@@ -161,7 +164,11 @@ describe("Security", () => {
     const localSiteDir = await initLocalSite();
     const server = await localServer.startInCloneMode(localSiteDir);
     await expect(
-      socketClient.connect(getEditorEndpoint(server))
+      socketClient.connect(getEditorEndpoint(server), {
+        query: {
+          token: server.corvidSessionId
+        }
+      })
     ).rejects.toThrow("Origin not allowed");
   });
 
@@ -176,6 +183,9 @@ describe("Security", () => {
               origin: "http://wrong.origin.test"
             }
           }
+        },
+        query: {
+          token: server.corvidSessionId
         }
       })
     ).rejects.toThrow("Origin not allowed");
@@ -191,6 +201,9 @@ describe("Security", () => {
               origin: "http://editor.wix.com"
             }
           }
+        },
+        query: {
+          token: server.corvidSessionId
         }
       })
     ).resolves.toMatchObject({ connected: true });
@@ -207,6 +220,9 @@ describe("Security", () => {
               origin: "https://editor.wix.com"
             }
           }
+        },
+        query: {
+          token: server.corvidSessionId
         }
       })
     ).resolves.toMatchObject({ connected: true });

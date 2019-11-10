@@ -7,7 +7,8 @@ const {
   closeAll
 } = require("../utils/autoClosing");
 const {
-  localSiteDir: { initLocalSite, readLocalSite, doesExist: doesLocalFileExist }
+  localSiteDir: { initLocalSite, readLocalSite, doesExist: doesLocalFileExist },
+  getEditorOptions
 } = require("corvid-local-test-utils");
 
 afterEach(closeAll);
@@ -54,7 +55,7 @@ describe("clone mode", () => {
 
     const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
-    await loadEditor(server.port, editorSite);
+    await loadEditor(getEditorOptions(server), editorSite);
     const localSiteFiles = await readLocalSite(localSitePath);
 
     // todo:: change localSiteBuilder to add empty code page by default (when page cerator is called)
@@ -75,7 +76,7 @@ describe("clone mode", () => {
 
     const expectedLocalSite = localSiteBuilder.buildPartial(...siteItems);
 
-    await loadEditor(server.port, editorSite);
+    await loadEditor(getEditorOptions(server), editorSite);
     const serverFiles = await readLocalSite(localSitePath);
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
@@ -90,7 +91,7 @@ describe("clone mode", () => {
     const editorSite = editorSiteBuilder.buildFull(pageWithCode);
     const expectedLocalSite = localSiteBuilder.buildPartial(pageWithCode);
 
-    await loadEditor(server.port, editorSite);
+    await loadEditor(getEditorOptions(server), editorSite);
     const serverFiles = await readLocalSite(localSitePath);
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
@@ -105,7 +106,7 @@ describe("clone mode", () => {
     const editorSite = editorSiteBuilder.buildFull(lightboxWithCode);
     const expectedLocalSite = localSiteBuilder.buildPartial(lightboxWithCode);
 
-    await loadEditor(server.port, editorSite);
+    await loadEditor(getEditorOptions(server), editorSite);
     const serverFiles = await readLocalSite(localSitePath);
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
@@ -120,7 +121,7 @@ describe("clone mode", () => {
     const editorSite = editorSiteBuilder.buildFull(masterPageCode);
     const expectedLocalSite = localSiteBuilder.buildPartial(masterPageCode);
 
-    await loadEditor(server.port, editorSite);
+    await loadEditor(getEditorOptions(server), editorSite);
     const serverFiles = await readLocalSite(localSitePath);
 
     expect(serverFiles).toMatchObject(expectedLocalSite);
@@ -132,7 +133,7 @@ describe("clone mode", () => {
     const fullEditorSite = editorSiteBuilder.buildPartial(...fullSite);
     const localSitePath = await initLocalSite();
     const server = await localServer.startInCloneMode(localSitePath);
-    await loadEditor(server.port, fullEditorSite);
+    await loadEditor(getEditorOptions(server), fullEditorSite);
     const localSiteFiles = await readLocalSite(localSitePath);
     expect(fullLocalSite).toEqual(localSiteFiles);
   });
@@ -156,7 +157,7 @@ describe("clone mode", () => {
 
       const editorSite = editorSiteBuilder.buildPartial(page);
 
-      await loadEditor(server.port, editorSite);
+      await loadEditor(getEditorOptions(server), editorSite);
 
       const doesRootFolderExist = await doesLocalFileExist(
         localSitePath,

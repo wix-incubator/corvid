@@ -1,7 +1,11 @@
 const eventually = require("wix-eventually");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
-const { siteCreators: sc, socketClient } = require("corvid-local-test-utils");
+const {
+  siteCreators: sc,
+  socketClient,
+  getEditorOptions
+} = require("corvid-local-test-utils");
 const {
   editor: loadEditor,
   localServer,
@@ -70,7 +74,7 @@ describe("Backup", () => {
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
     const editorSite = await editor.getSite();
     const updatedSiteItems = [
       sc.page({
@@ -108,7 +112,7 @@ describe("Backup", () => {
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
     const unsubscribeFromCodeChange = editor.registerCodeChange(onCodeChange);
     const unsubscribeFromDocumentChange = editor.registerDocumentChange(
       onDocumentChange
@@ -158,7 +162,7 @@ describe("Backup", () => {
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
     const unsubscribeFromCodeChange = editor.registerCodeChange(onCodeChange);
     const unsubscribeFromDocumentChange = editor.registerDocumentChange(
       onDocumentChange
@@ -213,7 +217,7 @@ describe("Backup", () => {
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
     const editorSite = await editor.getSite();
     const updatedSiteItems = [
       sc.page({
@@ -245,7 +249,7 @@ describe("Backup", () => {
       localSiteBuilder.buildPartial(...originalSite)
     );
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
 
     const backupPath = backupsPath(localSitePath);
     await fs.mkdir(backupPath);

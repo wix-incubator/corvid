@@ -5,6 +5,10 @@ const initTempDir = require("./initTempDir");
 const sentryTestkit = require("./sentry/sentryTestkit");
 const overrideEnv = require("./overrideEnv");
 const localSiteDir = require("./localSiteDir");
+const getEditorOptions = ({ port, corvidSessionId }) => ({
+  port,
+  corvidSessionId
+});
 module.exports = {
   siteCreators,
   socketClient,
@@ -12,5 +16,6 @@ module.exports = {
   withClose,
   initTempDir,
   sentryTestkit,
-  overrideEnv
+  overrideEnv,
+  getEditorOptions
 };

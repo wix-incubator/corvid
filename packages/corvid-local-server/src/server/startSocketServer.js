@@ -8,6 +8,7 @@ const getMessage = require("../messages");
 const logger = require("corvid-local-logger");
 const singleSocketConnectionMiddleware = require("./singleSocketConnectionMiddleware");
 const originsMiddleware = require("./originsMiddleWare");
+const editorTokenMiddleware = require("./editorTokenMiddleware");
 
 const setupSocketServer = async (defaultPort, options = {}) => {
   const app = express();
@@ -20,6 +21,9 @@ const setupSocketServer = async (defaultPort, options = {}) => {
   const port = server.address().port;
 
   const io = socketIo(server);
+  if (options.ensureSession) {
+    io.use(editorTokenMiddleware(process.env.CORVID_SESSION_ID));
+  }
   io.use(
     singleSocketConnectionMiddleware(() => {
       logger.warn(

@@ -14,7 +14,8 @@ const {
     readFile: readSiteFile,
     writeFile: writeSiteFile,
     doesExist: doesSiteFileExist
-  }
+  },
+  getEditorOptions
 } = require("corvid-local-test-utils");
 
 afterEach(closeAll);
@@ -34,7 +35,7 @@ describe("pageFiles", () => {
         const server = await localServer.startInCloneMode(localSitePath);
 
         const editorSite = editorSiteBuilder.buildFull(pageOrLightbox);
-        await loadEditor(server.port, editorSite);
+        await loadEditor(getEditorOptions(server), editorSite);
 
         const localLightboxCode = await readSiteFile(
           localSitePath,
@@ -61,7 +62,7 @@ describe("pageFiles", () => {
       const editorSite = editorSiteBuilder.buildPartial(
         ...siteWithNoMasterPageCode
       );
-      await loadEditor(server.port, editorSite);
+      await loadEditor(getEditorOptions(server), editorSite);
 
       const localMasterPageCode = await readSiteFile(
         localSitePath,
@@ -107,7 +108,10 @@ describe("pageFiles", () => {
         const localSitePath = await initLocalSite();
         const server = await localServer.startInCloneMode(localSitePath);
 
-        const editor = await loadEditor(server.port, editorSiteWithOldTitle);
+        const editor = await loadEditor(
+          getEditorOptions(server),
+          editorSiteWithOldTitle
+        );
         editor.modifyDocument(editorSiteWithNewTitle.siteDocument);
         await editor.save();
 
@@ -151,7 +155,10 @@ describe("pageFiles", () => {
         const localSitePath = await initLocalSite();
         const server = await localServer.startInCloneMode(localSitePath);
 
-        const editor = await loadEditor(server.port, editorSiteWithItemAndCode);
+        const editor = await loadEditor(
+          getEditorOptions(server),
+          editorSiteWithItemAndCode
+        );
         editor.togglePageLightbox("testPageId");
         await editor.save();
 
@@ -189,7 +196,10 @@ describe("pageFiles", () => {
         const localSitePath = await initLocalSite();
         const server = await localServer.startInCloneMode(localSitePath);
 
-        const editor = await loadEditor(server.port, editorSiteWithItemAndCode);
+        const editor = await loadEditor(
+          getEditorOptions(server),
+          editorSiteWithItemAndCode
+        );
         editor.deletePage("testPageId");
         await editor.save();
 
@@ -229,7 +239,10 @@ describe("pageFiles", () => {
           "user content"
         );
 
-        const editor = await loadEditor(server.port, editorSiteWithItemAndCode);
+        const editor = await loadEditor(
+          getEditorOptions(server),
+          editorSiteWithItemAndCode
+        );
         editor.deletePage("testPageId");
         await editor.save();
 

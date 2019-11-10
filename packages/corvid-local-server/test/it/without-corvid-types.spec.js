@@ -6,7 +6,8 @@ const {
   closeAll
 } = require("../utils/autoClosing");
 const {
-  localSiteDir: { initLocalSite, doesExist, readLocalSite }
+  localSiteDir: { initLocalSite, doesExist, readLocalSite },
+  getEditorOptions
 } = require("corvid-local-test-utils");
 jest.mock("corvid-types", () => {
   throw new Error("Cannot find module 'corvid-types' from 'codeCompletion.js'");
@@ -18,7 +19,7 @@ describe("user did NOT installed corvid-types", () => {
       const fullEditorSite = editorSiteBuilder.buildFull();
       const localSitePath = await initLocalSite();
       const server = await localServer.startInCloneMode(localSitePath);
-      await loadEditor(server.port, fullEditorSite);
+      await loadEditor(getEditorOptions(server), fullEditorSite);
 
       expect(await doesExist(localSitePath, "backend/tsconfig.json")).toEqual(
         false
@@ -34,7 +35,7 @@ describe("user did NOT installed corvid-types", () => {
         const fullEditorSite = editorSiteBuilder.buildFull();
         const localSitePath = await initLocalSite();
         const server = await localServer.startInCloneMode(localSitePath);
-        await loadEditor(server.port, fullEditorSite);
+        await loadEditor(getEditorOptions(server), fullEditorSite);
         const localSiteFiles = await readLocalSite(localSitePath);
 
         Object.values(localSiteFiles[folder]).forEach(async page => {
@@ -52,7 +53,7 @@ describe("user did NOT installed corvid-types", () => {
         const fullEditorSite = editorSiteBuilder.buildFull();
         const localSitePath = await initLocalSite();
         const server = await localServer.startInCloneMode(localSitePath);
-        await loadEditor(server.port, fullEditorSite);
+        await loadEditor(getEditorOptions(server), fullEditorSite);
         const localSiteFiles = await readLocalSite(localSitePath);
 
         Object.values(localSiteFiles[folder]).forEach(async page => {

@@ -20,5 +20,7 @@
     "Server_PullMove_Project_Not_Found_Log": "Project not found. Open the Editor in the project's root folder.",
     "Server_Listening_Log": "Server listening at editor port [<%= editorPort %>], admin port [<%= adminPort %>]",
     "Server_Close_Log": "Server closing",
-    "Server_Override_And_Move_Error": "Only one of 'override' and 'move' may be set."
+    "Server_Override_And_Move_Error": "Only one of 'override' and 'move' may be set.",
+    "EditorToken_Error_Log": "Wrong corvidSessionId",
+    "EditorToken_Error": "WRONG_CORVID_SESSION_ID"
 }

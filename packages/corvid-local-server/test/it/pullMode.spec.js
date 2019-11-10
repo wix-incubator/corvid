@@ -1,7 +1,11 @@
 const path = require("path");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
-const { siteCreators: sc, initTempDir } = require("corvid-local-test-utils");
+const {
+  siteCreators: sc,
+  initTempDir,
+  getEditorOptions
+} = require("corvid-local-test-utils");
 const {
   editor: loadEditor,
   localServer,
@@ -43,7 +47,7 @@ describe("pull mode", () => {
       const server = await localServer.startInCloneMode(localSitePath, {
         override: true
       });
-      await loadEditor(server.port, editorSite);
+      await loadEditor(getEditorOptions(server), editorSite);
 
       const localSiteFiles = await readLocalSite(localSitePath);
       expect(localSiteFiles).toMatchObject(
@@ -88,7 +92,7 @@ describe("pull mode", () => {
       const server = await localServer.startInCloneMode(localSitePath, {
         move: true
       });
-      await loadEditor(server.port, editorSite);
+      await loadEditor(getEditorOptions(server), editorSite);
 
       const localSiteFiles = await readLocalSite(localSitePath);
       expect(localSiteFiles).toMatchObject(

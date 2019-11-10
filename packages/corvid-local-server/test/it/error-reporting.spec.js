@@ -15,6 +15,7 @@ const {
 
 const { editorSiteBuilder } = require("corvid-fake-local-mode-editor");
 const { localSiteBuilder } = require("corvid-local-site/testkit");
+const { getEditorOptions } = testUtils;
 
 const isWindows = os.platform() === "win32";
 
@@ -42,7 +43,9 @@ describe("santy tests for error reporting", () => {
         site: "some string which is not site"
       }
     });
-    await loadEditor(server.port, brokenEditorSite).catch(() => {});
+    await loadEditor(getEditorOptions(server), brokenEditorSite).catch(
+      () => {}
+    );
 
     await eventually(() => {
       const reports = sentryTestkit.reports();
@@ -57,7 +60,7 @@ describe("santy tests for error reporting", () => {
     const server = await localServer.startInCloneMode(localSitePath);
 
     const editorSite = editorSiteBuilder.buildFull();
-    const editor = await loadEditor(server.port, editorSite);
+    const editor = await loadEditor(getEditorOptions(server), editorSite);
 
     editor.modifyDocument(null);
     await editor.save().catch(() => {});

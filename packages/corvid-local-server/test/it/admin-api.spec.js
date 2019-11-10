@@ -7,7 +7,8 @@ const {
   closeAll
 } = require("../utils/autoClosing");
 const {
-  localSiteDir: { initLocalSite }
+  localSiteDir: { initLocalSite },
+  getEditorOptions
 } = require("corvid-local-test-utils");
 
 afterEach(closeAll);
@@ -44,9 +45,13 @@ describe("admin api", () => {
       const localSiteDir = await initLocalSite();
 
       const server = await localServer.startInCloneMode(localSiteDir);
-      await loadEditor(server.port, editorSiteBuilder.buildFull(), {
-        cloneOnLoad: false
-      });
+      await loadEditor(
+        getEditorOptions(server),
+        editorSiteBuilder.buildFull(),
+        {
+          cloneOnLoad: false
+        }
+      );
       const cli = await connectCli(server.adminPort, server.adminToken);
 
       expect(await cli.getServerStatus()).toEqual({
@@ -60,7 +65,7 @@ describe("admin api", () => {
       const localSiteDir = await initLocalSite(localSiteBuilder.buildFull());
 
       const server = await localServer.startInEditMode(localSiteDir);
-      await loadEditor(server.port, editorSiteBuilder.buildFull());
+      await loadEditor(getEditorOptions(server), editorSiteBuilder.buildFull());
       const cli = await connectCli(server.adminPort, server.adminToken);
 
       expect(await cli.getServerStatus()).toEqual({
@@ -80,7 +85,7 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      await loadEditor(server.port, editorSiteBuilder.buildFull());
+      await loadEditor(getEditorOptions(server), editorSiteBuilder.buildFull());
 
       expect(cloneCompleteSpy).toHaveBeenCalledTimes(1);
     });
@@ -93,9 +98,13 @@ describe("admin api", () => {
       const cloneCompleteSpy = jest.fn();
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
-      await loadEditor(server.port, editorSiteBuilder.buildFull(), {
-        cloneOnLoad: false
-      });
+      await loadEditor(
+        getEditorOptions(server),
+        editorSiteBuilder.buildFull(),
+        {
+          cloneOnLoad: false
+        }
+      );
 
       expect(cloneCompleteSpy).not.toHaveBeenCalledTimes(1);
     });
@@ -109,7 +118,7 @@ describe("admin api", () => {
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
       const editor = await loadEditor(
-        server.port,
+        getEditorOptions(server),
         editorSiteBuilder.buildFull(),
         {
           cloneOnLoad: false
@@ -131,7 +140,7 @@ describe("admin api", () => {
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
       const editor = await loadEditor(
-        server.port,
+        getEditorOptions(server),
         editorSiteBuilder.buildFull(),
         {
           cloneOnLoad: false
@@ -152,7 +161,7 @@ describe("admin api", () => {
       cli.onServerEvent("clone-complete", cloneCompleteSpy);
 
       const editor = await loadEditor(
-        server.port,
+        getEditorOptions(server),
         editorSiteBuilder.buildFull(),
         {
           cloneOnLoad: false

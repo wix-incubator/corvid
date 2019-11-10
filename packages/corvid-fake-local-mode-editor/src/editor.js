@@ -26,7 +26,7 @@ const isSchemaPath = filePath => filePath.startsWith(".schemas/");
 const ensureSchemaStructure = schemaContent =>
   JSON.stringify(JSON.parse(schemaContent));
 
-const connectToLocalServer = port => {
+const connectToLocalServer = (port, corvidSessionId) => {
   return new Promise((resolve, reject) => {
     const socket = io.connect(getLocalServerURL(port), {
       transportOptions: {
@@ -35,6 +35,9 @@ const connectToLocalServer = port => {
             origin: "https://editor.wix.com"
           }
         }
+      },
+      query: {
+        token: corvidSessionId
       }
     });
 
@@ -152,7 +155,7 @@ const getSiteDocumentFromServer = async socket =>
   sendRequest(socket, "GET_DOCUMENT");
 
 const loadEditor = async (
-  port,
+  { port, corvidSessionId },
   { siteDocument: initialSiteDocument, siteCode: initialSiteCode } = {},
   { cloneOnLoad = true, failOnClone = false } = {}
 ) => {
@@ -211,7 +214,7 @@ const loadEditor = async (
     await savePromise;
   };
 
-  const socket = await connectToLocalServer(port);
+  const socket = await connectToLocalServer(port, corvidSessionId);
   if (socket.connected) {
     try {
       const handshakeResponse = await handshake();

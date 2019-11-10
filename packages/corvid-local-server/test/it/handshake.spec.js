@@ -10,15 +10,18 @@ afterEach(closeAll);
 
 const getEditorEndpoint = server => `http://localhost:${server.port}`;
 
-const clientSocketOptions = {
+const clientSocketOptions = server => ({
   transportOptions: {
     polling: {
       extraHeaders: {
         origin: "https://editor.wix.com"
       }
     }
+  },
+  query: {
+    token: server.corvidSessionId
   }
-};
+});
 
 describe("local server version", () => {
   it("should allow an editor to get the local server module version", async () => {
@@ -27,7 +30,7 @@ describe("local server version", () => {
 
     const editorSocket = await socketClient.connect(
       getEditorEndpoint(server),
-      clientSocketOptions
+      clientSocketOptions(server)
     );
 
     const handshakeData = await socketClient.sendRequest(

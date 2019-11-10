@@ -7,7 +7,7 @@ const {
   localServer,
   closeAll
 } = require("../utils/autoClosing");
-const { localSiteDir } = require("corvid-local-test-utils");
+const { localSiteDir, getEditorOptions } = require("corvid-local-test-utils");
 
 afterEach(closeAll);
 
@@ -43,7 +43,7 @@ describe("edit mode", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
 
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
     const editorSite = await editor.getSite();
     expect(editorSite).toMatchObject(
       editorSiteBuilder.buildPartial(...siteItemsWithoutCode)
@@ -61,7 +61,7 @@ describe("edit mode", () => {
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
     const editorSite = await editor.getSite();
     expect(editorSite).toMatchObject(
       editorSiteBuilder.buildPartial(...siteItems)
@@ -76,7 +76,7 @@ describe("edit mode", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
 
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
     const editorSite = await editor.getSite();
     const expectedEditorSite = editorSiteBuilder.buildPartial(pageWithCode);
     expect(editorSite).toMatchObject(expectedEditorSite);
@@ -89,7 +89,7 @@ describe("edit mode", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
 
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
     const editorSite = await editor.getSite();
     const expectedEditorSite = editorSiteBuilder.buildPartial(lightBoxWithCode);
 
@@ -103,7 +103,7 @@ describe("edit mode", () => {
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
 
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
     const editorSite = await editor.getSite();
     const expectedEditorSite = editorSiteBuilder.buildPartial(masterPageCode);
 
@@ -117,7 +117,7 @@ describe("edit mode", () => {
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
 
     const editorSite = await editor.getSite();
 
@@ -143,7 +143,7 @@ describe("edit mode", () => {
 
     const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
 
     const editorSite = editor.getSite();
 
@@ -178,7 +178,7 @@ describe("edit mode", () => {
     const fullEditorSite = editorSiteBuilder.buildPartial(...fullSite);
     const localSitePath = await localSiteDir.initLocalSite(fullLocalSite);
     const server = await localServer.startInEditMode(localSitePath);
-    const editor = await loadEditor(server.port);
+    const editor = await loadEditor(getEditorOptions(server));
     const editorSite = await editor.getSite();
     expect(editorSite).toEqual(fullEditorSite);
   });
@@ -193,7 +193,7 @@ describe("edit mode", () => {
 
         const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
         const server = await localServer.startInEditMode(localSitePath);
-        const editor = await loadEditor(server.port);
+        const editor = await loadEditor(getEditorOptions(server));
 
         const similarCodeItemWithDifferentContent = sc[itemKey]();
         const newFileContent = localSiteBuilder.getLocalCodeFileContent(
@@ -224,7 +224,7 @@ describe("edit mode", () => {
 
         const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
         const server = await localServer.startInEditMode(localSitePath);
-        const editor = await loadEditor(server.port);
+        const editor = await loadEditor(getEditorOptions(server));
 
         editor.deleteCodeFile(
           editorSiteBuilder.getEditorCodeFilePath(originalCodeItem)
@@ -254,7 +254,7 @@ describe("edit mode", () => {
 
         const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
         const server = await localServer.startInEditMode(localSitePath);
-        const editor = await loadEditor(server.port);
+        const editor = await loadEditor(getEditorOptions(server));
 
         editor.deleteCodeFile(
           editorSiteBuilder.getEditorCodeFilePath(originalCodeItem)
@@ -279,7 +279,7 @@ describe("edit mode", () => {
 
         const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
         const server = await localServer.startInEditMode(localSitePath);
-        const editor = await loadEditor(server.port);
+        const editor = await loadEditor(getEditorOptions(server));
 
         const similarCodeItemWithDifferentPath = sc[itemKey]();
 
@@ -315,7 +315,7 @@ describe("edit mode", () => {
 
       const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
       const server = await localServer.startInEditMode(localSitePath);
-      const editor = await loadEditor(server.port);
+      const editor = await loadEditor(getEditorOptions(server));
       const editorSite = await editor.getSite();
       expect(editorSite).not.toMatchObject({
         siteCode: { ".metadata.json": expect.any(String) }
@@ -330,7 +330,7 @@ describe("edit mode", () => {
       );
       const server = await localServer.startInEditMode(localSitePath);
 
-      const editor = await loadEditor(server.port);
+      const editor = await loadEditor(getEditorOptions(server));
 
       const editorSiteDocument = editor.getSite().siteDocument;
       expect(editorSiteDocument).toMatchObject({
@@ -351,7 +351,7 @@ describe("edit mode", () => {
 
       const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
       const server = await localServer.startInEditMode(localSitePath);
-      const editor = await loadEditor(server.port);
+      const editor = await loadEditor(getEditorOptions(server));
       const pageId = originalCodeItem.page.pageId;
 
       editor.deletePage(pageId);
@@ -372,7 +372,7 @@ describe("edit mode", () => {
 
       const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
       const server = await localServer.startInEditMode(localSitePath);
-      const editor = await loadEditor(server.port);
+      const editor = await loadEditor(getEditorOptions(server));
       const pageId = originalCodeItem.page.pageId;
       const { siteDocument } = editor.getSite();
 
@@ -400,7 +400,7 @@ describe("edit mode", () => {
 
       const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
       const server = await localServer.startInEditMode(localSitePath);
-      const editor = await loadEditor(server.port);
+      const editor = await loadEditor(getEditorOptions(server));
       const pageId = originalCodeItem.page.pageId;
 
       editor.deletePage(pageId);

@@ -103,7 +103,8 @@ async function startServer(siteRootPath, options) {
     editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
       allowedDomains: ["editor.wix.com"].concat(
         process.env.NODE_ENV === "test" ? ["localhost"] : []
-      )
+      ),
+      ensureSession: true
     });
     adminServer = await startSocketServer(DEFAULT_ADMIN_PORT);
 
@@ -120,6 +121,7 @@ async function startServer(siteRootPath, options) {
     return {
       port: editorServer.port,
       adminPort: adminServer.port,
+      corvidSessionId: process.env.CORVID_SESSION_ID,
       adminToken,
       close: async () => {
         logger.info(getMessage("Server_Close_Log"));
