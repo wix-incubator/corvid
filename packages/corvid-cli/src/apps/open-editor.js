@@ -20,6 +20,17 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
         console.log(message);
       });
 
+      client.on("parse-error", path => {
+        reject(
+          new Error(
+            JSON.stringify({
+              message: "Wix_File_Parse_Error",
+              params: { path }
+            })
+          )
+        );
+      });
+
       const {
         editorConnected,
         mode,
@@ -59,6 +70,17 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
               new EditorError(
                 message,
                 getMessage("OpenEditor_Client_Console_Fatal_Error")
+              )
+            );
+          },
+          [clientMessages.DECODE_ERROR_MESSAGE]: path => {
+            reject(
+              new Error(
+                JSON.stringify({
+                  message: "Wix_File_Decode_Error",
+                  params: { path },
+                  type: "EditorError"
+                })
               )
             );
           }

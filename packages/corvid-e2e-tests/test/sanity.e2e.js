@@ -3,6 +3,8 @@ const eventually = require("wix-eventually");
 const { getCorvidTestUser } = require("./drivers/utils");
 const corvidCliDriverCreator = require("./drivers/cliDriver");
 const connectToLocalEditor = require("./drivers/connectToLocalEditor");
+const utils = require("corvid-local-test-utils");
+const path = require("path");
 
 const testSites = [
   {
@@ -29,9 +31,10 @@ const testSites = [
 
 describe("browser sanity", () => {
   let cliDriver;
+  let cwd;
 
   beforeEach(async done => {
-    const cwd = tempy.directory();
+    cwd = tempy.directory();
     cliDriver = corvidCliDriverCreator({ cwd });
     await (await cliDriver.logout()).waitForCommandToEnd();
     done();
@@ -99,5 +102,32 @@ describe("browser sanity", () => {
 
     await editorDriver.close();
     await openEditorCliCommand.waitForCommandToEnd();
+  });
+
+  test("should exit on decode error", async () => {
+    const testEditorUrl = testSites[0].editorUrl;
+    await cloneSite(testEditorUrl);
+    const relativeFilePart = path.join("pages", "HOME.c1dmp", "HOME.wix");
+    const fileContent = await utils.localSiteDir.readFile(
+      cwd,
+      relativeFilePart
+    );
+    const file = JSON.parse(fileContent);
+    file["content"]["content"] = "bad_encoded_part";
+    const brokenFileContent = JSON.stringify(file, null, 2);
+    await utils.localSiteDir.writeFile(
+      cwd,
+      relativeFilePart,
+      brokenFileContent
+    );
+    const openEditorCliCommand = await cliDriver.openEditor();
+
+    await connectToLocalEditor(openEditorCliCommand.editorDebugPort);
+
+    await eventually(() => {
+      expect(openEditorCliCommand.getOutput()).toContain(
+        "Error decoding pages.c1dmp.content. Try reverting to an older version."
+      );
+    });
   });
 });

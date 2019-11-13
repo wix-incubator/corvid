@@ -30,6 +30,9 @@ module.exports = ({ cwd }) => {
     command.stdout.on("data", function(data) {
       output += data.toString();
     });
+    command.stderr.on("data", function(error) {
+      output += error.toString();
+    });
     return {
       editorDebugPort: port,
       waitForCommandToEnd: () => command,
