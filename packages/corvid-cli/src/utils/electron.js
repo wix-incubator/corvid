@@ -44,6 +44,11 @@ function launch(file, options = {}, callbacks = {}, args = []) {
   );
   runningProcesses.push(cp);
 
+  function isJunk(data) {
+    const text = data.toString();
+    return text.includes("Could not instantiate: ProductRegistryImpl.Registry");
+  }
+
   return new Promise((resolve, reject) => {
     const messages = [];
 
@@ -53,6 +58,9 @@ function launch(file, options = {}, callbacks = {}, args = []) {
     } else {
       if (options.stdio !== "ignore") {
         cp.stdout.on("data", function(data) {
+          if (isJunk(data)) {
+            return;
+          }
           try {
             const msg = JSON.parse(data);
             if (typeof msg === "object") {
@@ -69,6 +77,9 @@ function launch(file, options = {}, callbacks = {}, args = []) {
         });
 
         cp.stderr.on("data", function(data) {
+          if (isJunk(data)) {
+            return;
+          }
           logger.debug(data.toString());
         });
       }
