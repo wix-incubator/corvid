@@ -30,7 +30,8 @@
     "corvid-local-logger": "0.2.2",
     "fs-extra": "^7.0.1",
     "lodash": "^4.17.15",
-    "sanitize-filename": "^1.6.1"
+    "sanitize-filename": "^1.6.1",
+    "es6-error": "^4.1.1"
   },
   "peerDependencies": {
     "corvid-types": "^0.1.82"

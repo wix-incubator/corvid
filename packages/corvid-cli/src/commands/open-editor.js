@@ -9,6 +9,7 @@ const { sendOpenEditorEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
+const EditorError = require("../utils/EditorError");
 const commandWithDefaults = require("../utils/commandWithDefaults");
 const {
   versions: { readFileSystemLayoutVersion }
@@ -85,15 +86,26 @@ async function openEditorHandler(args) {
             chalk.grey(getMessage("OpenEditor_Command_Connected"))
           );
         },
-        error: error => {
+        error: errorString => {
+          let error;
+          try {
+            error = JSON.parse(errorString);
+          } catch (e) {
+            error = {
+              message: errorString,
+              params: {}
+            };
+          }
           spinner.fail();
           sessionData.callWithKeys(
             (msid, uuid) => sendOpenEditorEvent(msid, uuid, "fail"),
             "msid",
             "uuid"
           );
-          const errorMessage = getMessage(error);
-          if (errorMessage) {
+          const errorMessage = getMessage(error.message, error.params);
+          if (error.type === "EditorError") {
+            reject(new EditorError(errorMessage, errorMessage));
+          } else if (errorMessage) {
             reject(new UserError(errorMessage));
           } else {
             reject(new Error(error));

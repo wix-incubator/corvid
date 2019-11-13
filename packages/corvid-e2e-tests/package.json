@@ -16,7 +16,8 @@
     "puppeteer-core": "1.15.0",
     "run-script-os": "^1.0.7",
     "tempy": "^0.3.0",
-    "wix-eventually": "^2.2.0"
+    "wix-eventually": "^2.2.0",
+    "corvid-local-test-utils": "0.2.2"
   },
   "jest": {
     "testEnvironment": "node",
