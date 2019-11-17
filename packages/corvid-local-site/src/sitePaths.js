@@ -20,6 +20,8 @@ const ROOT_PATHS = {
   SITE_CODE: "pages/site"
 };
 
+const ORPHAN_PAGE_CODE_FILES = `.code-files-of-deleted-pages`;
+
 const DEFAULT_FILE_PATHS = {
   METADATA: ".metadata.json",
   SITE_CODE: "pages/site/site.js",
@@ -58,6 +60,11 @@ const matchLocalPageFile = extension => filePath => {
         isPopup: matches.groups.root === ROOT_PATHS.LIGHTBOXES
       }
     : null;
+};
+
+const matchOrphanCodeFile = filePath => {
+  const regex = new RegExp(`^${ORPHAN_PAGE_CODE_FILES}\/([^.\/]*)\.js`);
+  return filePath.match(regex)[1];
 };
 
 const matchLocalPageTsConfigFile = filePath => {
@@ -101,7 +108,8 @@ const isPathOfPageRealtedFile = (localFilePath, pageId = null) =>
   isPathOfPageCode(localFilePath, pageId) ||
   isPathOfPageStructure(localFilePath, pageId) ||
   isPathOfPageTsConfigFile(localFilePath, pageId) ||
-  isPathOfPageTypingsFile(localFilePath, pageId);
+  isPathOfPageTypingsFile(localFilePath, pageId) ||
+  isPathOfOrphanCodeFile(localFilePath, pageId);
 
 const isPathOfWixFile = relativePath => path.extname(relativePath) === ".wix";
 
@@ -165,6 +173,14 @@ const pageStructureFilePath = ({ pageId, title, isPopup }) =>
 const pageCodeFilePath = ({ pageId, title, isPopup }) =>
   pageFilePath({ pageId, title, isPopup, extension: "js" });
 
+const orphanCodeFilePath = pageId =>
+  path.join(ORPHAN_PAGE_CODE_FILES, `${pageId}.js`);
+
+const isPathOfOrphanCodeFile = (relativePath, pageId = null) =>
+  pageId
+    ? relativePath === orphanCodeFilePath(pageId)
+    : isUnderPath(ORPHAN_PAGE_CODE_FILES, relativePath);
+
 const isPathOfEmptyByDefaultCodeFile = localFilePath =>
   isPathOfPageCode(localFilePath) ||
   [DEFAULT_FILE_PATHS.PACKAGE_JSON, DEFAULT_FILE_PATHS.SITE_CODE].includes(
@@ -200,6 +216,7 @@ const publicTsConfigFilePath = () => `${ROOT_PATHS.PUBLIC}/${TS_CONFIG_NAME}`;
 module.exports = {
   ROOT_PATHS,
   DEFAULT_FILE_PATHS,
+  ORPHAN_PAGE_CODE_FILES,
   TYPINGS_NAME: PAGE_ELEMENTS_TYPE_DECALARATION_FILE_NAME,
 
   stylesFilePath,
@@ -214,6 +231,7 @@ module.exports = {
   masterPageTsConfigFilePath,
   backendTsConfigFilePath,
   publicTsConfigFilePath,
+  orphanCodeFilePath,
 
   isPathRelatedToSite,
   isPathOfCodeFile,
@@ -225,9 +243,11 @@ module.exports = {
   isPathOfEmptyByDefaultCodeFile,
   isPathOfPageTsConfigFile,
   isPathOfPageTypingsFile,
+  isPathOfOrphanCodeFile,
 
   matchLocalPageTsConfigFile,
   matchLocalPageTypingsFile,
   matchLocalPageDocumentPath,
-  matchLocalPageCodePath
+  matchLocalPageCodePath,
+  matchOrphanCodeFile
 };

@@ -11,8 +11,13 @@ console.log(chalk.yellow(getMessage("Cli_Description_Yellow")));
 // eslint-disable-next-line no-console
 console.log(getMessage("Cli_Description"));
 
-logger.info(`running [${process.argv.slice(2).join(" ")}]`);
-logger.addSessionData({ command: process.argv[2] });
+const fullCommand = process.argv.slice(2).join(" ");
+
+logger.info(`running [${fullCommand}]`);
+logger.addSessionData({
+  command: process.argv[2],
+  fullCommand
+});
 sessionData.on(["msid", "uuid"], (metasiteId, userId) =>
   logger.addSessionData({ metasiteId, userId })
 );

@@ -343,4 +343,76 @@ describe("edit mode", () => {
       });
     });
   });
+  describe("Orphan code files", () => {
+    it("should create folder with code files after page is deleted", async () => {
+      const originalCodeItem = sc["pageWithCode"]();
+
+      const localSiteFiles = localSiteBuilder.buildFull(originalCodeItem);
+
+      const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+      const server = await localServer.startInEditMode(localSitePath);
+      const editor = await loadEditor(server.port);
+      const pageId = originalCodeItem.page.pageId;
+
+      editor.deletePage(pageId);
+
+      await editor.save();
+
+      const fileContents = await localSiteDir.readFile(
+        localSitePath,
+        localSiteBuilder.getLocalOrphanFilePath(pageId)
+      );
+      expect(fileContents).toBe(originalCodeItem.code);
+    });
+
+    it("should restore page with code", async () => {
+      const originalCodeItem = sc["pageWithCode"]();
+
+      const localSiteFiles = localSiteBuilder.buildFull(originalCodeItem);
+
+      const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+      const server = await localServer.startInEditMode(localSitePath);
+      const editor = await loadEditor(server.port);
+      const pageId = originalCodeItem.page.pageId;
+      const { siteDocument } = editor.getSite();
+
+      editor.deletePage(pageId);
+
+      await editor.save();
+
+      // restore page
+
+      await editor.modifyDocument(siteDocument);
+
+      await editor.save();
+
+      const fileContents = await localSiteDir.readFile(
+        localSitePath,
+        localSiteBuilder.getLocalCodeFilePath(originalCodeItem)
+      );
+      expect(fileContents).toBe(originalCodeItem.code);
+    });
+
+    it("should delete orphan files folder after server close", async () => {
+      const originalCodeItem = sc["pageWithCode"]();
+
+      const localSiteFiles = localSiteBuilder.buildFull(originalCodeItem);
+
+      const localSitePath = await localSiteDir.initLocalSite(localSiteFiles);
+      const server = await localServer.startInEditMode(localSitePath);
+      const editor = await loadEditor(server.port);
+      const pageId = originalCodeItem.page.pageId;
+
+      editor.deletePage(pageId);
+
+      await editor.save();
+      await server.close();
+
+      const doesFolderExist = await localSiteDir.doesExist(
+        localSitePath,
+        localSiteBuilder.getLocalOrphanFilePath()
+      );
+      expect(doesFolderExist).toBe(false);
+    });
+  });
 });

@@ -161,7 +161,15 @@ describe("clone", () => {
       fetchMock
         .mock(
           "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-          JSON.stringify([], null, 2)
+          JSON.stringify(
+            [
+              {
+                metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb"
+              }
+            ],
+            null,
+            2
+          )
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
@@ -196,7 +204,15 @@ describe("clone", () => {
       fetchMock
         .mock(
           "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-          JSON.stringify([], null, 2)
+          JSON.stringify(
+            [
+              {
+                metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb"
+              }
+            ],
+            null,
+            2
+          )
         )
         .mock(
           `http://frog.wix.com/code?src=39&evid=200&msid=96d0802a-b76d-411c-aaf4-6b8c2f474acb&uuid=testGuid&csi=${
@@ -406,7 +422,7 @@ describe("clone", () => {
       );
     });
 
-    it("should not touch aldeady existing files", async () => {
+    it("should not touch already existing files", async () => {
       const pathsToNotExist = ["src"];
       const pathsToExist = [".corvid"];
       const { tempDir, siteUrl } = await setupFailingClone({
@@ -446,6 +462,40 @@ describe("clone", () => {
         ...pathsToNotExist.map(() => false),
         ...pathsToExist.map(() => true)
       ]);
+    });
+    it("should fail for bad URL", async () => {
+      const tempDir = await initTempDir({ aSite: {} });
+      fetchMock.mock(
+        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        JSON.stringify([], null, 2)
+      );
+      const promise = clone(tempDir, "'bad url'");
+      await expect(promise).rejects.toThrow(/The site URL .* is invalid/);
+    });
+    it("should fail for public url not in list of user sites", async () => {
+      const tempDir = await initTempDir({ aSite: {} });
+      fetchMock.mock(
+        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        JSON.stringify([], null, 2)
+      );
+      const promise = clone(tempDir, "test.com");
+      await expect(promise).rejects.toThrow(
+        /The URL is not Wix URL or you don't have permissions for .*/
+      );
+    });
+    it("should fail for editor url with msid not in list of user sites", async () => {
+      const tempDir = await initTempDir({ aSite: {} });
+      fetchMock.mock(
+        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        JSON.stringify([], null, 2)
+      );
+      const promise = clone(
+        tempDir,
+        "https://www.wix.com/editor/96d0802a-b76d-411c-aaf4-6b8c2f474acb"
+      );
+      await expect(promise).rejects.toThrow(
+        /You don't have permissions for the site .*/
+      );
     });
   });
 });

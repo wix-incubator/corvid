@@ -65,22 +65,21 @@ describe("santy tests for error reporting", () => {
 
   it("should report clone errors to sentry", async () => {
     const testSiteUrl = "http://www.mysite.com";
-    const emptySiteList = [];
 
     const tempDir = await initTempDir();
 
     fetchMock.mock(
       "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-      emptySiteList
+      () => {
+        throw new Error("test error");
+      }
     );
 
     cliDriver.clone(tempDir, testSiteUrl).catch(() => {});
 
     await eventually(() => {
       const reports = sentryTestkit.reports();
-      expect(JSON.stringify(reports[0].error.message)).toEqual(
-        expect.stringContaining("Could not get site information")
-      );
+      expect(reports[0].error.message).toEqual("test error");
     });
   });
 });
