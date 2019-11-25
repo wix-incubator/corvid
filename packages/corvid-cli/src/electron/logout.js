@@ -1,12 +1,8 @@
-const { app, BrowserWindow } = require("electron");
+const { app } = require("electron");
+const { openWindow } = require("../utils/electron");
 
 app.on("ready", async () => {
-  const win = new BrowserWindow({
-    width: 1280,
-    height: 960,
-    show: false,
-    webPreferences: { nodeIntegration: false }
-  });
+  const win = openWindow({ show: false });
   await new Promise(resolve => {
     win.webContents.session.clearStorageData(() => {
       resolve();

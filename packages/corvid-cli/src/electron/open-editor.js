@@ -1,6 +1,6 @@
 const process = require("process");
 const { app } = require("electron");
-const { openWindow } = require("../utils/electron");
+const { openLocalEditorAndServer } = require("../utils/electron");
 const openEditorApp = require("../apps/open-editor");
 
 app.on("ready", async () => {
@@ -16,7 +16,7 @@ app.on("ready", async () => {
     );
   }
 
-  await openWindow(openEditorApp(), {
+  await openLocalEditorAndServer(openEditorApp(), {
     show: true && !process.env.CORVID_FORCE_HEADLESS
   });
 });
