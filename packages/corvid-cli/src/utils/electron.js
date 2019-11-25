@@ -13,8 +13,8 @@ const { startInCloneMode, startInEditMode } = require("corvid-local-server");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const { sendRequest } = require("../utils/socketIoHelpers");
 const getMessage = require("../messages");
-const isHeadlessMode = !process.env.CORVID_CLI_DISABLE_HEADLESS;
-const isDevTools = !!process.env.CORVID_CLI_DEVTOOLS;
+const disableHeadlessMode = !!process.env.CORVID_CLI_DISABLE_HEADLESS;
+const shouldShowDevTools = !!process.env.CORVID_CLI_DEVTOOLS;
 
 const beforeCloseDialogParams = {
   type: "question",
@@ -142,14 +142,33 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
   return { client: clnt, localServerStatus };
 }
 
-async function openWindow(app, windowOptions = {}) {
+function openWindow(windowOptions = {}) {
   const win = new BrowserWindow({
     width: 1280,
     height: 960,
-    show: !isHeadlessMode,
     ...windowOptions,
+    show: windowOptions.show || disableHeadlessMode,
     webPreferences: { nodeIntegration: false }
   });
+  try {
+    if (shouldShowDevTools) {
+      win.webContents.openDevTools();
+    }
+  } catch (_) {
+    // couldn't open dev tools
+  }
+
+  const originalWindowHide = win.hide.bind(win);
+  win.hide = (...args) => {
+    if (!disableHeadlessMode) {
+      return originalWindowHide(...args);
+    }
+  };
+  return win;
+}
+
+async function openLocalEditorAndServer(app, windowOptions = {}) {
+  const win = openWindow(windowOptions);
 
   win.webContents.on("new-window", (event, url) => {
     event.preventDefault();
@@ -157,12 +176,8 @@ async function openWindow(app, windowOptions = {}) {
   });
 
   try {
-    if (isDevTools) {
-      win.webContents.openDevTools({ mode: "detach" });
-    }
-
     await new Promise(resolve => {
-      setTimeout(resolve, isDevTools ? 1000 : 0);
+      setTimeout(resolve, shouldShowDevTools ? 1000 : 0);
     }).then(async () => {
       const corvidConfig = await readCorvidConfig(".");
       win.webContents
@@ -202,6 +217,7 @@ async function openWindow(app, windowOptions = {}) {
 }
 
 module.exports = {
+  openLocalEditorAndServer,
   openWindow,
   launch,
   killAllChildProcesses: () =>

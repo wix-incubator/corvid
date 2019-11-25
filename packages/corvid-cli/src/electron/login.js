@@ -1,17 +1,13 @@
 /* eslint-disable no-console */
 const { URL } = require("url");
-const { app, BrowserWindow } = require("electron");
+const { app } = require("electron");
+const { openWindow } = require("../utils/electron");
 
 const mySitesUrl = "https://www.wix.com/account/sites";
 const signInHostname = "users.wix.com";
 
 app.on("ready", async () => {
-  const win = new BrowserWindow({
-    width: 1280,
-    height: 960,
-    show: false,
-    webPreferences: { nodeIntegration: false }
-  });
+  const win = openWindow({ show: false });
 
   win.webContents.on("did-navigate", (event, url) => {
     const parsed = new URL(url);
