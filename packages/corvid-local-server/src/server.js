@@ -12,7 +12,8 @@ const adminTokenMiddleware = require("./adminTokenMiddleware");
 const getMessage = require("./messages");
 
 const adminToken = uuid();
-const DEFAULT_EDITOR_PORT = 5000;
+const EDITOR_PORT_MIN = 5000;
+const EDITOR_PORT_MAX = 15000;
 const DEFAULT_ADMIN_PORT = 3000;
 
 const isEdit = options => options.type === "EDIT";
@@ -100,7 +101,10 @@ async function startServer(siteRootPath, options) {
 
   try {
     localSite = await initLocalSiteManager(siteSrcPath, siteBackupPath);
-    editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
+    const editorPort = Math.floor(
+      EDITOR_PORT_MIN + Math.random() * (EDITOR_PORT_MAX - EDITOR_PORT_MIN)
+    );
+    editorServer = await startSocketServer(editorPort, {
       allowedDomains: ["editor.wix.com"].concat(
         process.env.NODE_ENV === "test" ? ["localhost"] : []
       )
