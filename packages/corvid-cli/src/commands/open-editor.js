@@ -59,6 +59,7 @@ async function openEditorHandler(args) {
   await new Promise((resolve, reject) => {
     process.on("exit", () => killAllChildProcesses());
     process.on("SIGINT", () => killAllChildProcesses());
+    process.on("SIGTERM", () => killAllChildProcesses());
 
     launch(
       path.join(__dirname, "../electron/open-editor"),
