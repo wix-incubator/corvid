@@ -1,4 +1,5 @@
 const tempy = require("tempy");
+const eventually = require("wix-eventually");
 const { getCorvidTestUser } = require("./drivers/utils");
 const corvidCliDriverCreator = require("./drivers/cliDriver");
 const connectToLocalEditor = require("./drivers/connectToLocalEditor");
@@ -41,30 +42,62 @@ describe("browser sanity", () => {
     done();
   });
 
+  async function cloneSite(editorUrl) {
+    const cliCloneCommandResult = await cliDriver.clone({
+      editorUrl
+    });
+    const editorCloneDriver = await connectToLocalEditor(
+      cliCloneCommandResult.editorDebugPort
+    );
+
+    const loginDriver = await editorCloneDriver.waitForLogin();
+    await loginDriver.login(getCorvidTestUser());
+
+    await cliCloneCommandResult.waitForCommandToEnd();
+  }
+
   testSites.forEach(({ editorUrl, description }) =>
     test(`should clone ${description} site, open it and push without making actual changes`, async () => {
-      // clone
-      const cliCloneCommandResult = await cliDriver.clone({
-        editorUrl
-      });
-      const editorCloneDriver = await connectToLocalEditor(
-        cliCloneCommandResult.editorDebugPort
-      );
-
-      const loginDriver = await editorCloneDriver.waitForLogin();
-      await loginDriver.login(getCorvidTestUser());
-
-      await cliCloneCommandResult.waitForCommandToEnd();
+      await cloneSite(editorUrl);
 
       const openEditorCliCommand = await cliDriver.openEditor();
-      const editorEditDriver = await connectToLocalEditor(
+      const editorDriver = await connectToLocalEditor(
         openEditorCliCommand.editorDebugPort
       );
 
-      const editDriver = await editorEditDriver.waitForEditor();
+      const editDriver = await editorDriver.waitForEditor();
       await editDriver.push();
-      await editorEditDriver.close();
+      await editorDriver.close();
       await openEditorCliCommand.waitForCommandToEnd();
     })
   );
+
+  test("should show a warning message when closing with unsaved changes and allow to continue working", async () => {
+    const testEditorUrl = testSites[0].editorUrl;
+    await cloneSite(testEditorUrl);
+
+    const openEditorCliCommand = await cliDriver.openEditor({
+      env: { SKIP_UNSAVED_DIALOG: true }
+    });
+    const editorDriver = await connectToLocalEditor(
+      openEditorCliCommand.editorDebugPort
+    );
+    const editDriver = await editorDriver.waitForEditor();
+
+    await editDriver.addTextElement();
+
+    openEditorCliCommand.kill("SIGINT", {
+      forceKillAfterTimeout: false
+    });
+
+    await eventually(() => {
+      expect(openEditorCliCommand.getOutput()).toContain(
+        "You have unsaved changes in editor"
+      );
+    });
+    await editDriver.saveLocal();
+
+    await editorDriver.close();
+    await openEditorCliCommand.waitForCommandToEnd();
+  });
 });

@@ -8,7 +8,7 @@
     "test:default": "jest --maxWorkers=1 --detectOpenHandles"
   },
   "devDependencies": {
-    "execa": "^1.0.0",
+    "execa": "^3.4.0",
     "get-port": "^5.0.0",
     "jest": "^24.8.0",
     "minimist": "^1.2.0",

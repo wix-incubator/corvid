@@ -107,10 +107,10 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
   } = await server;
 
   win.webContents.on("will-prevent-unload", async event => {
-    const choice = await electron.dialog.showMessageBox(
-      win,
-      beforeCloseDialogParams
-    );
+    console.log(JSON.stringify({ event: "closingWithUnsavedChanges" }));
+    const choice = process.env.SKIP_UNSAVED_DIALOG
+      ? 1
+      : await electron.dialog.showMessageBox(win, beforeCloseDialogParams);
     const leave = choice === 0;
     if (leave) {
       event.preventDefault();

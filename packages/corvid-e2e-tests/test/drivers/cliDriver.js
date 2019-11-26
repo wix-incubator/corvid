@@ -11,22 +11,30 @@ module.exports = ({ cwd }) => {
 
   const withCommand = async (
     commandName,
-    { editorUrl, remoteDebuggingPort }
+    { editorUrl, remoteDebuggingPort, env = {} }
   ) => {
+    let output = "";
     const port = remoteDebuggingPort || (await findFreePort());
     const commandArgsQuery = parseCommandArgs({ remoteDebuggingPort: port });
-    const extraParamsQuery = extraParams ? `QUERY="${extraParams}"` : "";
+    if (extraParams) {
+      env["QUERY"] = `"${extraParams}"`;
+    }
     const url = editorUrl ? editorUrl : "";
-    const command = execa.shell(
-      `${extraParamsQuery} ${CORVID_BIN_PATH} ${commandName} ${commandArgsQuery} ${url}`,
+    const command = execa.command(
+      `${CORVID_BIN_PATH} ${commandName} ${commandArgsQuery} ${url}`,
       {
-        cwd
+        cwd,
+        env
       }
     );
+    command.stdout.on("data", function(data) {
+      output += data.toString();
+    });
     return {
       editorDebugPort: port,
       waitForCommandToEnd: () => command,
-      kill: async () => await command.kill()
+      getOutput: () => output,
+      kill: async (signal, options) => await command.kill(signal, options)
     };
   };
 
@@ -39,8 +47,8 @@ module.exports = ({ cwd }) => {
   const clone = async ({ editorUrl, remoteDebuggingPort } = {}) =>
     withCommand("clone", { editorUrl, remoteDebuggingPort });
 
-  const openEditor = async ({ remoteDebuggingPort } = {}) =>
-    withCommand("open-editor", { remoteDebuggingPort });
+  const openEditor = async ({ remoteDebuggingPort, env } = {}) =>
+    withCommand("open-editor", { remoteDebuggingPort, env });
 
   return {
     login,
