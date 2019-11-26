@@ -3,6 +3,7 @@ const getMessage = require("./messages");
 const sessionData = require("./utils/sessionData");
 const logger = require("corvid-local-logger");
 const notifyOnUpdatedPackages = require("./utils/notifyOnUpdatedPackages");
+const { killAllChildProcesses } = require("./utils/electron");
 
 notifyOnUpdatedPackages();
 
@@ -10,6 +11,9 @@ notifyOnUpdatedPackages();
 console.log(chalk.yellow(getMessage("Cli_Description_Yellow")));
 // eslint-disable-next-line no-console
 console.log(getMessage("Cli_Description"));
+process.on("exit", () => killAllChildProcesses());
+process.on("SIGINT", () => killAllChildProcesses());
+process.on("SIGTERM", () => killAllChildProcesses());
 
 const fullCommand = process.argv.slice(2).join(" ");
 
