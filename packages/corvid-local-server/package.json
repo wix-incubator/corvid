@@ -1,6 +1,6 @@
 {
   "name": "corvid-local-server",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "",
   "main": "src/index.js",
   "scripts": {
@@ -17,8 +17,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "corvid-local-logger": "0.2.2",
-    "corvid-local-site": "0.2.2",
+    "corvid-local-logger": "0.2.3",
+    "corvid-local-site": "0.2.3",
     "corvid-local-test-utils": "0.2.2",
     "express": "^4.16.4",
     "fs-extra": "^7.0.1",
