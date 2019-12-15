@@ -1,6 +1,6 @@
 {
   "name": "corvid-e2e-tests",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "",
   "scripts": {
     "test": "run-script-os",
@@ -8,6 +8,7 @@
     "test:default": "jest --maxWorkers=1 --detectOpenHandles"
   },
   "devDependencies": {
+    "corvid-local-test-utils": "0.2.2",
     "execa": "^3.4.0",
     "get-port": "^5.0.0",
     "jest": "^24.8.0",
@@ -16,8 +17,7 @@
     "puppeteer-core": "1.15.0",
     "run-script-os": "^1.0.7",
     "tempy": "^0.3.0",
-    "wix-eventually": "^2.2.0",
-    "corvid-local-test-utils": "0.2.2"
+    "wix-eventually": "^2.2.0"
   },
   "jest": {
     "testEnvironment": "node",
@@ -32,6 +32,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "corvid-cli": "0.2.2"
+    "corvid-cli": "0.2.3"
   }
 }
