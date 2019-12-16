@@ -1,6 +1,6 @@
 {
   "name": "corvid-e2e-tests",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "",
   "scripts": {
     "test": "run-script-os",
@@ -8,7 +8,7 @@
     "test:default": "jest --maxWorkers=1 --detectOpenHandles"
   },
   "devDependencies": {
-    "corvid-local-test-utils": "0.2.2",
+    "corvid-local-test-utils": "0.2.4",
     "execa": "^3.4.0",
     "get-port": "^5.0.0",
     "jest": "^24.8.0",
@@ -32,6 +32,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "corvid-cli": "0.2.3"
+    "corvid-cli": "0.2.4"
   }
 }
