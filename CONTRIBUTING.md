@@ -28,9 +28,6 @@ We are using [conventional commits](https://conventionalcommits.org/), enforced 
 Make sure ```yarn test``` passes.
 
 ### Publishing a new version
-1. ```yarn release``` in the root. this will update relevant package.json files.
-2. create a new branch with changes.
-3. commit them and create a new git tag.
-3. ```git push --follow-tags```. this will push the changes including the new tag.
-4. merge created branch into root.
-5. travis will catch the new tag and publish the version (```yarn ci:publish```) assuming the build passes.
+1. ```yarn release``` in the root. this will update relevant package.json files, commit them and create a new git tag.
+2. ```git push --follow-tags```. this will push the changes including the new tag.
+3. travis will catch the new tag and publish the version (```yarn ci:publish```) assuming the build passes.
