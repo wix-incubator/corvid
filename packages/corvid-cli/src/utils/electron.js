@@ -43,6 +43,8 @@ function launch(file, options = {}, callbacks = {}, args = []) {
       ...options
     }
   );
+  cp.stdout.pipe(process.stdout);
+  cp.stderr.pipe(process.stderr);
   runningProcesses.push(cp);
 
   function isJunk(data) {
