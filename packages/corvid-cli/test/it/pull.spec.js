@@ -64,6 +64,7 @@ describe("pull", () => {
   };
 
   describe("when run in a directory with a config file and no site files", () => {
+    // eslint-disable-next-line jest/no-focused-tests
     test.only("should report to stdout when the process is complete", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
@@ -100,6 +101,7 @@ describe("pull", () => {
       try {
         return expect(await pull(tempDir)).toMatch(/Pull complete/);
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.log("Error while pulling", e);
       }
     });
