@@ -97,6 +97,12 @@ describe("pull", () => {
             process.env.CORVID_SESSION_ID
           }&status=success&type=regular`,
           JSON.stringify({})
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status=fail&type=regular`,
+          JSON.stringify({})
         );
       try {
         return expect(await pull(tempDir)).toMatch(/Pull complete/);
