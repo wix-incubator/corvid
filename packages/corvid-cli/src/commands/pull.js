@@ -59,7 +59,10 @@ async function pullCommand(spinner, args) {
         }
       },
       pullArgs
-    ).catch(reject);
+    ).catch(e => {
+      console.log("common catch", e);
+      reject(e);
+    });
   });
 }
 
