@@ -64,7 +64,7 @@ describe("pull", () => {
   };
 
   describe("when run in a directory with a config file and no site files", () => {
-    test("should report to stdout when the process is complete", async () => {
+    test.only("should report to stdout when the process is complete", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
@@ -97,8 +97,11 @@ describe("pull", () => {
           }&status=success&type=regular`,
           JSON.stringify({})
         );
-
-      return expect(pull(tempDir)).resolves.toMatch(/Pull complete/);
+      try {
+        return expect(await pull(tempDir)).toMatch(/Pull complete/);
+      } catch (e) {
+        console.log("Error while pulling", e);
+      }
     });
 
     test("should report to BI a pull start event", async () => {
