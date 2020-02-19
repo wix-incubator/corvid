@@ -59,7 +59,10 @@ async function pullCommand(spinner, args) {
         }
       },
       pullArgs
-    ).catch(reject);
+    ).catch(e => {
+      console.log("common catch", e);
+      reject(e);
+    });
   });
 }
 
@@ -72,10 +75,14 @@ async function pullHandler(args) {
       type: args.override ? "override" : args.move ? "move" : "regular"
     })
   );
+  console.log("before readCorvidConfig");
   await readCorvidConfig(targetDirectory);
+  console.log("after readCorvidConfig");
   return login(spinner)
     .then(async () => {
+      console.log("before pullCommand");
       await pullCommand(spinner, args);
+      console.log("after pullCommand");
       spinner.stop();
       await sessionData.callWithKeys(
         (msid, uuid) =>

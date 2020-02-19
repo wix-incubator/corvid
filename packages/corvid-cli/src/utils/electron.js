@@ -29,6 +29,7 @@ const beforeCloseDialogParams = {
 const runningProcesses = [];
 
 function launch(file, options = {}, callbacks = {}, args = []) {
+  console.log("electron launch start");
   options.env = {
     ...process.env,
     ...options.env,
@@ -42,6 +43,8 @@ function launch(file, options = {}, callbacks = {}, args = []) {
       ...options
     }
   );
+  cp.stdout.pipe(process.stdout);
+  cp.stderr.pipe(process.stderr);
   runningProcesses.push(cp);
 
   function isJunk(data) {
@@ -85,6 +88,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
       }
 
       cp.on("exit", (code, signal) => {
+        console.log(`electron launch exit, code: ${code}, signal: ${signal}`);
         runningProcesses.splice(runningProcesses.indexOf(cp), 1);
         code === 0 || (code === null && signal === "SIGTERM")
           ? resolve(messages)

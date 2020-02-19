@@ -64,7 +64,8 @@ describe("pull", () => {
   };
 
   describe("when run in a directory with a config file and no site files", () => {
-    test("should report to stdout when the process is complete", async () => {
+    // eslint-disable-next-line jest/no-focused-tests
+    test.only("should report to stdout when the process is complete", async () => {
       expect.assertions(1);
       const tempDir = await initTempDir({
         ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
@@ -96,9 +97,19 @@ describe("pull", () => {
             process.env.CORVID_SESSION_ID
           }&status=success&type=regular`,
           JSON.stringify({})
+        )
+        .mock(
+          `http://frog.wix.com/code?src=39&evid=202&msid=12345678&uuid=testGuid&csi=${
+            process.env.CORVID_SESSION_ID
+          }&status=fail&type=regular`,
+          JSON.stringify({})
         );
-
-      return expect(pull(tempDir)).resolves.toMatch(/Pull complete/);
+      try {
+        return expect(await pull(tempDir)).toMatch(/Pull complete/);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log("Error while pulling", e);
+      }
     });
 
     test("should report to BI a pull start event", async () => {
