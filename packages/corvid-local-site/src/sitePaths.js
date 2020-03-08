@@ -157,9 +157,6 @@ const removeSpaces = string => string.replace(/\s/g, "_");
 const sanitizePageTitle = pageTitle => sanitize(removeSpaces(pageTitle));
 
 const pageFilePath = ({ pageId, title, isPopup, extension, fileName }) => {
-  if (!title) {
-    debugger
-  }
   const pageOrLightboxRoot = isPopup ? ROOT_PATHS.LIGHTBOXES : ROOT_PATHS.PAGES;
   const sanitizedFolderTitle = sanitizePageTitle(title);
   const sanitizedFilename = sanitizePageTitle(fileName || title);

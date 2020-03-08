@@ -58,7 +58,6 @@ const initServerApi = (
 
   const updateSiteDocument = withCloneModeNotification(
     async updatedDocument => {
-      debugger
       const result = await localSite.updateSiteDocument(updatedDocument);
       notifyAdmin("document-updated");
       wasSiteDocumentUpdated = true;

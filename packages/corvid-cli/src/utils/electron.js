@@ -37,7 +37,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
 
   const cp = childProcess.spawn(
     electron,
-    [path.resolve(path.join(file)), ...args, '--inspect-brk'],
+    [path.resolve(path.join(file)), ...args],
     {
       ...options
     }
@@ -177,14 +177,20 @@ async function openLocalEditorAndServer(app, windowOptions = {}) {
         .executeJavaScript(
           `
         new Promise((resolve, reject) => {
-          rendered.props.store.getState().editorAPI.localMode.publish(resolve, reject)
+          rendered.props.store.getState().editorAPI.savePublish.save(false, 'CLI', {}).then(() => {
+            rendered.props.store.getState().editorAPI.localMode.publish(resolve, reject)
+          }).catch(reject)
         })
       `
         )
         .then(() => process.send({ i, result: "Publish sucess!" }))
-        .catch((e) => process.send({ i, result: `Publish failed :(\n Error: ${e} ` }));
+        .catch(e =>
+          process.send({
+            i,
+            result: `Publish failed :(\n Error: ${JSON.stringify(e)} `
+          })
+        );
     }
-    // win.webContents.executeJavaScript(`console.log("${msg}")`)
   });
   win.webContents.on("new-window", (event, url) => {
     event.preventDefault();

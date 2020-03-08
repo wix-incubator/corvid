@@ -10,34 +10,34 @@ const { readCorvidConfig } = require("../utils/corvid-config");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
 const commandWithDefaults = require("../utils/commandWithDefaults");
-const prompts = require('prompts');
+const prompts = require("prompts");
 const {
   versions: { readFileSystemLayoutVersion }
 } = require("corvid-local-site");
 
-
-let userCommandIndex = 0
+let userCommandIndex = 0;
 const promptForCommand = async () => {
   const response = await prompts({
     type: "text",
     message: "Type a command",
-    name: 'command'
-  })
-  const [cp] = getRunningProcesses()
-  cp.send({...response, i: userCommandIndex})
-  await new Promise((resolve) => {
+    name: "command"
+  });
+  const [cp] = getRunningProcesses();
+  cp.send({ ...response, i: userCommandIndex });
+  await new Promise(resolve => {
     function listener(msg) {
-      const {result, i} = msg
+      const { result, i } = msg;
       if (i === userCommandIndex) {
-        userCommandIndex++
-        cp.removeListener('message', listener)
-        resolve(result)
+        userCommandIndex++;
+        cp.removeListener("message", listener);
+        resolve(result);
       }
     }
-    cp.on('message', listener)
-  }).then(x => console.log(x))
-  await promptForCommand()
-}
+    cp.on("message", listener);
+    // eslint-disable-next-line no-console
+  }).then(result => console.log(result));
+  await promptForCommand();
+};
 
 const ensureLocalFileSystemVersion = async siteRootPath => {
   const existingFileSystemLayoutVersion = await readFileSystemLayoutVersion(
@@ -89,7 +89,7 @@ async function openEditorHandler(args) {
         // background once the local server can be spawned in the background as
         // well
         //detached: true,
-        stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+        stdio: ["pipe", "pipe", "pipe", "ipc"],
         cwd: siteDirectory,
         env: {
           ...process.env,
@@ -109,7 +109,7 @@ async function openEditorHandler(args) {
           spinner.succeed(
             chalk.grey(getMessage("OpenEditor_Command_Connected"))
           );
-          promptForCommand()
+          promptForCommand();
         },
         error: error => {
           spinner.fail();
