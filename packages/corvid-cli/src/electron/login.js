@@ -18,12 +18,11 @@ app.on("ready", async () => {
       console.log(JSON.stringify({ event: "userAuthenticated" }));
       win.hide();
       win.webContents.session.cookies.get(
-        { url: "http://wix.com", name: "wixSession2" },
+        { name: "wixSession2" },
         (error, cookies) => {
           if (error) {
             throw error;
           }
-
           console.log(
             JSON.stringify({ msg: "authCookie", cookie: cookies[0] }, null, 2)
           );
