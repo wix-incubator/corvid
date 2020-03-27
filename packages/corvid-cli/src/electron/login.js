@@ -26,9 +26,9 @@ app.on("ready", async () => {
           console.log(
             JSON.stringify({ msg: "authCookie", cookie: cookies[0] }, null, 2)
           );
+          app.quit();
         }
       );
-      win.webContents.on("did-finish-load", () => app.quit());
     }
   });
   win.loadURL(mySitesUrl);
