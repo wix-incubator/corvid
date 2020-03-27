@@ -40,6 +40,10 @@ describe("browser sanity", () => {
     done();
   });
 
+  afterEach(async () => {
+    await cliDriver.killAll();
+  });
+
   afterAll(async done => {
     await (await cliDriver.logout()).waitForCommandToEnd();
     done();
@@ -60,7 +64,7 @@ describe("browser sanity", () => {
   }
 
   testSites.forEach(({ editorUrl, description }) =>
-    test(`should clone ${description} site, open it and push without making actual changes`, async () => {
+    test.skip(`should clone ${description} site, open it and push without making actual changes`, async () => {
       await cloneSite(editorUrl);
 
       const openEditorCliCommand = await cliDriver.openEditor();

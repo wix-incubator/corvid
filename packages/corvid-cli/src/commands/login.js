@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const path = require("path");
 const chalk = require("chalk");
 const jwt = require("jsonwebtoken");
@@ -30,15 +31,21 @@ async function loginCommand(spinner, args = {}) {
     path.join(__dirname, "../electron/login"),
     {},
     {
+      debug: payload => {
+        console.log("(login debug)", payload);
+      },
       authenticatingUser: () => {
+        console.log("(login debug) authenticatingUser");
         spinner.start(chalk.grey(getMessage("Login_Command_Authenticating")));
       },
       userAuthenticated: () => {
+        console.log("(login debug) userAuthenticated");
         spinner.start(chalk.grey(getMessage("Login_Command_Authenticated")));
       }
     },
     loginArgs
   ).then(async messages => {
+    console.log("(login electron messages)", messages);
     const cookieMessages = messages
       ? messages.filter(({ msg }) => msg === "authCookie")
       : [];

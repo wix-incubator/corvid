@@ -9,17 +9,48 @@ const signInHostname = "users.wix.com";
 app.on("ready", async () => {
   const win = openWindow({ show: false });
 
-  win.webContents.on("did-navigate", (event, url) => {
+  win.webContents.on("did-navigate", async (event, url) => {
+    console.log(
+      JSON.stringify({
+        event: "debug",
+        payload: JSON.stringify({ event: "did-navigate", url })
+      })
+    );
     const parsed = new URL(url);
+    console.log(
+      JSON.stringify({
+        event: "debug",
+        payload: JSON.stringify({ hostname: parsed.hostname })
+      })
+    );
     if (parsed.hostname === signInHostname) {
       console.log(JSON.stringify({ event: "authenticatingUser" }));
       win.show();
     } else if (url === mySitesUrl) {
       console.log(JSON.stringify({ event: "userAuthenticated" }));
       win.hide();
+      // const cookies = await win.webContents.session.cookies.get({});
+      // console.log(
+      //   JSON.stringify({
+      //     event: "debug",
+      //     payload: JSON.stringify({
+      //       event: "ALL COOKIES",
+      //       message: JSON.stringify(cookies)
+      //     })
+      //   })
+      // );
+
       win.webContents.session.cookies.get(
         { name: "wixSession2" },
         (error, cookies) => {
+          console.log(
+            JSON.stringify({
+              event: "debug",
+              payload: JSON.stringify({
+                event: "COOKIES"
+              })
+            })
+          );
           if (error) {
             throw error;
           }
@@ -28,6 +59,13 @@ app.on("ready", async () => {
           );
           app.quit();
         }
+      );
+    } else {
+      console.log(
+        JSON.stringify({
+          event: "debug",
+          payload: "something bad happened"
+        })
       );
     }
   });
@@ -40,6 +78,14 @@ app.on("ready", async () => {
   win.webContents.on(
     "new-window",
     (event, url, frameName, disposition, options) => {
+      console.log(
+        JSON.stringify({
+          event: "debug",
+          payload: JSON.stringify({
+            event: "NEW WINDOW"
+          })
+        })
+      );
       event.preventDefault();
       const newWin = new BrowserWindow(options);
       newWin.loadURL(url, {

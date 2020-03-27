@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const { byAid } = require("./utils");
 
 const PUSH_BUTTON_SELECTOR = byAid("top-bar-button-local-push");
@@ -35,17 +36,30 @@ module.exports = page => {
   };
 
   const login = async ({ username, password }) => {
+    console.log("(login driver) awaiting email input");
     const emaiInput = await page.$("#input_0");
+    console.log("(login driver) typing email");
     await emaiInput.type(username);
+    console.log("(login driver) searching for #input_1");
     const isNewLoginPage = !(await page.$("#input_1"));
     if (isNewLoginPage) {
+      console.log(
+        "(login driver) IS NEW LOGIN PAGE - looking for CONTINUE button"
+      );
       const continueButton = await page.$(".login-btn");
+      console.log("(login driver) clicking login button");
       await continueButton.click();
     }
+    console.log("(login driver) awaiting password input");
     const passwordInput = await page.waitForSelector("#input_1");
+    console.log("(login driver) typing password");
     await passwordInput.type(password);
-    const loginButton = await page.$(".login-btn");
-    await loginButton.click();
+    console.log("(login driver) awaiting login button");
+
+    console.log("(login driver) pressing enter");
+    await passwordInput.press("Enter");
+
+    console.log("(login driver) DONE!");
   };
 
   return {

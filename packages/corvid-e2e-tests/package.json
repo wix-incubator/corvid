@@ -5,7 +5,7 @@
   "scripts": {
     "test": "run-script-os",
     "test:windows": ":",
-    "test:default": "jest --maxWorkers=1 --detectOpenHandles"
+    "test:default": "jest --runInBand loginLogout"
   },
   "devDependencies": {
     "corvid-local-test-utils": "0.2.5",

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const tempy = require("tempy");
 const corvidCliDriverCreator = require("./drivers/cliDriver");
 const { getCorvidTestUser } = require("./drivers/utils");
@@ -16,36 +17,50 @@ describe("login / logout", () => {
     done();
   });
 
+  afterEach(async done => {
+    console.log("inside after each- killing all");
+    await cliDriver.killAll();
+    done();
+  });
+
   afterAll(async done => {
+    console.log("inside after all - logging out");
     await (await cliDriver.logout()).waitForCommandToEnd();
     done();
   });
 
   describe("after login", () => {
     it("should clone without need to login again", async () => {
+      console.log("starting 1st test");
       //login
       const cliLoginCommandResult = await cliDriver.login();
       const editorDriver = await connectToLocalEditor(
         cliLoginCommandResult.editorDebugPort
       );
       const loginDriver = await editorDriver.waitForLogin();
+      console.log("-- logging in...");
       await loginDriver.login(getCorvidTestUser());
       await cliLoginCommandResult.waitForCommandToEnd();
+      console.log("-- logged in");
 
       // clone
+      console.log("-- cloning");
       const cliCloneCommandResult = await cliDriver.clone({
         editorUrl: BLANK_EDITOR_URL
       });
+      console.log("-- cloned");
       const editorCloneDriver = await connectToLocalEditor(
         cliCloneCommandResult.editorDebugPort
       );
       await expect(editorCloneDriver.waitForLogin()).rejects.toBeDefined();
       await cliCloneCommandResult.waitForCommandToEnd();
+      console.log("1st test ended");
     });
   });
 
   describe("after logout", () => {
     it("should ask to login when trying to clone", async () => {
+      console.log("starting 2nd test");
       //login
       const cliLoginCommandResult = await cliDriver.login();
       const editorDriver = await connectToLocalEditor(
@@ -58,6 +73,7 @@ describe("login / logout", () => {
 
       // logout
       await (await cliDriver.logout()).waitForCommandToEnd();
+      console.log("-- logged OUT");
 
       // clone
       const cliCloneCommandResult = await cliDriver.clone({
@@ -66,10 +82,13 @@ describe("login / logout", () => {
       const editorCloneDriver = await connectToLocalEditor(
         cliCloneCommandResult.editorDebugPort
       );
+      console.log("-- awaiting log ing");
       await expect(editorCloneDriver.waitForLogin()).resolves.toBeDefined();
 
+      console.log("-- closing");
       await editorCloneDriver.close();
       await cliCloneCommandResult.kill();
+      console.log("2nd test ended");
     });
   });
 });

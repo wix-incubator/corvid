@@ -12,7 +12,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test": "yarn lint && lerna exec -- yarn test",
+    "test": "lerna exec --scope corvid-e2e-tests -- yarn test",
     "release": "lerna version --exact --no-push",
     "ci:publish": "lerna publish -y from-git"
   },
@@ -31,12 +31,6 @@
     "lint-staged": "^8.1.7",
     "prettier": "^1.17.1",
     "xvfb-maybe": "^0.2.1"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
   },
   "workspaces": {
     "packages": [

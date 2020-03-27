@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const execa = require("execa");
 const which = require("npm-which")(__dirname);
 const { findFreePort } = require("./utils");
@@ -6,6 +7,8 @@ const parseArgs = require("minimist");
 const { extraParams } = parseArgs(process.argv.slice(2));
 
 module.exports = ({ cwd }) => {
+  const executedCommands = [];
+
   const parseCommandArgs = ({ remoteDebuggingPort }) =>
     remoteDebuggingPort ? `--remote-debugging-port=${remoteDebuggingPort}` : "";
 
@@ -20,6 +23,9 @@ module.exports = ({ cwd }) => {
       env["QUERY"] = `"${extraParams}"`;
     }
     const url = editorUrl ? editorUrl : "";
+    console.log(
+      `(executing) ${CORVID_BIN_PATH} ${commandName} ${commandArgsQuery} ${url}`
+    );
     const command = execa.command(
       `${CORVID_BIN_PATH} ${commandName} ${commandArgsQuery} ${url}`,
       {
@@ -29,10 +35,13 @@ module.exports = ({ cwd }) => {
     );
     command.stdout.on("data", function(data) {
       output += data.toString();
+      console.log("(user output) - " + data.toString());
     });
     command.stderr.on("data", function(error) {
       output += error.toString();
+      console.log("(user error output) - " + error.toString());
     });
+    executedCommands.push(command);
     return {
       editorDebugPort: port,
       waitForCommandToEnd: () => command,
@@ -53,10 +62,14 @@ module.exports = ({ cwd }) => {
   const openEditor = async ({ remoteDebuggingPort, env } = {}) =>
     withCommand("open-editor", { remoteDebuggingPort, env });
 
+  const killAll = async (signal, options) =>
+    Promise.all(executedCommands.map(command => command.kill(signal, options)));
+
   return {
     login,
     logout,
     clone,
-    openEditor
+    openEditor,
+    killAll
   };
 };
