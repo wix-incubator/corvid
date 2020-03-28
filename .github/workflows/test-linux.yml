@@ -26,3 +26,11 @@ jobs:
       run: yarn
     - name: Test
       run: ./node_modules/.bin/xvfb-maybe yarn test
+    - uses: actions/upload-artifact@v1
+      with:
+        name: login-page-before
+        path: ./packages/corvid-e2e-tests/before.png
+    - uses: actions/upload-artifact@v1
+      with:
+        name: login-page-after
+        path: ./packages/corvid-e2e-tests/after.png

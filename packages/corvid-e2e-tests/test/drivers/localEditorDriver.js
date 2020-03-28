@@ -36,6 +36,8 @@ module.exports = page => {
   };
 
   const login = async ({ username, password }) => {
+    const loginTime = "";
+    await page.screenshot({ path: loginTime + "before.png" });
     const formHtmlBefore = await page.$eval("form", element => {
       return element.outerHTML;
     });
@@ -45,9 +47,7 @@ module.exports = page => {
     const emaiInput = await page.$('input[name="email"]');
     console.log("(login driver) typing email");
     await emaiInput.type(username);
-    const emailText = await page.$eval('input[name="email"]', element => {
-      return element.innerText;
-    });
+
     console.log("(login driver) searching for #input_1");
     const isNewLoginPage = !(await page.$('input[name="password"]'));
     if (isNewLoginPage) {
@@ -62,9 +62,7 @@ module.exports = page => {
     const passwordInput = await page.waitForSelector('input[name="password"]');
     console.log("(login driver) typing password");
     await passwordInput.type(password);
-    const passwordText = await page.$eval('input[name="password"]', element => {
-      return element.innerText;
-    });
+
     console.log("(login driver) awaiting login button");
 
     console.log("(login driver) pressing enter");
@@ -78,6 +76,7 @@ module.exports = page => {
       return element.outerHTML;
     });
     console.log("(login driver) form html AFTER:", formHtmlAfter);
+    await page.screenshot({ path: loginTime + "after.png" });
   };
 
   return {
