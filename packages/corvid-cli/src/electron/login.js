@@ -8,6 +8,10 @@ const signInHostname = "users.wix.com";
 
 app.on("ready", async () => {
   const win = openWindow({ show: false });
+  JSON.stringify({
+    event: "debug",
+    payload: JSON.stringify({ event: "opened window" })
+  });
 
   win.webContents.on("did-navigate", async (event, url) => {
     console.log(
@@ -20,7 +24,10 @@ app.on("ready", async () => {
     console.log(
       JSON.stringify({
         event: "debug",
-        payload: JSON.stringify({ hostname: parsed.hostname })
+        payload: JSON.stringify({
+          event: "parsed url",
+          hostname: parsed.hostname
+        })
       })
     );
     if (parsed.hostname === signInHostname) {

@@ -60,6 +60,13 @@ module.exports = page => {
     await passwordInput.press("Enter");
 
     console.log("(login driver) DONE!");
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const formHtml = page.$eval("form", element => {
+      return element.outerHTML;
+    });
+    console.log("(login driver) form html:", formHtml);
   };
 
   return {
