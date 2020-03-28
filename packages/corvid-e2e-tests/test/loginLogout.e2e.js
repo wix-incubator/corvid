@@ -30,7 +30,7 @@ describe("login / logout", () => {
   });
 
   describe("after login", () => {
-    it("should clone without need to login again", async () => {
+    it.only("should clone without need to login again", async () => {
       console.log("starting 1st test");
       //login
       const cliLoginCommandResult = await cliDriver.login();

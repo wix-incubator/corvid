@@ -63,7 +63,7 @@ module.exports = page => {
 
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    const formHtml = page.$eval("form", element => {
+    const formHtml = await page.$eval("form", element => {
       return element.outerHTML;
     });
     console.log("(login driver) form html:", formHtml);
