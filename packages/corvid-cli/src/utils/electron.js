@@ -58,6 +58,7 @@ function launch(file, options = {}, callbacks = {}, args = []) {
     } else {
       if (options.stdio !== "ignore") {
         cp.stdout.on("data", function(data) {
+          console.log("(electron stdout data)", data.toString());
           if (isJunk(data)) {
             return;
           }
@@ -71,12 +72,14 @@ function launch(file, options = {}, callbacks = {}, args = []) {
                 reject(new Error(msg.payload));
               }
             }
-          } catch (_) {
+          } catch (error) {
+            console.log("(electron error", error);
             return;
           }
         });
 
         cp.stderr.on("data", function(data) {
+          console.log("(electron stderr data)", data.toString());
           if (isJunk(data)) {
             return;
           }

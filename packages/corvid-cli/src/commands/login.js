@@ -26,7 +26,7 @@ async function loginCommand(spinner, args = {}) {
     loginArgs.push(`--remote-debugging-port=${args.remoteDebuggingPort}`);
   }
   spinner.start(chalk.grey(getMessage("Login_Command_Accessing")));
-
+  console.log("(login comman) launching electron");
   return launch(
     path.join(__dirname, "../electron/login"),
     {},
