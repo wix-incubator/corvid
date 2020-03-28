@@ -29,4 +29,4 @@ jobs:
     - uses: actions/upload-artifact@v2-preview
       with:
         name: login-page
-        path: packages/corvid-e2e-tests/*.png
+        path: "**/*.png"
