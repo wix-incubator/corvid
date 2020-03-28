@@ -36,12 +36,20 @@ module.exports = page => {
   };
 
   const login = async ({ username, password }) => {
+    const formHtmlBefore = await page.$eval("form", element => {
+      return element.outerHTML;
+    });
+    console.log("(login driver) form html BEFORE:", formHtmlBefore);
+
     console.log("(login driver) awaiting email input");
-    const emaiInput = await page.$("#input_0");
+    const emaiInput = await page.$('input[name="email"]');
     console.log("(login driver) typing email");
     await emaiInput.type(username);
+    const emailText = await page.$eval('input[name="email"]', element => {
+      return element.innerText;
+    });
     console.log("(login driver) searching for #input_1");
-    const isNewLoginPage = !(await page.$("#input_1"));
+    const isNewLoginPage = !(await page.$('input[name="password"]'));
     if (isNewLoginPage) {
       console.log(
         "(login driver) IS NEW LOGIN PAGE - looking for CONTINUE button"
@@ -51,9 +59,12 @@ module.exports = page => {
       await continueButton.click();
     }
     console.log("(login driver) awaiting password input");
-    const passwordInput = await page.waitForSelector("#input_1");
+    const passwordInput = await page.waitForSelector('input[name="password"]');
     console.log("(login driver) typing password");
     await passwordInput.type(password);
+    const passwordText = await page.$eval('input[name="password"]', element => {
+      return element.innerText;
+    });
     console.log("(login driver) awaiting login button");
 
     console.log("(login driver) pressing enter");
@@ -61,12 +72,12 @@ module.exports = page => {
 
     console.log("(login driver) DONE!");
 
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    const formHtml = await page.$eval("form", element => {
+    const formHtmlAfter = await page.$eval("form", element => {
       return element.outerHTML;
     });
-    console.log("(login driver) form html:", formHtml);
+    console.log("(login driver) form html AFTER:", formHtmlAfter);
   };
 
   return {
