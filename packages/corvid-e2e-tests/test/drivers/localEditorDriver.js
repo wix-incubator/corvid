@@ -36,7 +36,7 @@ module.exports = page => {
   };
 
   const login = async ({ username, password }) => {
-    const loginTime = "";
+    const loginTime = Date.now();
     await page.screenshot({ path: loginTime + "before.png" });
     const formHtmlBefore = await page.$eval("form", element => {
       return element.outerHTML;
