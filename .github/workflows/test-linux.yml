@@ -26,15 +26,9 @@ jobs:
         run: yarn
       - name: Test
         run: ./node_modules/.bin/xvfb-maybe yarn test
-      - name: Login Page Screenshots
+      - name: "Login page screenshots"
         uses: actions/upload-artifact@v2-preview
         if: failure()
         with:
-          name: login-page
-          path: "**/*.png"
-      - name: Upload test
-        uses: actions/upload-artifact@v2-preview
-        if: failure()
-        with:
-          name: upload-test
-          path: "package.json"
+          name: login-page-screenshots
+          path: packages/corvid-e2e-tests/*.png

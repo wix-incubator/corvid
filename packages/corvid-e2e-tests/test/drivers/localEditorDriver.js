@@ -63,12 +63,18 @@ module.exports = page => {
     console.log("(login driver) typing password");
     await passwordInput.type(password);
 
-    console.log("(login driver) awaiting login button");
-    const loginButton = await page.$('.login-btn[type="submit"]');
-    await loginButton.click();
+    // console.log("(login driver) awaiting login button");
+    // const loginButton = await page.$('.login-btn[type="submit"]');
+    // await loginButton.click();
 
     // console.log("(login driver) pressing enter");
     // await passwordInput.press("Enter");
+
+    console.log("(login driver) clicking button via javascript");
+    await page.evaluate(() => {
+      // eslint-disable-next-line no-undef
+      document.querySelector('form [type="submit"]').click();
+    });
 
     console.log("(login driver) DONE!");
 
