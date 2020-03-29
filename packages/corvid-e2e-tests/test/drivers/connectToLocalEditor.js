@@ -1,4 +1,6 @@
-const puppeteer = require("puppeteer-core");
+const puppeteer = require("puppeteer-extra");
+const PuppeteerStealthPlugin = require("puppeteer-extra-plugin-stealth");
+puppeteer.use(PuppeteerStealthPlugin());
 const eventually = require("wix-eventually");
 const localEditorDriverCreator = require("./localEditorDriver");
 
