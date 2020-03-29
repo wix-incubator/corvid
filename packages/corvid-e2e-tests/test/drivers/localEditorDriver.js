@@ -64,9 +64,11 @@ module.exports = page => {
     await passwordInput.type(password);
 
     console.log("(login driver) awaiting login button");
+    const loginButton = await page.$('.login-btn[type="submit"]');
+    await loginButton.click();
 
-    console.log("(login driver) pressing enter");
-    await passwordInput.press("Enter");
+    // console.log("(login driver) pressing enter");
+    // await passwordInput.press("Enter");
 
     console.log("(login driver) DONE!");
 
