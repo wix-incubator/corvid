@@ -16,7 +16,7 @@ install:
   - yarn
 
 script:
-  - yarn test
+  - yarn test:noe2e
 
 jobs:
   include:
@@ -48,7 +48,7 @@ jobs:
       install:
         - yarn --network-timeout 1000000
       script:
-        - yarn test
+        - yarn test:noe2e
         - taskkill -IM "node.exe" -F # force killing node because of issues with job not finishing even when build succedded
 
     - name: Publish to npm

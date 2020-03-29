@@ -22,7 +22,7 @@
     "find-free-port": "^2.0.0",
     "jest": "^24.9.0",
     "npm-which": "^3.0.1",
-    "run-script-os": "^1.0.7",
+    "run-script-os": "^1.1.1",
     "temp": "^0.9.0",
     "verdaccio": "^4.2.2"
   },

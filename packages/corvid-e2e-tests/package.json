@@ -15,7 +15,7 @@
     "minimist": "^1.2.0",
     "npm-which": "^3.0.1",
     "puppeteer-core": "1.15.0",
-    "run-script-os": "^1.0.7",
+    "run-script-os": "^1.1.1",
     "tempy": "^0.3.0",
     "wix-eventually": "^2.2.0"
   },

@@ -25,4 +25,4 @@ jobs:
       - name: Install
         run: yarn
       - name: Test
-        run: yarn test
+        run: yarn test:noe2e

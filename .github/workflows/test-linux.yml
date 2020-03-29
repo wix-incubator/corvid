@@ -25,4 +25,4 @@ jobs:
       - name: Install
         run: yarn
       - name: Test
-        run: ./node_modules/.bin/xvfb-maybe yarn test
+        run: ./node_modules/.bin/xvfb-maybe yarn test:noe2e
