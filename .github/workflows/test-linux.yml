@@ -8,25 +8,33 @@ on:
     branches:
       - master
   schedule:
-    - cron:  '*/59 23 * * *'
-      
+    - cron: "*/59 23 * * *"
+
 jobs:
   test:
     strategy:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Setup Node
-      uses: actions/setup-node@v1
-      with:
-        node-version: 10
-    - name: Install
-      run: yarn
-    - name: Test
-      run: ./node_modules/.bin/xvfb-maybe yarn test
-    - uses: actions/upload-artifact@v2-preview
-      with:
-        name: login-page
-        path: "**/*.png"
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10
+      - name: Install
+        run: yarn
+      - name: Test
+        run: ./node_modules/.bin/xvfb-maybe yarn test
+      - name: Login Page Screenshots
+        uses: actions/upload-artifact@v2-preview
+        if: failure()
+        with:
+          name: login-page
+          path: "**/*.png"
+      - name: Upload test
+        uses: actions/upload-artifact@v2-preview
+        if: failure()
+        with:
+          name: upload-test
+          path: "package.json"
