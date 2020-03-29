@@ -9,16 +9,18 @@ const BLANK_EDITOR_URL =
 describe("login / logout", () => {
   let cliDriver;
 
-  beforeEach(async done => {
+  beforeEach(async () => {
     const cwd = tempy.directory();
     cliDriver = corvidCliDriverCreator({ cwd });
     await (await cliDriver.logout()).waitForCommandToEnd();
-    done();
   });
 
-  afterAll(async done => {
+  afterEach(async () => {
+    await cliDriver.killAll();
+  });
+
+  afterAll(async () => {
     await (await cliDriver.logout()).waitForCommandToEnd();
-    done();
   });
 
   describe("after login", () => {
