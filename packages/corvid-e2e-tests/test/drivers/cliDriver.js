@@ -6,6 +6,8 @@ const parseArgs = require("minimist");
 const { extraParams } = parseArgs(process.argv.slice(2));
 
 module.exports = ({ cwd }) => {
+  const executedCommands = [];
+
   const parseCommandArgs = ({ remoteDebuggingPort }) =>
     remoteDebuggingPort ? `--remote-debugging-port=${remoteDebuggingPort}` : "";
 
@@ -33,6 +35,7 @@ module.exports = ({ cwd }) => {
     command.stderr.on("data", function(error) {
       output += error.toString();
     });
+    executedCommands.push(command);
     return {
       editorDebugPort: port,
       waitForCommandToEnd: () => command,
@@ -53,10 +56,14 @@ module.exports = ({ cwd }) => {
   const openEditor = async ({ remoteDebuggingPort, env } = {}) =>
     withCommand("open-editor", { remoteDebuggingPort, env });
 
+  const killAll = async (signal, options) =>
+    Promise.all(executedCommands.map(command => command.kill(signal, options)));
+
   return {
     login,
     logout,
     clone,
-    openEditor
+    openEditor,
+    killAll
   };
 };
