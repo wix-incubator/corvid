@@ -35,17 +35,13 @@ module.exports = page => {
   };
 
   const login = async ({ username, password }) => {
-    const emaiInput = await page.$("#input_0");
+    const emaiInput = await page.$('input[name="email"]');
     await emaiInput.type(username);
-    const isNewLoginPage = !(await page.$("#input_1"));
-    if (isNewLoginPage) {
-      const continueButton = await page.$(".login-btn");
-      await continueButton.click();
-    }
-    const passwordInput = await page.waitForSelector("#input_1");
+
+    const passwordInput = await page.waitForSelector('input[name="password"]');
     await passwordInput.type(password);
-    const loginButton = await page.$(".login-btn");
-    await loginButton.click();
+
+    await passwordInput.press("Enter");
   };
 
   return {
