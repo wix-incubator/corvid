@@ -14,7 +14,7 @@
     "lint:fix": "eslint --fix .",
     "test": "yarn lint && lerna exec -- yarn test",
     "test:noe2e": "yarn lint && lerna exec --ignore corvid-e2e-tests -- yarn test",
-    "release": "lerna version --exact --no-push",
+    "release": "lerna version --exact --no-push --conventional-commits",
     "ci:publish": "lerna publish -y from-git"
   },
   "devDependencies": {

@@ -51,15 +51,15 @@ jobs:
         - yarn test:noe2e
         - taskkill -IM "node.exe" -F # force killing node because of issues with job not finishing even when build succedded
 
-    - name: Publish to npm
-      stage: deploy
-      script: skip
-      before_deploy:
-        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-      deploy:
-        provider: script
-        script: yarn ci:publish
-        skip_cleanup: true
-        on:
-          tags: true
-          branch: master
+    # - name: Publish to npm
+    #   stage: deploy
+    #   script: skip
+    #   before_deploy:
+    #     - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+    #   deploy:
+    #     provider: script
+    #     script: yarn ci:publish
+    #     skip_cleanup: true
+    #     on:
+    #       tags: true
+    #       branch: master

@@ -4,15 +4,11 @@
   "useWorkspaces": true,
   "command": {
     "version": {
-      "allowBranch": [
-        "master"
-      ],
+
       "message": "chore(release): version %v"
     },
     "publish": {
-      "allowBranch": [
-        "master"
-      ]
+
     }
   }
 }
