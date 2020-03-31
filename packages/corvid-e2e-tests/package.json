@@ -32,6 +32,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "corvid-cli": "0.2.7"
+    "corvid-cli": "0.2.7",
+    "dotenv": "^8.2.0",
+    "find-config": "^1.0.0",
+    "node-fetch": "^2.6.0"
   }
 }

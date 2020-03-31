@@ -36,7 +36,10 @@ module.exports = ({ cwd }) => {
     };
   };
 
-  const login = async () => executeCommand("login");
+  const login = async ({ cookies }) =>
+    executeCommand("login", {
+      args: cookies ? `--cookies=${JSON.stringify(cookies)}` : ""
+    });
 
   const logout = async () => executeCommand("logout");
 
