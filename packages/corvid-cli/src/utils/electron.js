@@ -170,6 +170,28 @@ function openWindow(windowOptions = {}) {
 async function openLocalEditorAndServer(app, windowOptions = {}) {
   const win = openWindow(windowOptions);
 
+  process.on("message", msg => {
+    const { command, i } = msg;
+    if (command === `publish`) {
+      win.webContents
+        .executeJavaScript(
+          `
+        new Promise((resolve, reject) => {
+          rendered.props.store.getState().editorAPI.savePublish.save(false, 'CLI', {}).then(() => {
+            rendered.props.store.getState().editorAPI.localMode.publish(resolve, reject)
+          }).catch(reject)
+        })
+      `
+        )
+        .then(() => process.send({ i, result: "Publish sucess!" }))
+        .catch(e =>
+          process.send({
+            i,
+            result: `Publish failed :(\n Error: ${JSON.stringify(e)} `
+          })
+        );
+    }
+  });
   win.webContents.on("new-window", (event, url) => {
     event.preventDefault();
     opn(url);
@@ -220,6 +242,7 @@ module.exports = {
   openLocalEditorAndServer,
   openWindow,
   launch,
+  getRunningProcesses: () => runningProcesses,
   killAllChildProcesses: () =>
     Promise.all(
       runningProcesses.splice(0).map(

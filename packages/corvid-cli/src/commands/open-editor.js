@@ -2,7 +2,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const process = require("process");
 const chalk = require("chalk");
-const { launch } = require("../utils/electron");
+const { launch, getRunningProcesses } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
 const { sendOpenEditorEvent } = require("../utils/bi");
@@ -11,9 +11,34 @@ const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
 const EditorError = require("../utils/EditorError");
 const commandWithDefaults = require("../utils/commandWithDefaults");
+const prompts = require("prompts");
 const {
   versions: { readFileSystemLayoutVersion }
 } = require("corvid-local-site");
+
+let userCommandIndex = 0;
+const promptForCommand = async () => {
+  const response = await prompts({
+    type: "text",
+    message: "Type a command",
+    name: "command"
+  });
+  const [cp] = getRunningProcesses();
+  cp.send({ ...response, i: userCommandIndex });
+  await new Promise(resolve => {
+    function listener(msg) {
+      const { result, i } = msg;
+      if (i === userCommandIndex) {
+        userCommandIndex++;
+        cp.removeListener("message", listener);
+        resolve(result);
+      }
+    }
+    cp.on("message", listener);
+    // eslint-disable-next-line no-console
+  }).then(result => console.log(result));
+  await promptForCommand();
+};
 
 const ensureLocalFileSystemVersion = async siteRootPath => {
   const existingFileSystemLayoutVersion = await readFileSystemLayoutVersion(
@@ -65,7 +90,7 @@ async function openEditorHandler(args) {
         // background once the local server can be spawned in the background as
         // well
         //detached: true,
-        //stdio: "ignore",
+        stdio: ["pipe", "pipe", "pipe", "ipc"],
         cwd: siteDirectory,
         env: {
           ...process.env,
@@ -85,6 +110,7 @@ async function openEditorHandler(args) {
           spinner.succeed(
             chalk.grey(getMessage("OpenEditor_Command_Connected"))
           );
+          promptForCommand();
         },
         error: errorString => {
           let error;
