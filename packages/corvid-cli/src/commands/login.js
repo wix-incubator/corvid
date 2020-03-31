@@ -8,6 +8,8 @@ const sessionData = require("../utils/sessionData");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
 const commandWithDefaults = require("../utils/commandWithDefaults");
+const childProcess = require("child_process");
+const electron = require("electron");
 
 function parseSessionCookie(cookie) {
   try {
@@ -49,10 +51,38 @@ async function loginCommand(spinner, args = {}) {
   });
 }
 
+const storeCookies = ({ cookies }) =>
+  new Promise((resolve, reject) => {
+    const cp = childProcess.spawn(
+      electron,
+      [
+        path.join(__dirname, "../electron/store-cookies.js"),
+        `--cookies=${cookies}`
+      ],
+      {
+        stdio: ["inherit", "inherit", "inherit", "ipc"]
+      }
+    );
+    cp.on("exit", (code, signal) => {
+      code === 0 || (code === null && signal === "SIGTERM")
+        ? resolve()
+        : reject(code);
+    });
+  });
+
 module.exports = commandWithDefaults({
   command: "login",
   describe: getMessage("Login_Command_Description"),
+  builder: args =>
+    args.option("cookies", {
+      describe: "cookies to store",
+      type: "string",
+      hidden: true
+    }),
   handler: async args => {
+    if (args.cookies) {
+      return storeCookies(args);
+    }
     const spinner = createSpinner();
     return loginCommand(spinner, args)
       .then(cookie => {

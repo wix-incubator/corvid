@@ -1,10 +1,10 @@
 const tempy = require("tempy");
 const eventually = require("wix-eventually");
-const { getCorvidTestUser } = require("./drivers/utils");
 const corvidCliDriverCreator = require("./drivers/cliDriver");
 const connectToLocalEditor = require("./drivers/connectToLocalEditor");
 const utils = require("corvid-local-test-utils");
 const path = require("path");
+const fetchTestUserCookies = require("./drivers/fetchTestUserCookies");
 
 const testSites = [
   {
@@ -48,16 +48,14 @@ describe("browser sanity", () => {
   });
 
   async function cloneSite(editorUrl) {
+    const cliLoginCommand = await cliDriver.login({
+      cookies: await fetchTestUserCookies()
+    });
+    await cliLoginCommand.waitForCommandToEnd();
+
     const cliCloneCommandResult = await cliDriver.clone({
       editorUrl
     });
-    const editorCloneDriver = await connectToLocalEditor(
-      cliCloneCommandResult.editorDebugPort
-    );
-
-    const loginDriver = await editorCloneDriver.waitForLogin();
-    await loginDriver.login(getCorvidTestUser());
-
     await cliCloneCommandResult.waitForCommandToEnd();
   }
 

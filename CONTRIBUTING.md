@@ -10,6 +10,7 @@
 
 1. Clone the repo.
 2. Execute `yarn` at the root.
+3. Create a `.env` file at the root, based on the `.env.template` file but with actual values.
 
 ### Running with the local CLI
 
