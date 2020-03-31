@@ -25,10 +25,13 @@ async function loginCommand(spinner, args = {}) {
     loginArgs.push(`--remote-debugging-port=${args.remoteDebuggingPort}`);
   }
   spinner.start(chalk.grey(getMessage("Login_Command_Accessing")));
+  console.log("starting");
 
   return launch(
     path.join(__dirname, "../electron/login"),
-    {},
+    {
+      // stdio: ["inherit", "inherit", "inherit"]
+    },
     {
       authenticatingUser: () => {
         spinner.start(chalk.grey(getMessage("Login_Command_Authenticating")));
@@ -52,6 +55,12 @@ async function loginCommand(spinner, args = {}) {
 module.exports = commandWithDefaults({
   command: "login",
   describe: getMessage("Login_Command_Description"),
+  builder: args =>
+    args.option("cookies", {
+      describe: "cookies to stroe",
+      type: "string",
+      hidden: true
+    }),
   handler: async args => {
     const spinner = createSpinner();
     return loginCommand(spinner, args)

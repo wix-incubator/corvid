@@ -24,15 +24,19 @@ describe("login / logout", () => {
   });
 
   describe("after login", () => {
-    it("should clone without need to login again", async () => {
-      //login
-      const cliLoginCommandResult = await cliDriver.login();
-      const editorDriver = await connectToLocalEditor(
-        cliLoginCommandResult.editorDebugPort
-      );
-      const loginDriver = await editorDriver.waitForLogin();
-      await loginDriver.login(getCorvidTestUser());
-      await cliLoginCommandResult.waitForCommandToEnd();
+    it.only("should clone without need to login again", async () => {
+      // //login
+      // const cliLoginCommandResult = await cliDriver.login();
+      // const editorDriver = await connectToLocalEditor(
+      //   cliLoginCommandResult.editorDebugPort
+      // );
+      // const loginDriver = await editorDriver.waitForLogin();
+      // await loginDriver.login(getCorvidTestUser());
+      // await cliLoginCommandResult.waitForCommandToEnd();
+
+      // hack login
+      const cliHackLoginCommand = await cliDriver.hackLogin();
+      await cliHackLoginCommand.waitForCommandToEnd();
 
       // clone
       const cliCloneCommandResult = await cliDriver.clone({

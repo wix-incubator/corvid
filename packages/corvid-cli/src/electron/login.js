@@ -6,10 +6,16 @@ const { openWindow } = require("../utils/electron");
 const mySitesUrl = "https://www.wix.com/account/sites";
 const signInHostname = "users.wix.com";
 
+console.log("LOGGING IN!");
+
 app.on("ready", async () => {
   const win = openWindow({ show: false });
 
   win.webContents.on("did-navigate", (event, url) => {
+    win.webContents.session.cookies
+      .get({ name: "wixSession2" })
+      .then(cookies => console.log("all cookies", cookies));
+
     const parsed = new URL(url);
     if (parsed.hostname === signInHostname) {
       console.log(JSON.stringify({ event: "authenticatingUser" }));
