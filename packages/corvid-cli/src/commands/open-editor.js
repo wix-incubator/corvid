@@ -9,7 +9,6 @@ const { sendOpenEditorEvent } = require("../utils/bi");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const getMessage = require("../messages");
 const { UserError } = require("corvid-local-logger");
-const EditorError = require("../utils/EditorError");
 const commandWithDefaults = require("../utils/commandWithDefaults");
 const {
   versions: { readFileSystemLayoutVersion }
@@ -61,11 +60,6 @@ async function openEditorHandler(args) {
     launch(
       path.join(__dirname, "../electron/open-editor"),
       {
-        // TODO uncomment the following two option to spawn the app in the
-        // background once the local server can be spawned in the background as
-        // well
-        //detached: true,
-        //stdio: "ignore",
         cwd: siteDirectory,
         env: {
           ...process.env,
@@ -86,30 +80,14 @@ async function openEditorHandler(args) {
             chalk.grey(getMessage("OpenEditor_Command_Connected"))
           );
         },
-        error: errorString => {
-          let error;
-          try {
-            error = JSON.parse(errorString);
-          } catch (e) {
-            error = {
-              message: errorString,
-              params: {}
-            };
-          }
+        error: error => {
           spinner.fail();
           sessionData.callWithKeys(
             (msid, uuid) => sendOpenEditorEvent(msid, uuid, "fail"),
             "msid",
             "uuid"
           );
-          const errorMessage = getMessage(error.message, error.params);
-          if (error.type === "EditorError") {
-            reject(new EditorError(errorMessage, errorMessage));
-          } else if (errorMessage) {
-            reject(new UserError(errorMessage));
-          } else {
-            reject(new Error(error));
-          }
+          reject(error);
         },
         closingWithUnsavedChanges: () => {
           // eslint-disable-next-line no-console

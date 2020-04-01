@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 const process = require("process");
 const chalk = require("chalk");
-const logger = require("corvid-local-logger");
+const { logger, UserError } = require("corvid-local-logger");
 const genEditorUrl = require("../utils/genEditorUrl");
 const clientMessages = require("../utils/console-messages");
 const clientMessageActions = require("../utils/clientMessageActions");
@@ -21,14 +21,7 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
       });
 
       client.on("parse-error", path => {
-        reject(
-          new Error(
-            JSON.stringify({
-              message: "Wix_File_Parse_Error",
-              params: { path }
-            })
-          )
-        );
+        reject(new UserError(getMessage("Wix_File_Parse_Error", { path })));
       });
 
       const {
@@ -74,15 +67,8 @@ const openEditorApp = ({ useSsl = true } = {}) => ({
             );
           },
           [clientMessages.DECODE_ERROR_MESSAGE]: path => {
-            reject(
-              new Error(
-                JSON.stringify({
-                  message: "Wix_File_Decode_Error",
-                  params: { path },
-                  type: "EditorError"
-                })
-              )
-            );
+            const errorMessage = getMessage("Wix_File_Decode_Error", { path });
+            reject(new EditorError(errorMessage, errorMessage));
           }
         })
       );

@@ -9,7 +9,9 @@ class ParseError extends ExtendableError {
   }
 }
 
-const isParseError = error => error instanceof ParseError;
+const isParseError = error =>
+  error instanceof ParseError ||
+  (error instanceof Error && error.name === "ParseError");
 
 module.exports = ParseError;
 module.exports.isParseError = isParseError;

@@ -40,7 +40,7 @@ async function pullCommand(spinner, args) {
         },
         error: error => {
           spinner.fail();
-          const errorMessage = getMessage(error);
+          const errorMessage = getMessage(error.message);
           if (errorMessage) {
             if (error === "CAN_NOT_PULL_NON_EMPTY_SITE") {
               reject(
@@ -54,7 +54,7 @@ async function pullCommand(spinner, args) {
               reject(new UserError(errorMessage));
             }
           } else {
-            reject(new Error(error));
+            reject(error);
           }
         }
       },
