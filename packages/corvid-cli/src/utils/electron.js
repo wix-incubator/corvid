@@ -7,6 +7,8 @@ const client = require("socket.io-client");
 const electron = require("electron");
 const opn = require("opn");
 const get_ = require("lodash/get");
+const isObject_ = require("lodash/isObject");
+const isFunction_ = require("lodash/isFunction");
 const { serializeError, deserializeError } = require("serialize-error");
 const { logger } = require("corvid-local-logger");
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
@@ -60,18 +62,15 @@ function launch(file, options = {}, callbacks = {}, args = []) {
 
   return new Promise((resolve, reject) => {
     childElectronProcess.on("message", message => {
-      if (typeof message === "object") {
+      if (isObject_(message)) {
         if (message.event === "error") {
           const error = deserializeError(message.payload);
-          if (typeof callbacks.error === "function") {
+          if (isFunction_(callbacks.error)) {
             callbacks.error(error);
           } else {
             reject(error);
           }
-        } else if (
-          message.event &&
-          typeof callbacks[message.event] === "function"
-        ) {
+        } else if (message.event && isFunction_(callbacks[message.event])) {
           callbacks[message.event](message.payload);
         }
       }

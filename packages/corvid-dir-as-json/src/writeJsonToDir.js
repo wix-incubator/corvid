@@ -1,7 +1,8 @@
 const fs = require("fs-extra");
 const path = require("path");
+const isObject_ = require("lodash/isObject");
 
-const isDirectoryJson = obj => typeof obj === "object";
+const isDirectoryJson = obj => isObject_(obj);
 
 const writeJsonToDir = async (dirPath, dirAsJson = {}) => {
   await fs.ensureDir(dirPath);
