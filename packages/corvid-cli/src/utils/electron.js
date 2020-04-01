@@ -7,7 +7,7 @@ const client = require("socket.io-client");
 const electron = require("electron");
 const opn = require("opn");
 const get_ = require("lodash/get");
-
+const { serializeError, deserializeError } = require("serialize-error");
 const { logger } = require("corvid-local-logger");
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
 const { readCorvidConfig } = require("../utils/corvid-config");
@@ -29,68 +29,65 @@ const beforeCloseDialogParams = {
 const runningProcesses = [];
 
 function launch(file, options = {}, callbacks = {}, args = []) {
-  options.env = {
-    ...process.env,
-    ...options.env,
-    FORCE_COLOR: "yes"
-  };
-
-  const cp = childProcess.spawn(
+  const childElectronProcess = childProcess.spawn(
     electron,
     [path.resolve(path.join(file)), ...args],
     {
-      ...options
+      ...options,
+      env: {
+        ...process.env,
+        ...options.env,
+        FORCE_COLOR: "yes"
+      },
+      stdio: ["ignore", "inherit", "pipe", "ipc"]
     }
   );
-  runningProcesses.push(cp);
+  runningProcesses.push(childElectronProcess);
 
   function isJunk(data) {
     const text = data.toString();
     return text.includes("Could not instantiate: ProductRegistryImpl.Registry");
   }
 
-  return new Promise((resolve, reject) => {
-    const messages = [];
-
-    if (options.detached) {
-      cp.unref();
-      resolve();
-    } else {
-      if (options.stdio !== "ignore") {
-        cp.stdout.on("data", function(data) {
-          if (isJunk(data)) {
-            return;
-          }
-          try {
-            const msg = JSON.parse(data);
-            if (typeof msg === "object") {
-              messages.push(msg);
-              if (msg.event && typeof callbacks[msg.event] === "function") {
-                callbacks[msg.event](msg.payload);
-              } else if (msg.event === "error") {
-                reject(new Error(msg.payload));
-              }
-            }
-          } catch (_) {
-            return;
-          }
-        });
-
-        cp.stderr.on("data", function(data) {
-          if (isJunk(data)) {
-            return;
-          }
-          logger.debug(data.toString());
-        });
-      }
-
-      cp.on("exit", (code, signal) => {
-        runningProcesses.splice(runningProcesses.indexOf(cp), 1);
-        code === 0 || (code === null && signal === "SIGTERM")
-          ? resolve(messages)
-          : reject(code);
-      });
+  childElectronProcess.stderr.on("data", function(data) {
+    if (!isJunk(data)) {
+      logger.error(data.toString());
     }
+  });
+
+  const removeProcess = () =>
+    runningProcesses.splice(runningProcesses.indexOf(childElectronProcess), 1);
+
+  return new Promise((resolve, reject) => {
+    childElectronProcess.on("message", message => {
+      if (typeof message === "object") {
+        if (message.event === "error") {
+          const error = deserializeError(message.payload);
+          if (typeof callbacks.error === "function") {
+            callbacks.error(error);
+          } else {
+            reject(error);
+          }
+        } else if (
+          message.event &&
+          typeof callbacks[message.event] === "function"
+        ) {
+          callbacks[message.event](message.payload);
+        }
+      }
+    });
+
+    childElectronProcess.on("exit", (code, signal) => {
+      removeProcess();
+      code === 0 || (code === null && signal === "SIGTERM")
+        ? resolve()
+        : reject();
+    });
+
+    childElectronProcess.on("error", () => {
+      removeProcess();
+      reject();
+    });
   });
 }
 
@@ -107,7 +104,7 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
   } = await server;
 
   win.webContents.on("will-prevent-unload", async event => {
-    console.log(JSON.stringify({ event: "closingWithUnsavedChanges" }));
+    process.send({ event: "closingWithUnsavedChanges" });
     const choice = process.env.SKIP_UNSAVED_DIALOG
       ? 1
       : await electron.dialog.showMessageBox(win, beforeCloseDialogParams);
@@ -126,7 +123,7 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
 
   await new Promise((resolve, reject) => {
     clnt.on("connect", () => {
-      console.log(JSON.stringify({ event: "localServerConnected" }));
+      process.send({ event: "localServerConnected" });
       resolve();
     });
 
@@ -134,7 +131,7 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
   });
 
   clnt.on("editor-connected", () => {
-    console.log(JSON.stringify({ event: "editorConnected" }));
+    process.send({ event: "editorConnected" });
   });
 
   const localServerStatus = await sendRequest(clnt, "GET_STATUS");
@@ -210,9 +207,12 @@ async function openLocalEditorAndServer(app, windowOptions = {}) {
     });
 
     win.close();
-  } catch (exc) {
-    console.log(JSON.stringify({ event: "error", payload: exc.message }));
-    throw exc;
+  } catch (error) {
+    process.send({
+      event: "error",
+      payload: serializeError(error)
+    });
+    throw error;
   }
 }
 

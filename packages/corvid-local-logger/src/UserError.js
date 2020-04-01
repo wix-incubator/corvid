@@ -6,7 +6,9 @@ class UserError extends ExtendableError {
   }
 }
 
-const isUserError = error => error instanceof UserError;
+const isUserError = error =>
+  error instanceof UserError ||
+  (error instanceof Error && error.name === "UserError");
 
 module.exports = UserError;
 module.exports.isUserError = isUserError;

@@ -7,4 +7,9 @@ class EditorError extends ExtendableError {
   }
 }
 
+const isEditorError = error =>
+  error instanceof EditorError ||
+  (error instanceof Error && error.name === "EditorError");
+
 module.exports = EditorError;
+module.exports.isEditorError = isEditorError;

@@ -12,10 +12,10 @@ app.on("ready", async () => {
   win.webContents.on("did-navigate", (event, url) => {
     const parsed = new URL(url);
     if (parsed.hostname === signInHostname) {
-      console.log(JSON.stringify({ event: "authenticatingUser" }));
+      process.send({ event: "authenticatingUser" });
       win.show();
     } else if (url === mySitesUrl) {
-      console.log(JSON.stringify({ event: "userAuthenticated" }));
+      process.send({ event: "userAuthenticated" });
       win.hide();
       win.webContents.session.cookies.get(
         { name: "wixSession2" },
@@ -23,9 +23,7 @@ app.on("ready", async () => {
           if (error) {
             throw error;
           }
-          console.log(
-            JSON.stringify({ msg: "authCookie", cookie: cookies[0] }, null, 2)
-          );
+          process.send({ event: "authCookie", payload: cookies[0] });
         }
       );
       win.webContents.on("did-finish-load", () => app.quit());
