@@ -31,4 +31,4 @@ Make sure ```yarn test``` passes.
 ### Publishing a new version
 1. ```yarn release``` in the master branch. this will update relevant package.json files, commit them and create a new git tag.
 2. ```git push --follow-tags```. this will push the changes including the new tag.
-3. travis will catch the new tag and publish the version (```yarn ci:publish```) assuming the build passes.
+3. CI will catch the new tag and publish the version (```yarn ci:publish```) assuming the build passes.
