@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "execa": "^2.0.4",
+    "execa": "^4.0.0",
     "find-free-port": "^2.0.0",
     "jest": "^24.9.0",
     "npm-which": "^3.0.1",

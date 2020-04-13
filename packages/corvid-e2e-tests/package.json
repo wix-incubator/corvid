@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "corvid-local-test-utils": "0.2.9",
-    "execa": "^3.4.0",
+    "execa": "^4.0.0",
     "get-port": "^5.0.0",
     "jest": "^24.8.0",
     "minimist": "^1.2.0",
