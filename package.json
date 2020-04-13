@@ -13,7 +13,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "test": "yarn lint && lerna exec -- yarn test",
-    "release": "lerna version --exact --no-push",
+    "release": "lerna version --exact --no-push --no-git-tag-version",
     "ci:publish": "lerna publish -y from-git"
   },
   "devDependencies": {
