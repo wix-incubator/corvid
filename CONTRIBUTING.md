@@ -19,16 +19,17 @@
 
 ### Modifying dependencies
 Remember to only use `yarn` when modifying dependencies.\
-Execute ```yarn add/remove <package-name>``` inside the module you want to change.\
+Execute `yarn add/remove <package-name>` inside the module you want to change.\
 (we rely on [Yarn Workspaces](https://yarnpkg.com/en/docs/workspaces) to keep links between local modules that depend on each other)
 
 ### Commits
 We are using [conventional commits](https://conventionalcommits.org/), enforced by [@commitlint/config-conventional](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional).
 
 ### Pushing
-Make sure ```yarn test``` passes.
+Make sure `yarn test` passes.
 
 ### Publishing a new version
-1. ```yarn release``` in the master branch. this will update relevant package.json files, commit them and create a new git tag.
-2. ```git push --follow-tags```. this will push the changes including the new tag.
-3. CI will catch the new tag and publish the version (```yarn ci:publish```) assuming the build passes.
+1. Execute `yarn release` to update relevant package.json files.
+2. Commit the changes with a `chore(release): version %v` message.
+3. Create a new git tag and [Github Release](https://github.com/wix-incubator/corvid/releases) and publish it.
+4. Github will catch the new release and publish the new version to npm (by running `yarn ci:publish`).
