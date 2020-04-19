@@ -1,6 +1,6 @@
 {
   "name": "corvid-local-logger",
-  "version": "0.2.9",
+  "version": "0.2.10-alpha.0",
   "description": "",
   "main": "src/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "@sentry/node": "^5.5.0",
-    "corvid-local-test-utils": "0.2.9",
+    "corvid-local-test-utils": "0.2.10-alpha.0",
     "es6-error": "^4.1.1",
     "lodash": "^4.17.15",
     "read-pkg-up": "^6.0.0",
