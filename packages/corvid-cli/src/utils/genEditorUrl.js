@@ -10,7 +10,7 @@ function genEditorUrl(useSsl, metasiteId, localServerPort, isHeadless) {
 
   return `${
     useSsl ? "https" : "http"
-  }://${baseDomain}/editor/${metasiteId}?petri_ovr=specs.ExcludeSiteFromSsr=true&corvidSessionId=${
+  }://${baseDomain}/editor/${metasiteId}?experimentsoff=se_excludeLocalModeBolt&petri_ovr=specs.ExcludeSiteFromSsr=true&corvidSessionId=${
     process.env.CORVID_SESSION_ID
   }${skipEncodingParam}&localServerPort=${localServerPort}&x-wix-bi-context=${getBiContext(
     isHeadless
