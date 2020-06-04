@@ -44,5 +44,6 @@ const runCommand = commandName => {
 module.exports = {
   clone: runCommand("clone"),
   pull: runCommand("pull"),
+  createRc: runCommand("create-rc"),
   openEditor: runCommand("open-editor")
 };
