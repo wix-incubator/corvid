@@ -30,7 +30,7 @@ describe("create-rc", () => {
   let editorServer;
 
   const rcCallUrl =
-    "https://editor.wix.com/html/editor/web/api/publish-rc/752363f1-e7f0-4c91-a095-1cba36e11d42?editorSessionId=bbaebee4-b871-475c-8339-3ad970b02280&esi=bbaebee4-b871-475c-8339-3ad970b02280&metaSiteId=5dc7ce18-892a-4cdc-8ff5-b916f1bf856b";
+    "https://editor.wix.com/html/editor/web/api/publish-rc/8b2e7638-2b2b-4024-8706-66aa22201bb6?editorSessionId=82ad5ebd-9d0a-422b-9881-846ab16a6730&esi=82ad5ebd-9d0a-422b-9881-846ab16a6730&metaSiteId=ae9f15af-2401-4c79-ab9b-2a876e66a35a";
   const badRcCallUrl =
     "https://editor.wix.com/html/editor/web/api/publish-rc/112363f1-e7f0-4c91-a095-1cba36e11d42?editorSessionId=bbaebee4-b871-475c-8339-3ad970b02280&esi=bbaebee4-b871-475c-8339-3ad970b02280&metaSiteId=5dc7ce18-892a-4cdc-8ff5-b916f1bf856b";
 
@@ -49,14 +49,19 @@ describe("create-rc", () => {
   });
 
   describe("creating an RC from a cloned site", () => {
-    test("should report to stdout with a success message when the process is complete", async () => {
+    test("should SUCCEED when the RC creation process is complete", async () => {
       const createRcResponse = await createRc(rcCallUrl);
       return expect(createRcResponse).toMatch(
         /Release candidate created successfully/
       );
     });
 
-    test("should report to stdout with a failure message when the process has failed due to bad credentials", async () => {
+    test("should FAIL if RC already exists when the process is complete", async () => {
+      const createRcResponse = await createRc(rcCallUrl);
+      return expect(createRcResponse).toMatch(/RC already exists/);
+    });
+
+    test("should FAIL when the process has failed due to bad credentials", async () => {
       const createRcResponse = await createRc(badRcCallUrl);
       return expect(createRcResponse).toMatch(
         /Release candidate could not be created due to bad credentials/
