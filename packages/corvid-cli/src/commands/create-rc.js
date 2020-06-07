@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const chalk = require("chalk");
+const atob = require("atob");
 const createSpinner = require("../utils/spinner");
 const { login } = require("./login");
 const getMessage = require("../messages");
@@ -7,6 +8,7 @@ const fetch = require("node-fetch");
 const commandWithDefaults = require("../utils/commandWithDefaults");
 const { UserError } = require("corvid-local-logger");
 const { readCorvidConfig } = require("../utils/corvid-config");
+const fs = require("fs");
 
 const basePublicRcUrl =
   "https://editor.wix.com/html/editor/web/api/publish-rc/";
@@ -21,27 +23,32 @@ const parseErrorMessage = errorMessage => {
   return `${getMessage("CreateRc_Command_Failure")}: ${errorMessage}`;
 };
 
+const buildFetchUrl = async () => {
+  const config = await readCorvidConfig(process.cwd());
+  const file = fs.readFileSync("./src/assets/site/siteInfo.wix", {
+    encoding: "utf8"
+  });
+  const decodedContent = atob(JSON.parse(file).content);
+  const siteId = JSON.parse(decodedContent).siteId;
+  return `${basePublicRcUrl}${siteId}?metaSiteId=${config.metasiteId}`;
+};
+
 module.exports = commandWithDefaults({
   command: "create-rc",
   describe: getMessage("CreateRc_Command_Description"),
   handler: args => {
     const spinner = createSpinner();
-
     spinner.start(chalk.grey(getMessage("CreateRc_Command_Creating")));
 
-    // TODO: Don't forget to add a create-rc event BI reporter
     return login(spinner, args)
       .then(async cookie => {
-        const currentProjectPath = process.cwd();
-        const corvidConfig = await readCorvidConfig(currentProjectPath);
-        const fetchUrl = basePublicRcUrl + corvidConfig.metasiteId;
-
         if (cookie) {
-          return await fetch(fetchUrl, {
+          return await fetch(await buildFetchUrl(), {
             method: "POST",
             headers: {
-              cookie: `${cookie.name}=${cookie.value};`
-            }
+              cookie: `${cookie.name}=${cookie.value}`
+            },
+            body: false
           })
             .then(async response => {
               const jsonResponse = await response.json();
@@ -52,8 +59,11 @@ module.exports = commandWithDefaults({
                 return getMessage("CreateRc_Command_Complete");
               }
 
-              spinner.fail(parseErrorMessage(jsonResponse.errorDescription));
-              return parseErrorMessage(jsonResponse.errorDescription);
+              const errorMessage = parseErrorMessage(
+                jsonResponse.errorDescription
+              );
+              spinner.fail(errorMessage);
+              return errorMessage;
             })
             .catch(error => {
               throw new UserError(parseErrorMessage(error));

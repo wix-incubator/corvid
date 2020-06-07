@@ -40,6 +40,7 @@
     ]
   },
   "dependencies": {
+    "atob": "^2.1.2",
     "chalk": "2.4.2",
     "corvid-local-logger": "0.2.9",
     "corvid-local-server": "0.2.9",
