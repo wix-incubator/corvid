@@ -1,6 +1,6 @@
 const _ = require("lodash");
 const chalk = require("chalk");
-const atob = require("atob");
+const base64 = require("../utils/base64");
 const createSpinner = require("../utils/spinner");
 const { login } = require("./login");
 const getMessage = require("../messages");
@@ -28,7 +28,7 @@ const buildFetchUrl = async () => {
   const file = fs.readFileSync("./src/assets/site/siteInfo.wix", {
     encoding: "utf8"
   });
-  const decodedContent = atob(JSON.parse(file).content);
+  const decodedContent = base64.decode(JSON.parse(file).content);
   const siteId = JSON.parse(decodedContent).siteId;
   return `${basePublicRcUrl}${siteId}?metaSiteId=${config.metasiteId}`;
 };
