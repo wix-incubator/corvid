@@ -44,24 +44,23 @@ module.exports = commandWithDefaults({
     const { metasiteId } = await readCorvidConfig(process.cwd());
 
     if (!metasiteId) {
-      spinner.fail(
-        getMessage("CorvidConfig_No_Project_Error", {
-          dir: process.cwd()
-        })
-      );
-      return;
+      const msg = getMessage("CorvidConfig_No_Project_Error", {
+        dir: process.cwd()
+      });
+      spinner.fail(msg);
+      return msg;
     }
 
     if (!args || args["_"].length <= 1) {
       spinner.fail(getMessage("Rc_Exposure_No_Percentage"));
-      return;
+      return getMessage("Rc_Exposure_No_Percentage");
     }
 
     return login(spinner, args).then(async cookie => {
       if (cookie) {
         const percentage = args["_"][1];
         const jsonBody = await createJsonBody(metasiteId, percentage, cookie);
-        spinner.start(chalk.grey(getMessage("CreateRc_Command_Creating")));
+        spinner.start(chalk.grey(getMessage("Rc_Exposure_Running")));
         const options = {
           headers: {
             "content-type": "application/json",
@@ -71,10 +70,7 @@ module.exports = commandWithDefaults({
           method: "PUT"
         };
 
-        return await fetch(
-          "https://www.wix.com/_api/release-manager-server/gradual-rollout",
-          options
-        )
+        return await fetch(basePublicRcUrl, options)
           .then(response => {
             if (response.status === 204) {
               spinner.succeed(getMessage("Rc_Exposure_Succeeded"));
