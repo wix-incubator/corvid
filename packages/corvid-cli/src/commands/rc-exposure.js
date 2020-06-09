@@ -73,14 +73,14 @@ module.exports = commandWithDefaults({
         spinner.start(chalk.grey(getMessage("Rc_Exposure_Running")));
         const options = {
           headers: {
-            "content-type": "application/json",
+            "Content-Type": "application/json",
             cookie: `${cookie.name}=${cookie.value}`
           },
-          body: jsonBody,
+          body: JSON.stringify(jsonBody),
           method: "PUT"
         };
 
-        return await fetch(basePublicRcUrl, options)
+        await fetch(basePublicRcUrl, options)
           .then(response => {
             if (response.status === 204) {
               spinner.succeed(getMessage("Rc_Exposure_Succeeded"));
