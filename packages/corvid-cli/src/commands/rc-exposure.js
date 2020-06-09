@@ -42,6 +42,7 @@ module.exports = commandWithDefaults({
   describe: getMessage("CreateRc_Command_Description"),
   handler: async args => {
     const spinner = createSpinner();
+    spinner.start(chalk.grey(getMessage("Rc_Exposure_Running")));
     const { metasiteId } = await readCorvidConfig(process.cwd());
 
     if (!metasiteId) {
@@ -49,14 +50,14 @@ module.exports = commandWithDefaults({
         dir: process.cwd()
       });
       spinner.fail(msg);
-      return msg;
+      return;
     }
 
     const arguments = _.get(args, ["_"]);
 
     if (arguments.length < 2) {
       spinner.fail(getMessage("Rc_Exposure_No_Percentage"));
-      return getMessage("Rc_Exposure_No_Percentage");
+      return;
     }
 
     return login(spinner, args).then(async cookie => {
