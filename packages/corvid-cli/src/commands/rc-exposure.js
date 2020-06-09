@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const chalk = require("chalk");
 const createSpinner = require("../utils/spinner");
 const getMessage = require("../messages");
@@ -51,14 +52,16 @@ module.exports = commandWithDefaults({
       return msg;
     }
 
-    if (!args || args["_"].length <= 1) {
+    const arguments = _.get(args, ["_"]);
+
+    if (arguments.length < 2) {
       spinner.fail(getMessage("Rc_Exposure_No_Percentage"));
       return getMessage("Rc_Exposure_No_Percentage");
     }
 
     return login(spinner, args).then(async cookie => {
       if (cookie) {
-        const percentage = args["_"][1];
+        const percentage = arguments[1];
         const jsonBody = await createJsonBody(metasiteId, percentage, cookie);
         spinner.start(chalk.grey(getMessage("Rc_Exposure_Running")));
         const options = {
