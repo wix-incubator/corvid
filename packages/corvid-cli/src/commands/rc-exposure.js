@@ -89,6 +89,8 @@ module.exports = commandWithDefaults({
           .catch(error => {
             spinner.fail(error);
           });
+      } else {
+        spinner.fail(getMessage("Login_Command_Login_Failed_Error"));
       }
     });
   }
