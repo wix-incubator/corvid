@@ -60,9 +60,15 @@ module.exports = commandWithDefaults({
       return;
     }
 
+    const percentage = arguments[1];
+
+    if (percentage < 0 || percentage > 100) {
+      spinner.fail(getMessage("Rc_Exposure_Invalid_Percentage"));
+      return;
+    }
+
     return login(spinner, args).then(async cookie => {
       if (cookie) {
-        const percentage = arguments[1];
         const jsonBody = await createJsonBody(metasiteId, percentage, cookie);
         spinner.start(chalk.grey(getMessage("Rc_Exposure_Running")));
         const options = {

@@ -62,6 +62,7 @@
     "Rc_Exposure_Fail": "Failed to modify RC exposure",
     "Rc_Exposure_Succeeded": "Successfully modified RC exposure",
     "Rc_Exposure_Running": "Modifying RC exposure...",
+    "Rc_Exposure_Invalid_Percentage": "Invalid percentage value provided, please provide a numerical value between 0 and 100",
     "Rc_Exposure_No_Percentage": "RC exposure percentage is required",
     "Wix_File_Parse_Error": "Error parsing <%= path %>. The file has been corrupted. Try reverting to an older version.",
     "Wix_File_Decode_Error": "Error decoding <%= path %>. Try reverting to an older version."
