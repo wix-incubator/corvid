@@ -124,22 +124,22 @@ describe("sentry reporting", () => {
           message: "test error",
           stacktrace: expect.any(Array)
         },
-        breadcrumbs: [
-          {
+        breadcrumbs: expect.arrayContaining([
+          expect.objectContaining({
             level: "info",
             message: "info level log",
             data: { test: "info data" }
-          },
-          {
+          }),
+          expect.objectContaining({
             level: "info",
             message: "verbose level log",
             data: { test: "verbose data" }
-          },
-          {
+          }),
+          expect.objectContaining({
             level: "debug",
             message: "debug level log"
-          }
-        ]
+          })
+        ])
       });
     });
   });

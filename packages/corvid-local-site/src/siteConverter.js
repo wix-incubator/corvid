@@ -14,6 +14,8 @@ const {
   tryToPrettifyJsonString
 } = require("./utils/prettify");
 
+const ParseError = require("./utils/ParseError");
+
 const {
   ROOT_PATHS,
   DEFAULT_FILE_PATHS,
@@ -198,13 +200,23 @@ const editorDocumentToLocalDocumentFiles = siteDocument => {
   return localDocumentFiles;
 };
 
+const parseLocalDocumentFile = file => {
+  if (isPathOfWixFile(file.path)) {
+    try {
+      return Object.assign({}, file, {
+        content: fromWixFileContent(file.content).content
+      });
+    } catch (error) {
+      throw new ParseError(error, file.path);
+    }
+  } else {
+    return file;
+  }
+};
+
 const localDocumentFilesToEditorDocument = localDocumentFiles => {
-  const parsedLocalDocumentFiles = localDocumentFiles.map(file =>
-    isPathOfWixFile(file.path)
-      ? Object.assign({}, file, {
-          content: fromWixFileContent(file.content).content
-        })
-      : file
+  const parsedLocalDocumentFiles = localDocumentFiles.map(
+    parseLocalDocumentFile
   );
   const siteDocument = merge_(
     {

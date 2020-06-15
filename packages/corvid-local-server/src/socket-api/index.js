@@ -3,6 +3,7 @@ const logger = require("corvid-local-logger");
 const editorSocketApi = require("./editorSocketHandler");
 const adminSocketApi = require("./adminSocketHandler");
 const getMessage = require("../messages");
+const { ParseError } = require("corvid-local-site");
 const { editorApiVersion } = require("../versions.json");
 const {
   versions: { supportedSiteDocumentVersion }
@@ -48,9 +49,13 @@ const initServerApi = (
   const isEditorConnected = () =>
     Object.keys(editorServer.io.sockets.connected).length > 0;
 
-  const getSiteDocument = () => {
-    return localSite.getSiteDocument();
-  };
+  const getSiteDocument = () =>
+    localSite.getSiteDocument().catch(e => {
+      if (ParseError.isParseError(e)) {
+        notifyAdmin("parse-error", e.path);
+      }
+      throw e;
+    });
 
   const getCodeFiles = () => {
     return localSite.getCodeFiles();

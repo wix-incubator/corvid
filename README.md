@@ -8,14 +8,13 @@
 <br>
 
 [![npm version](https://img.shields.io/npm/v/corvid-cli.svg?style=flat)](https://www.npmjs.com/package/corvid-cli)
-[![Status](http://img.shields.io/travis/wix-incubator/corvid/master.svg?style=flat)](https://travis-ci.com/wix-incubator/corvid)  
 
 
 
 > **Important:**
 Features relating to the Local Editor are currently in the stage of alpha release and are still being developed. Future functionality may not be backward compatible. When using these features, you assume the risks associated with the use of such an alpha version.
 
-`corvid-cli` allows you to download your [Wix](https://www.wix.com) site and work on it locally. With this tool you can use your favorite development tools (e.g IDE, version control) to manage the code of your site, use the Wix Editor to edit the view, and collaborate with others in building your site. Read more about how to use the corvid-cli [here](https://support.wix.com/en/article/working-with-the-corvid-cli).
+The Corvid CLI allows you to download a [Wix](https://www.wix.com) site and work on it locally. With this tool you can use your favorite development tools (e.g IDE, version control) to manage the code on your site, a local Wix Editor to edit your site's look and feel, and collaborate with others in building your site. Read more about how to use the Corvid CLI [here](https://support.wix.com/en/article/working-with-the-corvid-cli).
 
 
 ## Setup
@@ -23,36 +22,60 @@ Features relating to the Local Editor are currently in the stage of alpha releas
 ### Prerequisites
 [Node.JS](https://nodejs.org) version >= 10 
 
-### Getting ready to use corvid-cli
+### Prepare a Local Project
 
-Just run:
+1. [Enable Corvid](https://support.wix.com/en/article/about-corvid-by-wix#to-enable-corvid-on-your-site) using the Regular Editor in the site that you want to work on locally.
+1. Run `create-corvid-app` as follows, replacing the placeholders with values as described below:
 
-```
-npx create-corvid-app <folder-name> [your-wix-site-url]
-```
+    ```
+    npx create-corvid-app <folder-name> [your-wix-site-url]
+    ```
+  
+    + `<folder-name>`: A local directory where you want to store your local site project. If the directory doesn't exist, it will be created.
+    + `[your-wix-site-url]`(optional): The public URL of your published site or your site's Regular Wix Editor URL.
+    
+    Before your project downloads, if you are not already authenticated, a Wix authentication screen will open where you must enter your Wix credentials. You need to authenticate with a user whose role has **Editor** permissions for the site.
+  
+1. If you did not provide a URL when running `create-corvid-app` you can clone your site into the project directory using the `clone` command:
 
-Sit back and relax while we initialize the specified folder with the recommended setup for working with `corvid-cli`.
-If you provide a Wix site URL (optional), we will also download your site into that folder.
+    ```
+    npx corvid clone <your-wix-site-url>
+    ```
 
+## Work on Your Site Locally
 
-## Work on your site
+When working on your local site, you edit your site's code in your preferred IDE and edit your site's look and feel in the Local Wix Editor.
 
-Navigate into the folder you specified above:
-```
-cd <folder-name>
-```
+### Code
 
-If you didn't provide your Wix site URL when running `create-corvid-app`, download your site:
-```
-npx corvid clone <your-wix-site-url>
-```
+To edit your site's code, open your site's local project directory in your preferred IDE. When you make changes to your local code files, and you save those changes in your IDE, those changes are immediately synced to the [Local Wix Editor](https://support.wix.com/en/article/corvid-working-with-the-local-editor).
 
-To open an Editor so you can edit your site:
-```
-npx corvid open-editor
-```
+### Look and Feel
 
-To find out about other commands, run:
+Editing the local version of your site's UI and previewing your local site is done through the [Local Wix Editor](https://support.wix.com/en/article/corvid-working-with-the-local-editor).
+
+To open your local site project in a Local Wix Editor:
+
+1. Navigate to the folder you specified above:
+    ```
+    cd <folder-name>
+    ```
+
+1. Open a Local Wix Editor:
+    ```
+    npx corvid open-editor
+    ```
+
+## Learn More
+
+To learn about what else you can do with the Corvid CLI, run:
 ```
 npx corvid --help
 ```
+
+Or check out these articles about working on your Wix site locally:
++ [About Local Site Projects](https://support.wix.com/en/article/corvid-about-local-site-projects-and-team-collaboration)
++ [Working with the Corvid CLI](https://support.wix.com/en/article/working-with-the-corvid-cli)
++ [Working with the Local Editor](https://support.wix.com/en/article/corvid-working-with-the-local-editor)
++ [Updating Local Site Projects](https://support.wix.com/en/article/corvid-updating-local-site-projects)
++ [Local Site Project Structure](https://support.wix.com/en/article/corvid-local-site-project-structure)

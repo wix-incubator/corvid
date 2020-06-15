@@ -1,1 +1,2 @@
-module.exports = "https://421920d4abe64d87bea03ac821e25ed6@sentry.io/1427669";
+module.exports =
+  "https://bfe720fa180147689b8cd8b64a300902@sentry.wixpress.com/162";

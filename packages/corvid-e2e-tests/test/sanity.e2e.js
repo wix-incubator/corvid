@@ -1,7 +1,10 @@
 const tempy = require("tempy");
-const { getCorvidTestUser } = require("./drivers/utils");
+const eventually = require("wix-eventually");
 const corvidCliDriverCreator = require("./drivers/cliDriver");
 const connectToLocalEditor = require("./drivers/connectToLocalEditor");
+const utils = require("corvid-local-test-utils");
+const path = require("path");
+const fetchTestUserCookies = require("./drivers/fetchTestUserCookies");
 
 const testSites = [
   {
@@ -28,43 +31,103 @@ const testSites = [
 
 describe("browser sanity", () => {
   let cliDriver;
+  let cwd;
 
-  beforeEach(async done => {
-    const cwd = tempy.directory();
+  beforeEach(async () => {
+    cwd = tempy.directory();
     cliDriver = corvidCliDriverCreator({ cwd });
     await (await cliDriver.logout()).waitForCommandToEnd();
-    done();
   });
 
-  afterAll(async done => {
-    await (await cliDriver.logout()).waitForCommandToEnd();
-    done();
+  afterEach(async () => {
+    await cliDriver.killAll();
   });
+
+  afterAll(async () => {
+    await (await cliDriver.logout()).waitForCommandToEnd();
+  });
+
+  async function cloneSite(editorUrl) {
+    const cliLoginCommand = await cliDriver.login({
+      cookies: await fetchTestUserCookies()
+    });
+    await cliLoginCommand.waitForCommandToEnd();
+
+    const cliCloneCommandResult = await cliDriver.clone({
+      editorUrl
+    });
+    await cliCloneCommandResult.waitForCommandToEnd();
+  }
 
   testSites.forEach(({ editorUrl, description }) =>
     test(`should clone ${description} site, open it and push without making actual changes`, async () => {
-      // clone
-      const cliCloneCommandResult = await cliDriver.clone({
-        editorUrl
-      });
-      const editorCloneDriver = await connectToLocalEditor(
-        cliCloneCommandResult.editorDebugPort
-      );
-
-      const loginDriver = await editorCloneDriver.waitForLogin();
-      await loginDriver.login(getCorvidTestUser());
-
-      await cliCloneCommandResult.waitForCommandToEnd();
+      await cloneSite(editorUrl);
 
       const openEditorCliCommand = await cliDriver.openEditor();
-      const editorEditDriver = await connectToLocalEditor(
+      const editorDriver = await connectToLocalEditor(
         openEditorCliCommand.editorDebugPort
       );
 
-      const editDriver = await editorEditDriver.waitForEditor();
+      const editDriver = await editorDriver.waitForEditor();
       await editDriver.push();
-      await editorEditDriver.close();
+      await editorDriver.close();
       await openEditorCliCommand.waitForCommandToEnd();
     })
   );
+
+  test("should show a warning message when closing with unsaved changes and allow to continue working", async () => {
+    const testEditorUrl = testSites[0].editorUrl;
+    await cloneSite(testEditorUrl);
+
+    const openEditorCliCommand = await cliDriver.openEditor({
+      env: { SKIP_UNSAVED_DIALOG: true }
+    });
+    const editorDriver = await connectToLocalEditor(
+      openEditorCliCommand.editorDebugPort
+    );
+    const editDriver = await editorDriver.waitForEditor();
+
+    await editDriver.addTextElement();
+
+    openEditorCliCommand.kill("SIGINT", {
+      forceKillAfterTimeout: false
+    });
+
+    await eventually(() => {
+      expect(openEditorCliCommand.getOutput()).toContain(
+        "You have unsaved changes in editor"
+      );
+    });
+    await editDriver.saveLocal();
+
+    await editorDriver.close();
+    await openEditorCliCommand.waitForCommandToEnd();
+  });
+
+  test("should exit on decode error", async () => {
+    const testEditorUrl = testSites[0].editorUrl;
+    await cloneSite(testEditorUrl);
+    const relativeFilePart = path.join("pages", "HOME.c1dmp", "HOME.wix");
+    const fileContent = await utils.localSiteDir.readFile(
+      cwd,
+      relativeFilePart
+    );
+    const file = JSON.parse(fileContent);
+    file["content"]["content"] = "bad_encoded_part";
+    const brokenFileContent = JSON.stringify(file, null, 2);
+    await utils.localSiteDir.writeFile(
+      cwd,
+      relativeFilePart,
+      brokenFileContent
+    );
+    const openEditorCliCommand = await cliDriver.openEditor();
+
+    await connectToLocalEditor(openEditorCliCommand.editorDebugPort);
+
+    await eventually(() => {
+      expect(openEditorCliCommand.getOutput()).toContain(
+        "Error decoding pages.c1dmp.content. Try reverting to an older version."
+      );
+    });
+  });
 });

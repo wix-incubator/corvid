@@ -1,7 +1,7 @@
 const Sentry = require("@sentry/node");
 const Transport = require("winston-transport");
 const isError_ = require("lodash/isError");
-const UserError = require("../UserError");
+const { isUserError } = require("../UserError");
 
 const WINSTON_TO_SENTRY_LEVEL = {
   error: Sentry.Severity.Error,
@@ -53,7 +53,7 @@ class SentryTransport extends Transport {
 
     if (level === "error" || level === "warn") {
       if (isError_(message)) {
-        if (message instanceof UserError) {
+        if (isUserError(message)) {
           this._addBreadcrumb({
             message: message.message,
             category: "UserError",

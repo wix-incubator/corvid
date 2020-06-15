@@ -6,46 +6,57 @@ const parseArgs = require("minimist");
 const { extraParams } = parseArgs(process.argv.slice(2));
 
 module.exports = ({ cwd }) => {
-  const parseCommandArgs = ({ remoteDebuggingPort }) =>
-    remoteDebuggingPort ? `--remote-debugging-port=${remoteDebuggingPort}` : "";
+  const executedCommands = [];
 
-  const withCommand = async (
-    commandName,
-    { editorUrl, remoteDebuggingPort }
-  ) => {
-    const port = remoteDebuggingPort || (await findFreePort());
-    const commandArgsQuery = parseCommandArgs({ remoteDebuggingPort: port });
-    const extraParamsQuery = extraParams ? `QUERY="${extraParams}"` : "";
-    const url = editorUrl ? editorUrl : "";
-    const command = execa.shell(
-      `${extraParamsQuery} ${CORVID_BIN_PATH} ${commandName} ${commandArgsQuery} ${url}`,
+  const executeCommand = async (commandName, { env = {}, args = "" } = {}) => {
+    let output = "";
+    const remoteDebugPort = await findFreePort();
+    if (extraParams) {
+      env["QUERY"] = `"${extraParams}"`;
+    }
+    const command = execa.command(
+      `${CORVID_BIN_PATH} ${commandName} ${args} --remote-debugging-port=${remoteDebugPort}`,
       {
-        cwd
+        cwd,
+        env
       }
     );
+    command.stdout.on("data", function(data) {
+      output += data.toString();
+    });
+    command.stderr.on("data", function(error) {
+      output += error.toString();
+    });
+    executedCommands.push(command);
     return {
-      editorDebugPort: port,
+      editorDebugPort: remoteDebugPort,
       waitForCommandToEnd: () => command,
-      kill: async () => await command.kill()
+      getOutput: () => output,
+      kill: async (signal, options) => await command.kill(signal, options)
     };
   };
 
-  const login = async ({ remoteDebuggingPort } = {}) =>
-    withCommand("login", { remoteDebuggingPort });
+  const login = async ({ cookies }) =>
+    executeCommand("login", {
+      args: cookies ? `--cookies=${JSON.stringify(cookies)}` : ""
+    });
 
-  const logout = async ({ remoteDebuggingPort } = {}) =>
-    withCommand("logout", { remoteDebuggingPort });
+  const logout = async () => executeCommand("logout");
 
-  const clone = async ({ editorUrl, remoteDebuggingPort } = {}) =>
-    withCommand("clone", { editorUrl, remoteDebuggingPort });
+  const clone = async ({ editorUrl }) =>
+    executeCommand("clone", { args: editorUrl });
 
-  const openEditor = async ({ remoteDebuggingPort } = {}) =>
-    withCommand("open-editor", { remoteDebuggingPort });
+  const openEditor = async ({ env } = {}) =>
+    executeCommand("open-editor", { env });
+
+  const killAll = async (signal, options) =>
+    Promise.all(executedCommands.map(command => command.kill(signal, options)));
 
   return {
     login,
     logout,
     clone,
-    openEditor
+    openEditor,
+    killAll
   };
 };

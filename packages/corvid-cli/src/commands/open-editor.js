@@ -2,7 +2,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const process = require("process");
 const chalk = require("chalk");
-const { launch, killAllChildProcesses } = require("../utils/electron");
+const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
 const { sendOpenEditorEvent } = require("../utils/bi");
@@ -57,16 +57,9 @@ async function openEditorHandler(args) {
   spinner.start(chalk.grey(getMessage("OpenEditor_Command_Connecting")));
 
   await new Promise((resolve, reject) => {
-    process.on("exit", () => killAllChildProcesses());
-
     launch(
       path.join(__dirname, "../electron/open-editor"),
       {
-        // TODO uncomment the following two option to spawn the app in the
-        // background once the local server can be spawned in the background as
-        // well
-        //detached: true,
-        //stdio: "ignore",
         cwd: siteDirectory,
         env: {
           ...process.env,
@@ -94,12 +87,11 @@ async function openEditorHandler(args) {
             "msid",
             "uuid"
           );
-          const errorMessage = getMessage(error);
-          if (errorMessage) {
-            reject(new UserError(errorMessage));
-          } else {
-            reject(new Error(error));
-          }
+          reject(error);
+        },
+        closingWithUnsavedChanges: () => {
+          // eslint-disable-next-line no-console
+          console.log("You have unsaved changes in editor");
         }
       },
       openEditorArgs

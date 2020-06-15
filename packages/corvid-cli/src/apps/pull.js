@@ -16,7 +16,7 @@ const pullApp = ({ useSsl = true, override = false, move = false } = {}) => ({
     await new Promise(async (resolve, reject) => {
       // this event is not fired by the server yet
       client.on("clone-complete", () => {
-        console.log(JSON.stringify({ event: "projectDownloaded" }));
+        process.send({ event: "projectDownloaded" });
         resolve();
       });
 

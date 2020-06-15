@@ -7,14 +7,16 @@ const client = require("socket.io-client");
 const electron = require("electron");
 const opn = require("opn");
 const get_ = require("lodash/get");
-
+const isObject_ = require("lodash/isObject");
+const isFunction_ = require("lodash/isFunction");
+const { serializeError, deserializeError } = require("serialize-error");
 const { logger } = require("corvid-local-logger");
 const { startInCloneMode, startInEditMode } = require("corvid-local-server");
 const { readCorvidConfig } = require("../utils/corvid-config");
 const { sendRequest } = require("../utils/socketIoHelpers");
 const getMessage = require("../messages");
-const isHeadlessMode = !process.env.CORVID_CLI_DISABLE_HEADLESS;
-const isDevTools = !!process.env.CORVID_CLI_DEVTOOLS;
+const disableHeadlessMode = !!process.env.CORVID_CLI_DISABLE_HEADLESS;
+const shouldShowDevTools = !!process.env.CORVID_CLI_DEVTOOLS;
 
 const beforeCloseDialogParams = {
   type: "question",
@@ -29,57 +31,62 @@ const beforeCloseDialogParams = {
 const runningProcesses = [];
 
 function launch(file, options = {}, callbacks = {}, args = []) {
-  options.env = {
-    ...process.env,
-    ...options.env,
-    FORCE_COLOR: "yes"
-  };
-
-  const cp = childProcess.spawn(
+  const childElectronProcess = childProcess.spawn(
     electron,
     [path.resolve(path.join(file)), ...args],
     {
-      ...options
+      ...options,
+      env: {
+        ...process.env,
+        ...options.env,
+        FORCE_COLOR: "yes"
+      },
+      stdio: ["ignore", "inherit", "pipe", "ipc"]
     }
   );
-  runningProcesses.push(cp);
+  runningProcesses.push(childElectronProcess);
+
+  function isJunk(data) {
+    const text = data.toString();
+    return text.includes("Could not instantiate: ProductRegistryImpl.Registry");
+  }
+
+  childElectronProcess.stderr.on("data", function(data) {
+    if (!isJunk(data)) {
+      logger.error(data.toString());
+    }
+  });
+
+  const removeProcess = () =>
+    runningProcesses.splice(runningProcesses.indexOf(childElectronProcess), 1);
 
   return new Promise((resolve, reject) => {
-    const messages = [];
-
-    if (options.detached) {
-      cp.unref();
-      resolve();
-    } else {
-      if (options.stdio !== "ignore") {
-        cp.stdout.on("data", function(data) {
-          try {
-            const msg = JSON.parse(data);
-            if (typeof msg === "object") {
-              messages.push(msg);
-              if (msg.event && typeof callbacks[msg.event] === "function") {
-                callbacks[msg.event](msg.payload);
-              } else if (msg.event === "error") {
-                reject(new Error(msg.payload));
-              }
-            }
-          } catch (_) {
-            return;
+    childElectronProcess.on("message", message => {
+      if (isObject_(message)) {
+        if (message.event === "error") {
+          const error = deserializeError(message.payload);
+          if (isFunction_(callbacks.error)) {
+            callbacks.error(error);
+          } else {
+            reject(error);
           }
-        });
-
-        cp.stderr.on("data", function(data) {
-          logger.debug(data.toString());
-        });
+        } else if (message.event && isFunction_(callbacks[message.event])) {
+          callbacks[message.event](message.payload);
+        }
       }
+    });
 
-      cp.on("exit", (code, signal) => {
-        runningProcesses.splice(runningProcesses.indexOf(cp), 1);
-        code === 0 || (code === null && signal === "SIGTERM")
-          ? resolve(messages)
-          : reject(code);
-      });
-    }
+    childElectronProcess.on("exit", (code, signal) => {
+      removeProcess();
+      code === 0 || (code === null && signal === "SIGTERM")
+        ? resolve()
+        : reject();
+    });
+
+    childElectronProcess.on("error", () => {
+      removeProcess();
+      reject();
+    });
   });
 }
 
@@ -96,10 +103,10 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
   } = await server;
 
   win.webContents.on("will-prevent-unload", async event => {
-    const choice = await electron.dialog.showMessageBox(
-      win,
-      beforeCloseDialogParams
-    );
+    process.send({ event: "closingWithUnsavedChanges" });
+    const choice = process.env.SKIP_UNSAVED_DIALOG
+      ? 1
+      : await electron.dialog.showMessageBox(win, beforeCloseDialogParams);
     const leave = choice === 0;
     if (leave) {
       event.preventDefault();
@@ -115,7 +122,7 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
 
   await new Promise((resolve, reject) => {
     clnt.on("connect", () => {
-      console.log(JSON.stringify({ event: "localServerConnected" }));
+      process.send({ event: "localServerConnected" });
       resolve();
     });
 
@@ -123,7 +130,7 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
   });
 
   clnt.on("editor-connected", () => {
-    console.log(JSON.stringify({ event: "editorConnected" }));
+    process.send({ event: "editorConnected" });
   });
 
   const localServerStatus = await sendRequest(clnt, "GET_STATUS");
@@ -131,14 +138,33 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
   return { client: clnt, localServerStatus };
 }
 
-async function openWindow(app, windowOptions = {}) {
+function openWindow(windowOptions = {}) {
   const win = new BrowserWindow({
     width: 1280,
     height: 960,
-    show: !isHeadlessMode,
     ...windowOptions,
+    show: windowOptions.show || disableHeadlessMode,
     webPreferences: { nodeIntegration: false }
   });
+  try {
+    if (shouldShowDevTools) {
+      win.webContents.openDevTools();
+    }
+  } catch (_) {
+    // couldn't open dev tools
+  }
+
+  const originalWindowHide = win.hide.bind(win);
+  win.hide = (...args) => {
+    if (!disableHeadlessMode) {
+      return originalWindowHide(...args);
+    }
+  };
+  return win;
+}
+
+async function openLocalEditorAndServer(app, windowOptions = {}) {
+  const win = openWindow(windowOptions);
 
   win.webContents.on("new-window", (event, url) => {
     event.preventDefault();
@@ -146,12 +172,8 @@ async function openWindow(app, windowOptions = {}) {
   });
 
   try {
-    if (isDevTools) {
-      win.webContents.openDevTools({ mode: "detach" });
-    }
-
     await new Promise(resolve => {
-      setTimeout(resolve, isDevTools ? 1000 : 0);
+      setTimeout(resolve, shouldShowDevTools ? 1000 : 0);
     }).then(async () => {
       const corvidConfig = await readCorvidConfig(".");
       win.webContents
@@ -184,13 +206,17 @@ async function openWindow(app, windowOptions = {}) {
     });
 
     win.close();
-  } catch (exc) {
-    console.log(JSON.stringify({ event: "error", payload: exc.message }));
-    throw exc;
+  } catch (error) {
+    process.send({
+      event: "error",
+      payload: serializeError(error)
+    });
+    throw error;
   }
 }
 
 module.exports = {
+  openLocalEditorAndServer,
   openWindow,
   launch,
   killAllChildProcesses: () =>

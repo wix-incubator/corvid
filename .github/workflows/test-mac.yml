@@ -1,0 +1,30 @@
+name: Test on Mac
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  schedule:
+    - cron: "*/59 23 * * *"
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10
+      - name: Install
+        run: yarn
+      - name: Test
+        run: yarn test
+        env:
+          SLED_API_TOKEN: ${{ secrets.SLED_API_TOKEN }}

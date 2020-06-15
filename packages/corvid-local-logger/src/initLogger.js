@@ -4,7 +4,7 @@ const defaults_ = require("lodash/defaults");
 const isError_ = require("lodash/isError");
 const initSentry = require("./sentry/initSentry");
 const SentryTransport = require("./sentry/SentryTransport");
-const UserError = require("./UserError");
+const { isUserError } = require("./UserError");
 
 const LOG_FILE_PATH = path.join(".corvid", "session.log");
 
@@ -26,7 +26,7 @@ const crashConsoleTransport = () =>
   new winston.transports.Console({
     level: "error",
     format: winston.format.printf(info =>
-      info.message instanceof UserError
+      isUserError(info.message)
         ? ""
         : `\n[corvid] an error has occured. see [${LOG_FILE_PATH}] for details.`
     )

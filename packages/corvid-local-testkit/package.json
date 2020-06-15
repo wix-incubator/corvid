@@ -1,6 +1,6 @@
 {
   "name": "corvid-local-testkit",
-  "version": "0.2.1",
+  "version": "0.2.9",
   "description": "",
   "main": "src/index.js",
   "scripts": {
@@ -16,8 +16,8 @@
     "node": ">=10"
   },
   "dependencies": {
-    "corvid-local-server": "0.2.1",
-    "corvid-local-test-utils": "0.2.1",
+    "corvid-local-server": "0.2.9",
+    "corvid-local-test-utils": "0.2.9",
     "tmp": "^0.1.0"
   }
 }

@@ -19,6 +19,10 @@ const logError = errorMessage => {
 
 const copyTemplate = projectDir => {
   fs.copySync(path.join(__dirname, "template"), projectDir);
+  fs.moveSync(
+    path.join(projectDir, "gitignore"),
+    path.join(projectDir, ".gitignore")
+  );
 };
 
 const initPackage = projectDir => {

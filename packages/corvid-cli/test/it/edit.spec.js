@@ -255,4 +255,51 @@ describe("edit", () => {
       );
     });
   });
+
+  test("should fail on bad .wix file (json)", async () => {
+    const localSiteFiles = localSiteBuilder.buildFull();
+    localSiteFiles["pages"]["page_test.bad_json"] = {
+      "bad_json.wix": "bad_json"
+    };
+    const tempDir = await initTempDir(
+      Object.assign(
+        {
+          ".corvid": { "corvidrc.json": '{ "metasiteId": "12345678" }' }
+        },
+        { src: localSiteFiles }
+      )
+    );
+
+    fetchMock
+      .mock(
+        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        JSON.stringify(
+          [
+            {
+              metasiteId: "12345678",
+              publicUrl: "http://a-site.com",
+              siteName: "aSite"
+            }
+          ],
+          null,
+          2
+        )
+      )
+      .mock(
+        `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+          process.env.CORVID_SESSION_ID
+        }&status=start`,
+        JSON.stringify({})
+      )
+      .mock(
+        `http://frog.wix.com/code?src=39&evid=201&msid=12345678&uuid=testGuid&csi=${
+          process.env.CORVID_SESSION_ID
+        }&status=fail`,
+        JSON.stringify({})
+      );
+
+    return expect(openEditor(tempDir)).rejects.toThrow(
+      "Error parsing pages/page_test.bad_json/bad_json.wix. The file has been corrupted. Try reverting to an older version."
+    );
+  });
 });

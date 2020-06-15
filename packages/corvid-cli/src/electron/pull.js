@@ -1,7 +1,7 @@
 const process = require("process");
 const { app } = require("electron");
 const yargs = require("yargs");
-const { openWindow } = require("../utils/electron");
+const { openLocalEditorAndServer } = require("../utils/electron");
 const pullApp = require("../apps/pull");
 
 app.on("ready", async () => {
@@ -18,5 +18,7 @@ app.on("ready", async () => {
   }
 
   const args = yargs.argv;
-  await openWindow(pullApp({ override: args.override, move: args.move }));
+  await openLocalEditorAndServer(
+    pullApp({ override: args.override, move: args.move })
+  );
 });

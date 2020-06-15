@@ -1,7 +1,6 @@
 const path = require("path");
 const chalk = require("chalk");
 const jwt = require("jsonwebtoken");
-const _ = require("lodash");
 const { launch } = require("../utils/electron");
 const createSpinner = require("../utils/spinner");
 const sessionData = require("../utils/sessionData");
@@ -26,6 +25,7 @@ async function loginCommand(spinner, args = {}) {
   }
   spinner.start(chalk.grey(getMessage("Login_Command_Accessing")));
 
+  let authCookie = null;
   return launch(
     path.join(__dirname, "../electron/login"),
     {},
@@ -35,24 +35,34 @@ async function loginCommand(spinner, args = {}) {
       },
       userAuthenticated: () => {
         spinner.start(chalk.grey(getMessage("Login_Command_Authenticated")));
+      },
+      authCookie: cookie => {
+        authCookie = cookie;
+        sessionData.set({ uuid: parseSessionCookie(authCookie).userGuid });
       }
     },
     loginArgs
-  ).then(async messages => {
-    const cookieMessages = messages
-      ? messages.filter(({ msg }) => msg === "authCookie")
-      : [];
-    const authCookie = _.get(cookieMessages, [0, "cookie"]);
-    await sessionData.set({ uuid: parseSessionCookie(authCookie).userGuid });
-
-    return authCookie;
-  });
+  ).then(() => authCookie);
 }
+
+const storeCookies = ({ cookies }) =>
+  launch(path.join(__dirname, "../electron/store-cookies.js"), {}, {}, [
+    `--cookies=${cookies}`
+  ]);
 
 module.exports = commandWithDefaults({
   command: "login",
   describe: getMessage("Login_Command_Description"),
+  builder: args =>
+    args.option("cookies", {
+      describe: "cookies to store",
+      type: "string",
+      hidden: true
+    }),
   handler: async args => {
+    if (args.cookies) {
+      return storeCookies(args);
+    }
     const spinner = createSpinner();
     return loginCommand(spinner, args)
       .then(cookie => {
