@@ -17,16 +17,15 @@ app.on("ready", async () => {
     } else if (url === mySitesUrl) {
       process.send({ event: "userAuthenticated" });
       win.hide();
-      win.webContents.session.cookies.get(
-        { name: "wixSession2" },
-        (error, cookies) => {
-          if (error) {
-            throw error;
-          }
-          process.send({ event: "authCookie", payload: cookies[0] });
-        }
-      );
-      win.webContents.on("did-finish-load", () => app.quit());
+      win.webContents.session.cookies
+        .get({ name: "wixSession2" })
+        .then(([cookie]) => {
+          process.send({ event: "authCookie", payload: cookie });
+        })
+        .catch(e => {
+          throw e;
+        });
+      win.webContents.on("did-finish-load", () => setTimeout(app.quit, 0));
     }
   });
   win.loadURL(mySitesUrl);

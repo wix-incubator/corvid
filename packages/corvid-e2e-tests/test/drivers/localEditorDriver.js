@@ -32,6 +32,7 @@ module.exports = page => {
     await page.waitForSelector(THEMED_TEXTS_SELECTOR);
     const textElements = await page.$(THEMED_TEXTS_SELECTOR);
     await textElements.click();
+    await page.waitFor(500);
   };
 
   const login = async ({ username, password }) => {
