@@ -102,11 +102,11 @@ async function connectToLocalServer(serverMode, serverArgs, win) {
     close: closeLocalServer
   } = await server;
 
-  win.webContents.on("will-prevent-unload", async event => {
+  win.webContents.on("will-prevent-unload", event => {
     process.send({ event: "closingWithUnsavedChanges" });
     const choice = process.env.SKIP_UNSAVED_DIALOG
       ? 1
-      : await electron.dialog.showMessageBox(win, beforeCloseDialogParams);
+      : electron.dialog.showMessageBoxSync(win, beforeCloseDialogParams);
     const leave = choice === 0;
     if (leave) {
       event.preventDefault();
@@ -144,7 +144,7 @@ function openWindow(windowOptions = {}) {
     height: 960,
     ...windowOptions,
     show: windowOptions.show || disableHeadlessMode,
-    webPreferences: { nodeIntegration: false }
+    webPreferences: { nativeWindowOpen: true }
   });
   try {
     if (shouldShowDevTools) {

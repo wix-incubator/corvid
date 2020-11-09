@@ -24,7 +24,7 @@
     "fs-extra": "^7.0.1",
     "listen-on-free-port": "1.0.3",
     "lodash": "^4.17.15",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.3.0",
     "stoppable": "^1.1.0",
     "uuid": "^3.3.2"
   },
