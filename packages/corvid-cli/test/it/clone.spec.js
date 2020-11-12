@@ -15,6 +15,9 @@ jest.mock("../../src/commands/login");
 const { clone } = require("./cliDriver");
 const base64 = require("../utils/base64");
 
+const metaSiteSearchEndpoint =
+  "https://www.wix.com/meta-site-search-web/v2/search";
+
 describe("clone", () => {
   process.env.CORVID_SESSION_ID = "testCorvidId";
   let editorServer;
@@ -39,14 +42,16 @@ describe("clone", () => {
 
     fetchMock
       .mock(
-        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        metaSiteSearchEndpoint,
         JSON.stringify(
-          [
-            {
-              metasiteId: "12345678",
-              publicUrl: siteUrl
-            }
-          ],
+          {
+            entries: [
+              {
+                metaSiteId: "12345678",
+                viewerUrl: siteUrl
+              }
+            ]
+          },
           null,
           2
         )
@@ -84,14 +89,16 @@ describe("clone", () => {
 
       fetchMock
         .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          metaSiteSearchEndpoint,
           JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com"
-              }
-            ],
+            {
+              entries: [
+                {
+                  metaSiteId: "12345678",
+                  viewerUrl: "http://a-site.com"
+                }
+              ]
+            },
             null,
             2
           )
@@ -121,14 +128,16 @@ describe("clone", () => {
 
       fetchMock
         .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          metaSiteSearchEndpoint,
           JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com"
-              }
-            ],
+            {
+              entries: [
+                {
+                  metaSiteId: "12345678",
+                  viewerUrl: "http://a-site.com"
+                }
+              ]
+            },
             null,
             2
           )
@@ -160,13 +169,15 @@ describe("clone", () => {
 
       fetchMock
         .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          metaSiteSearchEndpoint,
           JSON.stringify(
-            [
-              {
-                metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb"
-              }
-            ],
+            {
+              entries: [
+                {
+                  metaSiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb"
+                }
+              ]
+            },
             null,
             2
           )
@@ -203,13 +214,15 @@ describe("clone", () => {
 
       fetchMock
         .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          metaSiteSearchEndpoint,
           JSON.stringify(
-            [
-              {
-                metasiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb"
-              }
-            ],
+            {
+              entries: [
+                {
+                  metaSiteId: "96d0802a-b76d-411c-aaf4-6b8c2f474acb"
+                }
+              ]
+            },
             null,
             2
           )
@@ -246,14 +259,16 @@ describe("clone", () => {
 
       fetchMock
         .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          metaSiteSearchEndpoint,
           JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com"
-              }
-            ],
+            {
+              entries: [
+                {
+                  metaSiteId: "12345678",
+                  viewerUrl: "http://a-site.com"
+                }
+              ]
+            },
             null,
             2
           )
@@ -287,14 +302,16 @@ describe("clone", () => {
 
       fetchMock
         .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          metaSiteSearchEndpoint,
           JSON.stringify(
-            [
-              {
-                metasiteId: "87654321",
-                publicUrl: "http://a-site.com"
-              }
-            ],
+            {
+              entries: [
+                {
+                  metaSiteId: "87654321",
+                  viewerUrl: "http://a-site.com"
+                }
+              ]
+            },
             null,
             2
           )
@@ -330,14 +347,16 @@ describe("clone", () => {
 
       fetchMock
         .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          metaSiteSearchEndpoint,
           JSON.stringify(
-            [
-              {
-                metasiteId: "87654321",
-                publicUrl: "http://a-site.com"
-              }
-            ],
+            {
+              entries: [
+                {
+                  metaSiteId: "87654321",
+                  viewerUrl: "http://a-site.com"
+                }
+              ]
+            },
             null,
             2
           )
@@ -466,8 +485,8 @@ describe("clone", () => {
     it("should fail for bad URL", async () => {
       const tempDir = await initTempDir({ aSite: {} });
       fetchMock.mock(
-        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-        JSON.stringify([], null, 2)
+        metaSiteSearchEndpoint,
+        JSON.stringify({ entries: [] }, null, 2)
       );
       const promise = clone(tempDir, "'bad url'");
       await expect(promise).rejects.toThrow(/The site URL .* is invalid/);
@@ -475,8 +494,8 @@ describe("clone", () => {
     it("should fail for public url not in list of user sites", async () => {
       const tempDir = await initTempDir({ aSite: {} });
       fetchMock.mock(
-        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-        JSON.stringify([], null, 2)
+        metaSiteSearchEndpoint,
+        JSON.stringify({ entries: [] }, null, 2)
       );
       const promise = clone(tempDir, "test.com");
       await expect(promise).rejects.toThrow(
@@ -486,8 +505,8 @@ describe("clone", () => {
     it("should fail for editor url with msid not in list of user sites", async () => {
       const tempDir = await initTempDir({ aSite: {} });
       fetchMock.mock(
-        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-        JSON.stringify([], null, 2)
+        metaSiteSearchEndpoint,
+        JSON.stringify({ entries: [] }, null, 2)
       );
       const promise = clone(
         tempDir,

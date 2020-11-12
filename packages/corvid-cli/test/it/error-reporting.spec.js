@@ -14,7 +14,8 @@ const { killAllChildProcesses } = require("../../src/utils/electron");
 const cliDriver = require("./cliDriver");
 
 const sentryTestkit = testUtils.sentryTestkit.create(nock);
-
+const metaSiteSearchEndpoint =
+  "https://www.wix.com/meta-site-search-web/v2/search";
 jest.mock("../../src/commands/login");
 
 describe("santy tests for error reporting", () => {
@@ -68,12 +69,9 @@ describe("santy tests for error reporting", () => {
 
     const tempDir = await initTempDir();
 
-    fetchMock.mock(
-      "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
-      () => {
-        throw new Error("test error");
-      }
-    );
+    fetchMock.mock(metaSiteSearchEndpoint, () => {
+      throw new Error("test error");
+    });
 
     cliDriver.clone(tempDir, testSiteUrl).catch(() => {});
 

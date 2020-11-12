@@ -11,6 +11,8 @@ const { killAllChildProcesses } = require("../../src/utils/electron");
 jest.mock("../../src/commands/login");
 const { openEditor } = require("./cliDriver");
 const base64 = require("../utils/base64");
+const metaSiteSearchEndpoint =
+  "https://www.wix.com/meta-site-search-web/v2/search";
 
 describe("edit", () => {
   process.env.CORVID_SESSION_ID = "testCorvidId";
@@ -54,15 +56,17 @@ describe("edit", () => {
 
       fetchMock
         .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          metaSiteSearchEndpoint,
           JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "aSite"
-              }
-            ],
+            {
+              entries: [
+                {
+                  metaSiteId: "12345678",
+                  viewerUrl: "http://a-site.com",
+                  name: "aSite"
+                }
+              ]
+            },
             null,
             2
           )
@@ -110,15 +114,17 @@ describe("edit", () => {
 
       fetchMock
         .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          metaSiteSearchEndpoint,
           JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "aSite"
-              }
-            ],
+            {
+              entries: [
+                {
+                  metaSiteId: "12345678",
+                  viewerUrl: "http://a-site.com",
+                  name: "aSite"
+                }
+              ]
+            },
             null,
             2
           )
@@ -162,15 +168,17 @@ describe("edit", () => {
 
       fetchMock
         .mock(
-          "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+          metaSiteSearchEndpoint,
           JSON.stringify(
-            [
-              {
-                metasiteId: "12345678",
-                publicUrl: "http://a-site.com",
-                siteName: "aSite"
-              }
-            ],
+            {
+              entries: [
+                {
+                  metaSiteId: "12345678",
+                  viewerUrl: "http://a-site.com",
+                  name: "aSite"
+                }
+              ]
+            },
             null,
             2
           )
@@ -272,15 +280,17 @@ describe("edit", () => {
 
     fetchMock
       .mock(
-        "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites",
+        metaSiteSearchEndpoint,
         JSON.stringify(
-          [
-            {
-              metasiteId: "12345678",
-              publicUrl: "http://a-site.com",
-              siteName: "aSite"
-            }
-          ],
+          {
+            entries: [
+              {
+                metaSiteId: "12345678",
+                viewerUrl: "http://a-site.com",
+                name: "aSite"
+              }
+            ]
+          },
           null,
           2
         )
