@@ -1,10 +1,9 @@
-/* global fetch */
-require("isomorphic-fetch");
 const chalk = require("chalk");
 const normalize = require("normalize-url");
 const { URL } = require("url");
 const getMessage = require("../messages");
 const { logger, UserError } = require("corvid-local-logger");
+const { getUserSiteList } = require("../utils/userSiteList");
 
 const {
   writeCorvidConfig,
@@ -17,14 +16,6 @@ const editorDomain = "editor.wix.com";
 const publicWixDomain = "wix.com";
 const editorPath = "/editor/";
 const editorUrlMetasiteIdParam = "metaSiteId";
-const userSiteListApi =
-  "https://www.wix.com/_api/corvid-devex-service/v1/listUserSites";
-
-async function getUserSiteList(cookie) {
-  return await fetch(userSiteListApi, {
-    headers: { cookie: `${cookie.name}=${cookie.value};` }
-  }).then(res => res.json());
-}
 
 function extractDataFromEditorUrl(parsedUrl) {
   const metasiteId = parsedUrl.searchParams.get(editorUrlMetasiteIdParam);
@@ -78,11 +69,11 @@ async function extractSiteData(url, cookie) {
   } else {
     const site = siteList.find(
       site =>
-        site.publicUrl &&
-        (normalize(site.publicUrl, { forceHttps: true }) ===
+        site.viewerUrl &&
+        (normalize(site.viewerUrl, { forceHttps: true }) ===
           normalizedGivenUrl ||
           normalizedGivenUrl.startsWith(
-            normalize(site.publicUrl, { forceHttps: true }) + "/"
+            normalize(site.viewerUrl, { forceHttps: true }) + "/"
           ))
     );
 
