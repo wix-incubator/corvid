@@ -1,5 +1,5 @@
 {
-  "name": "corvid",
+  "name": "wtcc",
   "private": true,
   "repository": {
     "type": "git",
@@ -56,5 +56,7 @@
     "**/lodash": "^4.17.15",
     "**/mixin-deep": "1.3.2",
     "**/union-value": "1.0.1"
-  }
+  },
+  "keywords": [],
+  "description": ""
 }
