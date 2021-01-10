@@ -14,12 +14,12 @@ app.on("ready", async () => {
     if (parsed.hostname === signInHostname) {
       process.send({ event: "authenticatingUser" });
       win.show();
-    } else if (url === mySitesUrl) {
-      process.send({ event: "userAuthenticated" });
+    } else {
       win.hide();
       win.webContents.session.cookies
         .get({ name: "wixSession2" })
         .then(([cookie]) => {
+          process.send({ event: "userAuthenticated" });
           process.send({ event: "authCookie", payload: cookie });
         })
         .catch(e => {
