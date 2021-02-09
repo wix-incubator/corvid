@@ -101,7 +101,7 @@ async function startServer(siteRootPath, options) {
   try {
     localSite = await initLocalSiteManager(siteSrcPath, siteBackupPath);
     editorServer = await startSocketServer(DEFAULT_EDITOR_PORT, {
-      allowedDomains: ["editor.wix.com"].concat(
+      allowedDomains: ["editor.wix.com", "create.editorx.com"].concat(
         process.env.NODE_ENV === "test" ? ["localhost"] : []
       )
     });

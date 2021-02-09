@@ -182,7 +182,7 @@ async function openLocalEditorAndServer(app, windowOptions = {}) {
         )
         .then((result = {}) => {
           const getVersion = (url = "") => {
-            if(!url) {
+            if (!url) {
               return "";
             } else if (new URL(url).host === "localhost") {
               return "local";
