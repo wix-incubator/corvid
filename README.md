@@ -1,4 +1,5 @@
-> **DEPRECATED:**
+# DEPRECATED
+>
 This feature will be deprecated on July 20, 2021 and will no longer work.
 Therefore, we recommend you push your changes from the Local Editor and start using our online IDE as soon as possible (Please note: If the push command doesn’t work, you can still copy your local changes to the online IDE).
 
@@ -9,7 +10,6 @@ Therefore, we recommend you push your changes from the Local Editor and start us
 <br>
 
 ![no-maintenance-intended](https://img.shields.io/badge/-no--maintenance--intended-red)
-[![npm version](https://img.shields.io/npm/v/corvid-cli.svg?style=flat)](https://www.npmjs.com/package/corvid-cli)
 
 DEPRECATED: The Corvid CLI allows you to download a [Wix](https://www.wix.com) site and work on it locally. With this tool you can use your favorite development tools (e.g IDE, version control) to manage the code on your site, a local Wix Editor to edit your site's look and feel, and collaborate with others in building your site. Read more about how to use the Corvid CLI [here](https://support.wix.com/en/article/working-with-the-corvid-cli).
 
