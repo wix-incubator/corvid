@@ -1,6 +1,6 @@
 {
   "name": "create-corvid-app",
-  "version": "0.2.12",
+  "version": "0.2.14",
   "description": "Bootstrap local corvid site projects with a single command",
   "main": "src/index.js",
   "scripts": {
