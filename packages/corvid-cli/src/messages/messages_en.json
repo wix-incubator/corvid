@@ -60,5 +60,11 @@
     "Electron_Prompt_Cancel_Not_Saved": "Cancel",
     "Electron_Prompt_Leave_Not_Saved": "Leave",
     "Wix_File_Parse_Error": "Error parsing <%= path %>. The file has been corrupted. Try reverting to an older version.",
-    "Wix_File_Decode_Error": "Error decoding <%= path %>. Try reverting to an older version."
+    "Wix_File_Decode_Error": "Error decoding <%= path %>. Try reverting to an older version.",
+    "CreateRc_Command_Description": "Creates a release candidate of the site in Wix",
+    "CreateRc_Command_Complete": "Release candidate created successfully! You can see it by going to your online editor",
+    "CreateRc_Command_Creating": "Creating a release candidate version...",
+    "CreateRc_Command_Failure": "Failed to create a release candidate",
+    "CreateRc_Command_Already_Exists": "RC already exists",
+    "CreateRc_Login_Command_Failure": "Release candidate could not be created due to bad credentials"
 }
