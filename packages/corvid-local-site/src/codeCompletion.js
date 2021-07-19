@@ -7,7 +7,8 @@ const {
   pageTsConfigFilePath,
   masterPageTsConfigFilePath,
   backendTsConfigFilePath,
-  publicTsConfigFilePath
+  publicTsConfigFilePath,
+  ROOT_PATHS
 } = require("./sitePaths");
 
 let corvidTypes,
@@ -18,13 +19,21 @@ let corvidTypes,
 try {
   corvidTypes = require("corvid-types");
 
+  const SHARED_COMPILER_OPTIONS = {
+    composite: true,
+    noEmit: false,
+    skipLibCheck: true
+  };
+
   pageTsConfigContent = prettyStringify({
     extends: corvidTypes.configPaths.page,
     compilerOptions: {
       baseUrl: ".",
       paths: {
-        "public/*": ["../../public/*"]
-      }
+        "public/*": ["../../public/*"],
+        "backend/*": ["../../backend/*"]
+      },
+      ...SHARED_COMPILER_OPTIONS
     }
   });
   backendTsConfigContent = prettyStringify({
@@ -33,7 +42,8 @@ try {
       baseUrl: ".",
       paths: {
         "backend/*": ["./*"]
-      }
+      },
+      ...SHARED_COMPILER_OPTIONS
     }
   });
   publicTsConfigContent = prettyStringify({
@@ -42,7 +52,8 @@ try {
       baseUrl: ".",
       paths: {
         "public/*": ["./*"]
-      }
+      },
+      ...SHARED_COMPILER_OPTIONS
     }
   });
 } catch (e) {
@@ -52,15 +63,45 @@ const isCorvidTypesInstalled = !!corvidTypes;
 
 const getPagesTsConfigs = pages => {
   if (!isCorvidTypesInstalled) return [];
-  return map_(pages, page => ({
+  const pagesConfigsToWrite = map_(pages, page => ({
     path: pageTsConfigFilePath(page),
     content: pageTsConfigContent
   }));
+
+  const rootPagesConfig = {
+    path: `${ROOT_PATHS.PAGES}/tsconfig.json`,
+    content: prettyStringify({
+      files: [],
+      references: pagesConfigsToWrite.map(({ path }) => ({
+        path: `../${path}`
+      }))
+    })
+  };
+
+  return pagesConfigsToWrite.concat(rootPagesConfig);
 };
 
 const getCodeFilesTsConfigs = () => {
   if (!isCorvidTypesInstalled) return [];
+  const rootTsConfig = {
+    path: `tsconfig.json`,
+    content: prettyStringify({
+      files: [],
+      references: [
+        {
+          path: ROOT_PATHS.PAGES
+        },
+        {
+          path: ROOT_PATHS.PUBLIC
+        },
+        {
+          path: ROOT_PATHS.BACKEND
+        }
+      ]
+    })
+  };
   return [
+    rootTsConfig,
     {
       path: masterPageTsConfigFilePath(),
       content: pageTsConfigContent
